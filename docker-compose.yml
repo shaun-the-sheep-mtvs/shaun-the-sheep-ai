@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: shaun-the-sheep-ai-db
+    environment:
+      POSTGRES_DB: sheep-ai-db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: 5656
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    user: "999:999"
+volumes:
+  pgdata:
