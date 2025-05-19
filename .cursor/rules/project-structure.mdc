@@ -1,0 +1,26 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Project Structure Guide
+
+This project is a monorepo containing both frontend and backend components, as well as deployment and configuration files.
+
+## Main Directories
+- [frontend/](mdc:frontend) — Contains the Next.js frontend application. Entry point: [frontend/src/app/page.tsx](mdc:frontend/src/app/page.tsx)
+- [backend/](mdc:backend) — Contains the backend code (Java or other backend technologies).
+
+## Deployment
+- [vercel.json](mdc:vercel.json) — Vercel deployment configuration for the frontend. Located at the project root to enable auto-deployment of the Next.js app in the frontend directory.
+
+## Configuration & Ignore Files
+- [.gitignore](mdc:.gitignore) — Root-level ignore file. Excludes IDE files, build artifacts, environment files, and other non-source files from version control.
+
+## Additional Resources
+- [docker-compose.yml](mdc:docker-compose.yml) — (If present) Used for local development and multi-service orchestration.
+- [cursor_resource/](mdc:cursor_resource) — Local resources, ignored by default.
+
+## Best Practices
+- Keep deployment and configuration files at the project root for easy access and CI/CD compatibility.
+- Use the root .gitignore to maintain a clean repository and avoid committing unnecessary files.
