@@ -24,24 +24,33 @@ const getInputRowClass = (routineTime: string) => {
   return base;
 };
 
+// 제품 객체 타입 정의
+interface Product {
+  name: string;
+  kind: string;
+  method: string;
+}
+
 const RoutineManagePage = () => {
   const [selectedTime, setSelectedTime] = useState<'morning' | 'evening' | 'both'>('morning');
-  const [products, setProducts] = useState<string[]>(['', '']);
-
+  const [products, setProducts] = useState<Product[]>([
+    { name: '', kind: '', method: '' },
+    { name: '', kind: '', method: '' },
+  ]);
+  
   // POST 요청 함수
   const handleAddRoutine = async () => {
     await fetch('/api/routine', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        time: selectedTime,
         products,
       }),
     });
   };
 
-  const handleProductChange = (idx: number, value: string) => {
-    setProducts((prev) => prev.map((p, i) => (i === idx ? value : p)));
+  const handleProductChange = (idx: number, field: keyof Product, value: string) => {
+    setProducts((prev) => prev.map((p, i) => (i === idx ? { ...p, [field]: value } : p)));
   };
 
   const handleRemoveProduct = (idx: number) => {
@@ -49,7 +58,7 @@ const RoutineManagePage = () => {
   };
 
   const handleAddProduct = () => {
-    setProducts((prev) => [...prev, '']);
+    setProducts((prev) => [...prev, { name: '', kind: '', method: '' }]);
   };
 
   return (
@@ -58,6 +67,7 @@ const RoutineManagePage = () => {
         {/* 상단 네비게이션 */}
         <div className={styles.topnav}>
           <span className={styles['topnav-title']}>루틴관리</span>
+          <span className={styles['topnav-user']}>정윤지</span>
         </div>
         {/* STEP 1, STEP 2 */}
         <div className={styles.steps}>
@@ -90,20 +100,37 @@ const RoutineManagePage = () => {
                 key={idx}
                 className={getInputRowClass(selectedTime)}
               >
+                <div className={styles['input-top']}>
+                  <input
+                    className={styles.input}
+                    placeholder="제품명"
+                    value={product.name}
+                    onChange={(e) => handleProductChange(idx, 'name', e.target.value)}
+                  />
+                  <select
+                    className={styles['input-select']}
+                    value={product.kind}
+                    onChange={(e) => handleProductChange(idx, 'kind', e.target.value)}
+                  >
+                    <option value="">종류 선택</option>
+                    <option value="토너">토너</option>
+                    <option value="앰플">앰플</option>
+                  </select>
+                  <button
+                    className={styles['remove-btn']}
+                    onClick={() => handleRemoveProduct(idx)}
+                    type="button"
+                    aria-label="삭제"
+                  >
+                    -
+                  </button>
+                </div>
                 <input
-                  className={styles.input}
-                  placeholder="바르는 제품을 입력하세요"
-                  value={product}
-                  onChange={(e) => handleProductChange(idx, e.target.value)}
+                  className={styles['input-method']}
+                  placeholder="방법"
+                  value={product.method}
+                  onChange={(e) => handleProductChange(idx, 'method', e.target.value)}
                 />
-                <button
-                  className={styles['remove-btn']}
-                  onClick={() => handleRemoveProduct(idx)}
-                  type="button"
-                  aria-label="삭제"
-                >
-                  -
-                </button>
               </div>
             ))}
           </div>

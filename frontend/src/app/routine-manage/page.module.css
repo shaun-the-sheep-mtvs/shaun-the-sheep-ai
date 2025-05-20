@@ -101,18 +101,24 @@
 }
 .input-row {
   display: flex;
-  align-items: center;
-  border-radius: 999px;
+  flex-direction: column;
+  border-radius: 16px;
   padding: 16px 24px;
   background: #e0e7ef;
   border: 1.5px solid #e5e7eb;
   box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+  gap: 12px;
 }
 .input-row.morning {
   background: #e0f2fe;
 }
 .input-row.evening {
   background: #fce7f3;
+}
+.input-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 .input {
   flex: 1;
@@ -122,6 +128,24 @@
   font-size: 18px;
   font-weight: 500;
   padding: 0 8px;
+}
+.input-select {
+  width: 120px;
+  background: transparent;
+  outline: none;
+  border: none;
+  font-size: 18px;
+  font-weight: 500;
+  padding: 0 8px;
+}
+.input-method {
+  background: transparent;
+  outline: none;
+  border: none;
+  font-size: 16px;
+  font-weight: 500;
+  padding: 0 8px;
+  width: 100%;
 }
 .remove-btn {
   margin-left: 18px;
