@@ -1,5 +1,5 @@
 import { generateText } from 'ai';
-// import { openai } from '@ai-sdk/openai';
+import { openai } from '@ai-sdk/openai';
 import { groq } from '@ai-sdk/groq';
 
 export const runtime = 'edge';
