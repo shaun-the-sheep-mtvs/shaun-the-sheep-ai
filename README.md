@@ -31,22 +31,24 @@ docker-compose up
 
 ## 프론트엔드 설정 (Next.js)
 
-1. `frontend/` 디렉토리로 이동하세요.
+1. 디렉토리로 이동하세요.
 2. 아래 명령어로 의존성을 설치하세요.
    ```sh
    npm install
    ```
-3. `frontend/`에 `.env.local` 파일을 만들고, AI 제공자 API 키를 입력하세요.
-   키는 Jake에게 문의하세요.
-   ```env
-   # OpenAI (무료/유료)
-   OPENAI_API_KEY=sk-...
+3. `frontend/` 폴더 하위에 `.env.local` 파일을 만드세요. 그리고 아래 내용을 입력하세요.
+   
+   ```.env.local
+   # OpenAI Key for GPT 4o mini
+   OPENAI_API_KEY="sk-..."
    ```
-4. 프론트엔드를 실행하세요:
+   (키는 제이크에게 문의하세요.)
+
+4. `frontend/` 하위에서 프론트엔드를 실행하세요:
    ```sh
    npm run dev
    ```
-5. [http://localhost:3000/ai-chat](http://localhost:3000/ai-chat) 에 접속해 AI 챗 UI를 사용해보세요.
+
 
 ---
 

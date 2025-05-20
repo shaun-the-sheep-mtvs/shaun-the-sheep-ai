@@ -61,14 +61,14 @@ export default function Home() {
     <main style={{ maxWidth: 600, margin: "2rem auto", fontFamily: "sans-serif" }}>
       <h1>Simple Board</h1>
       <form onSubmit={handleSubmit} style={{ marginBottom: 24 }}>
-        <input
+              <input
           name="title"
           value={form.title}
           onChange={handleChange}
           placeholder="Title"
           required
           style={{ width: "100%", marginBottom: 8, padding: 8 }}
-        />
+              />
         <textarea
           name="content"
           value={form.content}
@@ -110,6 +110,6 @@ export default function Home() {
           </li>
         ))}
       </ul>
-    </main>
+      </main>
   );
 }
