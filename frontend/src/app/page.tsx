@@ -9,18 +9,18 @@ export default function Home() {
       const [password, setPassword] = useState('');
       const [error,    setError]    = useState<string | null>(null);
       const router = useRouter();
-  
+
       const handleSubmit = async (e: React.FormEvent) => {
           e.preventDefault();
           setError(null);
-  
+
           try {
               const res = await fetch('http://localhost:8080/auth/login', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ email, password }),
               });
-  
+
              console.log('status:', res.status);
              const data = await res.json();
              console.log('response data:', data);
@@ -33,7 +33,7 @@ export default function Home() {
               if (data.token) {
                 localStorage.setItem('token', data.token);
               }
-  
+
               // 가입 성공 후 로그인 페이지로 이동
               router.push('/register');
           } catch (err) {
