@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@ai-sdk/xai": "^1.2.16"
+  }
+}
