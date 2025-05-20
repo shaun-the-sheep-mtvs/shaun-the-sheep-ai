@@ -1,24 +1,23 @@
 package org.mtvs.backend.controller;
 
 
+import org.mtvs.backend.dto.RequestCreateRoutineDTO;
+import org.mtvs.backend.service.RoutineManageSerivce;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController("/")
-public class ManageRoutineController {
+public class RoutineManageController {
+    private final RoutineManageSerivce routineManageSerivce;
 
-
-    @GetMapping("/routine/read")
-    public ResponseEntity<Integer> read() {
-        return ResponseEntity.ok(200);
+    public RoutineManageController(RoutineManageSerivce routineManageSerivce) {
+        this.routineManageSerivce = routineManageSerivce;
     }
-
     @PostMapping("/routine/write")
-    public ResponseEntity<Integer> write() {
+    public ResponseEntity<Integer> write(RequestCreateRoutineDTO requestCreateRoutineDTO) {
+        routineManageSerivce.createRoutine(requestCreateRoutineDTO);
         return ResponseEntity.ok(200);
     }
 
-    @
+
 }
