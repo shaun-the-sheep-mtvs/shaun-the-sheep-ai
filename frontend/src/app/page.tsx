@@ -1,10 +1,19 @@
 import Image from "next/image";
 import styles from "./page.module.css";
+import Link from "next/link";
 
 export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
+        <div className="mb-8 w-full flex justify-center">
+          <Link
+            href="/routine-manage"
+            className="px-6 py-3 rounded-full bg-sky-400 text-white font-bold text-lg shadow hover:bg-sky-500 transition-colors"
+          >
+            루틴 관리 바로가기
+          </Link>
+        </div>
         <Image
           className={styles.logo}
           src="/next.svg"
