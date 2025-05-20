@@ -1,0 +1,516 @@
+/* Basic Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Color Variables */
+:root {
+  --color-primary: #4cd964;
+  --color-secondary: #3b82f6;
+  --color-accent: #ff3b30;
+  --color-highlight: #ff9500;
+  --color-emerald: #34d399;
+  --color-pink: #ec4899;
+  --color-pink-light: #fce7f3;
+  --color-background: #ffffff;
+  --color-gray-50: #f9fafb;
+  --color-gray-100: #f3f4f6;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-400: #9ca3af;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+}
+
+/* Typography */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.5;
+  color: #111827;
+  background-color: #ffffff;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+h1 {
+  font-size: 1.5rem;
+}
+
+h2 {
+  font-size: 1.25rem;
+}
+
+h3 {
+  font-size: 1.125rem;
+}
+
+p {
+  margin-bottom: 1rem;
+}
+
+/* Layout */
+.recommend-container {
+  max-width: 768px;
+  margin: 0 auto;
+  background: white;
+}
+
+.container {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+/* Header */
+.header {
+  padding: 16px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-title {
+  font-weight: 700;
+  text-align: center;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.menu-button,
+.notification-button {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Greeting Section */
+.greeting-section {
+  padding: 16px;
+  background-color: #fce7f3;
+  margin-bottom: 24px;
+}
+
+.greeting-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Greeting */
+.greeting {
+  background-color: var(--color-pink-light);
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+}
+
+.greeting-text {
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: #ec4899;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.user-name {
+  color: #ec4899;
+  font-weight: 500;
+}
+
+/* Recommendation Section */
+.recommendation-section {
+  padding: 0 16px;
+  margin-bottom: 32px;
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 500;
+  margin-bottom: 16px;
+}
+
+/* Search */
+.search-container {
+  padding: 0 16px;
+  margin-bottom: 24px;
+}
+
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background-color: #f3f4f6;
+  border-radius: 9999px;
+}
+
+.search-input {
+  border: none;
+  outline: none;
+  background: transparent;
+  width: 100%;
+  font-size: 14px;
+}
+
+/* Category Headers */
+.product-section {
+  padding: 0 16px;
+  margin-bottom: 32px;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.category-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.category-icon.toner {
+  background-color: rgba(76, 217, 100, 0.1);
+  color: #4cd964;
+}
+
+.category-icon.serum {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.category-icon.lotion {
+  background-color: rgba(255, 59, 48, 0.1);
+  color: var(--color-accent);
+}
+
+.category-icon.cream {
+  background-color: rgba(255, 149, 0, 0.1);
+  color: var(--color-highlight);
+}
+
+.category-icon.essence {
+  background-color: rgba(52, 211, 153, 0.1);
+  color: var(--color-emerald);
+}
+
+.category-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+/* Product Grid */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .product-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Product Card */
+.product-card {
+  background-color: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f3f4f6;
+}
+
+.product-image-container {
+  position: relative;
+  width: 100%;
+  height: 160px;
+  background-color: #f9fafb;
+  padding: 8px;
+}
+
+.product-image {
+  object-fit: contain;
+  width: 100%;
+  height: 100%;
+}
+
+.product-info {
+  padding: 12px;
+}
+
+.product-title {
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.product-attribute {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+
+/* Buttons */
+.buy-button {
+  width: 100%;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.toner-button {
+  background-color: #4cd964;
+}
+
+.serum-button {
+  background-color: #3b82f6;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  padding: 0.5rem 1rem;
+  font-weight: 500;
+  font-size: 0.875rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-full {
+  width: 100%;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.btn-secondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: white;
+}
+
+.btn-highlight {
+  background-color: var(--color-highlight);
+  color: white;
+}
+
+.btn-emerald {
+  background-color: var(--color-emerald);
+  color: white;
+}
+
+.btn-pink {
+  background-color: var(--color-pink);
+  color: white;
+}
+
+/* Recommendation Card */
+.recommendation-card {
+  background-color: #34d399;
+  border-radius: 12px;
+  padding: 16px;
+  color: white;
+  margin-bottom: 16px;
+}
+
+.recommendation-title {
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.recommendation-text {
+  font-size: 14px;
+  margin-bottom: 12px;
+}
+
+.recommendation-tip {
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.checklist-button {
+  width: 100%;
+  background-color: #ec4899;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 12px;
+  font-weight: 500;
+  font-size: 16px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+/* Utility Classes */
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-3 {
+  margin-bottom: 0.75rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.mb-6 {
+  margin-bottom: 1.5rem;
+}
+
+.mb-8 {
+  margin-bottom: 2rem;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.text-base {
+  font-size: 1rem;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-xl {
+  font-size: 1.25rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.justify-between {
+  justify-content: space-between;
+}
+
+.gap-1 {
+  gap: 0.25rem;
+}
+
+.gap-2 {
+  gap: 0.5rem;
+}
+
+.gap-3 {
+  gap: 0.75rem;
+}
+
+.gap-4 {
+  gap: 1rem;
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.rounded-xl {
+  border-radius: 0.75rem;
+}
+
+.rounded-2xl {
+  border-radius: 1rem;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
