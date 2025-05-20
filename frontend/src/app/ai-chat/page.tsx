@@ -1,27 +1,51 @@
 "use client";
 import React, { useState } from "react";
+import { ChatMessageDTO } from "../../types/ChatMessageDTO";
 
 export default function AIChatPage() {
-  const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
+  const [messages, setMessages] = useState<ChatMessageDTO[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim()) return;
-    const newMessages = [...messages, { role: "user", content: input }];
+
+    // 1. Add user message to local state
+    const userMessage: ChatMessageDTO = {
+      role: "user",
+      content: input,
+      timestamp: new Date().toISOString(),
+    };
+    const newMessages = [...messages, userMessage];
     setMessages(newMessages);
     setInput("");
     setIsLoading(true);
 
+    // 2. Get AI response
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ messages: newMessages }),
+      body: JSON.stringify({ messages: [...newMessages] }),
     });
     const data = await res.json();
-    setMessages([...newMessages, { role: "ai", content: data.text }]);
+
+    // 3. Add AI message to local state
+    const aiMessage: ChatMessageDTO = {
+      role: "ai",
+      content: data.text,
+      timestamp: new Date().toISOString(),
+    };
+    const updatedMessages = [...newMessages, aiMessage];
+    setMessages(updatedMessages);
     setIsLoading(false);
+
+    // 4. Save both user and AI messages to backend
+    await fetch("http://localhost:8080/api/chat-messages/bulk", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([userMessage, aiMessage]),
+    });
   };
 
   return (
