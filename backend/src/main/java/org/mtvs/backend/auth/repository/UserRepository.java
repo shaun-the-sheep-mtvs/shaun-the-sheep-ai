@@ -19,5 +19,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     SELECT u.skinType as skinType, u.troubles as troubles
     FROM User u
     WHERE u.id = :userId
-""")    ProblemDto getProblemByUsername(String username);
+""")    ProblemDto getProblemByUserId();
 }

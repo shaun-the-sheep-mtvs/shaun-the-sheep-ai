@@ -6,6 +6,25 @@
   align-items: center;
   padding: 48px 0;
 }
+
+.page-layout {
+  display: flex;
+  gap: 32px;
+  width: 100%;
+  max-width: 1400px;
+  padding: 0 24px;
+}
+
+.form-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.routines-section {
+  flex: 1;
+  min-width: 0;
+}
+
 .card {
   background: #fff;
   width: 100%;
@@ -189,9 +208,14 @@
   font-weight: 600;
   font-size: 16px;
 }
-.submit-btn {
-  width: 100%;
+.button-group {
+  display: flex;
+  gap: 16px;
   margin-top: 32px;
+  width: 100%;
+}
+.submit-btn {
+  flex: 1;
   padding: 18px 0;
   background: #38bdf8;
   color: #fff;
@@ -205,4 +229,91 @@
 }
 .submit-btn:hover {
   background: #0ea5e9;
+}
+.complete-btn {
+  flex: 1;
+  padding: 18px 0;
+  background: #10b981;
+  color: #fff;
+  font-size: 22px;
+  font-weight: bold;
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(16,185,129,0.10);
+  transition: background 0.15s;
+}
+.complete-btn:hover {
+  background: #059669;
+}
+.registered-routines {
+  margin-top: 48px;
+  margin-bottom: 32px;
+}
+.routine-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  padding-right: 8px;
+}
+.routine-list::-webkit-scrollbar {
+  width: 6px;
+}
+.routine-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 3px;
+}
+.routine-list::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+.routine-list::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+.routine-item {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1.5px solid #e5e7eb;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+}
+.routine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.routine-time {
+  background: #e0f2fe;
+  color: #0369a1;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.routine-order {
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 500;
+}
+.routine-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.routine-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+}
+.routine-kind {
+  color: #64748b;
+  font-size: 16px;
+}
+.routine-method {
+  color: #475569;
+  font-size: 16px;
+  line-height: 1.5;
 } 

@@ -18,6 +18,6 @@ public class RequestRoutineAllDTO {
     private String name;
     private Kinds kind;
     private Time time;
-    private int order;
+    private int orders;
     private String method;
 }

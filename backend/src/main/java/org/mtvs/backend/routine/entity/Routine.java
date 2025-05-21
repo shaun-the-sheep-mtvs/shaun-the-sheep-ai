@@ -29,12 +29,21 @@ public class Routine {
 
     private String method;
 
-    public Routine(String method, Time time, Kinds kind, String name) {
+    public Routine(String name, Time time, Kinds kind, String method) {
         this.method = method;
         this.time = time;
         this.kind = kind;
         this.name = name;
     }
+    public Routine(String name, Time time, Kinds kind, String method,int orders,User user) {
+        this.method = method;
+        this.time = time;
+        this.kind = kind;
+        this.name = name;
+        this.orders = orders;
+        this.user = user;
+    }
+
     //    유저 외래키
     @ManyToOne
     private User user;
