@@ -1,20 +1,18 @@
 package org.mtvs.backend.auth.controller;
 
+import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginDto;
 import org.mtvs.backend.auth.dto.RegistrationDto;
 import org.mtvs.backend.auth.service.AuthService;
-import org.mtvs.backend.auth.util.JwtUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Duration;
 import java.util.Map;
 
 @RestController
@@ -22,17 +20,16 @@ import java.util.Map;
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
-    private final JwtUtil jwtUtil;
 
-    public AuthController(AuthService authService, JwtUtil jwtUtil) {
+    @Autowired
+    public AuthController(AuthService authService) {
         this.authService = authService;
-        this.jwtUtil = jwtUtil;
     }
 
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody RegistrationDto dto) {
         try {
-            authService.register(dto);
+            authService.registerUser(dto);
             return ResponseEntity
                     .ok(Map.of("message", "회원가입 성공"));
         } catch (IllegalArgumentException ex) {
@@ -45,18 +42,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginDto dto) {
-        try {
-            authService.login(dto);
-            // 2) 검증 통과하면 JWT 생성
-            String token = jwtUtil.generateToken(dto.getEmail());
 
-            return ResponseEntity.ok(Map.of("token", token));
-        } catch (IllegalArgumentException ex) {
-            log.warn("로그인 실패: {}", ex.getMessage());
-            // 400 Bad Request 로 에러 메시지 전달
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("error", ex.getMessage()));
-        }
+        String[] tokens = authService.loginUser(dto);
+        return ResponseEntity.ok(new AuthResponse(tokens[0], tokens[1]));
     }
 }

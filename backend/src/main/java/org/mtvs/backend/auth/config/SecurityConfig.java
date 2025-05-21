@@ -1,5 +1,7 @@
 package org.mtvs.backend.auth.config;
 
+import org.mtvs.backend.auth.filter.JwtAuthenticationFilter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -9,6 +11,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -16,28 +19,32 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.List;
 
 @Configuration
-@EnableWebSecurity
 public class SecurityConfig {
+
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    @Autowired
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
     @Bean
-    public PasswordEncoder passwordEncoder() {
+    public BCryptPasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .cors().and()
-                .csrf().disable()
-                .sessionManagement()
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .csrf().disable()  // CSRF 보호 비활성화 (API 서버에서는 일반적)
+                .authorizeRequests()
+                .requestMatchers(HttpMethod.POST, "/auth/login", "/user/register", "/user/refresh").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/checklist").permitAll()
+                .requestMatchers(HttpMethod.GET,  "/api/checklist").permitAll()
+                .requestMatchers("/auth/**").permitAll()
+                .anyRequest().authenticated()  // 나머지 API는 인증 필요
                 .and()
-                .authorizeHttpRequests(auth -> auth
-                        // 로그인·회원가입은 당연히 열고
-                        .requestMatchers("/auth/**").permitAll()
-                        // 체크리스트 POST도 인증 없이 열어준다
-                        .requestMatchers(HttpMethod.POST, "/api/checklist").permitAll()
-                        // 나머지는 모두 인증
-                        .anyRequest().authenticated()
-                );
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 이 부분 추가
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);  // 세션 사용 안 함 (JWT 사용)
         return http.build();
     }
 
