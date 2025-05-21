@@ -4,6 +4,7 @@ package org.mtvs.backend.routine.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import org.mtvs.backend.auth.model.User;
 import org.mtvs.backend.routine.entity.enums.Kinds;
 import org.mtvs.backend.routine.entity.enums.Time;
 
@@ -34,9 +35,9 @@ public class Routine {
         this.kind = kind;
         this.name = name;
     }
-
     //    유저 외래키
-//    private String
+    @ManyToOne
+    private User user;
 
 
 

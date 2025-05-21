@@ -1,4 +1,4 @@
-package org.mtvs.backend.service;
+package org.mtvs.backend.routine.service;
 
 
 import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
