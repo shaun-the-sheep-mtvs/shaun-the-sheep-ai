@@ -4,23 +4,23 @@ import React, { useState } from 'react';
 import styles from './page.module.css';
 
 const ROUTINE_TIMES = [
-  { label: '아침', value: 'morning' },
-  { label: '저녁', value: 'evening' },
-  { label: '둘다', value: 'both' },
+  { label: '아침', value: 'MORNING' },
+  { label: '저녁', value: 'EVENING' },
+  { label: '둘다', value: 'BOTH' },
 ];
 
 const getButtonClass = (routineTime: string, selected: string) => {
   let base = styles['routine-btn'];
-  if (routineTime === 'morning' && selected === 'morning') return base + ' ' + styles['selected-morning'];
-  if (routineTime === 'evening' && selected === 'evening') return base + ' ' + styles['selected-evening'];
-  if (routineTime === 'both' && selected === 'both') return base + ' ' + styles['selected-both'];
+  if (routineTime === 'MORNING' && selected === 'MORNING') return base + ' ' + styles['selected-morning'];
+  if (routineTime === 'EVENING' && selected === 'EVENING') return base + ' ' + styles['selected-evening'];
+  if (routineTime === 'BOTH' && selected === 'BOTH') return base + ' ' + styles['selected-both'];
   return base;
 };
 
 const getInputRowClass = (routineTime: string) => {
   let base = styles['input-row'];
-  if (routineTime === 'morning') return base + ' ' + styles['morning'];
-  if (routineTime === 'evening') return base + ' ' + styles['evening'];
+  if (routineTime === 'MORNING') return base + ' ' + styles['morning'];
+  if (routineTime === 'EVENING') return base + ' ' + styles['evening'];
   return base;
 };
 
@@ -32,7 +32,7 @@ interface Product {
 }
 
 const RoutineManagePage = () => {
-  const [selectedTime, setSelectedTime] = useState<'morning' | 'evening' | 'both'>('morning');
+  const [selectedTime, setSelectedTime] = useState<'MORNING' | 'EVENING' | 'BOTH'>('MORNING');
   const [products, setProducts] = useState<Product[]>([
     { name: '', kind: '', method: '' },
     { name: '', kind: '', method: '' },
@@ -40,13 +40,41 @@ const RoutineManagePage = () => {
   
   // POST 요청 함수
   const handleAddRoutine = async () => {
-    await fetch('/api/routine', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        products,
-      }),
-    });
+    // 공백 입력 방지
+    const isAnyFieldEmpty = products.some(product => 
+      !product.name.trim() || !product.kind.trim() || !product.method.trim()
+    );
+
+    if (isAnyFieldEmpty) {
+      alert('모든 필드를 입력해주세요.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/api/routine/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          routines: products.map(product => ({
+            name: product.name,
+            kind: product.kind,
+            time: selectedTime,
+            method: product.method
+          }))
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Success:', data);
+      alert('등록되었습니다.');
+    } catch (error) {
+      console.error('Error:', error);
+      alert('요청 중 오류가 발생했습니다.');
+    }
   };
 
   const handleProductChange = (idx: number, field: keyof Product, value: string) => {
@@ -67,7 +95,6 @@ const RoutineManagePage = () => {
         {/* 상단 네비게이션 */}
         <div className={styles.topnav}>
           <span className={styles['topnav-title']}>루틴관리</span>
-          <span className={styles['topnav-user']}>정윤지</span>
         </div>
         {/* STEP 1, STEP 2 */}
         <div className={styles.steps}>
@@ -154,10 +181,7 @@ const RoutineManagePage = () => {
         >
           등록
         </button>
-        {/* 3. 추가 루틴 입력 */}
-        <div className={styles['section-bottom']}>
-          3. 추가 루틴이 있다면 입력해주세요 (보류)
-        </div>
+
       </div>
     </div>
   );

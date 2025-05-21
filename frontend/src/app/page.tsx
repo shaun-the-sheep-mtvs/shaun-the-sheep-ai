@@ -1,5 +1,6 @@
 import React from "react";
 import styles from "./page.module.css";
+import Link from 'next/link'
 
 // 예시 데이터 (props/API로 대체 가능)
 const checklist = { 수분: 70, 유분: 50, 민감도: 65, 탄력: 45 };
@@ -23,7 +24,7 @@ export default function Home() {
         <nav>
           <ul className={styles.menu}>
             <li className={styles.menuActive}>홈화면</li>
-            <li>검사하기</li>
+            <li><Link href="/checklist">검사하기</Link></li>
             <li>AI 채팅</li>
             <li>회원정보</li>
           </ul>
