@@ -16,58 +16,6 @@ const products = [
 ];
 
 export default function Home() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [form, setForm] = useState<{ title: string; content: string }>({ title: "", content: "" });
-  const [editing, setEditing] = useState<Post | null>(null);
-
-  useEffect(() => {
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(setPosts);
-  }, []);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (editing) {
-      const res = await fetch(`${API_URL}/${editing.id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...editing, ...form }),
-      });
-      if (res.ok) {
-        const updated = await res.json();
-        setPosts(posts.map(p => (p.id === editing.id ? updated : p)));
-        setEditing(null);
-        setForm({ title: "", content: "" });
-      }
-    } else {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (res.ok) {
-        setPosts([...posts, await res.json()]);
-        setForm({ title: "", content: "" });
-      }
-    }
-  };
-
-  const handleEdit = (post: Post) => {
-    setEditing(post);
-    setForm({ title: post.title, content: post.content });
-  };
-
-  const handleDelete = async (id?: number) => {
-    if (!id) return;
-    const res = await fetch(`${API_URL}/${id}`, { method: "DELETE" });
-    if (res.ok) setPosts(posts.filter(p => p.id !== id));
-  };
-
   return (
     <div className={styles.wrapper}>
       {/* 사이드바 */}
