@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import styles from './step2.module.css';
+import '../globals.css';
 
 export default function Step2() {
     // 탭 상태: 'morning' 또는 'night'
