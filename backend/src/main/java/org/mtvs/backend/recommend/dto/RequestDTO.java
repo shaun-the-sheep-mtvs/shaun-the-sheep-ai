@@ -1,5 +1,7 @@
 package org.mtvs.backend.recommend.dto;
 
+import java.util.List;
+
 public class RequestDTO {
     private String userId;
     private List<String> concerns;

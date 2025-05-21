@@ -24,7 +24,7 @@ public class Routine {
     @Enumerated(EnumType.STRING)
     private Time time;
 
-    private int order;
+    private int orders;
 
     private String method;
 

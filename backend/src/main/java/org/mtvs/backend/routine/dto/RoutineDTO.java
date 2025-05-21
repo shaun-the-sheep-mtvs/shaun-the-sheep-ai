@@ -33,7 +33,7 @@ import org.mtvs.backend.entity.enums.Time;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestCreateRoutineDTO {
+public class RoutineDTO {
     private String name;
     private Kinds kind;
     private Time time;

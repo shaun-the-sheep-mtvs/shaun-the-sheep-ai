@@ -1,17 +1,17 @@
 package org.mtvs.backend.recommend.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.mtvs.backend.recommend.dto.RequestDTO;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("api/recommend")
 public class RecommendController {
 
     // 사용자의 피부 타입과 피부 고민 맞춤 제품 추천
-    @getMapping("/diagnose")
+    @GetMapping("/diagnose")
     public ResponseEntity<String> diagnose(@RequestBody RequestDTO requestDTO) {
         User user = userRepository.findById(requestDTO.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
 
