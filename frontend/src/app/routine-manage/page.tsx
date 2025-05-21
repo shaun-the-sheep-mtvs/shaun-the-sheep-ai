@@ -110,7 +110,7 @@ const RoutineManagePage = () => {
               <button
                 key={t.value}
                 className={getButtonClass(t.value, selectedTime)}
-                onClick={() => setSelectedTime(t.value as any)}
+                onClick={() => setSelectedTime(t.value as 'MORNING' | 'EVENING' | 'BOTH')}
                 type="button"
               >
                 {t.label}

@@ -1,8 +1,8 @@
 import { generateText } from 'ai';
 import { openai } from '@ai-sdk/openai';
-import { groq } from '@ai-sdk/groq';
-import { xai } from '@ai-sdk/xai';
-import { anthropic } from '@ai-sdk/anthropic';
+// import { groq } from '@ai-sdk/groq';
+// import { xai } from '@ai-sdk/xai';
+// import { anthropic } from '@ai-sdk/anthropic';
 
 export const runtime = 'edge';
 
