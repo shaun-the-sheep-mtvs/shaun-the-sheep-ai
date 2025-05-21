@@ -34,7 +34,7 @@ export default function RegisterPage() {
 
             // 가입 성공 후 체크리스트트 페이지로 이동
             router.push('/checklist');
-        } catch (err) {
+        } catch {
             setError('네트워크 오류가 발생했습니다.');
         }
     };

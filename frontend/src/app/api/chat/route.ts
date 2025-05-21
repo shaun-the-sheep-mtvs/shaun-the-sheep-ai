@@ -9,7 +9,7 @@ export const runtime = 'edge';
 export async function POST(req: Request) {
   const { messages } = await req.json();
   // Combine all messages into a single prompt (simple approach)
-  const prompt = messages.map((m: any) => `${m.role === 'user' ? 'User' : 'AI'}: ${m.content}`).join('\n') + '\nAI:';
+  const prompt = messages.map((m: { role: string; content: string }) => `${m.role === 'user' ? 'User' : 'AI'}: ${m.content}`).join('\n') + '\nAI:';
 
   const { text } = await generateText({
     model: openai.responses('gpt-4o-mini'),
