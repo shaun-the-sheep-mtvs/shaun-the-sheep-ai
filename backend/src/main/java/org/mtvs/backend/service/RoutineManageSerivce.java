@@ -1,13 +1,10 @@
 package org.mtvs.backend.service;
 
 
-import org.mtvs.backend.dto.RequestCreateRoutineDTO;
-import org.mtvs.backend.dto.RequestRoutineAllDTO;
-import org.mtvs.backend.entity.Routine;
-import org.mtvs.backend.repository.RoutineRepository;
+import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
+import org.mtvs.backend.routine.entity.Routine;
+import org.mtvs.backend.routine.repository.RoutineRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class RoutineManageSerivce {
@@ -18,15 +15,18 @@ public class RoutineManageSerivce {
         this.routineRepository = routineRepository;
     }
 
-    public void createRoutine(RequestCreateRoutineDTO requestCreateRoutineDTO) {
-        Routine routine = new Routine(
-                requestCreateRoutineDTO.getName(),
-                requestCreateRoutineDTO.getTime(),
-                requestCreateRoutineDTO.getKind(),
-                requestCreateRoutineDTO.getMethod()
-        );
-        routineRepository.save(routine);
+    public void createRoutine(RequestJsonArrayRoutineDTO routinesDTO) {
+        routinesDTO.getRoutines()
+                .forEach(routineDTO -> {
+                                Routine routine = new Routine(
+                                                    routineDTO.getName(),
+                                                    routineDTO.getTime(),
+                                                    routineDTO.getKind(),
+                                                    routineDTO.getMethod()
+                                                    );
+                                routineRepository.save(routine);
+                                }
+                );
     }
-
 
 }
