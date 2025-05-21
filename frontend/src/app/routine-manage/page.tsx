@@ -10,7 +10,7 @@ const ROUTINE_TIMES = [
 ];
 
 const getButtonClass = (routineTime: string, selected: string) => {
-  let base = styles['routine-btn'];
+  const base = styles['routine-btn'];
   if (routineTime === 'MORNING' && selected === 'MORNING') return base + ' ' + styles['selected-morning'];
   if (routineTime === 'EVENING' && selected === 'EVENING') return base + ' ' + styles['selected-evening'];
   if (routineTime === 'BOTH' && selected === 'BOTH') return base + ' ' + styles['selected-both'];
@@ -18,7 +18,7 @@ const getButtonClass = (routineTime: string, selected: string) => {
 };
 
 const getInputRowClass = (routineTime: string) => {
-  let base = styles['input-row'];
+  const base = styles['input-row'];
   if (routineTime === 'MORNING') return base + ' ' + styles['morning'];
   if (routineTime === 'EVENING') return base + ' ' + styles['evening'];
   return base;
@@ -110,7 +110,7 @@ const RoutineManagePage = () => {
               <button
                 key={t.value}
                 className={getButtonClass(t.value, selectedTime)}
-                onClick={() => setSelectedTime(t.value as any)}
+                onClick={() => setSelectedTime(t.value as 'MORNING' | 'EVENING' | 'BOTH')}
                 type="button"
               >
                 {t.label}

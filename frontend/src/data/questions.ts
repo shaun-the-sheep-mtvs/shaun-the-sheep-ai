@@ -138,3 +138,11 @@ export const QUESTIONS: Question[] = [
     ],
   },
 ];
+
+// CATEGORY_MAP: 각 카테고리별로 해당하는 questionId 배열을 만듭니다.
+export const CATEGORY_MAP: Record<Category, number[]> = {
+  moisture: QUESTIONS.filter(q => q.category === 'moisture').map(q => q.id),
+  oil: QUESTIONS.filter(q => q.category === 'oil').map(q => q.id),
+  sensitivity: QUESTIONS.filter(q => q.category === 'sensitivity').map(q => q.id),
+  tension: QUESTIONS.filter(q => q.category === 'tension').map(q => q.id),
+};
