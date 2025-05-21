@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.deeprecommend.dto.RecommendDTO;
 import org.mtvs.backend.deeprecommend.dto.RoutineAnalysisDTO;
 import org.mtvs.backend.deeprecommend.repository.Recommendrepository;
+import org.mtvs.backend.routine.dto.RequestRoutineAllDTO;
+import org.mtvs.backend.routine.entity.Routine;
+import org.mtvs.backend.routine.repository.RoutineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -30,38 +33,32 @@ public class RecommendService {
         this.stringHttpMessageConverter = stringHttpMessageConverter;
     }
 
-    public String askOpenAI(RequestJsonArrayRoutineDTO requestJsonArrayRoutineDTO) {
-
-//         List<RoutineAnalysisDTO> recommend = recommendrepository.findUserAnalysisByUserId(requestJsonArrayRoutineDTO.getUser_id());
-
-        // User - skin,troubles
-        List<자바 객체> user = repository.find();
-
-        1. 자바 객체 ->  DTO
-        User user = userRepository.findById(1L).get();
-        UserDTO dto = new UserDTO(user);
-
-        2. 자바 객체 -> Json
-        String json = objectMapper.writeValueAsString(user);
-
-        3. 파싱 코드 (Jackson ObjectMapper 사용)
-        ObjectMapper objectMapper = new ObjectMapper();
-
-        String json = "{\"name\":\"Alice\", \"age\":25}";
-        UserDTO user = objectMapper.readValue(json, UserDTO.class);
-
-        4. dto -> string
-        String json = new ObjectMapper().writeValueAsString(dto);
-
-        결론 : 파싱 안해도 될듯 / 뽑아오기만 하면 될듯
+    public String askOpenAI(RequestRoutineAllDTO requestRoutineAllDTO) {
 
 
-        // routine
-        List<루틴DTO> routine = repository.find();
-        // 파싱
+//        // User - skin,troubles
+//        List<자바 객체> user = repository.find();
+//
+//        1. 자바 객체 ->  DTO
+//        User user = userRepository.findById(1L).get();
+//        UserDTO dto = new UserDTO(user);
+//
+//        2. 자바 객체 -> Json
+//        String json = objectMapper.writeValueAsString(user);
+//
+//        3. 파싱 코드 (Jackson ObjectMapper 사용)
+//        ObjectMapper objectMapper = new ObjectMapper();
+//
+//        String json = "{\"name\":\"Alice\", \"age\":25}";
+//        UserDTO user = objectMapper.readValue(json, UserDTO.class);
+//
+//        4. dto -> string
+//        String json = new ObjectMapper().writeValueAsString(dto);
+//
+//        결론 : 파싱 안해도 될듯 / 뽑아오기만 하면 될듯
+//
 
-        // String
-
+        List<Routine> recommend = RoutineRepository.getProblemByUsername(requestRoutineAllDTO);
 
 
         RestTemplate restTemplate = new RestTemplate();

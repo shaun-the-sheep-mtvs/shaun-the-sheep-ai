@@ -4,6 +4,7 @@ import org.mtvs.backend.auth.dto.ProblemDto;
 import org.mtvs.backend.auth.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -19,5 +20,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     SELECT u.skinType as skinType, u.troubles as troubles
     FROM User u
     WHERE u.id = :userId
-""")    ProblemDto getProblemByUsername(String username);
+""")    ProblemDto getProblemByUsername(@Param("userId") Long userId);
 }
