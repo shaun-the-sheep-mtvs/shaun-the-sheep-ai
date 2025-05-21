@@ -256,12 +256,13 @@ a.secondary {
   padding: 20px 0 20px 36px;
   font-size: 1.25rem;
   color: #000000;
-  cursor: pointer#FFD700der-left: 4px solid transparent;
+  cursor: pointer;
+  border-left: 4px solid transparent;
   transition: background 0.2s, border-color 0.2s;
 }
 .menuActive {
   background: #f6fafd;
-  border-left: 4px solid #000000
+  border-left: 4px solid #000000;
   font-weight: bold;
 }
 
