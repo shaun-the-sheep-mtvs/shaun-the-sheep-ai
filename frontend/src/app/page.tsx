@@ -1,9 +1,22 @@
-import React from "react";
-import styles from "./page.module.css";
-import Link from 'next/link'
+'use client';
 
-// 예시 데이터 (props/API로 대체 가능)
-const checklist = { 수분: 70, 유분: 50, 민감도: 65, 탄력: 45 };
+import React, { useEffect, useState } from 'react';
+import styles from "./page.module.css";
+import Link from 'next/link';
+import AnalysisBox from '@/components/AnalysisBox';
+import Greeting from '@/components/Greeting';
+
+// 서버가 내려주는 타입 (영문 키)
+interface CheckListResponse {
+  id: number;
+  moisture: number;     // 수분
+  oil: number;          // 유분
+  sensitivity: number;  // 민감도
+  tension: number;      // 탄력
+  createdAt: string;
+}
+
+// 분석·제품 정보 (예시)
 const analysis = {
   type: "민감형",
   description: "당신의 피부는 외부 자극에 민감하게 반응하는 타입입니다.",
@@ -16,6 +29,51 @@ const products = [
 ];
 
 export default function Home() {
+  const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
+  const [error, setError]         = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    fetch('http://localhost:8080/api/checklist', {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => {
+        if (!res.ok) throw new Error(`status ${res.status}`);
+        return res.json() as Promise<CheckListResponse[]>;
+      })
+      .then(data => {
+        if (data.length === 0) {
+          setError('저장된 체크리스트가 없습니다.');
+        } else {
+          setChecklist(data[0]);  // 최신 결과
+        }
+      })
+      .catch(() => setError('체크리스트를 불러오는 데 실패했습니다.'));
+  }, []);
+
+  if (error) {
+    return <div className={styles.page}><p className={styles.error}>{error}</p></div>;
+  }
+  if (!checklist) {
+    return <div className={styles.page}>로딩 중…</div>;
+  }
+
+  // 한글 레이블 매핑
+  const labels = {
+    moisture:    '수분',
+    oil:         '유분',
+    sensitivity: '민감도',
+    tension:     '탄력',
+  } as const;
+
+  // 바 색상 매핑
+  const barClasses = {
+    moisture:    styles.barGold,
+    oil:         styles.barGoldLight,
+    sensitivity: styles.barRed,
+    tension:     styles.barGray,
+  } as const;
+
   return (
     <div className={styles.wrapper}>
       {/* 사이드바 */}
@@ -30,29 +88,36 @@ export default function Home() {
           </ul>
         </nav>
       </aside>
+
       {/* 메인 */}
       <main className={styles.mainContent}>
-        <div className={styles.greetingRight}>○○님 안녕하세요</div>
+        <Greeting />
         <section className={styles.resultSection}>
+          {/* 체크리스트 결과 */}
           <div className={styles.checklistBox}>
             <h3>체크리스트 결과</h3>
             <div className={styles.barWrap}>
-              <div>수분 <span>{checklist.수분}%</span></div>
-              <div className={styles.bar}><div style={{width: `${checklist.수분}%`}} className={styles.barGold}></div></div>
-              <div>유분 <span>{checklist.유분}%</span></div>
-              <div className={styles.bar}><div style={{width: `${checklist.유분}%`}} className={styles.barGoldLight}></div></div>
-              <div>민감도 <span>{checklist.민감도}%</span></div>
-              <div className={styles.bar}><div style={{width: `${checklist.민감도}%`}} className={styles.barRed}></div></div>
-              <div>탄력 <span>{checklist.탄력}%</span></div>
-              <div className={styles.bar}><div style={{width: `${checklist.탄력}%`}} className={styles.barGray}></div></div>
+              {(Object.keys(labels) as (keyof typeof labels)[])
+                .map(key => {
+                  const value = checklist[key];
+                  return (
+                    <React.Fragment key={key}>
+                      <div>
+                        {labels[key]} <span>{value}%</span>
+                      </div>
+                      <div className={styles.bar}>
+                        <div
+                          className={barClasses[key]}
+                          style={{ width: `${value}%` }}
+                        />
+                      </div>
+                    </React.Fragment>
+                  );
+                })
+              }
             </div>
           </div>
-          <div className={styles.analysisBox}>
-            <h3>분석 결과</h3>
-            <div className={styles.analysisType}>{analysis.type}</div>
-            <div className={styles.analysisDesc}>{analysis.description}</div>
-            <div className={styles.analysisAdvice}>{analysis.advice}</div>
-          </div>
+           <AnalysisBox checklist={checklist} />
         </section>
         {/* 추천 제품 */}
         <section className={styles.productSection}>

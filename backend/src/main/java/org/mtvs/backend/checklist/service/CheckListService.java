@@ -1,44 +1,52 @@
 package org.mtvs.backend.checklist.service;
 
+import jakarta.transaction.Transactional;
+import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.auth.repository.UserRepository;
 import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
-import org.mtvs.backend.auth.model.User;
-import org.mtvs.backend.auth.service.AuthService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 @Service
 public class CheckListService {
-    private final CheckListRepository repo;
-    private final AuthService authService;    // UserRepository 대신 AuthService 사용
 
-    public CheckListService(CheckListRepository repo, AuthService authService) {
-        this.repo = repo;
-        this.authService = authService;
-    }
+    @Autowired
+    private UserRepository userRepo;
+    @Autowired
+    private CheckListRepository checkListRepo;
+    // 기존 repo, userRepo 주입 생략
 
-    public CheckListResponse create(String username, CheckListRequest req) {
-        User user = authService.findByUsername(username);  // Optional 풀고 예외처리
+    @Transactional
+    public CheckListResponse create(CheckListRequest req, String username) {
+        User user = userRepo.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+
         CheckList entity = new CheckList();
         entity.setUser(user);
         entity.setMoisture(req.getMoisture());
         entity.setOil(req.getOil());
         entity.setSensitivity(req.getSensitivity());
         entity.setTension(req.getTension());
-        CheckList saved = repo.save(entity);
+
+        CheckList saved = checkListRepo.save(entity);
         return toDto(saved);
     }
 
-    public List<CheckListResponse> findAllForUser(String username) {
-        User user = authService.findByUsername(username);
-        return repo.findByUserOrderByCreatedAtDesc(user)
-                .stream()
-                .map(this::toDto)
-                .collect(Collectors.toList());
+    @Transactional
+    public List<CheckListResponse> findAllForCurrentUser(String username) {
+        User user = userRepo.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+        return checkListRepo.findByUserOrderByCreatedAtDesc(user)
+                .stream().map(this::toDto).toList();
     }
 
     private CheckListResponse toDto(CheckList e) {
@@ -52,4 +60,7 @@ public class CheckListService {
         return dto;
     }
 }
+
+
+
 

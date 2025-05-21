@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap');
 .page {
   --gray-rgb: 0, 0, 0;
   --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
@@ -256,14 +257,17 @@ a.secondary {
   padding: 20px 0 20px 36px;
   font-size: 1.25rem;
   color: #000000;
-  cursor: pointer#FFD700der-left: 4px solid transparent;
+  cursor: pointer;
+  border-left: 4px solid transparent;
   transition: background 0.2s, border-color 0.2s;
 }
+
 .menuActive {
   background: #f6fafd;
-  border-left: 4px solid #000000
+  border-left: 4px solid #000000;
   font-weight: bold;
 }
+
 
 .mainContent {
   flex: 1;
@@ -477,4 +481,13 @@ a.secondary {
   font-weight: 700;
   margin-top: 8px;
   letter-spacing: 0.01em;
+}
+.analysisCode {
+  text-align: center;
+  font-family: 'Dancing Script', cursive;
+  background: #f0f0f0;
+  padding: 6px 12px;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  color: #333;
 }

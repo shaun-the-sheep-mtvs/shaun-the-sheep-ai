@@ -20,14 +20,31 @@ public class User {
     @Column(unique = true, nullable = false)
     private String username;               // 로그인 ID
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true)
     private String email;
 
-    @Column(nullable = false)
+    @Column
     private String password;
 
-    @Column(nullable = false)
+    @Column()
     private String roles;                  // ex. "ROLE_USER"
+    /*
+    *    User user = new User(
+                dto.getUsername(),
+                dto.getEmail(),        // 이메일 위치 수정
+                passwordEncoder.encode(dto.getPassword()),  // 비밀번호 위치 수정
+                LocalDateTime.now()
+        );
+
+    *
+    *
+    * */
+    public User(String username, String email, String encode, LocalDateTime now) {
+        this.username = username;
+        this.email = email;
+        this.password = encode;
+        this.createdAt = now;
+    }
 
     public enum SkinType {
         건성, 지성, 복합성, 민감성, 수부지
@@ -44,12 +61,18 @@ public class User {
     private List<String> troubles;         // 피부 고민 목록(JSONB)
 
     @CreationTimestamp
-    @Column(name = "created_at", updatable = false, nullable = false)
+    @Column(name = "created_at")
     private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "updated_at", nullable = false)
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public User() {
+
+    }
+
+
 
     public Long getId() {
         return id;
