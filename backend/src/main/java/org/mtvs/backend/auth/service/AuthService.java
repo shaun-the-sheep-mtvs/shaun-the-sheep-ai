@@ -9,6 +9,7 @@ import org.mtvs.backend.auth.model.User;
 import org.mtvs.backend.auth.repository.UserRepository;
 import org.mtvs.backend.auth.util.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -94,5 +95,11 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException("Error processing refresh token", e);
         }
+    }
+    public User findByEmail(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found: " + email)
+                );
     }
 }

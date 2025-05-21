@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 
@@ -10,12 +10,6 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [error,    setError]    = useState<string | null>(null);
   const router = useRouter();
-
-  // ← 이 useEffect 추가
-  useEffect(() => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,6 +30,9 @@ export default function RegisterPage() {
         setError(data.error || data.message || '회원가입에 실패했습니다.');
         return;
       }
+
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
 
       // 가입 성공 후 체크리스트 페이지로 이동
       router.push('/checklist');

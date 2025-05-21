@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import styles from "./page.module.css";
 import Link from 'next/link';
 import AnalysisBox from '@/components/AnalysisBox';
+import Greeting from '@/components/Greeting';
 
 // 서버가 내려주는 타입 (영문 키)
 interface CheckListResponse {
@@ -90,8 +91,7 @@ export default function Home() {
 
       {/* 메인 */}
       <main className={styles.mainContent}>
-        <div className={styles.greetingRight}>○○님 안녕하세요</div>
-
+        <Greeting />
         <section className={styles.resultSection}>
           {/* 체크리스트 결과 */}
           <div className={styles.checklistBox}>
