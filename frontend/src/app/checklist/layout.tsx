@@ -4,17 +4,16 @@ export const metadata = {
   title: '피부유형 검사',
 };
 
-export default function ChecklistLayout({
-  children,
-}: {
-  children: ReactNode;
-}) {
+// app/layout.tsx — 루트 레이아웃
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko">
+      <head />
       <body>
-        {/* 여기에는 nav를 아예 빼고, children(=page.tsx)만 렌더링 */}
+        {/* 전역 네비게이션, 글로벌 스타일 등 */}
         {children}
       </body>
     </html>
   );
 }
+

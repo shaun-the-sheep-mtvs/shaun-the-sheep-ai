@@ -35,9 +35,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     @Column(
-            name = "skin_type",
-            columnDefinition = "skin_type_enum",
-            nullable = true
+
     )
     private SkinType skinType;
 

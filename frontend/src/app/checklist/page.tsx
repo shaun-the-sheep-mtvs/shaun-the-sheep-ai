@@ -1,57 +1,93 @@
 'use client';
 
-import { useState } from 'react';
-import styles from './page.checklist.module.css';  // CSS 모듈 임포트
+import { useEffect, useState } from 'react';
+import { QUESTIONS, Question, Category } from '@/data/questions';
+import styles from './page.checklist.module.css';
+
+const MAX_SCORE_PER_CATEGORY = 2 * 3; // 문항당 최대 2점 × 3문제
 
 export default function ChecklistPage() {
-  const labels = [
-    '매우 건조함',
-    '건조함',
-    '보통',
-    '촉촉함',
-    '매우 촉촉함'
-  ];
+  const [qs, setQs]       = useState<Question[]>([]);
+  const [idx, setIdx]     = useState(0);
+  const [answers, setAns] = useState<{ cat: Category; score: number }[]>([]);
+  const [done, setDone]   = useState(false);
 
-  const [selected, setSelected] = useState<number | null>(null);
-  const [progress, setProgress] = useState(0);
+  useEffect(() => {
+    setQs(QUESTIONS);
+  }, []);
 
-  const onSelect = (idx: number) => {
-    setSelected(idx);
-    setProgress(((idx + 1) / labels.length) * 100);
+  if (qs.length === 0) {
+    return <div className={styles.page}>로딩 중…</div>;
+  }
+
+  const onSelect = (score: number) => {
+    setAns([...answers, { cat: qs[idx].category, score }]);
+    if (idx + 1 >= qs.length) {
+      setDone(true);
+    } else {
+      setIdx(idx + 1);
+    }
   };
 
+  // 완료 시 결과 UI
+  if (done) {
+    // 카테고리별 합산
+    const sum = answers.reduce<Record<Category, number>>((acc, { cat, score }) => {
+      acc[cat] = (acc[cat] || 0) + score;
+      return acc;
+    }, { moisture: 0, oil: 0, sensitivity: 0, tension: 0 });
+    
+    // % 환산
+    const percent = (cat: Category) =>
+      Math.round((sum[cat] / MAX_SCORE_PER_CATEGORY) * 100);
+
+    const q = qs[idx];
+
+    return (
+      <div className={styles.result}>
+        <h1>체크리스트 결과</h1>
+        {(['moisture','oil','sensitivity','tension'] as Category[]).map(cat => (
+          <div key={cat} className={styles.row}>
+            <span className={styles.label}>
+              {{
+                moisture: '수분',
+                oil: '유분',
+                sensitivity: '민감도',
+                tension: '탄력',
+              }[cat]} {percent(cat)}%
+            </span>
+            <div className={styles.barBackground}>
+              <div
+                className={styles.barFill}
+                style={{ width: `${percent(cat)}%` }}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // 질문 UI
+  const q = qs[idx];
   return (
     <div className={styles.page}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>피부유형 검사지</h1>
-
-        {/* 진행도 슬라이더 (disabled) */}
-        <div className={styles.progress}>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={progress}
-            disabled
-          />
-        </div>
-
-        {/* 5 버튼 옵션 */}
-        <div className={styles.options}>
-          {labels.map((text, i) => (
-            <div key={i} className={styles.optionWrapper}>
-              <button
-                type="button"
-                className={`${styles.option} ${
-                  selected === i ? styles.selected : ''
-                }`}
-                onClick={() => onSelect(i)}
-              />
-              <span className={styles.optionLabel}>{text}</span>
-            </div>
-          ))}
-        </div>
+      <h2>문제 {idx + 1} / {qs.length}</h2>
+      <p className={styles.text}>{q.text}</p>
+      <div className={styles.options}>
+        {q.options.map((opt, i) => (
+          <button
+            key={i}
+            onClick={() => onSelect(opt.score)}
+            className={styles.option}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
     </div>
   );
 }
+
+
+

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/sheep-ai-db?stringtype=unspecified
+    url: jdbc:postgresql://localhost:5432/sheep-ai-db
     username: user
     password: 5656
     driver-class-name: org.postgresql.Driver
