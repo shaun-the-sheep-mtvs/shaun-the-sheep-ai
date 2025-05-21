@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# API Keys
+export GEMINI_API_KEY=your-gemini-api-key-here
+
+# Database
+export DB_URL=jdbc:postgresql://<supabase-host>:5432/<supabase-db>
+export DB_USERNAME=<supabase-user>
+export DB_PASSWORD=<supabase-password>
+
+# Other configurations can be added here 

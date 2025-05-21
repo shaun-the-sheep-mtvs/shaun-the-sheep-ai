@@ -5,7 +5,10 @@ build/
 !gradle/wrapper/gradle-wrapper.jar
 !**/src/main/**/build/
 !**/src/test/**/build/
-.env.local
+
+# Environment variables and secrets
+shellScriptForKeys*
+!shellScriptForKeys.sample
 
 ### STS ###
 .apt_generated
