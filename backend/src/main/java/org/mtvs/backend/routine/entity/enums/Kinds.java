@@ -1,4 +1,4 @@
-package org.mtvs.backend.entity.enums;
+package org.mtvs.backend.routine.entity.enums;
 
 public enum Kinds {
     토너,

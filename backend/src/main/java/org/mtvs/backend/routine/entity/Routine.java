@@ -1,11 +1,11 @@
-package org.mtvs.backend.entity;
+package org.mtvs.backend.routine.entity;
 
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.mtvs.backend.entity.enums.Kinds;
-import org.mtvs.backend.entity.enums.Time;
+import org.mtvs.backend.routine.entity.enums.Kinds;
+import org.mtvs.backend.routine.entity.enums.Time;
 
 @Entity
 @Table

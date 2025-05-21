@@ -1,7 +1,7 @@
-package org.mtvs.backend.dto;
+package org.mtvs.backend.routine.dto;
 
-import org.mtvs.backend.entity.enums.Kinds;
-import org.mtvs.backend.entity.enums.Time;
+import org.mtvs.backend.routine.entity.enums.Kinds;
+import org.mtvs.backend.routine.entity.enums.Time;
 
 /*
 * ** Routine
