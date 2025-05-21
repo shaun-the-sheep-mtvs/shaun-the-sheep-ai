@@ -12,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 public class RequestDTO {
 
-    /* Gemini API 요청 구조
+    /* Gemini API 요청 구조입니다.
     * {
   "contents": [
     {
