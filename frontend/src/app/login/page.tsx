@@ -5,36 +5,42 @@ import { useRouter } from 'next/navigation';
 import styles from "./page.module.css";
 
 export default function Home() {
-      const [email,    setEmail]    = useState('');
-      const [password, setPassword] = useState('');
-      const [error,    setError]    = useState<string | null>(null);
-      const router = useRouter();
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
+  const [error,    setError]    = useState<string | null>(null);
+  const router = useRouter();
 
-      const handleSubmit = async (e: React.FormEvent) => {
-          e.preventDefault();
-          setError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
-          try {
-              const res = await fetch('http://localhost:8080/auth/login', {
-                  method: 'POST',
-                  credentials: 'include',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email, password }),
-              });
+    try {
+      const res = await fetch('http://localhost:8080/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),   // credentials 제거
+      });
 
-             const data = await res.json();
+      const data = await res.json();
 
-              if (!res.ok) {
-              setError(data.error || data.message || '로그인에 실패했습니다.');
-              return;
-              }
-              
-              // 가입 성공 후 로그인 페이지로 이동
-              router.push('/');
-          } catch (err) {
-              setError('네트워크 오류가 발생했습니다.');
-          }
-      };
+      if (!res.ok) {
+        setError(data.error || data.message || '로그인에 실패했습니다.');
+        return;
+      }
+
+      // 서버 응답에서 토큰 꺼내서 저장
+      const { accessToken, refreshToken } = data;
+      localStorage.setItem('accessToken',  accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+
+      // 로그인 후 홈(또는 대시보드)으로 이동
+      router.push('/');
+    } catch (err) {
+      console.error(err);
+      setError('네트워크 오류가 발생했습니다.');
+    }
+  };
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -75,3 +81,4 @@ export default function Home() {
     </div>
   );
 }
+

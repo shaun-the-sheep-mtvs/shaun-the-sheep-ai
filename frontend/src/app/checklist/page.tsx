@@ -25,23 +25,40 @@ export default function ChecklistPage() {
 
   // 2) % 계산
   const percent = (cat: Category) =>
-    Math.round((sums[cat] / MAX_SCORE_PER_CATEGORY) * 100)
+      Math.round((sums[cat] / MAX_SCORE_PER_CATEGORY) * 100)
 
   // 3) 완료 시 서버에 저장 (한 번만)
-  useEffect(() => {
-    if (!done) return
-    fetch('http://localhost:8080/checklist', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({
-        moisture:    percent('moisture'),
-        oil:         percent('oil'),
-        sensitivity: percent('sensitivity'),
-        tension:     percent('tension'),
-      }),
-    })
-  }, [done])
+  // ChecklistPage.tsx (useEffect 안)
+useEffect(() => {
+  if (!done) return;
+
+  const token = localStorage.getItem('accessToken');
+  if (!token) {
+    console.error('No access token');
+    return;
+  }
+
+  fetch('http://localhost:8080/api/checklist', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`   // ← 여기!!
+    },
+    body: JSON.stringify({
+      moisture:    percent('moisture'),
+      oil:         percent('oil'),
+      sensitivity: percent('sensitivity'),
+      tension:     percent('tension'),
+    }),
+  })
+  .then(res => {
+    if (!res.ok) throw new Error(`status ${res.status}`);
+    return res.json();
+  })
+  .then(data => console.log('saved', data))
+  .catch(err => console.error(err));
+}, [done]);
+
 
   if (!qs.length) {
     return <div className={styles.page}>로딩 중…</div>
@@ -58,17 +75,17 @@ export default function ChecklistPage() {
       tension:     '#ff9800',
     }
     const getLabel = (p: number) =>
-      p >= 80 ? '좋음' : p >= 60 ? '보통' : p >= 40 ? '주의' : '개선 필요'
+        p >= 80 ? '좋음' : p >= 60 ? '보통' : p >= 40 ? '주의' : '개선 필요'
 
     return (
-      <div className={styles.page}>
-        <div className={styles.container}>
-          <h1 className={styles.title}>진단 결과</h1>
-          {(['moisture','oil','sensitivity','tension'] as Category[]).map(cat => {
-            const p     = percent(cat)
-            const color = BAR_COLOR[cat]
-            return (
-              <div key={cat} className={styles.row}>
+        <div className={styles.page}>
+          <div className={styles.container}>
+            <h1 className={styles.title}>진단 결과</h1>
+            {(['moisture','oil','sensitivity','tension'] as Category[]).map(cat => {
+              const p     = percent(cat)
+              const color = BAR_COLOR[cat]
+              return (
+                  <div key={cat} className={styles.row}>
                 <span className={styles.label}>
                   {{
                     moisture: '수분',
@@ -77,17 +94,17 @@ export default function ChecklistPage() {
                     tension: '탄력',
                   }[cat]} {p}% — {getLabel(p)}
                 </span>
-                <div
-                  className={styles.resultProgress}
-                  style={{
-                    background: `linear-gradient(to right, ${color} ${p}% , #eee ${p}%)`
-                  }}
-                />
-              </div>
-            )
-          })}
+                    <div
+                        className={styles.resultProgress}
+                        style={{
+                          background: `linear-gradient(to right, ${color} ${p}% , #eee ${p}%)`
+                        }}
+                    />
+                  </div>
+              )
+            })}
+          </div>
         </div>
-      </div>
     )
   }
 
@@ -114,48 +131,56 @@ export default function ChecklistPage() {
   }
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>
-          질문. {idx + 1} / {qs.length}　{q.text}
-        </h1>
+      <div className={styles.page}>
+        <div className={styles.container}>
+          <h1 className={styles.title}>
+            질문. {idx + 1} / {qs.length}　{q.text}
+          </h1>
 
-        <div className={styles.progress}>
-         <input
-            type="range"
-            min={0}
-            max={100}
-            value={progress}
-            disabled
-            style={{
-              background: `linear-gradient(
+          <div className={styles.progress}>
+            <input
+                type="range"
+                min={0}
+                max={100}
+                value={progress}
+                disabled
+                style={{
+                  background: `linear-gradient(
               to right,
             #ff8fab ${progress}%,
               #eee ${progress}%
              )`
-           }}
-         />
-       </div>
+                }}
+            />
+          </div>
 
-        <div className={styles.options}>
-          {q.options.map((opt, i) => (
-            <div key={i} className={styles.optionWrapper}>
-              <button
-                type="button"
-                className={`
+          <div className={styles.options}>
+            {q.options.map((opt, i) => (
+                <div key={i} className={styles.optionWrapper}>
+                  <button
+                      type="button"
+                      className={`
                   ${styles.option}
                   ${selectedOption === i ? styles.selected : ''}
                 `}
-                onClick={() => onSelect(opt.score, i)}
-              />
-              <span className={styles.optionLabel}>{opt.label}</span>
-            </div>
-          ))}
+                      onClick={() => onSelect(opt.score, i)}
+                  />
+                  <span className={styles.optionLabel}>{opt.label}</span>
+                </div>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
   )
 }
+
+
+
+
+
+
+
+
 
 
 
