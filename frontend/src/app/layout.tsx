@@ -35,7 +35,7 @@ export default function RootLayout({
         </head>
         <body>
         <nav style={{ padding: "1rem", textAlign: "right" }}>
-            <Link href="/">Login</Link> | <Link href="/register">Sign Up</Link>
+            <Link href="/login">Login</Link> | <Link href="/register">Sign Up</Link>
         </nav>
         {children}
         </body>
