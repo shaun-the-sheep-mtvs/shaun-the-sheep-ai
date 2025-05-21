@@ -31,8 +31,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws IOException, ServletException {
 
         String header = req.getHeader("Authorization");
+        logger.debug("▶▶▶ Authorization 헤더: {}");
         if (header != null && header.startsWith("Bearer ")) {
             String token = header.substring(7);
+            logger.debug("▶▶▶ Bearer 토큰: {}");
             if (jwtUtil.validateToken(token)) {
                 String username = jwtUtil.extractUsername(token);
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
@@ -43,7 +45,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                 auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(req));
                 SecurityContextHolder.getContext().setAuthentication(auth);
+            }else{
+                logger.warn("▶▶▶ 토큰 유효성 실패");
             }
+        }else{
+            logger.debug("▶▶▶ 인증 헤더 없음 또는 Bearer 미사용");
         }
         chain.doFilter(req, res);
     }

@@ -2,8 +2,10 @@ package org.mtvs.backend.auth.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -21,16 +23,24 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors()                // ← WebMvcConfigurer 혹은 CorsFilter 를 Security 필터 체인에 연결
-                .and()
+                .cors().and()
                 .csrf().disable()
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
                 .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
+                        // 로그인·회원가입은 당연히 열고
+                        .requestMatchers("/auth/**").permitAll()
+                        // 체크리스트 POST도 인증 없이 열어준다
+                        .requestMatchers(HttpMethod.POST, "/api/checklist").permitAll()
+                        // 나머지는 모두 인증
+                        .anyRequest().authenticated()
                 );
         return http.build();
     }
+
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

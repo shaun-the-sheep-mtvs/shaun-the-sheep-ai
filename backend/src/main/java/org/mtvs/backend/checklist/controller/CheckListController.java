@@ -11,34 +11,36 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+// src/main/java/org/mtvs/backend/checklist/controller/CheckListController.java
 @RestController
-@RequestMapping("/checklist")
+@RequestMapping("/api/checklist")
 public class CheckListController {
     private final CheckListService service;
-
     public CheckListController(CheckListService service) {
         this.service = service;
     }
 
     @PostMapping
     public ResponseEntity<CheckListResponse> create(
-            @AuthenticationPrincipal UserDetails user,
             @RequestBody CheckListRequest req) {
-
-        CheckListResponse created =
-                service.create(user.getUsername(), req);
-
+        // @AuthenticationPrincipal 삭제
+        CheckListResponse created = service.create(
+                req.getUsername(),  // username 으로 저장
+                req
+        );
         return ResponseEntity.ok(created);
     }
 
     @GetMapping
     public ResponseEntity<List<CheckListResponse>> list(
-            @AuthenticationPrincipal UserDetails user) {
-
-        List<CheckListResponse> list =
-                service.findAllForUser(user.getUsername());
-
+            @RequestParam String username) {
+        // 조회 역시 쿼리 파라미터로 username 받아서
+        List<CheckListResponse> list = service.findAllForUser(username);
         return ResponseEntity.ok(list);
     }
 }
+
+
+
+
 

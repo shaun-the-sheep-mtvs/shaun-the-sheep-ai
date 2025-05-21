@@ -40,10 +40,6 @@ public class AuthController {
             return ResponseEntity
                     .badRequest()
                     .body(Map.of("error", ex.getMessage()));
-            // 또는 HTTP 409를 쓰고 싶으면:
-            // return ResponseEntity
-            //     .status(HttpStatus.CONFLICT)
-            //     .body(Map.of("error", ex.getMessage()));
         }
     }
 
