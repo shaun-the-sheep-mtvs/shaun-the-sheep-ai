@@ -1,51 +1,59 @@
 package org.mtvs.backend.recommend.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
 import java.util.List;
 
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class RequestDTO {
-    private String userId;
-    private List<String> concerns;
-    private String skinType;
 
-    public RequestDTO(){}
-
-    public RequestDTO(String userId, List<String> concerns, String skinType){
-        this.userId = userId;
-        this.concerns = concerns;
-        this.skinType = skinType;
+    /* Gemini API 요청 구조
+    * {
+  "contents": [
+    {
+      "parts": [
+        {
+          "text": "실제 프롬프트 텍스트"
+        }
+      ]
     }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public List<String> getConcerns() {
-        return concerns;
-    }
-
-    public String getSkinType() {
-        return skinType;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
-    }
-
-    public void setConcerns(List<String> concerns) {
-        this.concerns = concerns;
-    }
-
-    public void setSkinType(String skinType) {
-        this.skinType = skinType;
-    }
-
-    @Override
-    public String toString() {
-        return "RequestDTO{" +
-                "userId='" + userId + '\'' +
-                ", concerns=" + concerns +
-                ", skinType='" + skinType + '\'' +
-                '}';
-    }
-    
+  ]
 }
+    * */
+
+
+    private List<Content> contents;
+
+    @Data
+    public class Content{
+
+        private List<Part> parts;
+
+        public Content(String text){
+            parts = new ArrayList<>();
+            Part part = new Part(text);
+            parts.add(part);
+        }
+
+        @Data
+        @NoArgsConstructor
+        @AllArgsConstructor
+        public class Part{
+            private String text;
+        }
+    }
+
+    // 기존 prompt를 text 문자열로 제공하면 중첩 구조를 자동으로 만들어줌
+    public void createGeminiReqDto(String text){
+        this.contents = new ArrayList<>();
+        Content content = new Content(text);
+        contents.add(content);
+    }
+}
+
+
