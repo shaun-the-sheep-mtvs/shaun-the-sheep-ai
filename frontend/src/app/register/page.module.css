@@ -1,0 +1,84 @@
+/* 배경을 연한 민트/그린 톤으로 */
+.page {
+  min-height: 100vh;
+  display: flex;
+  font-family: var(--font-geist-sans);
+  background-color: #f0fff4; /* #f0fff4 같은 연한 그린 */
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.registerContainer {
+  background: #ffffff;
+  /* 프레임에 쓰인 민트 보더 */
+  border: 2px solid #ccf5e8;
+  border-radius: 12px;
+  padding: 2rem;
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.registerContainer h1 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.registerForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.formGroup input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 1rem;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #38b473; /* 포커스 보더도 그린 계열 */
+}
+
+.registerButton {
+  background: #38b473; /* 강조용 그린 */
+  color: #fff;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.registerButton:hover {
+  background: #2fa45a;
+}
+
+.error {
+  color: #d32f2f;
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+

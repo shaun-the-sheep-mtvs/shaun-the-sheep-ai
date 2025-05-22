@@ -6,13 +6,9 @@
   --button-primary-hover: #383838;
   --button-secondary-hover: #f2f2f2;
 
-  display: grid;
-  grid-template-rows: 20px 1fr 20px;
-  align-items: center;
-  justify-items: center;
-  min-height: 100svh;
-  padding: 80px;
-  gap: 64px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   font-family: var(--font-geist-sans);
 }
 
@@ -28,10 +24,70 @@
 }
 
 .main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+}
+
+.loginContainer {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.loginContainer h1 {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.loginForm {
   display: flex;
   flex-direction: column;
-  gap: 32px;
-  grid-row-start: 2;
+  gap: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.formGroup label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.formGroup input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+}
+
+.formGroup input:focus {
+  outline: none;
+  border-color: #0070f3;
+}
+
+.loginButton {
+  background: #0070f3;
+  color: white;
+  border: none;
+  padding: 0.75rem;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.loginButton:hover {
+  background: #0051b3;
 }
 
 .main ol {
@@ -165,4 +221,261 @@ a.secondary {
   .logo {
     filter: invert();
   }
+}
+
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: #f6fafd;
+  font-family: 'Pretendard', 'sans-serif';
+  font-size: 20px;
+  color: #222;
+}
+
+.sidebar {
+  width: 240px;
+  background: #eaf1fb;
+  border-right: 1px solid #c3d3e7;
+  padding: 48px 0 0 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.logo {
+  font-size: 2.1rem;
+  font-weight: bold;
+  color: #2563eb;
+  margin-bottom: 48px;
+}
+.menu {
+  list-style: none;
+  padding: 0;
+  width: 100%;
+}
+.menu li {
+  padding: 20px 0 20px 36px;
+  font-size: 1.25rem;
+  color: #000000;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+.menuActive {
+  background: #f6fafd;
+  border-left: 4px solid #000000;
+  font-weight: bold;
+}
+
+.mainContent {
+  flex: 1;
+  padding: 56px 80px 40px 80px;
+  background: #fff;
+  color: #222;
+  position: relative;
+}
+.greetingRight {
+  position: absolute;
+  top: 32px;
+  right: 80px;
+  font-size: 1.05rem;
+  color: #222;
+  font-weight: 500;
+  opacity: 0.8;
+  letter-spacing: 0.01em;
+}
+.resultSection {
+  display: flex;
+  gap: 40px;
+  margin-bottom: 56px;
+}
+.checklistBox, .analysisBox {
+  background: #f6fafd;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px 0 #e3eaf6;
+  padding: 40px 32px;
+  flex: 1;
+}
+.checklistBox h3, .analysisBox h3 {
+  color: #000000;
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 22px;
+  text-align: center;
+}
+.barWrap > div {
+  margin-bottom: 10px;
+  font-size: 1.1rem;
+  color: #000000
+}
+.bar {
+  width: 100%;
+  height: 16px;
+  background: #e3eaf6;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.barGold {
+  height: 100%;
+  background: linear-gradient(90deg, #008000 0%, #008000 100%);
+}
+.barGoldLight {
+  height: 100%;
+  background: linear-gradient(90deg, #60a5fa 0%, #60a5fa 100%);
+}
+.barRed {
+  height: 100%;
+  background: linear-gradient(90deg, #e57373 0%, #e57373 100%);
+}
+.barGray {
+  height: 100%;
+  background: linear-gradient(90deg, #bdbdbd 0%, #bdbdbd 100%);
+}
+.analysisType {
+  background: #eaf1fb;
+  color: #000000;
+  font-weight: bold;
+  padding: 14px 0;
+  border-radius: 10px;
+  text-align: center;
+  margin-bottom: 14px;
+  font-size: 1.1rem;
+}
+.analysisDesc {
+  color: #000000;
+  font-size: 1.05rem;
+  margin-bottom: 10px;
+  text-align: center;
+}
+.analysisAdvice {
+  background: #f0f6ff;
+  color: #000000;
+  padding: 10px 0;
+  border-radius: 8px;
+  text-align: center;
+  font-size: 1.05rem;
+}
+.productSection {
+  margin-bottom: 56px;
+}
+.productSection h4 {
+  color: #000000;
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-align: center;
+  margin-bottom: 22px;
+}
+.productList {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+}
+.productCard {
+  background: #f6fafd;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px 0 #e3eaf6;
+  padding: 32px 22px;
+  width: 210px;
+  text-align: center;
+}
+.productImg {
+  width: 90px;
+  height: 90px;
+  background: #eaf1fb;
+  border-radius: 14px;
+  margin: 0 auto 16px auto;
+}
+.productName {
+  color: #000000;
+  font-weight: bold;
+  margin-bottom: 6px;
+  font-size: 1.1rem;
+}
+.productDesc {
+  color: #000000;
+  font-size: 1.05rem;
+  margin-bottom: 14px;
+}
+.buyBtn {
+  background: linear-gradient(90deg, #60a5fa 0%, #2563eb 100%);
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 5px 12px;
+  font-weight: bold;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.buyBtn:hover {
+  background: linear-gradient(90deg, #000000 0%, #60a5fa 100%);
+}
+.recommendSection {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.recommendTitle {
+  color: #000000;
+  font-weight: 700;
+  margin-bottom: 14px;
+  font-size: 1.2rem;
+}
+.goBtn {
+  background: #1E90FF;
+  color: #FFFFFF;
+  border: none;
+  border-radius: 50px;
+  padding: 24px 80px;
+  font-weight: bold;
+  margin-bottom: 24px;
+  font-size: 1.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.goBtn:hover {
+  background: #000000;
+  color: #fff;
+}
+.concernTitle {
+  color: #000000;
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 1.15rem;
+}
+.concernDesc {
+  color: #000000;
+  font-size: 1.05rem;
+  margin-bottom: 18px;
+}
+.concernList {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  background: #fff;
+  padding: 24px 0 0 0;
+}
+.concernItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.concernIcon {
+  width: 140px;
+  height: 140px;
+  background: #eaf1fb;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 6rem;
+  margin-bottom: 2px;
+  color: #2563eb;
+}
+.concernLabel {
+  color: #222;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-top: 8px;
+  letter-spacing: 0.01em;
 }
