@@ -1,6 +1,7 @@
 package org.mtvs.backend.auth.util;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
@@ -19,11 +20,15 @@ public class JwtUtil {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    public String generateAccessToken(String email, String username) {
+    public String generateAccessToken(String email, String username,long id) {
+        Claims claims = Jwts.claims();
+        claims.put("email", email);
+        claims.put("username", username);
+        claims.put("id",id);
+
         return Jwts.builder()
                 .setSubject(email) // email값을 사용자 식별자로 사용
-                .claim("username", username)
-                .setIssuedAt(new Date())
+                .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(SignatureAlgorithm.HS256, secret)
                 .compact();
@@ -52,11 +57,22 @@ public class JwtUtil {
     }
 
     // 모든 클레임 추출 메서드
-    public Claims getAllClaimsFromToken(String token) {
+    public Claims parseClaims(String token) {
+        try{
         return Jwts.parser()
                 .setSigningKey(secret)
                 .parseClaimsJws(token)
                 .getBody();
+        } catch (ExpiredJwtException e) {
+            return e.getClaims();
+        }
+
+    }
+    public Long getUserId(String token) {
+        return parseClaims(token).get("id", Long.class);
+    }
+    public String getCredentialFromToken(String token) {
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }
 }
 

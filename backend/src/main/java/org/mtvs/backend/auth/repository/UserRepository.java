@@ -4,6 +4,7 @@ import org.mtvs.backend.auth.dto.ProblemDto;
 import org.mtvs.backend.auth.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -14,6 +15,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByUsername(String username);  // 필요 시
     // boolean existsByPassword(String password);  // 삭제
 
+
+    @Query("SELECT u FROM User u  WHERE u.username = :loginId")
+    Optional<User> findByLoginId(@Param("loginId") String loginId);
 
     @Query("""
     SELECT u.skinType as skinType, u.troubles as troubles

@@ -62,7 +62,7 @@ public class AuthService {
         }
 
         // 로그인 시 비밀번호가 일치할 경우 각각 액세스 토큰과 리프레시 토큰 생성
-        String accessToken = jwtUtil.generateAccessToken(existingUser.get().getEmail(), existingUser.get().getUsername());
+        String accessToken = jwtUtil.generateAccessToken(existingUser.get().getEmail(), existingUser.get().getUsername(),existingUser.get().getId());
         String refreshToken = jwtUtil.generateRefreshToken(existingUser.get().getEmail());
 
         // 두 토큰을 클라이언트에 반환
@@ -78,17 +78,17 @@ public class AuthService {
 
         try {
             // 클레임이란?
-            Claims claims = jwtUtil.getAllClaimsFromToken(refreshToken);
+            Claims claims = jwtUtil.parseClaims(refreshToken);
 
             // 토큰에서 사용자 정보 추출
             String userEmail = claims.getSubject();
             String username = claims.get("username", String.class);
-
+            long id = claims.get("id", Long.class);
             if (userEmail == null || userEmail.isEmpty()) {
                 throw new IllegalArgumentException("Invalid refresh token: no user identifier found");
             }
             // 리프레시 토큰이 유효하면
-            return jwtUtil.generateAccessToken(userEmail, username);
+            return jwtUtil.generateAccessToken(userEmail, username,id);
 
         } catch (ExpiredJwtException e) {
             throw new RuntimeException("Refresh token has expired", e);
@@ -102,4 +102,9 @@ public class AuthService {
                         new UsernameNotFoundException("User not found: " + email)
                 );
     }
+
+    public Optional<User> getUserByLoginId(String loginId) {
+        return userRepository.findByUsername(loginId);
+    }
+
 }

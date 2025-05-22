@@ -41,6 +41,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/checklist").permitAll()
                 .requestMatchers(HttpMethod.GET,  "/api/checklist").permitAll()
                 .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/**").permitAll()
                 .anyRequest().authenticated()  // 나머지 API는 인증 필요
                 .and()
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 이 부분 추가

@@ -42,26 +42,7 @@ const RoutineManagePage = () => {
   ]);
   const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
   
-  // 등록된 루틴 가져오기
-  const fetchRegisteredRoutines = async () => {
-    try {
-      const response = await fetch('http://localhost:8080/api/routines');
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      const data = await response.json();
-      console.log('Fetched routines:', data);
-      setRegisteredRoutines(data);
-    } catch (error) {
-      console.error('Error fetching routines:', error);
-      setRegisteredRoutines([]);
-    }
-  };
-
-  // 컴포넌트 마운트 시 루틴 목록 가져오기
-  React.useEffect(() => {
-    fetchRegisteredRoutines();
-  }, []);
+ 
 
   // POST 요청 함수
   const handleAddRoutine = async () => {
@@ -75,17 +56,26 @@ const RoutineManagePage = () => {
       return;
     }
 
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:8080/api/routine/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
-          routines: products.map((product, index) => ({
+          routines: products.map(product => ({
             name: product.name,
             kind: product.kind,
             time: selectedTime,
             method: product.method,
-            orders: index + 1
+            orders: product.orders
           }))
         }),
       });
@@ -97,15 +87,6 @@ const RoutineManagePage = () => {
       const data = await response.json();
       console.log('Success:', data);
       alert('등록되었습니다.');
-      
-      // 루틴 등록 후 목록 새로고침
-      fetchRegisteredRoutines();
-      
-      // 입력 필드 초기화
-      setProducts([
-        { name: '', kind: '', method: '', orders: 1 },
-        { name: '', kind: '', method: '', orders: 2 },
-      ]);
     } catch (error) {
       console.error('Error:', error);
       alert('요청 중 오류가 발생했습니다.');
@@ -196,6 +177,11 @@ const RoutineManagePage = () => {
                         <option value="">종류 선택</option>
                         <option value="토너">토너</option>
                         <option value="앰플">앰플</option>
+                        <option value="크림">크림</option>
+                        <option value="스킨">스킨</option>
+                        <option value="세럼">세럼</option>
+                        <option value="로션">로션</option>
+
                       </select>
                       <button
                         className={styles['remove-btn']}
@@ -247,29 +233,6 @@ const RoutineManagePage = () => {
           </div>
         </div>
 
-        {/* 오른쪽: 등록된 루틴 현황 */}
-        <div className={styles['routines-section']}>
-          <div className={styles.card}>
-            <div className={styles['section-title']}>등록된 루틴 현황</div>
-            <div className={styles['routine-list']}>
-              {registeredRoutines.map((routine, index) => (
-                <div key={index} className={styles['routine-item']}>
-                  <div className={styles['routine-header']}>
-                    <span className={styles['routine-time']}>
-                      {routine.time === 'MORNING' ? '아침' : routine.time === 'EVENING' ? '저녁' : '아침/저녁'}
-                    </span>
-                    <span className={styles['routine-order']}>순서: {routine.orders}</span>
-                  </div>
-                  <div className={styles['routine-content']}>
-                    <div className={styles['routine-name']}>{routine.name}</div>
-                    <div className={styles['routine-kind']}>{routine.kind}</div>
-                    <div className={styles['routine-method']}>{routine.method}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   );

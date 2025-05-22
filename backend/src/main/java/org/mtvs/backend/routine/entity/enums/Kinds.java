@@ -5,5 +5,6 @@ public enum Kinds {
     세럼,
     로션,
     크림,
-    앰플
+    앰플,
+    스킨
 }
