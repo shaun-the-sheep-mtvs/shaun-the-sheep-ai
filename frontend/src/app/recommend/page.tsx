@@ -205,7 +205,7 @@ export default function RecommendPage() {
         <Bell className={styles.bellIcon} />
       </header>
       
-      <div className={styles["content-wrapper"]}>
+      <div className={`${styles["content-wrapper"]} ${styles.centerContent}`}>
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}>
             <Loader className={styles.loadingIcon} />
@@ -229,7 +229,7 @@ export default function RecommendPage() {
         <Bell className={styles.bellIcon} />
       </header>
       
-      <div className={styles["content-wrapper"]}>
+      <div className={`${styles["content-wrapper"]} ${styles.centerContent}`}>
         <div className={styles.errorContainer}>
           <div className={styles.errorIcon}>❌</div>
           <p className={styles.errorText}>{error}</p>
@@ -251,7 +251,7 @@ export default function RecommendPage() {
         <Bell className={styles.bellIcon} />
       </header>
       
-      <div className={styles["content-wrapper"]}>
+      <div className={`${styles["content-wrapper"]} ${styles.centerContent}`}>
         <div className={styles.errorContainer}>
           <div className={styles.errorIcon}>📭</div>
           <p className={styles.errorText}>데이터가 없습니다</p>

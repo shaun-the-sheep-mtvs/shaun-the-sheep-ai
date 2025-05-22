@@ -34,9 +34,6 @@ export default function RootLayout({
             <Script src="/scripts/login.js" strategy="beforeInteractive" />
         </head>
         <body>
-        <nav style={{ padding: "1rem", textAlign: "right" }}>
-            <Link href="/login">Login</Link> | <Link href="/register">Sign Up</Link>
-        </nav>
         {children}
         </body>
         </html>
