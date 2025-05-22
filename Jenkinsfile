@@ -1,17 +1,7 @@
 pipeline {
     agent any
 
-    environment {
-        // Set any environment variables here if needed
-    }
-
     stages {
-        stage('Checkout') {
-            steps {
-                // Use your SSH credentials ID here
-                git credentialsId: 'ec2-ssh-key', url: 'git@github.com:shaun-the-sheep-mtvs/shaun-the-sheep-ai.git'
-            }
-        }
         stage('Build Backend') {
             steps {
                 dir('backend') {
