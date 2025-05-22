@@ -1,12 +1,15 @@
 package org.mtvs.backend.auth.dto;
 
+import lombok.AllArgsConstructor;
 import org.mtvs.backend.auth.model.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
+@AllArgsConstructor
 public class RegistrationDto {
     private String username;
     private String email;
     private String password;
+
+
 
     public RegistrationDto() {}
 

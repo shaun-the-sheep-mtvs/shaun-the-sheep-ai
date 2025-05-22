@@ -6,6 +6,10 @@ build/
 !**/src/main/**/build/
 !**/src/test/**/build/
 
+# Environment variables and secrets
+shellScriptForKeys*
+!shellScriptForKeys.sample
+
 ### STS ###
 .apt_generated
 .classpath
@@ -36,6 +40,3 @@ out/
 
 ### VS Code ###
 .vscode/
-
-###.yml###
-*.yml

@@ -1,6 +1,6 @@
-import Image from "next/image"
 import Link from "next/link"
-import { Search, Menu, MessageSquare, Bell, User, Home } from "lucide-react"
+import { Bell, Home } from "lucide-react"
+import Image from "next/image"
 import styles from "./recommend.module.css"
 
 export default function RecommendPage() {
@@ -59,7 +59,7 @@ export default function RecommendPage() {
           {[1, 2, 3].map((item) => (
             <div key={`toner-${item}`} className={styles["product-card"]}>
               <div className={styles["product-image-container"]}>
-                <img src="/placeholder.svg?height=160&width=120" alt="제품 이미지" className={styles["product-image"]} />
+                <Image src="/placeholder.svg" alt="제품 이미지" width={120} height={160} className={styles["product-image"]} />
               </div>
               <div className={styles["product-info"]}>
                 <p className={styles["product-title"]}>다이브인 자몽차 히알루론산 세럼 100ml 기획 (+수딩크림 50ml)</p>
@@ -82,7 +82,7 @@ export default function RecommendPage() {
           {[1, 2, 3].map((item) => (
             <div key={`serum-${item}`} className={styles["product-card"]}>
               <div className={styles["product-image-container"]}>
-                <img src="/placeholder.svg?height=160&width=120" alt="제품 이미지" className={styles["product-image"]} />
+                <Image src="/placeholder.svg" alt="제품 이미지" width={120} height={160} className={styles["product-image"]} />
               </div>
               <div className={styles["product-info"]}>
                 <p className={styles["product-title"]}>다이브인 자몽차 히알루론산 세럼 100ml 기획 (+수딩크림 50ml)</p>

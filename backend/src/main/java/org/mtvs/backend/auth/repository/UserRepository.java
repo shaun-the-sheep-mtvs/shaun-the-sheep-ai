@@ -16,8 +16,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // boolean existsByPassword(String password);  // 삭제
 
 
-    @Query("SELECT new org.mtvs.backend.auth.dto.ProblemDto(u.skinType, u.troubles) " +
-            "FROM User u WHERE u.id = :userId")
-    ProblemDto findAllRoutineByUserId(@Param("userId") Long userId);
+    @Query("SELECT u FROM User u  WHERE u.username = :loginId")
+    Optional<User> findByLoginId(@Param("loginId") String loginId);
 
+    @Query("""
+    SELECT u.skinType as skinType, u.troubles as troubles
+    FROM User u
+    WHERE u.id = :userId
+""")    ProblemDto getProblemByUserId();
 }

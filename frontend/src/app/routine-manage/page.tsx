@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import styles from './page.module.css';
+import { useRouter } from 'next/navigation';
 
 const ROUTINE_TIMES = [
   { label: '아침', value: 'MORNING' },
@@ -29,15 +30,20 @@ interface Product {
   name: string;
   kind: string;
   method: string;
+  orders: number;
 }
 
 const RoutineManagePage = () => {
+  const router = useRouter();
   const [selectedTime, setSelectedTime] = useState<'MORNING' | 'EVENING' | 'BOTH'>('MORNING');
   const [products, setProducts] = useState<Product[]>([
-    { name: '', kind: '', method: '' },
-    { name: '', kind: '', method: '' },
+    { name: '', kind: '', method: '', orders: 1 },
+    { name: '', kind: '', method: '', orders: 2 },
   ]);
+  const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
   
+ 
+
   // POST 요청 함수
   const handleAddRoutine = async () => {
     // 공백 입력 방지
@@ -50,16 +56,26 @@ const RoutineManagePage = () => {
       return;
     }
 
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+
     try {
       const response = await fetch('http://localhost:8080/api/routine/create', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           routines: products.map(product => ({
             name: product.name,
             kind: product.kind,
             time: selectedTime,
-            method: product.method
+            method: product.method,
+            orders: product.orders
           }))
         }),
       });
@@ -82,105 +98,140 @@ const RoutineManagePage = () => {
   };
 
   const handleRemoveProduct = (idx: number) => {
-    setProducts((prev) => prev.filter((_, i) => i !== idx));
+    setProducts((prev) => {
+      const newProducts = prev.filter((_, i) => i !== idx);
+      // orders 재정렬
+      return newProducts.map((product, index) => ({
+        ...product,
+        orders: index + 1
+      }));
+    });
   };
 
   const handleAddProduct = () => {
-    setProducts((prev) => [...prev, { name: '', kind: '', method: '' }]);
+    setProducts((prev) => [...prev, { 
+      name: '', 
+      kind: '', 
+      method: '', 
+      orders: prev.length + 1 
+    }]);
+  };
+
+  const handleComplete = () => {
+    router.push('/routine-complete'); // 다음 페이지로 이동
   };
 
   return (
     <div className={styles.container}>
-      <div className={styles.card}>
-        {/* 상단 네비게이션 */}
-        <div className={styles.topnav}>
-          <span className={styles['topnav-title']}>루틴관리</span>
-        </div>
-        {/* STEP 1, STEP 2 */}
-        <div className={styles.steps}>
-          <span className={styles.step}>STEP 1</span>
-          <span className={styles.step + ' ' + styles.inactive}>STEP 2</span>
-          <div className={styles['step-divider']} />
-        </div>
-        {/* 1. 루틴 시간 선택 */}
-        <div style={{ marginBottom: 32 }}>
-          <div className={styles['section-title']}>1. 루틴 시간을 선택해주세요.</div>
-          <div className={styles['routine-times']}>
-            {ROUTINE_TIMES.map((t) => (
+      <div className={styles['page-layout']}>
+        {/* 왼쪽: 루틴 등록 폼 */}
+        <div className={styles['form-section']}>
+          <div className={styles.card}>
+            {/* 상단 네비게이션 */}
+            <div className={styles.topnav}>
+              <span className={styles['topnav-title']}>루틴관리</span>
+            </div>
+            {/* STEP 1, STEP 2 */}
+            <div className={styles.steps}>
+              <span className={styles.step}>STEP 1</span>
+              <span className={styles.step + ' ' + styles.inactive}>STEP 2</span>
+              <div className={styles['step-divider']} />
+            </div>
+            {/* 1. 루틴 시간 선택 */}
+            <div style={{ marginBottom: 32 }}>
+              <div className={styles['section-title']}>1. 루틴 시간을 선택해주세요.</div>
+              <div className={styles['routine-times']}>
+                {ROUTINE_TIMES.map((t) => (
+                  <button
+                    key={t.value}
+                    className={getButtonClass(t.value, selectedTime)}
+                    onClick={() => setSelectedTime(t.value as any)}
+                    type="button"
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+            {/* 2. 단계별 제품 입력 */}
+            <div style={{ marginBottom: 32 }}>
+              <div className={styles['section-title']}>2. 단계에 해당하는 제품을 입력해주세요.</div>
+              <div className={styles.inputs}>
+                {products.map((product, idx) => (
+                  <div
+                    key={idx}
+                    className={getInputRowClass(selectedTime)}
+                  >
+                    <div className={styles['input-top']}>
+                      <input
+                        className={styles.input}
+                        placeholder="제품명"
+                        value={product.name}
+                        onChange={(e) => handleProductChange(idx, 'name', e.target.value)}
+                      />
+                      <select
+                        className={styles['input-select']}
+                        value={product.kind}
+                        onChange={(e) => handleProductChange(idx, 'kind', e.target.value)}
+                      >
+                        <option value="">종류 선택</option>
+                        <option value="토너">토너</option>
+                        <option value="앰플">앰플</option>
+                        <option value="크림">크림</option>
+                        <option value="스킨">스킨</option>
+                        <option value="세럼">세럼</option>
+                        <option value="로션">로션</option>
+
+                      </select>
+                      <button
+                        className={styles['remove-btn']}
+                        onClick={() => handleRemoveProduct(idx)}
+                        type="button"
+                        aria-label="삭제"
+                      >
+                        -
+                      </button>
+                    </div>
+                    <input
+                      className={styles['input-method']}
+                      placeholder="방법"
+                      value={product.method}
+                      onChange={(e) => handleProductChange(idx, 'method', e.target.value)}
+                    />
+                  </div>
+                ))}
+              </div>
+              {/* 플러스 버튼 */}
+              <div className={styles['add-btn-row']}>
+                <button
+                  className={styles['add-btn']}
+                  onClick={handleAddProduct}
+                  type="button"
+                  aria-label="추가"
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            {/* 버튼 그룹 */}
+            <div className={styles['button-group']}>
               <button
-                key={t.value}
-                className={getButtonClass(t.value, selectedTime)}
-                onClick={() => setSelectedTime(t.value as any)}
+                className={styles['submit-btn']}
+                onClick={handleAddRoutine}
                 type="button"
               >
-                {t.label}
+                등록
               </button>
-            ))}
-          </div>
-        </div>
-        {/* 2. 단계별 제품 입력 */}
-        <div style={{ marginBottom: 32 }}>
-          <div className={styles['section-title']}>2. 단계에 해당하는 제품을 입력해주세요.</div>
-          <div className={styles.inputs}>
-            {products.map((product, idx) => (
-              <div
-                key={idx}
-                className={getInputRowClass(selectedTime)}
+              <button
+                className={styles['complete-btn']}
+                onClick={handleComplete}
+                type="button"
               >
-                <div className={styles['input-top']}>
-                  <input
-                    className={styles.input}
-                    placeholder="제품명"
-                    value={product.name}
-                    onChange={(e) => handleProductChange(idx, 'name', e.target.value)}
-                  />
-                  <select
-                    className={styles['input-select']}
-                    value={product.kind}
-                    onChange={(e) => handleProductChange(idx, 'kind', e.target.value)}
-                  >
-                    <option value="">종류 선택</option>
-                    <option value="토너">토너</option>
-                    <option value="앰플">앰플</option>
-                  </select>
-                  <button
-                    className={styles['remove-btn']}
-                    onClick={() => handleRemoveProduct(idx)}
-                    type="button"
-                    aria-label="삭제"
-                  >
-                    -
-                  </button>
-                </div>
-                <input
-                  className={styles['input-method']}
-                  placeholder="방법"
-                  value={product.method}
-                  onChange={(e) => handleProductChange(idx, 'method', e.target.value)}
-                />
-              </div>
-            ))}
-          </div>
-          {/* 플러스 버튼 */}
-          <div className={styles['add-btn-row']}>
-            <button
-              className={styles['add-btn']}
-              onClick={handleAddProduct}
-              type="button"
-              aria-label="추가"
-            >
-              +
-            </button>
+                완료
+              </button>
+            </div>
           </div>
         </div>
-        {/* 등록 버튼 */}
-        <button
-          className={styles['submit-btn']}
-          onClick={handleAddRoutine}
-          type="button"
-        >
-          등록
-        </button>
 
       </div>
     </div>

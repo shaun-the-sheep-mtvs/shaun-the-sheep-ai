@@ -1,0 +1,25 @@
+### 피부 진단 및 제품 추천 테스트 (/diagnoses 엔드포인트)
+POST http://localhost:8080/api/recommend/diagnoses
+Content-Type: application/json
+
+{
+  "userId": 1,
+  "skinType": "DRY",
+  "troubles": ["여드름", "홍조"]
+}
+
+### 사용자 ID만 보내는 간소화된 테스트 (/diagnoses 엔드포인트)
+POST http://localhost:8080/api/recommend/diagnoses
+Content-Type: application/json
+
+{
+  "userId": 1
+}
+
+### 존재하지 않는 사용자 테스트 (에러 케이스)
+POST http://localhost:8080/api/recommend/diagnoses
+Content-Type: application/json
+
+{
+  "userId": 999
+}
