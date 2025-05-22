@@ -29,6 +29,9 @@ const products = [
   { name: "진정 세럼", description: "피부 진정케어 세럼 민감 피부용", category: "진정" },
   { name: "보습 크림", description: "저자극 수분 크림 민감 피부용", category: "보습" },
 ];
+const checklist = 
+  { moisture: 10, oil: 20, sensitivity: 30, tension: 40 };
+
 
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -50,34 +53,39 @@ export default function Home() {
     setIsSidebarOpen(false);
   };
 
-  const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
+  // const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
   const [error, setError]         = useState<string | null>(null);
 
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    fetch('http://localhost:8080/api/checklist', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error(`status ${res.status}`);
-        return res.json() as Promise<CheckListResponse[]>;
-      })
-      .then(data => {
-        if (data.length === 0) {
-          setError('저장된 체크리스트가 없습니다.');
-        } else {
-          setChecklist(data[0]);  // 최신 결과
-        }
-      })
-      .catch(() => setError('체크리스트를 불러오는 데 실패했습니다.'));
-  }, []);
+  // useEffect(() => {
+  //   const token = localStorage.getItem('accessToken');
+
+  //   if (!token) {
+  //     return;
+  //   }
+
+  //   fetch('http://localhost:8080/api/checklist', {
+  //     headers: { 'Authorization': `Bearer ${token}` }
+  //   })
+  //     .then(res => {
+  //       if (!res.ok) throw new Error(`status ${res.status}`);
+  //       return res.json() as Promise<CheckListResponse[]>;
+  //     })
+  //     .then(data => {
+  //       if (data.length === 0) {
+  //         setError('저장된 체크리스트가 없습니다.');
+  //       } else {
+  //         setChecklist(data[0]);  // 최신 결과
+  //       }
+  //     })
+  //     .catch(() => setError('체크리스트를 불러오는 데 실패했습니다.'));
+  // }, []);
 
   if (error) {
     return <div className={styles.page}><p className={styles.error}>{error}</p></div>;
   }
-  if (!checklist) {
-    return <div className={styles.page}>로딩 중…</div>;
-  }
+  // if (!checklist) {
+  //   return <div className={styles.page}>로딩 중…</div>;
+  // }
 
   // 한글 레이블 매핑
   const labels = {
@@ -97,21 +105,6 @@ export default function Home() {
 
   return (
     <div className={styles.wrapper}>
-      {/* 네비게이션 바 */}
-      <nav className={styles.navbar}>
-        <button className={styles.mobileMenuToggle} onClick={toggleSidebar}>
-          {isSidebarOpen ? <X className={styles.menuToggleIcon} /> : <Menu className={styles.menuToggleIcon} />}
-        </button>
-        <div className={styles.logoContainer}>
-          <h1 className={styles.logo}>Shaun</h1>
-        </div>
-
-        <div className={styles.navRight}>
-          <button className={styles.authButton}>회원가입</button>
-          <button className={styles.loginButton}>로그인</button>
-        </div>
-      </nav>
-
       {/* 메뉴 오버레이 */}
       <div
         className={`${styles.menuOverlay} ${isSidebarOpen ? styles.show : ''}`}

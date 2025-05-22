@@ -5,6 +5,7 @@ import "./globals.css";
 import AuthGuard from '@/components/AuthGuard';
 import Nav from '@/components/Nav';
 import Script from 'next/script';
+import Navbar from '@/components/Navbar';
 
 const geistSans = GeistSans;
 const geistMono = GeistMono;
@@ -29,6 +30,7 @@ export default function RootLayout({
             <Script src="/scripts/login.js" strategy="beforeInteractive" />
         </head>
         <body>
+            <Navbar />
             {children}
         </body>
         </html>

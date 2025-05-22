@@ -20,11 +20,14 @@ export default function Home() {
       const res = await fetch('http://localhost:8080/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({email, password})
       });
 
+      console.log('body:', res.body);
       console.log('응답 상태:', res.status);
+      console.log('응답 헤더:', res);
       const data = await res.json();
+
       console.log('응답 데이터:', data);
 
       if (!res.ok) {
