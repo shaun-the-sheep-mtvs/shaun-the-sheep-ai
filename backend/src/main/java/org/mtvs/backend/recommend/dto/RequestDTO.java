@@ -55,5 +55,3 @@ public class RequestDTO {
         contents.add(content);
     }
 }
-
-

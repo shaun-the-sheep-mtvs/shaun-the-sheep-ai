@@ -1,7 +1,13 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
 'use client';
 
 import React, { useEffect, useState } from 'react';
 import styles from "./page.module.css";
+import Link from 'next/link';
+import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X } from "lucide-react";
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import AnalysisBox from '@/components/AnalysisBox';
 import Greeting from '@/components/Greeting';
@@ -23,12 +29,31 @@ const analysis = {
   advice: "자극이 적은 제품을 사용해보세요!",
 };
 const products = [
-  { name: "수분", description: "진정효과 수분공급 민감피부용 에센스" },
-  { name: "진정", description: "피부 진정케어 세럼 민감 피부용" },
-  { name: "보습", description: "저자극 수분 크림 민감 피부용" },
+  { name: "수분 에센스", description: "진정효과 수분공급 민감피부용 에센스", category: "수분" },
+  { name: "진정 세럼", description: "피부 진정케어 세럼 민감 피부용", category: "진정" },
+  { name: "보습 크림", description: "저자극 수분 크림 민감 피부용", category: "보습" },
 ];
 
 export default function Home() {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const pathname = usePathname();
+
+  // 사이드바 상태가 변경될 때 body 스크롤 제어
+  useEffect(() => {
+    if (typeof document !== 'undefined') {
+      document.body.style.overflow = isSidebarOpen ? 'hidden' : '';
+    }
+  }, [isSidebarOpen]);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // 사이드바 외부 클릭시 닫기
+  const handleOverlayClick = () => {
+    setIsSidebarOpen(false);
+  };
+
   const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
   const [error, setError]         = useState<string | null>(null);
 
@@ -76,21 +101,134 @@ export default function Home() {
 
   return (
     <div className={styles.wrapper}>
+      {/* 네비게이션 바 */}
+      <nav className={styles.navbar}>
+        <button className={styles.mobileMenuToggle} onClick={toggleSidebar}>
+          {isSidebarOpen ? <X className={styles.menuToggleIcon} /> : <Menu className={styles.menuToggleIcon} />}
+        </button>
+        <div className={styles.logoContainer}>
+          <h1 className={styles.logo}>Shaun</h1>
+        </div>
+
+        <div className={styles.navRight}>
+          <button className={styles.authButton}>회원가입</button>
+          <button className={styles.loginButton}>로그인</button>
+        </div>
+      </nav>
+
+      {/* 메뉴 오버레이 */}
+      <div
+        className={`${styles.menuOverlay} ${isSidebarOpen ? styles.show : ''}`}
+        onClick={handleOverlayClick}
+      />
+
       {/* 사이드바 */}
-      <aside className={styles.sidebar}>
-        <h2 className={styles.logo}>스킨케어</h2>
-        <nav>
-          <ul className={styles.menu}>
-            <li className={styles.menuActive}>홈화면</li>
-            <li><Link href="/checklist">검사하기</Link></li>
-            <li>AI 채팅</li>
-            <li>회원정보</li>
-          </ul>
-        </nav>
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarLogo}>Shaun</h2>
+          <button className={styles.closeButton} onClick={() => setIsSidebarOpen(false)}>
+            <X className={styles.closeIcon} />
+          </button>
+        </div>
+
+        <ul className={styles.sidebarMenu}>
+          <li className={pathname === '/' ? styles.menuActive : ''}>
+            <Link href="/" className={styles.menuLink}>
+              <HomeIcon className={styles.menuIcon} />
+              홈화면
+            </Link>
+          </li>
+          <li className={pathname === '/checklist' ? styles.menuActive : ''}>
+            <Link href="/checklist" className={styles.menuLink}>
+              <ClipboardCheck className={styles.menuIcon} />
+              검사하기
+            </Link>
+          </li>
+          <li className={pathname === '/chat' ? styles.menuActive : ''}>
+            <Link href="/chat" className={styles.menuLink}>
+              <MessageCircle className={styles.menuIcon} />
+              AI 채팅
+            </Link>
+          </li>
+          <li className={pathname === '/profile' ? styles.menuActive : ''}>
+            <Link href="/profile" className={styles.menuLink}>
+              <User className={styles.menuIcon} />
+              회원정보
+            </Link>
+          </li>
+        </ul>
       </aside>
+
 
       {/* 메인 */}
       <main className={styles.mainContent}>
+        <div className={styles.contentContainer}>
+          {/* 오른쪽 컨텐츠 영역 */}
+          <div className={styles.contentRight}>
+            {/* 환영 메시지 */}
+            <div className={styles.greetingRight}>
+              <div className={styles.userAvatar}>
+                <span>👋</span>
+              </div>
+              <div className={styles.greetingText}>
+                <span className={styles.greetingLabel}>환영합니다!</span>
+                <span>
+                  <span className={styles.userName}>Guest</span> 님, 맞춤형 스킨케어를 시작해보세요!
+                </span>
+              </div>
+            </div>
+
+            {/* 체크리스트 결과 섹션 */}
+            <h2 className={styles.sectionTitle}>
+              <span>피부 분석 리포트</span>
+              <div className={styles.sectionDesc}>피부 상태를 분석하여 맞춤형 케어 솔루션을 제안합니다</div>
+            </h2>
+            <section className={styles.resultSection}>
+              <div className={styles.checklistBox}>
+                <h3>진단 측정 결과</h3>
+                <div className={styles.barWrap}>
+                  <div>수분 지수 <span>{checklist.수분}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist.수분}%`}} className={styles.barGold}></div></div>
+
+                  <div>유분 지수 <span>{checklist.유분}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist.유분}%`}} className={styles.barGoldLight}></div></div>
+
+                  <div>민감도 지수 <span>{checklist.민감도}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist.민감도}%`}} className={styles.barRed}></div></div>
+
+                  <div>탄력 지수 <span>{checklist.탄력}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist.탄력}%`}} className={styles.barGray}></div></div>
+                </div>
+              </div>
+
+              <div className={styles.analysisBox}>
+                <h3>피부 타입 분석</h3>
+                <div className={styles.analysisType}>{analysis.type}</div>
+                <div className={styles.analysisDesc}>{analysis.description}</div>
+                <div className={styles.analysisAdvice}>{analysis.advice}</div>
+              </div>
+            </section>
+
+            {/* 추천 제품 */}
+            <section className={styles.productSection}>
+              <h4>
+                <span style={{ color: '#333333', background: 'none', WebkitBackgroundClip: 'initial', WebkitTextFillColor: '#333333', backgroundClip: 'initial' }}>맞춤형 제품 추천</span>
+                <div className={styles.sectionDesc}>
+                  사용자의 피부 타입과 고민에 맞는 최적의 제품을 선별했습니다.<br/>
+                  더 많은 제품을 확인해보세요!</div>
+              </h4>
+              <div className={styles.productList}>
+                {products.map((p, i) => (
+                  <div key={i} className={styles.productCard}>
+                    <div className={styles.productImg}></div>
+                    <div className={styles.productName}>{p.name}</div>
+                    <div className={styles.productDesc}>{p.description}</div>
+                    <button className={styles.buyBtn}>
+                      <ShoppingBag className={styles.buttonIcon} />
+                      자세히 보기
+                    </button>
+                  </div>
+                ))}
         <Greeting />
         <section className={styles.resultSection}>
           {/* 체크리스트 결과 */}
@@ -130,38 +268,59 @@ export default function Home() {
                 <div className={styles.productDesc}>{p.description}</div>
                 <button className={styles.buyBtn}>자세히 보기</button>
               </div>
-            ))}
+              <div className={styles.moreProductsContainer}>
+                <Link href="/recommend" className={styles.moreProductsBtn}>
+                  <ShoppingBag className={styles.buttonIcon} />
+                  더 많은 제품 확인하기
+                </Link>
+              </div>
+            </section>
+
+            {/* 더 자세한 추천 */}
+            <section className={styles.recommendSection}>
+              <div className={styles.recommendTitle}>
+                <span>더 정확한 분석이 필요하신가요?</span>
+                <div className={styles.sectionDesc}>
+                  전문적인 피부 진단으로 더 정확한 결과를 확인하세요</div>
+              </div>
+              <Link href="/checklist" className={styles.goBtn}>
+                <ClipboardCheck className={styles.buttonIcon} />
+                정밀 피부 검사 받기
+              </Link>
+
+              <div className={styles.concernTitle}>
+                <span>피부 고민별 솔루션</span>
+                <div className={styles.sectionDesc}>
+                  특정 피부 고민에 맞는 맞춤형 솔루션을 찾아보세요.<br/>
+                  어떤 부분을 개선하고 싶으신가요?
+                </div>
+              </div>
+
+              <div className={styles.concernList}>
+                <div className={styles.concernItem}>
+                  <div className={styles.concernIcon}>💧</div>
+                  <div className={styles.concernLabel}>유·수분 밸런스</div>
+                </div>
+                <div className={styles.concernItem}>
+                  <div className={styles.concernIcon}>🔬</div>
+                  <div className={styles.concernLabel}>트러블 케어</div>
+                </div>
+                <div className={styles.concernItem}>
+                  <div className={styles.concernIcon}>🌊</div>
+                  <div className={styles.concernLabel}>보습 강화</div>
+                </div>
+                <div className={styles.concernItem}>
+                  <div className={styles.concernIcon}>🔥</div>
+                  <div className={styles.concernLabel}>진정 케어</div>
+                </div>
+                <div className={styles.concernItem}>
+                  <div className={styles.concernIcon}>🌡️</div>
+                  <div className={styles.concernLabel}>민감성 개선</div>
+                </div>
+              </div>
+            </section>
           </div>
-        </section>
-        {/* 더 자세한 추천 */}
-        <section className={styles.recommendSection}>
-          <div className={styles.recommendTitle}>더 자세한 추천을 원한다면?</div>
-          <button className={styles.goBtn}>검사 받으러 GO!</button>
-          <div className={styles.concernTitle}>고민별 추천</div>
-          <div className={styles.concernDesc}>어떤 부분을 개선하고 싶으신가요?</div>
-          <div className={styles.concernList}>
-            <div className={styles.concernItem}>
-              <div className={styles.concernIcon}>😅</div>
-              <div className={styles.concernLabel}>유분</div>
-            </div>
-            <div className={styles.concernItem}>
-              <div className={styles.concernIcon}>😬</div>
-              <div className={styles.concernLabel}>여드름</div>
-            </div>
-            <div className={styles.concernItem}>
-              <div className={styles.concernIcon}>🥲</div>
-              <div className={styles.concernLabel}>건조</div>
-            </div>
-            <div className={styles.concernItem}>
-              <div className={styles.concernIcon}>🥵</div>
-              <div className={styles.concernLabel}>열감</div>
-            </div>
-            <div className={styles.concernItem}>
-              <div className={styles.concernIcon}>🥹</div>
-              <div className={styles.concernLabel}>홍조</div>
-            </div>
-          </div>
-        </section>
+        </div>
       </main>
     </div>
   );

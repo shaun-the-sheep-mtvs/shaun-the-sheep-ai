@@ -13,20 +13,24 @@ export const metadata: Metadata = {
     description: "Shaun the Sheep MTVS is an ai aided web application for the skin care and beauty industry.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
-      <head />
-      <body>
-        {/* 1) Nav는 AuthGuard 바깥에 둡니다 */}
-        <Nav />
-
-        {/* 2) AuthGuard는 페이지 콘텐츠만 감싸서 보호 */}
-        <AuthGuard>
-          {children}
-        </AuthGuard>
-      </body>
-    </html>
-  );
+export default function RootLayout({
+                                       children,
+                                   }: {
+    children: React.ReactNode;
+}) {
+    return (
+        <html
+            lang="en"
+            className={`${geistSans.variable} ${geistMono.variable}`}
+        >
+        <head>
+            {/* 로그인 폼 스크립트 로드 */}
+            <Script src="/scripts/login.js" strategy="beforeInteractive" />
+        </head>
+        <body>
+        {children}
+        </body>
+        </html>
+    );
 }
 
