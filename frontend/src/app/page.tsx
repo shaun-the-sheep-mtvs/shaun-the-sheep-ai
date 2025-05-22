@@ -19,12 +19,7 @@ interface CheckListResponse {
   createdAt: string;
 }
 
-// 분석·제품 정보 (예시)
-const analysis = {
-  type: "수분충만·민감높음·유분충분·탄력좋음",
-  description: "당신의 피부는 외부 자극에 민감하게 반응하는 타입입니다.",
-  advice: "자극이 적은 제품을 사용해보세요!",
-};
+
 const products = [
   { name: "수분 에센스", description: "진정효과 수분공급 민감피부용 에센스", category: "수분" },
   { name: "진정 세럼", description: "피부 진정케어 세럼 민감 피부용", category: "진정" },
@@ -202,6 +197,18 @@ export default function Home() {
     }
   }, []);
 
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      router.push('/login');
+    }
+  }, [isLoggedIn]);
+
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    window.location.reload();
+  }
+
 
 
   // if (error) {
@@ -239,7 +246,7 @@ export default function Home() {
         </div>
 
         <div className={styles.navRight}>
-          {!isLoggedIn && (
+          {!isLoggedIn ? (
             <>
               <button 
                 className={styles.authButton}
@@ -254,6 +261,13 @@ export default function Home() {
                 로그인
               </button>
             </>
+          ):(
+            <button 
+              className={styles.logoutButton}
+              onClick={handleLogout}
+            >
+              로그아웃
+            </button>
           )}
         </div>
       </nav>

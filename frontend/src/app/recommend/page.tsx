@@ -199,6 +199,10 @@ export default function RecommendPage() {
     fetchData();
   }, []);
 
+  const handleBuyButtonClick = (product: Product) => {
+    window.open(`https://www.coupang.com/np/search?component=&q=${product.제품명}`, '_blank ');
+  }
+
   if (loading) return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -375,7 +379,7 @@ export default function RecommendPage() {
                       </div>
                     </div>
                     <div className={styles["button-group"]}>
-                      <button className={`${styles["buy-button"]} ${styles["toner-button"]}`}>
+                      <button onClick={() => handleBuyButtonClick(product)} className={`${styles["buy-button"]} ${styles["toner-button"]}`} >
                         <ShoppingBag size={16} /> 구매하기
                       </button>
                     </div>
@@ -423,7 +427,7 @@ export default function RecommendPage() {
                       </div>
                     </div>
                     <div className={styles["button-group"]}>
-                      <button className={`${styles["buy-button"]} ${styles["serum-button"]}`}>
+                      <button onClick={() => handleBuyButtonClick(product)} className={`${styles["buy-button"]} ${styles["serum-button"]}`}>
                         <ShoppingBag size={16} /> 구매하기
                       </button>
                     </div>
@@ -471,7 +475,7 @@ export default function RecommendPage() {
                       </div>
                     </div>
                     <div className={styles["button-group"]}>
-                      <button className={`${styles["buy-button"]} ${styles["lotion-button"]}`}>
+                      <button onClick={() => handleBuyButtonClick(product)} className={`${styles["buy-button"]} ${styles["lotion-button"]}`}>
                         <ShoppingBag size={16} /> 구매하기
                       </button>
                     </div>
@@ -519,7 +523,7 @@ export default function RecommendPage() {
                       </div>
                     </div>
                     <div className={styles["button-group"]}>
-                      <button className={`${styles["buy-button"]} ${styles["cream-button"]}`}>
+                      <button onClick={() => handleBuyButtonClick(product)} className={`${styles["buy-button"]} ${styles["cream-button"]}`}>
                         <ShoppingBag size={16} /> 구매하기
                       </button>
                     </div>
