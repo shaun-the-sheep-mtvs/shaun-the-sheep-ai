@@ -1,5 +1,7 @@
 package org.mtvs.backend.recommend.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.auth.model.User;
@@ -14,6 +16,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -64,7 +68,6 @@ public class RecommendController {
                         "- '성분'도 문자열 배열(string[])이어야 합니다.\n" +
                         "- '추천타입'은 제품의 특징을 설명하는 문자열입니다.\n" +
                         "- 실제 존재하는 한국 화장품 브랜드의 제품명을 사용해 주세요.\n" +
-                        "- 가격대를 다양하게 포함해 주세요 (저가, 중가, 고가).\n\n" +
                         "응답은 JSON 코드 블록 없이 순수한 JSON 형식으로 제공해 주세요.",
                 skinType, String.join(", ", concerns)
         );
@@ -86,9 +89,21 @@ public class RecommendController {
             System.out.println("정제된 JSON: " + cleanedJson);
 
             // JSON으로 파싱
+            // Gemini 응답값이 JSON 처럼 보이는 String 값이라 직렬화를 하기 위해 ObectMapper 사용
+//            public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException {
+//                this._assertNotNull("content", content);
+//
+//                try {
+//                    return this._readTreeAndClose(this._jsonFactory.createParser(content));
+//                } catch (JsonProcessingException e) {
+//                    throw e;
+//                } catch (IOException e) {
+//                    throw JsonMappingException.fromUnexpectedIOE(e);
+//                }
+//            }
             JsonNode jsonNode = objectMapper.readTree(cleanedJson);
 
-            // 파싱된 JSON을 반환 (자동으로 직렬화됨)
+            // 파싱된 JSON을 반환
             return ResponseEntity.ok(jsonNode);
 
         } catch (Exception e) {
