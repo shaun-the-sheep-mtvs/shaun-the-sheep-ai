@@ -1,4 +1,6 @@
 spring:
+  dotenv:
+    location: .env.local
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/sheep-ai-db}
     username: ${DB_USERNAME:user}
@@ -20,6 +22,11 @@ gemini:
   api:
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
     key: ${GEMINI_API_KEY:AIzaSyB_2HpZAgp2_ORDmWZ21TI18sgNQ_DGNDM}
+
+jwt:
+  secret: n3Jka8+vTtK8aJ4zr9H3yX2lV9DGKQ1LNzR7BtYk9fA=
+  access-token-expiration: 3600000 # 1?? (ms)
+  refresh-token-expiration: 604800000 # 7? (ms)
 
 # RecommendController용 설정
 gemini.api.key: ${GEMINI_API_KEY:AIzaSyB_2HpZAgp2_ORDmWZ21TI18sgNQ_DGNDM}

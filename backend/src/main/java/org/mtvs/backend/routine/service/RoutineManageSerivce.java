@@ -41,6 +41,6 @@ public class RoutineManageSerivce {
 
     // 사용자의 모든 루틴을 조회하는 메소드
     public List<RequestRoutineAllDTO> getAllRoutines(User user) {
-        return routineRepository.findAllRoutineByUserId(user.getId());
+        return routineRepository.findAllRoutineDTOByUserId(user.getId());
     }
 }

@@ -1,12 +1,13 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { GeistSans, GeistMono } from 'geist/font';
 import "./globals.css";
 import AuthGuard from '@/components/AuthGuard';
 import Nav from '@/components/Nav';
+import Script from 'next/script';
 
-const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
-const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+const geistSans = GeistSans;
+const geistMono = GeistMono;
 
 export const metadata: Metadata = {
     title: "Shaun the Sheep MTVS",
@@ -14,8 +15,8 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: {
+    children,
+}: {
     children: React.ReactNode;
 }) {
     return (
@@ -28,7 +29,7 @@ export default function RootLayout({
             <Script src="/scripts/login.js" strategy="beforeInteractive" />
         </head>
         <body>
-        {children}
+            {children}
         </body>
         </html>
     );

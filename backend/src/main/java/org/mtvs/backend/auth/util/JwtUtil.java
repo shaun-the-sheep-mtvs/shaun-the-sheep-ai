@@ -71,6 +71,8 @@ public class JwtUtil {
     public Long getUserId(String token) {
         return parseClaims(token).get("id", Long.class);
     }
+
+
     public String getCredentialFromToken(String token) {
         return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
     }

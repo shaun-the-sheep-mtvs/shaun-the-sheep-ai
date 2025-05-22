@@ -1,14 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-'use client';
-
-import React, { useEffect, useState } from 'react';
 import styles from "./page.module.css";
 import Link from 'next/link';
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X } from "lucide-react";
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import AnalysisBox from '@/components/AnalysisBox';
 import Greeting from '@/components/Greeting';
 
@@ -187,17 +183,17 @@ export default function Home() {
               <div className={styles.checklistBox}>
                 <h3>진단 측정 결과</h3>
                 <div className={styles.barWrap}>
-                  <div>수분 지수 <span>{checklist.수분}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist.수분}%`}} className={styles.barGold}></div></div>
+                  <div>수분 지수 <span>{checklist.moisture}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist.moisture}%`}} className={styles.barGold}></div></div>
 
-                  <div>유분 지수 <span>{checklist.유분}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist.유분}%`}} className={styles.barGoldLight}></div></div>
+                  <div>유분 지수 <span>{checklist.oil}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist.oil}%`}} className={styles.barGoldLight}></div></div>
 
-                  <div>민감도 지수 <span>{checklist.민감도}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist.민감도}%`}} className={styles.barRed}></div></div>
+                  <div>민감도 지수 <span>{checklist.sensitivity}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist.sensitivity}%`}} className={styles.barRed}></div></div>
 
-                  <div>탄력 지수 <span>{checklist.탄력}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist.탄력}%`}} className={styles.barGray}></div></div>
+                  <div>탄력 지수 <span>{checklist.tension}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist.tension}%`}} className={styles.barGray}></div></div>
                 </div>
               </div>
 
@@ -229,50 +225,6 @@ export default function Home() {
                     </button>
                   </div>
                 ))}
-        <Greeting />
-        <section className={styles.resultSection}>
-          {/* 체크리스트 결과 */}
-          <div className={styles.checklistBox}>
-            <h3>체크리스트 결과</h3>
-            <div className={styles.barWrap}>
-              {(Object.keys(labels) as (keyof typeof labels)[])
-                .map(key => {
-                  const value = checklist[key];
-                  return (
-                    <React.Fragment key={key}>
-                      <div>
-                        {labels[key]} <span>{value}%</span>
-                      </div>
-                      <div className={styles.bar}>
-                        <div
-                          className={barClasses[key]}
-                          style={{ width: `${value}%` }}
-                        />
-                      </div>
-                    </React.Fragment>
-                  );
-                })
-              }
-            </div>
-          </div>
-           <AnalysisBox checklist={checklist} />
-        </section>
-        {/* 추천 제품 */}
-        <section className={styles.productSection}>
-          <h4>회원님에게 어떤 제품이 좋을까요?</h4>
-          <div className={styles.productList}>
-            {products.map((p, i) => (
-              <div key={i} className={styles.productCard}>
-                <div className={styles.productImg}></div>
-                <div className={styles.productName}>{p.name}</div>
-                <div className={styles.productDesc}>{p.description}</div>
-                <button className={styles.buyBtn}>자세히 보기</button>
-              </div>
-              <div className={styles.moreProductsContainer}>
-                <Link href="/recommend" className={styles.moreProductsBtn}>
-                  <ShoppingBag className={styles.buttonIcon} />
-                  더 많은 제품 확인하기
-                </Link>
               </div>
             </section>
 
