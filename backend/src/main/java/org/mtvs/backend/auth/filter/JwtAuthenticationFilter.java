@@ -39,9 +39,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String authHeader = request.getHeader("Authorization");
+        // 클라이언트에서 Authorization: Bearer {token} 헤더를 보내지 않았음!
+        // logger.info(authHeader); -> Bearer null
+        // checklist 프론트 내
+        //    fetch('http://localhost:8080/api/checklist', {
+        //      //
+        //      method: 'POST', << GET 방식으로 교체
 
+
+        // 토큰이 유효하지 않음
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
+            System.out.println("token: " + token);
+
 
             if (jwtUtil.validateToken(token)) {
                Long userId = jwtUtil.getUserId(token);
@@ -49,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 //                userEmail이아니라 UserDetail을 저장하게 설정. 단 이생성자에 사용되는녀석은 manager나 provider에의해 구현된녀석이다 (인증토큰을만족하기위해)
 //                        manager 구현할것 //provider
                 System.out.println("userId = " + userId);
-                UserDetails userDetails = customUserDetailsService.loadUserByUsername(userId);
+                UserDetails userDetails = customUserDetailsService.loadUserByUsername(String.valueOf(userId));
                 System.out.println("userDetails = " + userDetails);
                 UsernamePasswordAuthenticationToken authToken =
                       new UsernamePasswordAuthenticationToken(userDetails, null, Collections.emptyList());

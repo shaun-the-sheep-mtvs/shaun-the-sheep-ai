@@ -20,14 +20,14 @@ public class JwtUtil {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    public String generateAccessToken(String email, String username,long id) {
+    public String generateAccessToken(String email, String username, long id) {
         Claims claims = Jwts.claims();
         claims.put("email", email);
         claims.put("username", username);
-        claims.put("id",id);
+        claims.put("id", id);
 
         return Jwts.builder()
-                .setSubject(email) // email값을 사용자 식별자로 사용
+                .setSubject(email) // email 값을 사용자 식별자로 사용
                 .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + accessTokenExpiration))
                 .signWith(SignatureAlgorithm.HS256, secret)

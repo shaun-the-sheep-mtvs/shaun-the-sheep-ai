@@ -58,22 +58,26 @@ export default function ChecklistPage() {
     if (!done) return;
 
     const token = localStorage.getItem('accessToken');
+
+    console.log(token);
+    
     if (!token) {
       console.error('No access token');
       return;
     }
 
+    // 체크리스트 데이터를 저장하려면 POST 요청을 사용해야 함
     fetch('http://localhost:8080/api/checklist', {
-      method: 'POST',
+      method: 'POST',  // GET에서 POST로 변경
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`  // 위에서 가져온 token 사용
       },
       body: JSON.stringify({
-        moisture:    percent('moisture'),
-        oil:         percent('oil'),
+        moisture: percent('moisture'),
+        oil: percent('oil'),
         sensitivity: percent('sensitivity'),
-        tension:     percent('tension'),
+        tension: percent('tension'),
       }),
     })
     .then(res => {
@@ -82,7 +86,7 @@ export default function ChecklistPage() {
     })
     .then(data => console.log('saved', data))
     .catch(err => console.error(err));
-  }, [done]);
+  }, [done, percent]); // percent 함수도 의존성 배열에 추가
 
   // 로딩 상태
   if (!qs.length) {

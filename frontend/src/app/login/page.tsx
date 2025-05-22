@@ -15,28 +15,32 @@ export default function Home() {
     setError(null);
 
     try {
+      console.log('로그인 시도:', { email, password });
+      
       const res = await fetch('http://localhost:8080/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),   // credentials 제거
+        body: JSON.stringify({ email, password }),
       });
 
+      console.log('응답 상태:', res.status);
       const data = await res.json();
+      console.log('응답 데이터:', data);
 
       if (!res.ok) {
         setError(data.error || data.message || '로그인에 실패했습니다.');
         return;
       }
 
-      // 서버 응답에서 토큰 꺼내서 저장
-      const { accessToken, refreshToken } = data;
-      localStorage.setItem('accessToken',  accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+      // 토큰 저장 전에 값 확인
+      console.log('저장할 토큰:', data.accessToken, data.refreshToken);
+      
+      localStorage.setItem('accessToken', data.accessToken);
+      localStorage.setItem('refreshToken', data.refreshToken);
 
-      // 로그인 후 홈(또는 대시보드)으로 이동
       router.push('/');
     } catch (err) {
-      console.error(err);
+      console.error('로그인 에러:', err);
       setError('네트워크 오류가 발생했습니다.');
     }
   };
