@@ -3,7 +3,7 @@
   "git": {
     "deploymentEnabled": {
       "dev": true,
-      "main": false,
+      "main": true,
       "ai-feature": false,
       "feature/*": false,
       "security": false,
@@ -20,4 +20,4 @@
       "memory": 3008
     }
   }
-} 
+}
