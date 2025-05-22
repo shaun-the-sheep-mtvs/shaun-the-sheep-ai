@@ -1,7 +1,7 @@
 'use client';
 
 import Link from "next/link"
-import { Bell, Home } from "lucide-react"
+import { Bell, Home, ShoppingBag, Info, Heart, Sparkles, ClipboardList, Droplet, Loader } from "lucide-react"
 import Image from "next/image"
 import styles from "./recommend.module.css"
 import { useState, useEffect } from "react"
@@ -195,9 +195,74 @@ export default function RecommendPage() {
     fetchData();
   }, []);
 
-  if (loading) return <div>로딩 중...</div>;
-  if (error) return <div>{error}</div>;
-  if (!recommendData) return <div>데이터가 없습니다.</div>;
+  if (loading) return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <Link href="/" className={styles.homeLink}>
+          <Home className={styles.homeIcon} />
+        </Link>
+        <h1 className={styles.headerTitle}>스킨케어 추천</h1>
+        <Bell className={styles.bellIcon} />
+      </header>
+      
+      <div className={styles["content-wrapper"]}>
+        <div className={styles.loadingContainer}>
+          <div className={styles.loadingSpinner}>
+            <Loader className={styles.loadingIcon} />
+          </div>
+          <p className={styles.loadingText}>맞춤형 스킨케어 정보를 불러오는 중입니다</p>
+          <div className={styles.loadingBar}>
+            <div className={styles.loadingBarProgress}></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <Link href="/" className={styles.homeLink}>
+          <Home className={styles.homeIcon} />
+        </Link>
+        <h1 className={styles.headerTitle}>스킨케어 추천</h1>
+        <Bell className={styles.bellIcon} />
+      </header>
+      
+      <div className={styles["content-wrapper"]}>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorIcon}>❌</div>
+          <p className={styles.errorText}>{error}</p>
+          <button onClick={() => window.location.reload()} className={`${styles["checklist-button"]} ${styles.retryButton}`}>
+            다시 시도하기
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+  
+  if (!recommendData) return (
+    <div className={styles.container}>
+      <header className={styles.header}>
+        <Link href="/" className={styles.homeLink}>
+          <Home className={styles.homeIcon} />
+        </Link>
+        <h1 className={styles.headerTitle}>스킨케어 추천</h1>
+        <Bell className={styles.bellIcon} />
+      </header>
+      
+      <div className={styles["content-wrapper"]}>
+        <div className={styles.errorContainer}>
+          <div className={styles.errorIcon}>📭</div>
+          <p className={styles.errorText}>데이터가 없습니다</p>
+          <Link href="/checklist" className={`${styles["checklist-button"]}`}>
+            <ClipboardList size={16} />
+            체크리스트 작성하러 가기
+          </Link>
+        </div>
+      </div>
+    </div>
+  );
 
   return (
     <div className={styles.container}>
@@ -206,146 +271,261 @@ export default function RecommendPage() {
         <Link href="/" className={styles.homeLink}>
           <Home className={styles.homeIcon} />
         </Link>
-        <h1 className={styles.headerTitle}>스킨케어</h1>
+        <h1 className={styles.headerTitle}>맞춤형 스킨케어 추천</h1>
         <Bell className={styles.bellIcon} />
       </header>
 
-      {/* Greeting Section */}
-      <section className={styles["greeting-section"]}>
-        <div className={styles["greeting-content"]}>
-          <div className={styles["user-avatar"]}>👤</div>
-          <p className={styles["greeting-text"]}>
-            안녕하세요, <span className={styles["user-name"]}>마라님</span>
-          </p>
+      {/* 콘텐츠 래퍼 추가 - 데스크탑에서 사이드바와 메인 콘텐츠 구분 */}
+      <div className={styles["content-wrapper"]}>
+        {/* 사이드바 영역 - 반응형으로 배치 변경 */}
+        <div className={styles.sidebar}>
+          {/* Greeting Section */}
+          <section className={styles["greeting-section"]}>
+            <div className={styles["greeting-background"]}></div>
+            <div className={styles["greeting-content"]}>
+              <div className={styles["user-avatar"]}>
+                <span className={styles["avatar-text"]}>마</span>
+              </div>
+              <div className={styles["greeting-text-container"]}>
+                <div className={styles["greeting-text-wrapper"]}>
+                  <p className={styles["greeting-label"]}>반갑습니다</p>
+                  <p className={styles["greeting-text"]}>
+                    안녕하세요, <span className={styles["user-name"]}>마라님</span>
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Recommendation Section */}
+          <section className={styles["recommendation-section"]}>
+            <h2 className={styles["section-title"]}>회원님을 위한 스킨케어</h2>
+
+            <div className={styles["recommendation-card"]}>
+              <h3 className={styles["recommendation-title"]}>{recommendData.skinType} 피부 타입 ⭐</h3>
+              <p className={styles["recommendation-text"]}>
+                당신의 피부는 <strong>{recommendData.concerns.join(', ')}</strong>에 대한 케어가 필요합니다.
+              </p>
+              <div className={styles["recommendation-tip"]}>✨ 아래 추천 제품을 확인해보세요!</div>
+            </div>
+
+            <Link href="/checklist" className={styles["checklist-button"]}>
+              <ClipboardList size={16} />
+              체크리스트 작성하러 가기
+            </Link>
+          </section>
         </div>
-      </section>
 
-      {/* Recommendation Section */}
-      <section className={styles["recommendation-section"]}>
-        <h2 className={styles["section-title"]}>회원님에게 어떤 제품이 좋을까요?</h2>
+        {/* 메인 콘텐츠 영역 */}
+        <div className={styles["main-content"]}>
+          {/* 카테고리 제목 개선 */}
+          <div className={styles["main-title-container"]}>
+            <div className={styles["title-background"]}></div>
+            <h2 className={styles["main-title"]}>
+              <Sparkles className={styles["title-icon-svg"]} />
+              맞춤형 추천 제품
+            </h2>
+            <p className={styles["main-subtitle"]}>
+              <strong>{recommendData.skinType}</strong> 피부를 위해 엄선된 완벽한 스킨케어 루틴으로
+              {recommendData.concerns.length > 0 && 
+                <span className={styles["highlight"]}> {recommendData.concerns.join(', ')}</span>} 고민을 해결해보세요!
+            </p>
+            <div className={styles["title-divider"]}></div>
+          </div>
 
-        <div className={styles["recommendation-card"]}>
-          <h3 className={styles["recommendation-title"]}>{recommendData.skinType} ⭐</h3>
-          <p className={styles["recommendation-text"]}>
-            당신의 피부는 {recommendData.concerns.join(', ')}에 대한 케어가 필요합니다.
-          </p>
-          <div className={styles["recommendation-tip"]}>추천 제품을 확인해보세요!</div>
-        </div>
+          {/* Toner Section */}
+          <section className={`${styles["product-section"]} ${styles["toner-section"]}`}>
+            <div className={styles["category-header"]}>
+              <div className={`${styles["category-icon"]} ${styles["toner-icon"]}`}>💧</div>
+              <h2 className={styles["category-title"]}>토너</h2>
+            </div>
 
-        <button className={styles["checklist-button"]}>체크리스트 작성하러 가기</button>
-      </section>
+            <div className={styles["product-grid"]}>
+              {recommendData.recommendations.토너.map((product, index) => (
+                <div key={`toner-${index}`} className={styles["product-card"]}>
+                  <div className={styles["product-image-container"]}>
+                    <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
+                    <div className={styles["product-badge"]}>추천</div>
+                  </div>
+                  <div className={styles["product-info"]}>
+                    <div className={styles["product-details"]}>
+                      <p className={styles["product-title"]}>{product.제품명}</p>
+                      <div className={styles["tooltip"]}>
+                        <p className={`${styles["product-attribute"]} ${styles["toner-attribute"]}`}>{product.추천타입 || "피부 진정"}</p>
+                      </div>
+                      <div className={styles["product-ingredients-container"]}>
+                        <p className={styles["ingredients-label"]}>
+                          <Droplet size={14} className={styles["ingredients-icon"]} />
+                          주요 성분
+                        </p>
+                        <p className={styles["product-ingredients"]}>
+                          {product.성분.length > 0 
+                            ? product.성분.map((ingredient, idx) => (
+                                <span key={idx} className={styles["ingredient-item"]}>
+                                  {ingredient}{idx < product.성분.length - 1 ? ', ' : ''}
+                                </span>
+                              ))
+                            : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles["button-group"]}>
+                      <button className={`${styles["buy-button"]} ${styles["toner-button"]}`}>
+                        <ShoppingBag size={16} /> 구매하기
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
 
-      {/* Search Bar */}
-      <div className={styles["search-container"]}>
-        <div className={styles["search-bar"]}>
-          <span className={styles["search-icon"]}>🔍</span>
-          <input type="text" placeholder="검색" className={styles["search-input"]} />
+          {/* Serum Section */}
+          <section className={`${styles["product-section"]} ${styles["serum-section"]}`}>
+            <div className={styles["category-header"]}>
+              <div className={`${styles["category-icon"]} ${styles["serum-icon"]}`}>✨</div>
+              <h2 className={styles["category-title"]}>세럼</h2>
+            </div>
+
+            <div className={styles["product-grid"]}>
+              {recommendData.recommendations.세럼.map((product, index) => (
+                <div key={`serum-${index}`} className={styles["product-card"]}>
+                  <div className={styles["product-image-container"]}>
+                    <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
+                    <div className={styles["product-badge"]}>추천</div>
+                  </div>
+                  <div className={styles["product-info"]}>
+                    <div className={styles["product-details"]}>
+                      <p className={styles["product-title"]}>{product.제품명}</p>
+                      <div className={styles["tooltip"]}>
+                        <p className={`${styles["product-attribute"]} ${styles["serum-attribute"]}`}>{product.추천타입 || "수분 공급"}</p>
+                      </div>
+                      <div className={styles["product-ingredients-container"]}>
+                        <p className={styles["ingredients-label"]}>
+                          <Droplet size={14} className={styles["ingredients-icon"]} />
+                          주요 성분
+                        </p>
+                        <p className={styles["product-ingredients"]}>
+                          {product.성분.length > 0 
+                            ? product.성분.map((ingredient, idx) => (
+                                <span key={idx} className={styles["ingredient-item"]}>
+                                  {ingredient}{idx < product.성분.length - 1 ? ', ' : ''}
+                                </span>
+                              ))
+                            : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles["button-group"]}>
+                      <button className={`${styles["buy-button"]} ${styles["serum-button"]}`}>
+                        <ShoppingBag size={16} /> 구매하기
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Lotion Section */}
+          <section className={`${styles["product-section"]} ${styles["lotion-section"]}`}>
+            <div className={styles["category-header"]}>
+              <div className={`${styles["category-icon"]} ${styles["lotion-icon"]}`}>🧴</div>
+              <h2 className={styles["category-title"]}>로션</h2>
+            </div>
+
+            <div className={styles["product-grid"]}>
+              {recommendData.recommendations.로션.map((product, index) => (
+                <div key={`lotion-${index}`} className={styles["product-card"]}>
+                  <div className={styles["product-image-container"]}>
+                    <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
+                    <div className={styles["product-badge"]}>추천</div>
+                  </div>
+                  <div className={styles["product-info"]}>
+                    <div className={styles["product-details"]}>
+                      <p className={styles["product-title"]}>{product.제품명}</p>
+                      <div className={styles["tooltip"]}>
+                        <p className={`${styles["product-attribute"]} ${styles["lotion-attribute"]}`}>{product.추천타입 || "보습 강화"}</p>
+                      </div>
+                      <div className={styles["product-ingredients-container"]}>
+                        <p className={styles["ingredients-label"]}>
+                          <Droplet size={14} className={styles["ingredients-icon"]} />
+                          주요 성분
+                        </p>
+                        <p className={styles["product-ingredients"]}>
+                          {product.성분.length > 0 
+                            ? product.성분.map((ingredient, idx) => (
+                                <span key={idx} className={styles["ingredient-item"]}>
+                                  {ingredient}{idx < product.성분.length - 1 ? ', ' : ''}
+                                </span>
+                              ))
+                            : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles["button-group"]}>
+                      <button className={`${styles["buy-button"]} ${styles["lotion-button"]}`}>
+                        <ShoppingBag size={16} /> 구매하기
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* Cream Section */}
+          <section className={`${styles["product-section"]} ${styles["cream-section"]}`}>
+            <div className={styles["category-header"]}>
+              <div className={`${styles["category-icon"]} ${styles["cream-icon"]}`}>🥛</div>
+              <h2 className={styles["category-title"]}>크림</h2>
+            </div>
+
+            <div className={styles["product-grid"]}>
+              {recommendData.recommendations.크림.map((product, index) => (
+                <div key={`cream-${index}`} className={styles["product-card"]}>
+                  <div className={styles["product-image-container"]}>
+                    <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
+                    <div className={styles["product-badge"]}>추천</div>
+                  </div>
+                  <div className={styles["product-info"]}>
+                    <div className={styles["product-details"]}>
+                      <p className={styles["product-title"]}>{product.제품명}</p>
+                      <div className={styles["tooltip"]}>
+                        <p className={`${styles["product-attribute"]} ${styles["cream-attribute"]}`}>{product.추천타입 || "보습 케어"}</p>
+                      </div>
+                      <div className={styles["product-ingredients-container"]}>
+                        <p className={styles["ingredients-label"]}>
+                          <Droplet size={14} className={styles["ingredients-icon"]} />
+                          주요 성분
+                        </p>
+                        <p className={styles["product-ingredients"]}>
+                          {product.성분.length > 0 
+                            ? product.성분.map((ingredient, idx) => (
+                                <span key={idx} className={styles["ingredient-item"]}>
+                                  {ingredient}{idx < product.성분.length - 1 ? ', ' : ''}
+                                </span>
+                              ))
+                            : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
+                          }
+                        </p>
+                      </div>
+                    </div>
+                    <div className={styles["button-group"]}>
+                      <button className={`${styles["buy-button"]} ${styles["cream-button"]}`}>
+                        <ShoppingBag size={16} /> 구매하기
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
         </div>
       </div>
-
-      {/* Toner Section */}
-      <section className={styles["product-section"]}>
-        <div className={styles["category-header"]}>
-          <div className={styles["category-icon"]}>💬</div>
-          <h2 className={styles["category-title"]}>토너</h2>
-        </div>
-
-        <div className={styles["product-grid"]}>
-          {recommendData.recommendations.토너.map((product, index) => (
-            <div key={`toner-${index}`} className={styles["product-card"]}>
-              <div className={styles["product-image-container"]}>
-                <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
-              </div>
-              <div className={styles["product-info"]}>
-                <p className={styles["product-title"]}>{product.제품명}</p>
-                <div className={styles["tooltip"]}>
-                  <p className={styles["product-attribute"]}>{product.추천타입}</p>
-                </div>
-                <p className={styles["product-ingredients"]}>{product.성분.join(', ')}</p>
-                <button className={`${styles["buy-button"]} ${styles["toner-button"]}`}>구매</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Serum Section */}
-      <section className={styles["product-section"]}>
-        <div className={styles["category-header"]}>
-          <div className={styles["category-icon"]}>💬</div>
-          <h2 className={styles["category-title"]}>세럼</h2>
-        </div>
-
-        <div className={styles["product-grid"]}>
-          {recommendData.recommendations.세럼.map((product, index) => (
-            <div key={`serum-${index}`} className={styles["product-card"]}>
-              <div className={styles["product-image-container"]}>
-                <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
-              </div>
-              <div className={styles["product-info"]}>
-                <p className={styles["product-title"]}>{product.제품명}</p>
-                <div className={styles["tooltip"]}>
-                  <p className={styles["product-attribute"]}>{product.추천타입}</p>
-                </div>
-                <p className={styles["product-ingredients"]}>{product.성분.join(', ')}</p>
-                <button className={`${styles["buy-button"]} ${styles["serum-button"]}`}>구매</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Lotion Section */}
-      <section className={styles["product-section"]}>
-        <div className={styles["category-header"]}>
-          <div className={styles["category-icon"]}>💬</div>
-          <h2 className={styles["category-title"]}>로션</h2>
-        </div>
-
-        <div className={styles["product-grid"]}>
-          {recommendData.recommendations.로션.map((product, index) => (
-            <div key={`lotion-${index}`} className={styles["product-card"]}>
-              <div className={styles["product-image-container"]}>
-                <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
-              </div>
-              <div className={styles["product-info"]}>
-                <p className={styles["product-title"]}>{product.제품명}</p>
-                <div className={styles["tooltip"]}>
-                  <p className={styles["product-attribute"]}>{product.추천타입}</p>
-                </div>
-                <p className={styles["product-ingredients"]}>{product.성분.join(', ')}</p>
-                <button className={`${styles["buy-button"]} ${styles["lotion-button"]}`}>구매</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* Cream Section */}
-      <section className={styles["product-section"]}>
-        <div className={styles["category-header"]}>
-          <div className={styles["category-icon"]}>💬</div>
-          <h2 className={styles["category-title"]}>크림</h2>
-        </div>
-
-        <div className={styles["product-grid"]}>
-          {recommendData.recommendations.크림.map((product, index) => (
-            <div key={`cream-${index}`} className={styles["product-card"]}>
-              <div className={styles["product-image-container"]}>
-                <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
-              </div>
-              <div className={styles["product-info"]}>
-                <p className={styles["product-title"]}>{product.제품명}</p>
-                <div className={styles["tooltip"]}>
-                  <p className={styles["product-attribute"]}>{product.추천타입}</p>
-                </div>
-                <p className={styles["product-ingredients"]}>{product.성분.join(', ')}</p>
-                <button className={`${styles["buy-button"]} ${styles["cream-button"]}`}>구매</button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
     </div>
   )
 }
