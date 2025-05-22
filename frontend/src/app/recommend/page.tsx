@@ -31,22 +31,22 @@ interface BackendResponse {
   recommendations: {
     toner: Array<{
       제품명: string;
-      추천이유: string;
+      추천타입: string;
       성분: string[];
     }>;
     serum: Array<{
       제품명: string;
-      추천이유: string;
+      추천타입: string;
       성분: string[];
     }>;
     lotion: Array<{
       제품명: string;
-      추천이유: string;
+      추천타입: string;
       성분: string[];
     }>;
     cream: Array<{
       제품명: string;
-      추천이유: string;
+      추천타입: string;
       성분: string[];
     }>;
   };
@@ -75,7 +75,7 @@ function parseBackendResponse(data: BackendResponse): RecommendData {
   const convertProducts = (products: Array<any> = []) => {
     return products.map(item => ({
       제품명: item.제품명 || '제품명 없음',
-      추천타입: item.추천이유?.split('.')[0] || '정보 없음',
+      추천타입: item.추천타입 || '정보 없음',
       성분: item.성분 || []
     }));
   };
@@ -176,11 +176,11 @@ export default function RecommendPage() {
           };
           const parsedData = parseBackendResponse(dummyData as unknown as BackendResponse);
           setRecommendData(parsedData);
-                  } else {
-            // 정상적인 백엔드 응답인 경우
-            const parsedData = parseBackendResponse(parsedResponse);
-            setRecommendData(parsedData);
-          }
+        } else {
+          // 정상적인 백엔드 응답인 경우
+          const parsedData = parseBackendResponse(parsedResponse);
+          setRecommendData(parsedData);
+        }
       } catch (err) {
         setError('데이터를 불러오는데 실패했습니다.');
         console.error('Error fetching data:', err);
@@ -258,7 +258,9 @@ export default function RecommendPage() {
               </div>
               <div className={styles["product-info"]}>
                 <p className={styles["product-title"]}>{product.제품명}</p>
-                <p className={styles["product-attribute"]}>{product.추천타입}</p>
+                <div className={styles["tooltip"]}>
+                  <p className={styles["product-attribute"]}>{product.추천타입}</p>
+                </div>
                 <p className={styles["product-ingredients"]}>{product.성분.join(', ')}</p>
                 <button className={`${styles["buy-button"]} ${styles["toner-button"]}`}>구매</button>
               </div>
@@ -282,7 +284,9 @@ export default function RecommendPage() {
               </div>
               <div className={styles["product-info"]}>
                 <p className={styles["product-title"]}>{product.제품명}</p>
-                <p className={styles["product-attribute"]}>{product.추천타입}</p>
+                <div className={styles["tooltip"]}>
+                  <p className={styles["product-attribute"]}>{product.추천타입}</p>
+                </div>
                 <p className={styles["product-ingredients"]}>{product.성분.join(', ')}</p>
                 <button className={`${styles["buy-button"]} ${styles["serum-button"]}`}>구매</button>
               </div>
@@ -306,7 +310,9 @@ export default function RecommendPage() {
               </div>
               <div className={styles["product-info"]}>
                 <p className={styles["product-title"]}>{product.제품명}</p>
-                <p className={styles["product-attribute"]}>{product.추천타입}</p>
+                <div className={styles["tooltip"]}>
+                  <p className={styles["product-attribute"]}>{product.추천타입}</p>
+                </div>
                 <p className={styles["product-ingredients"]}>{product.성분.join(', ')}</p>
                 <button className={`${styles["buy-button"]} ${styles["lotion-button"]}`}>구매</button>
               </div>
@@ -330,7 +336,9 @@ export default function RecommendPage() {
               </div>
               <div className={styles["product-info"]}>
                 <p className={styles["product-title"]}>{product.제품명}</p>
-                <p className={styles["product-attribute"]}>{product.추천타입}</p>
+                <div className={styles["tooltip"]}>
+                  <p className={styles["product-attribute"]}>{product.추천타입}</p>
+                </div>
                 <p className={styles["product-ingredients"]}>{product.성분.join(', ')}</p>
                 <button className={`${styles["buy-button"]} ${styles["cream-button"]}`}>구매</button>
               </div>
