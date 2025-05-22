@@ -1,10 +1,23 @@
 {
-  "buildCommand": "cd frontend && npm run build",
-  "outputDirectory": "frontend/.next",
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "dev": true,
+      "main": false,
+      "ai-feature": false,
+      "feature/*": false,
+      "security": false,
+      "temp": false,
+      "temptemp": false
+    }
+  },
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "installCommand": "npm install",
   "framework": "nextjs",
   "functions": {
-    "frontend/app/api/**/*": {
-      "runtime": "edge"
+    "api/**/*": {
+      "memory": 3008
     }
   }
 } 
