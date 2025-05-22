@@ -77,8 +77,11 @@ public class AuthController {
     @GetMapping("/me")
     public ResponseEntity<CurrentUserDto> me(Authentication authentication) {
         // authentication.getPrincipal() 이 UserDetails 구현체여야 합니다.
-        String email = authentication.getName();  // 보통 sub 또는 username
-        User user    = authService.findByEmail(email);
+
+        log.info("me");
+        log.info("authentication: {}", authentication);
+        String name = authentication.getName();  // 보통 sub 또는 username
+        User user    = authService.findByUsername(name);
         // DTO 로 노출할 정보만 담아 반환
         CurrentUserDto dto = new CurrentUserDto(
                 user.getId(),

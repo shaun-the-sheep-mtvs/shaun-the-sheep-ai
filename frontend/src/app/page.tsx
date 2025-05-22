@@ -7,6 +7,7 @@ import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X } f
 import { usePathname, useRouter } from 'next/navigation';
 import AnalysisBox from '@/components/AnalysisBox';
 import Greeting from '@/components/Greeting';
+import { useCurrentUser } from '@/data/useCurrentUser';
 
 // 서버가 내려주는 타입 (영문 키)
 interface CheckListResponse {
@@ -34,6 +35,7 @@ export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { user, loading } = useCurrentUser();
 
   // 사이드바 상태가 변경될 때 body 스크롤 제어
   useEffect(() => {
@@ -189,7 +191,10 @@ export default function Home() {
               <div className={styles.greetingText}>
                 <span className={styles.greetingLabel}>환영합니다!</span>
                 <span>
-                  <span className={styles.userName}>Guest</span> 님, 맞춤형 스킨케어를 시작해보세요!
+                  <span className={styles.userName}>
+                    {loading ? 'Loading...' : user ? user.username : 'Guest'}
+                  </span> 
+                    {" "}님, 맞춤형 스킨케어를 시작해보세요!
                 </span>
               </div>
             </div>
