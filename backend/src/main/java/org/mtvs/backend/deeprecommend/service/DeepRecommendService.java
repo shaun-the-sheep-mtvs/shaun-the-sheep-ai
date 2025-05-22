@@ -40,6 +40,7 @@ public class DeepRecommendService {
         this.userRepository = userRepository;
         this.deepRecommendRepository = deepRecommendRepository;
         this.openConfig = openConfig;
+
     }
 
     public String askOpenAI(long userId) {
