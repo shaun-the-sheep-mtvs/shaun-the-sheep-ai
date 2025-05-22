@@ -1,6 +1,7 @@
 package org.mtvs.backend.auth.model;
 
 import jakarta.persistence.*;
+import lombok.Data;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -11,6 +12,7 @@ import java.util.List;
 
 @Entity // 테이블명이 user일 경우 일부 DB에서 예약어 충돌 가능하므로 users로 변경을 권장
 @Table(name = "users")
+@Data
 public class User {
 
     @Id

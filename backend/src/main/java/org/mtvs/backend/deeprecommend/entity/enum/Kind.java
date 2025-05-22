@@ -1,10 +1,10 @@
-package org.mtvs.backend.deeprecommend.domain;
+package org.mtvs.backend.deeprecommend.entity.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum Action {
-    Add,Replace;
+public enum Kind {
+    Toner,Ample,Cream;
 }

@@ -1,12 +1,8 @@
 package org.mtvs.backend.deeprecommend.dto;
 
-import lombok.Getter;
-import lombok.Setter;
-import org.mtvs.backend.deeprecommend.domain.Action;
-import org.mtvs.backend.deeprecommend.domain.Kind;
+import org.mtvs.backend.deeprecommend.entity.enums.Action;
+import org.mtvs.backend.deeprecommend.entity.enums.Kind;
 
-@Getter
-@Setter
 public class RecommendDTO {
 
     private int id;
@@ -21,5 +17,43 @@ public class RecommendDTO {
         this.reason = reason;
     }
 
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Action getAction() {
+        return action;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
+    }
+
+    public Kind getKind() {
+        return kind;
+    }
+
+    public void setKind(Kind kind) {
+        this.kind = kind;
+    }
+
+    public String getSuggest_product() {
+        return suggest_product;
+    }
+
+    public void setSuggest_product(String suggest_product) {
+        this.suggest_product = suggest_product;
+    }
+
+    public String getReason() {
+        return reason;
+    }
+
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
 }
