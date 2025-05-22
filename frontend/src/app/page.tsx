@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import Link from 'next/link';
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X } from "lucide-react";
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import AnalysisBox from '@/components/AnalysisBox';
 import Greeting from '@/components/Greeting';
 
@@ -33,6 +33,7 @@ const products = [
 export default function Home() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   // 사이드바 상태가 변경될 때 body 스크롤 제어
   useEffect(() => {
@@ -51,33 +52,38 @@ export default function Home() {
   };
 
   const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
-  const [error, setError]         = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    fetch('http://localhost:8080/api/checklist', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    })
-      .then(res => {
-        if (!res.ok) throw new Error(`status ${res.status}`);
-        return res.json() as Promise<CheckListResponse[]>;
+    setIsLoggedIn(!!token);
+    
+    if (token) {
+      fetch('http://localhost:8080/api/checklist', {
+        headers: { 'Authorization': `Bearer ${token}` }
       })
-      .then(data => {
-        if (data.length === 0) {
-          setError('저장된 체크리스트가 없습니다.');
-        } else {
-          setChecklist(data[0]);  // 최신 결과
-        }
-      })
-      .catch(() => setError('체크리스트를 불러오는 데 실패했습니다.'));
+        .then(res => {
+          if (!res.ok) throw new Error(`status ${res.status}`);
+          return res.json() as Promise<CheckListResponse[]>;
+        })
+        .then(data => {
+          if (data.length === 0) {
+            setError('저장된 체크리스트가 없습니다.');
+          } else {
+            setChecklist(data[0]);  // 최신 결과
+          }
+        })
+        .catch(() => setError('체크리스트를 불러오는 데 실패했습니다.'));
+    }
   }, []);
 
-  if (error) {
-    return <div className={styles.page}><p className={styles.error}>{error}</p></div>;
-  }
-  if (!checklist) {
-    return <div className={styles.page}>로딩 중…</div>;
-  }
+  // if (error) {
+  //   return <div className={styles.page}><p className={styles.error}>{error}</p></div>;
+  // }
+  // if (!checklist) {
+  //   return <div className={styles.page}>로딩 중…</div>;
+  // }
 
   // 한글 레이블 매핑
   const labels = {
@@ -107,8 +113,22 @@ export default function Home() {
         </div>
 
         <div className={styles.navRight}>
-          <button className={styles.authButton}>회원가입</button>
-          <button className={styles.loginButton}>로그인</button>
+          {!isLoggedIn && (
+            <>
+              <button 
+                className={styles.authButton}
+                onClick={() => router.push('/register')}
+              >
+                회원가입
+              </button>
+              <button 
+                className={styles.loginButton}
+                onClick={() => router.push('/login')}
+              >
+                로그인
+              </button>
+            </>
+          )}
         </div>
       </nav>
 
@@ -183,17 +203,17 @@ export default function Home() {
               <div className={styles.checklistBox}>
                 <h3>진단 측정 결과</h3>
                 <div className={styles.barWrap}>
-                  <div>수분 지수 <span>{checklist.moisture}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist.moisture}%`}} className={styles.barGold}></div></div>
+                  <div>수분 지수 <span>{checklist?.moisture ?? 0}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist?.moisture ?? 0}%`}} className={styles.barGold}></div></div>
 
-                  <div>유분 지수 <span>{checklist.oil}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist.oil}%`}} className={styles.barGoldLight}></div></div>
+                  <div>유분 지수 <span>{checklist?.oil ?? 0}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist?.oil ?? 0}%`}} className={styles.barGoldLight}></div></div>
 
-                  <div>민감도 지수 <span>{checklist.sensitivity}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist.sensitivity}%`}} className={styles.barRed}></div></div>
+                  <div>민감도 지수 <span>{checklist?.sensitivity ?? 0}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist?.sensitivity ?? 0}%`}} className={styles.barRed}></div></div>
 
-                  <div>탄력 지수 <span>{checklist.tension}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist.tension}%`}} className={styles.barGray}></div></div>
+                  <div>탄력 지수 <span>{checklist?.tension ?? 0}%</span></div>
+                  <div className={styles.bar}><div style={{width: `${checklist?.tension ?? 0}%`}} className={styles.barGray}></div></div>
                 </div>
               </div>
 

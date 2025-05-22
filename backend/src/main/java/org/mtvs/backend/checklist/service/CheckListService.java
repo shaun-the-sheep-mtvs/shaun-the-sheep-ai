@@ -27,7 +27,7 @@ public class CheckListService {
 
     @Transactional
     public CheckListResponse create(CheckListRequest req, String username) {
-        User user = userRepo.findByEmail(username)
+        User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
 
         CheckList entity = new CheckList();
@@ -43,7 +43,7 @@ public class CheckListService {
 
     @Transactional
     public List<CheckListResponse> findAllForCurrentUser(String username) {
-        User user = userRepo.findByEmail(username)
+        User user = userRepo.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException(username));
         return checkListRepo.findByUserOrderByCreatedAtDesc(user)
                 .stream().map(this::toDto).toList();

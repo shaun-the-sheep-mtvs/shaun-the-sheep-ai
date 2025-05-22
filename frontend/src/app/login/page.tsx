@@ -75,6 +75,9 @@ export default function Home() {
             <button type="submit" className={styles.loginButton}>
               Sign In
             </button>
+            <div className={styles.registerLink} onClick={() => router.push('/register')}>
+              회원가입
+            </div>
           </form>
         </div>
       </main>

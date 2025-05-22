@@ -1,8 +1,10 @@
 package org.mtvs.backend.checklist.controller;
 
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.service.CheckListService;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.security.Principal;
 import java.util.List;
@@ -21,14 +23,14 @@ public class CheckListController {
     @PostMapping
     public CheckListResponse create(
             @RequestBody CheckListRequest req,
-            Principal principal
+            @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return service.create(req, principal.getName());
+        return service.create(req, userDetails.getUsername());
     }
 
     @GetMapping
-    public List<CheckListResponse> findAll(Principal principal) {
-        return service.findAllForCurrentUser(principal.getName());
+    public List<CheckListResponse> findAll(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
+        return service.findAllForCurrentUser(customUserDetail.getUser().getUsername());
     }
 }
 

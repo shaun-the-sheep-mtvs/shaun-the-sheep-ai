@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from 'react';
 import { QUESTIONS, Question, Category } from '@/data/questions';
 import styles from './page.checklist.module.css';
+import { useRouter } from 'next/navigation';
 
 // Fisher–Yates 셔플 함수
 function shuffle<T>(arr: T[]): T[] {
@@ -21,6 +22,7 @@ export default function ChecklistPage() {
   const [answers, setAnswers]         = useState<{ cat: Category; score: number }[]>([]);
   const [done, setDone]               = useState(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const router = useRouter();
 
   // 페이지 로드 시: 카테고리별로 5문항 중 랜덤 3개씩 골라 총 12문제 세팅
   useEffect(() => {
@@ -53,36 +55,6 @@ export default function ChecklistPage() {
   const raw = Math.round((sums[cat] / maxForCat) * 100);
   return Math.min(raw, 100);
 };
-  // 3) 완료 시 서버에 저장 (한 번만 호출)
-  useEffect(() => {
-    if (!done) return;
-
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      console.error('No access token');
-      return;
-    }
-
-    fetch('http://localhost:8080/api/checklist', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        moisture:    percent('moisture'),
-        oil:         percent('oil'),
-        sensitivity: percent('sensitivity'),
-        tension:     percent('tension'),
-      }),
-    })
-    .then(res => {
-      if (!res.ok) throw new Error(`status ${res.status}`);
-      return res.json();
-    })
-    .then(data => console.log('saved', data))
-    .catch(err => console.error(err));
-  }, [done]);
 
   // 로딩 상태
   if (!qs.length) {
@@ -146,7 +118,37 @@ export default function ChecklistPage() {
     setTimeout(() => {
       setSelectedOption(null);
       if (idx + 1 >= qs.length) {
-        setDone(true);
+        // 마지막 문제인 경우 서버에 저장
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.error('No access token');
+          return;
+        }
+
+        fetch('http://localhost:8080/api/checklist', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            moisture:    percent('moisture'),
+            oil:         percent('oil'),
+            sensitivity: percent('sensitivity'),
+            tension:     percent('tension'),
+          }),
+        })
+        .then(res => {
+          if (!res.ok) throw new Error(`status ${res.status}`);
+          return res.json();
+        })
+        .then(() => {
+          window.location.href = '/';  // 저장 성공 시 바로 홈으로 리다이렉트
+        })
+        .catch(err => {
+          console.error(err);
+          setDone(true);  // 에러 발생 시에만 done 상태 변경
+        });
       } else {
         setIdx(i => i + 1);
       }
@@ -157,7 +159,7 @@ export default function ChecklistPage() {
     <div className={styles.page}>
       <div className={styles.container}>
         <h1 className={styles.title}>
-          질문. {idx + 1} / {qs.length}　{q.text}
+          질문. {idx + 1} / {qs.length} {q.text}
         </h1>
 
         <div className={styles.progress}>

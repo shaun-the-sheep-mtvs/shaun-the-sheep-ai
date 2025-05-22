@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -34,18 +35,19 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors().and()
-                .csrf().disable()  // CSRF 보호 비활성화 (API 서버에서는 일반적)
-                .authorizeRequests()
-                .requestMatchers(HttpMethod.POST, "/auth/login", "/user/register", "/user/refresh").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/checklist").permitAll()
-                .requestMatchers(HttpMethod.GET,  "/api/checklist").permitAll()
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(
+                        auth -> auth
+//                .requestMatchers(HttpMethod.POST, "/api/checklist").permitAll()
                 .requestMatchers("/auth/**").permitAll()
                 .requestMatchers("/**").permitAll()
-                .anyRequest().authenticated()  // 나머지 API는 인증 필요
-                .and()
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class) // 이 부분 추가
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);  // 세션 사용 안 함 (JWT 사용)
+                                .anyRequest().authenticated()  // 나머지 API는 인증 필요
+                )
+                .sessionManagement((sessionManagement) ->
+                        sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 

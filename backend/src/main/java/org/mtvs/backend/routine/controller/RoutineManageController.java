@@ -1,12 +1,9 @@
 package org.mtvs.backend.routine.controller;
 
 import org.mtvs.backend.auth.model.CustomUserDetails;
-import org.mtvs.backend.auth.model.User;
 import org.mtvs.backend.auth.service.AuthService;
 import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
-import org.mtvs.backend.routine.dto.RequestRoutineAllDTO;
-import org.mtvs.backend.routine.entity.Routine;
-import org.mtvs.backend.routine.service.RoutineManageSerivce;
+import org.mtvs.backend.routine.service.RoutineManageService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -14,19 +11,16 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
-import java.nio.file.attribute.UserPrincipal;
-import java.util.List;
-
 @CrossOrigin(origins = "http://localhost:8080/*")
 @RestController("/")
 public class RoutineManageController {
 
 
-    private final RoutineManageSerivce routineManageSerivce;
+    private final RoutineManageService routineManageSerivce;
     private final AuthService userService;
 
     @Autowired
-    public RoutineManageController(RoutineManageSerivce routineManageSerivce,AuthService userService) {
+    public RoutineManageController(RoutineManageService routineManageSerivce,AuthService userService) {
         this.routineManageSerivce = routineManageSerivce;
         this.userService = userService;
     }
