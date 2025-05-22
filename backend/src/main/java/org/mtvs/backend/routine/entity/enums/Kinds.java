@@ -6,10 +6,9 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Kinds {
     토너("토너"),
-    세럼("세럼"),
-    로션("로션"),
+    앰플("앰플"),
     크림("크림"),
-    앰플("앰플");
+    세럼("세럼");
 
     private final String name;
 
