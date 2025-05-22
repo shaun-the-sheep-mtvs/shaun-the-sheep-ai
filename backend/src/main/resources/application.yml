@@ -1,13 +1,18 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/sheep-ai-db}
-    username: ${DB_USERNAME:user}
-    password: ${DB_PASSWORD:5656}
+    # Supabase Direct Connection
+    url: jdbc:postgresql://db.vmseaaxnzizueahbonmg.supabase.co:5432/postgres
+    username: postgres
+    password: ${SUPABASE_DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+ # Local connection to DB
+ # url: jdbc:postgresql://localhost:5432/sheep-ai-db
+ # username: user
+ # password: 5656
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
