@@ -98,11 +98,15 @@ export default function RecommendPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    const token = localStorage.getItem('accessToken');
     const fetchData = async () => {
       try {
-        const response = await axios.post('http://localhost:8080/api/recommend/diagnoses', {
-          userId: 1  // 임시로 하드코딩된 userId 사용
+        const response = await axios.post('http://localhost:8080/api/recommend/diagnoses', {}, {
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
         });
+        
         
         // 백엔드 응답 로깅
         console.log('백엔드 응답(원본):', response.data);

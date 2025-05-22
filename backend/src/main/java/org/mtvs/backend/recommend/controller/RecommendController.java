@@ -2,6 +2,7 @@ package org.mtvs.backend.recommend.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.model.User;
 import org.mtvs.backend.recommend.dto.RequestDTO;
 import org.mtvs.backend.auth.model.User.SkinType;
@@ -9,6 +10,7 @@ import org.mtvs.backend.auth.repository.UserRepository;
 import org.mtvs.backend.recommend.dto.ResponseDTO;
 import org.mtvs.backend.recommend.dto.UserRequestDTO;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
@@ -17,7 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/recommend")
+@RequestMapping
 public class RecommendController {
 
     @Value("${gemini.api.key}")
@@ -39,14 +41,13 @@ public class RecommendController {
         this.objectMapper = objectMapper;
     }
 
-    @PostMapping("/diagnoses")
-    public ResponseEntity<?> diagnose(@RequestBody UserRequestDTO userRequestDTO) {
-        // 사용자 ID로 데이터베이스에서 사용자 정보를 조회
-        User user = userRepository.findById(userRequestDTO.getUserId()).orElseThrow(() -> new RuntimeException("User not found"));
+
+    @PostMapping("/api/recommend/diagnoses")
+    public ResponseEntity<?> diagnose(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
 
         // 사용자의 피부 타입과 고민 목록을 가져옴
-        SkinType skinType = user.getSkinType();
-        List<String> concerns = user.getTroubles();
+        SkinType skinType = customUserDetail.getUser().getSkinType();
+        List<String> concerns = customUserDetail.getUser().getTroubles();
 
         String geminiURL = geminiApiUrl + "?key=" + geminiApiKey;
 
@@ -80,6 +81,7 @@ public class RecommendController {
             // Gemini API 호출
             ResponseDTO response = restTemplate.postForObject(geminiURL, request, ResponseDTO.class);
             rawResponse = response.getCandidates().get(0).getContent().getParts().get(0).getText();
+            System.out.println(rawResponse);
 
             // 마크다운 코드 블록 제거 (```json과 ```)
             String cleanedJson = rawResponse.replaceAll("(?s)```json\\s*|```\\s*", "");
