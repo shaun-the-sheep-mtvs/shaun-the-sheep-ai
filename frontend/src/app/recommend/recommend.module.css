@@ -249,4 +249,38 @@
 
 .serum-button:hover {
   background-color: #fbcfe8;
+}
+
+.essence-button {
+  background-color: #f472b6;
+}
+
+.essence-button:hover {
+  background-color: #db2777;
+}
+
+.lotion-button {
+  background-color: #f472b6;
+}
+
+.lotion-button:hover {
+  background-color: #db2777;
+}
+
+.cream-button {
+  background-color: #f472b6;
+}
+
+.cream-button:hover {
+  background-color: #db2777;
+}
+
+.product-ingredients {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 } 
