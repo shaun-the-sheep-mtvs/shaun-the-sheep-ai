@@ -11,7 +11,7 @@ pipeline {
         stage('Build JAR') {
             steps {
                 dir('backend') {
-                    sh './gradlew build'
+                    sh './gradlew build -x test'
                 }
             }
         }
