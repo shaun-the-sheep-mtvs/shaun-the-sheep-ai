@@ -49,7 +49,7 @@ public class User {
     }
 
     public enum SkinType {
-        건성, 지성, 복합성, 민감성, 수부지
+        건성, 지성, 복합성, 민감성, 수분부족지성
     }
 
     @Enumerated(EnumType.STRING)

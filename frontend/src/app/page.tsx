@@ -207,13 +207,6 @@ export default function Home() {
     window.location.reload();
   }
 
-  // if (error) {
-  //   return <div className={styles.page}><p className={styles.error}>{error}</p></div>;
-  // }
-  // if (!checklist) {
-  //   return <div className={styles.page}>로딩 중…</div>;
-  // }
-
   // 한글 레이블 매핑
   const labels = {
     moisture:    '수분',

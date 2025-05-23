@@ -1,5 +1,7 @@
 package org.mtvs.backend.checklist.dto;
 
+import java.util.List;
+
 public class CheckListRequest {
     private Long userId;
     private Integer moisture;
@@ -7,6 +9,8 @@ public class CheckListRequest {
     private Integer sensitivity;
     private Integer tension;
     private String username;
+
+    private List<String> troubles;
 
     public Long getUserId() {
         return userId;
@@ -46,6 +50,14 @@ public class CheckListRequest {
 
     public void setTension(Integer tension) {
         this.tension = tension;
+    }
+
+    public List<String> getTroubles() {
+        return troubles;
+    }
+
+    public void setTroubles(List<String> troubles) {
+        this.troubles = troubles;
     }
 
     public String getUsername() {
