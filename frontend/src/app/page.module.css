@@ -2363,4 +2363,16 @@ a.secondary {
   .adviceContent {
     font-size: 1.25rem;  /* 1rem에서 증가 */
   }
+
+  .logoutButton {
+    background: #f00;
+  color: #fff;
+  padding: .5rem 1rem;
+  border-radius: .25rem;
+  border: none;
+  cursor: pointer;
+  }
+  .logoutButton:hover {
+  background: #c00;
+}
 }
