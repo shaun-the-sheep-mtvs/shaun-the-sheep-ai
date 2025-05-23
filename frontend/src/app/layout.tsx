@@ -30,6 +30,7 @@ export default function RootLayout({
             className={`${geistSans.variable} ${geistMono.variable}`}
         >
         <head>
+            <link rel="icon" href="/favicon.ico" />
             {/* 로그인 폼 스크립트 로드 */}
             <Script src="/scripts/login.js" strategy="beforeInteractive" />
         </head>
