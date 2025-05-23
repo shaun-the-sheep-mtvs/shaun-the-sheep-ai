@@ -15,17 +15,21 @@ pipeline {
                 }
             }
         }
+        stage('Stop Old Container') {
+            steps {
+                sh 'docker rm -f my-backend-container || true'
+            }
+        }
+        stage('Remove Old Image') {
+            steps {
+                sh 'docker rmi my-backend:latest || true'
+            }
+        }
         stage('Build Docker Image') {
             steps {
                 dir('backend') {
                     sh 'docker build -t my-backend:latest .'
                 }
-            }
-        }
-        stage('Stop Old Container') {
-            steps {
-                sh 'docker rm -f my-backend-container || true'
-                sh 'docker rmi my-backend:latest || true'
             }
         }
         stage('Run New Container') {
