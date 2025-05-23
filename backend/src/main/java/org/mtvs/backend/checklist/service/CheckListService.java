@@ -5,7 +5,7 @@ import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
 import org.mtvs.backend.user.entity.User;
-import org.mtvs.backend.auth.service.AuthService;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,15 +14,15 @@ import java.util.stream.Collectors;
 @Service
 public class CheckListService {
     private final CheckListRepository repo;
-    private final AuthService authService;    // UserRepository 대신 AuthService 사용
+    private final UserRepository userRepository;    // UserRepository 대신 User 사용
 
-    public CheckListService(CheckListRepository repo, AuthService authService) {
+    public CheckListService(CheckListRepository repo, UserRepository userRepository) {
         this.repo = repo;
-        this.authService = authService;
+        this.userRepository = userRepository;
     }
 
     public CheckListResponse create(String username, CheckListRequest req) {
-        User user = authService.findByUsername(username);  // Optional 풀고 예외처리
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         CheckList entity = new CheckList();
         entity.setUser(user);
         entity.setMoisture(req.getMoisture());
@@ -34,7 +34,7 @@ public class CheckListService {
     }
 
     public List<CheckListResponse> findAllForUser(String username) {
-        User user = authService.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         return repo.findByUserOrderByCreatedAtDesc(user)
                 .stream()
                 .map(this::toDto)
