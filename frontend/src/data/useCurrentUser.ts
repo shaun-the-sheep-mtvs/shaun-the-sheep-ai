@@ -14,6 +14,7 @@ export function useCurrentUser() {
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
+    console.log('token:', token);
     if (!token) {
       setLoading(false);
       return;

@@ -1,16 +1,4 @@
-.page {
-  --gray-rgb: 0, 0, 0;
-  --gray-alpha-200: rgba(var(--gray-rgb), 0.08);
-  --gray-alpha-100: rgba(var(--gray-rgb), 0.05);
 
-  --button-primary-hover: #383838;
-  --button-secondary-hover: #f2f2f2;
-
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  font-family: var(--font-geist-sans);
-}
 
 @media (prefers-color-scheme: dark) {
   .page {
@@ -1203,13 +1191,14 @@ a.secondary {
   z-index: 0;
 }
 
+/* 체크리스트 박스 제목 */
 .checklistBox h3, .analysisBox h3 {
-  font-size: 1.5rem;
+  font-size: 2rem;  /* 1.5rem에서 증가 */
   font-weight: 700;
   color: #111827;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;  /* 0.75rem에서 증가 */
   position: relative;
-  padding-bottom: 0.875rem;
+  padding-bottom: 1rem;  /* 0.875rem에서 증가 */
   border-bottom: 1px solid var(--card-border);
   z-index: 1;
 }
@@ -1232,6 +1221,13 @@ a.secondary {
   margin-top: 0.75rem;
   position: relative;
   z-index: 1;
+}
+
+/* 바 차트 레이블 */
+.barWrap > div:nth-of-type(odd) {
+  font-size: 1.5rem;  /* 1.25rem에서 증가 */
+  font-weight: 600;
+  padding: 0.75rem 1rem;  /* 패딩 증가 */
 }
 
 /* 항목 레이블과 퍼센트 컨테이너 */
@@ -1378,10 +1374,10 @@ a.secondary {
 }
 
 .analysisType {
-  font-size: 1.625rem;
+  font-size: 2rem;  /* 1.625rem에서 증가 */
   font-weight: 700;
   color: var(--text-dark);
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;  /* 1.25rem에서 증가 */
   display: inline-block;
   position: relative;
   z-index: 1;
@@ -1400,30 +1396,53 @@ a.secondary {
 }
 
 .analysisDesc {
-  font-size: 1.125rem;
+  font-size: 1.5rem;  /* 1.125rem에서 증가 */
   line-height: 1.6;
   color: #374151;
-  margin-bottom: 1.5rem;
+  margin-bottom: 2rem;  /* 1.5rem에서 증가 */
   position: relative;
   z-index: 1;
   letter-spacing: -0.01em;
 }
 
+.adviceLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;  /* 0.5rem에서 증가 */
+  font-size: 1.5rem;  /* 1.125rem에서 증가 */
+  font-weight: 700;
+  color: var(--primary-mint);
+  margin-bottom: 1.25rem;  /* 1rem에서 증가 */
+  padding-bottom: 1rem;  /* 0.75rem에서 증가 */
+  border-bottom: 1px solid rgba(61, 213, 152, 0.2);
+}
+
 .analysisAdvice {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  padding: 1rem 1.25rem;
-  background: rgba(61, 213, 152, 0.1);
-  border-radius: 0.75rem;
-  border-left: 3px solid var(--primary-mint);
+  background: rgba(61, 213, 152, 0.08);
+  border-radius: 1rem;
+  padding: 1.25rem;
   position: relative;
-  z-index: 1;
-  letter-spacing: -0.01em;
-  margin-top: 0.75rem;
-  margin-bottom: 0.5rem;
-  box-shadow: 0 2px 5px rgba(61, 213, 152, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.adviceContent {
+  font-size: 1.5rem;  /* 1.125rem에서 증가 */
+  line-height: 1.6;
+  color: #374151;
+  font-weight: 500;
+}
+
+@media (max-width: 768px) {
+  .adviceLabel {
+    font-size: 1.25rem;  /* 1rem에서 증가 */
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .adviceContent {
+    font-size: 1.25rem;  /* 1rem에서 증가 */
+  }
 }
 
 .analysisAdvice:hover {
@@ -2192,5 +2211,144 @@ a.secondary {
   .logo {
     font-size: 1.75rem;
     margin-bottom: 0.75rem;
+  }
+}
+
+.viewMoreBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  max-width: 300px;
+  margin: 2rem auto 0;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(135deg, #fde047 0%, #fcd34d 100%);
+  color: #111827;
+  border: none;
+  border-radius: 9999px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.viewMoreBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15), 0 3px 6px -1px rgba(0, 0, 0, 0.08);
+  background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+}
+
+.viewMoreBtn .buttonIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  animation: sparkle 2s infinite;
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
+.mbtiResult {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.95));
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(236, 72, 153, 0.1);
+}
+
+.mbtiTitle {
+  font-size: 1.75rem;  /* 1.25rem에서 증가 */
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 1.5rem;  /* 1rem에서 증가 */
+  text-align: center;
+  letter-spacing: -0.01em;
+}
+
+.mbtiCode {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.mbtiCode span {
+  width: 6rem;  /* 5rem에서 증가 */
+  height: 6rem;  /* 5rem에서 증가 */
+  font-size: 3rem;  /* 2.5rem에서 증가 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 1rem;
+  font-weight: 800;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+/* B(Bright) - 수분(Green) */
+.mbtiCode span:nth-child(1) {
+  background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+}
+
+/* C(Clean) - 유분(Blue) */
+.mbtiCode span:nth-child(2) {
+  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+}
+
+/* O(Oily) - 민감도(Red) */
+.mbtiCode span:nth-child(3) {
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+}
+
+/* R(Relaxed) - 탄력(Orange) */
+.mbtiCode span:nth-child(4) {
+  background: linear-gradient(90deg, #f59e0b 0%, #fbbf24 100%);
+}
+
+.mbtiCode span:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+.mbtiDesc {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;  /* 1rem에서 증가 */
+  font-size: 1.25rem;  /* 1rem에서 증가 */
+  color: var(--text-medium);
+  margin-top: 1rem;  /* 새로 추가 */
+}
+
+.mbtiDesc div {
+  width: 5rem;  /* 4rem에서 증가 */
+  text-align: center;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .mbtiCode span {
+    width: 4rem;  /* 3rem에서 증가 */
+    height: 4rem;  /* 3rem에서 증가 */
+    font-size: 2rem;  /* 1.5rem에서 증가 */
+  }
+  
+  .mbtiDesc div {
+    width: 4rem;  /* 3rem에서 증가 */
+    font-size: 1.125rem;  /* 0.875rem에서 증가 */
+  }
+  
+  .adviceLabel {
+    font-size: 1.25rem;  /* 1rem에서 증가 */
+  }
+  
+  .adviceContent {
+    font-size: 1.25rem;  /* 1rem에서 증가 */
   }
 }

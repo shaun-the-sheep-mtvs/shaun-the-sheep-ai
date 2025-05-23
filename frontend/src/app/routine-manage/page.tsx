@@ -34,6 +34,8 @@ interface Product {
 }
 
 const RoutineManagePage = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   const router = useRouter();
   const [selectedTime, setSelectedTime] = useState<'MORNING' | 'EVENING' | 'BOTH'>('MORNING');
   const [products, setProducts] = useState<Product[]>([
@@ -43,6 +45,15 @@ const RoutineManagePage = () => {
   const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
   
  
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  // 사이드바 외부 클릭시 닫기
+  const handleOverlayClick = () => {
+    setIsSidebarOpen(false);
+  };
+
 
   // POST 요청 함수
   const handleAddRoutine = async () => {
@@ -118,11 +129,12 @@ const RoutineManagePage = () => {
   };
 
   const handleComplete = () => {
-    router.push('/routine-complete'); // 다음 페이지로 이동
+    router.push('/step2'); // 다음 페이지로 이동
   };
 
   return (
-    <div className={styles.container}>
+    <div className={styles.wrapper}>
+      
       <div className={styles['page-layout']}>
         {/* 왼쪽: 루틴 등록 폼 */}
         <div className={styles['form-section']}>
@@ -227,14 +239,16 @@ const RoutineManagePage = () => {
                 onClick={handleComplete}
                 type="button"
               >
-                완료
+                다음
               </button>
             </div>
           </div>
         </div>
 
       </div>
+      
     </div>
+    
   );
 };
 

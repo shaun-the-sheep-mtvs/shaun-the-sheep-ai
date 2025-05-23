@@ -45,15 +45,16 @@ export default function RegisterPage() {
     <div className={styles.page}>
       <main className={styles.main}>
         <div className={styles.registerContainer}>
-          <h1>Sign Up</h1>
+          <h1>Shaun</h1>
           {error && <p className={styles.error}>{error}</p>}
 
           <form onSubmit={handleSubmit} className={styles.registerForm}>
             <div className={styles.formGroup}>
-              <label htmlFor="username">Username</label>
+              <label htmlFor="username">사용자 이름</label>
               <input
                 id="username"
                 type="text"
+                placeholder="사용자를 입력해주세요"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 required
@@ -61,10 +62,11 @@ export default function RegisterPage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">이메일</label>
               <input
                 id="email"
                 type="email"
+                placeholder="이메일을 입력해주세요"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
@@ -72,19 +74,25 @@ export default function RegisterPage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">패스워드</label>
               <input
                 id="password"
                 type="password"
+                
+                placeholder="패스워드를 입력해주세요"
                 value={password}
+              
                 onChange={e => setPassword(e.target.value)}
                 required
               />
             </div>
 
             <button type="submit" className={styles.registerButton}>
-              Create Account
+              가입 하기
             </button>
+            <div className={styles.loginLink} onClick={() => router.push('/login')}>
+              로그인
+            </div>
           </form>
         </div>
       </main>

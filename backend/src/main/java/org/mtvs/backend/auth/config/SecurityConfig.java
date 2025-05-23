@@ -41,7 +41,7 @@ public class SecurityConfig {
                         auth -> auth
 //                .requestMatchers(HttpMethod.POST, "/api/checklist").permitAll()
                 .requestMatchers("/auth/**").permitAll()
-                .requestMatchers("/**").permitAll()
+//                .requestMatchers("/**").permitAll()
                                 .anyRequest().authenticated()  // 나머지 API는 인증 필요
                 )
                 .sessionManagement((sessionManagement) ->
