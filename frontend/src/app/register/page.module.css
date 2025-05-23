@@ -28,7 +28,7 @@
 .registerContainer h1 {
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #333;
+  color: #34a395;
 }
 
 .registerForm {
@@ -81,4 +81,13 @@
   font-size: 0.9rem;
 }
 
-
+.loginLink {
+  text-align: center;
+  color: #2fa45a;
+  font-size: 14x;
+  cursor: pointer;
+  margin-top: 6px;
+}
+.loginLink:hover {
+  text-decoration: underline;
+}
