@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -70,7 +69,6 @@ public class AuthController {
         response.setHeader("Set-Cookie", deleteCookie.toString());
 
         // 2) (선택) authService.invalidateRefreshToken(...) 같은 로직 호출
-
         return ResponseEntity.ok(Map.of("message", "로그아웃 되었습니다."));
     }
 

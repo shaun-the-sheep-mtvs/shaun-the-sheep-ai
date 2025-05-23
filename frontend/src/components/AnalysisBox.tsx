@@ -25,15 +25,15 @@ interface Props {
 export default function AnalysisBox({ checklist }: Props) {
   const analysis = useMemo<Analysis>(() => {
     const c = checklist;
-    const B = c.moisture >= 60 ? 'B' : 'T';
-    const C = c.sensitivity < 60 ? 'C' : 'A';
+    const B = c.moisture >= 60 ? 'M' : 'A';
+    const C = c.sensitivity < 60 ? 'I' : 'S';
     const D = c.oil >= 60 ? 'D' : 'O';
-    const E = (c.tension < 60 || c.sensitivity >= 60) ? 'S' : 'R';
+    const E = c.tension < 60 ? 'T' : 'C';
     const code = `${B}${C}${D}${E}`;
 
     const map: Record<string, Omit<Analysis, 'code'>> = {
       BCDS: {
-        type: '수분충만·민감낮음·건조·스트레스',
+        type: '수분충만·민감낮음·건조·탄력성',
         description: '수분은 충분하지만 환경 스트레스가 높아 피부 보호막이 약할 수 있어요.',
         advice: '항산화·보습 제품과 자외선 차단을 꼭 병행하세요!'
       },
