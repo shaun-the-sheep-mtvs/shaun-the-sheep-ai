@@ -23,9 +23,10 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors()                // ← WebMvcConfigurer 혹은 CorsFilter 를 Security 필터 체인에 연결
-                .and()
-                .csrf().disable()
+                .cors(cors -> cors
+                        .configurationSource(corsConfigurationSource())
+                )
+                .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .anyRequest().permitAll()
                 );
@@ -35,9 +36,13 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // localhost의 어떤 포트에서도 허용
-        config.setAllowedOriginPatterns(List.of("http://localhost:*"));
-
+        config.setAllowedOrigins(List.of(
+                "http://localhost:3000",
+                "https://shaunthesheep.store",
+                "https://www.shaunthesheep.store",
+                "https://shaun-the-sheep-ai-git-main-jkktoms-projects.vercel.app",
+                "https://api.shaunthesheep.store"
+        ));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
