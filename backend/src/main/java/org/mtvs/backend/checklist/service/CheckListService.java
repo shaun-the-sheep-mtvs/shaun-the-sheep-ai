@@ -91,8 +91,8 @@ public class CheckListService {
         ratings.put("tension", result.getTension() >= 60 ? "T" : "L");
 
         // 피부 타입 조합 생성 (예: MOSL, DBIL 등)
-        String skinType = ratings.get("moisture") + ratings.get("sensitivity") +
-                         ratings.get("oil") + ratings.get("tension");
+        String skinType = ratings.get("moisture") + ratings.get("oil") +
+                          ratings.get("sensitivity") + ratings.get("tension");
         System.out.println(skinType);
         return skinType;
     }
