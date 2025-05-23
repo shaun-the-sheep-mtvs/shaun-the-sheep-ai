@@ -1,9 +1,9 @@
 package org.mtvs.backend.recommend.controller;
 
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.recommend.dto.RequestDTO;
-import org.mtvs.backend.auth.model.User.SkinType;
-import org.mtvs.backend.auth.repository.UserRepository;
+import org.mtvs.backend.user.entity.User.SkinType;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.recommend.dto.ResponseDTO;
 import org.mtvs.backend.recommend.dto.UserRequestDTO;
 import org.springframework.beans.factory.annotation.Qualifier;

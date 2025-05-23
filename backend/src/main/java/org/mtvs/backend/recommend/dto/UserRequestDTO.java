@@ -1,10 +1,7 @@
 package org.mtvs.backend.recommend.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;
 
-import java.nio.channels.SelectionKey;
 import java.util.List;
 
 

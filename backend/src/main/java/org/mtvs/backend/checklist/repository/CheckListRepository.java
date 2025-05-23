@@ -2,7 +2,7 @@
 package org.mtvs.backend.checklist.repository;
 
 import org.mtvs.backend.checklist.model.CheckList;
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

@@ -1,57 +1,57 @@
 package org.mtvs.backend.auth.controller;
 
-import org.mtvs.backend.auth.dto.LoginDto;
-import org.mtvs.backend.auth.dto.RegistrationDto;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.mtvs.backend.auth.dto.LoginRequest;
+import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.service.AuthService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Map;
-
+@Slf4j
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
-    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
-    private final AuthService authService;
-    public AuthController(AuthService authService) {
-        this.authService = authService;
-    }
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegistrationDto dto) {
+    private final AuthService authService;
+
+    /*
+     * 회원가입
+     * */
+    @PostMapping("/signup")
+    public ResponseEntity<?> signup(@RequestBody SignupRequest dto) {
+        log.info("[회원가입] 요청 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
         try {
-            authService.register(dto);
-            return ResponseEntity
-                    .ok(Map.of("message", "회원가입 성공"));
-        } catch (IllegalArgumentException ex) {
-            // 중복 이메일 같은 예외는 400으로 응답
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("error", ex.getMessage()));
-            // 또는 HTTP 409를 쓰고 싶으면:
-            // return ResponseEntity
-            //     .status(HttpStatus.CONFLICT)
-            //     .body(Map.of("error", ex.getMessage()));
+            authService.signup(dto);
+            log.info("[회원가입] 성공 : 이메일={}", dto.getEmail());
+            return ResponseEntity.ok("회원가입 성공");
+        } catch (RuntimeException e) {
+            log.warn("[회원가입] 실패 : {}", e.getMessage());
+            return ResponseEntity.badRequest().body("회원가입 실패: " + e.getMessage());
         }
     }
 
+    /*
+     * 로그인
+     * */
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto dto) {
-        log.info("●●● /auth/login 호출, payload = {}", dto);
+    public ResponseEntity<?> login(@RequestBody LoginRequest dto) {
+        log.info("[로그인] 요청 수신: 이메일={}", dto.getEmail());
+
         try {
-            authService.login(dto);
-            return ResponseEntity.ok(Map.of("message", "로그인 성공"));
-        } catch (IllegalArgumentException ex) {
-            log.warn("로그인 실패: {}", ex.getMessage());
-            // 400 Bad Request 로 에러 메시지 전달
-            return ResponseEntity
-                    .badRequest()
-                    .body(Map.of("error", ex.getMessage()));
+            String token = authService.login(dto);
+            log.info("[로그인] 성공 : 이메일={}", dto.getEmail());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
+                    .body("로그인 성공");
+        } catch (RuntimeException e) {
+            log.warn("[로그인] 실패 : {}", e.getMessage());
+            return ResponseEntity.status(401).body("로그인 실패: " + e.getMessage());
         }
     }
 }

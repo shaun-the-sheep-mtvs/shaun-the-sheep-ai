@@ -4,7 +4,7 @@ import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.auth.service.AuthService;
 import org.springframework.stereotype.Service;
 
