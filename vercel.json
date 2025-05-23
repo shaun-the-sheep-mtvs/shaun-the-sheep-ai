@@ -1,4 +1,18 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "git": {
+    "deploymentEnabled": {
+      "dev": true,
+      "main": true,
+      "ai-feature": false,
+      "feature/*": false,
+      "fix/*": false,
+      "security": false,
+      "temp": false,
+      "temptemp": false,
+      "newtest": false
+    }
+  },
   "buildCommand": "npm run build",
   "outputDirectory": ".next",
   "installCommand": "npm install",
@@ -8,4 +22,4 @@
       "memory": 3008
     }
   }
-} 
+}
