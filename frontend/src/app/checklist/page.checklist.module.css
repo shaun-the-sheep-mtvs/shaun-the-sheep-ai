@@ -14,6 +14,17 @@
   padding: 2rem;
   border-radius: 1.25rem;
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+
+  opacity: 0;                        /* 시작 시 완전 투명 */
+  transform: translateY(20px);       /* 시작 시 아래로 20px 이동 */
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;                      /* 끝나면 불투명 */
+    transform: translateY(0);        /* 원위치 */
+  }
 }
 
 .title {
@@ -132,8 +143,11 @@
 .optionLabel {
   display: block;
   margin-top: 0.5rem;
-  font-size: 0.9rem;
-  color: var(--text-medium);
+  font-family: var(--font-option);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #333;
+  letter-spacing: -0.02em;
 }
 
 /* 6) 결과 슬라이더 track 은 .resultProgress 배경으로 */

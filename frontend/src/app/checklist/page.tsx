@@ -158,7 +158,7 @@ export default function ChecklistPage() {
 
   return (
      <div className={styles.page}>
-       <div className={styles.container}>
+       <div key={idx} className={styles.container}>
          <h1 className={styles.title}>
            질문. {idx + 1} / {qs.length} {q.text}
          </h1>

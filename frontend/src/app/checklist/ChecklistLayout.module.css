@@ -1,35 +1,41 @@
 /* src/app/checklist/ChecklistLayout.module.css */
 
 .navbar {
-  width: 100%;
   padding: 1rem 2rem;
-  background: #fff;
-  border-bottom: 1px solid rgba(0,0,0,0.08);
+  border-bottom: 1px solid #e5e7eb;
   display: flex;
-  justify-content: flex-end;   /* 버튼 그룹은 오른쪽 끝에 붙입니다 */
   align-items: center;
-  position: relative;          /* 로고 절대 위치를 위한 기준 */
+  justify-content: space-between;
+  background-color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-/* 로고를 절대 위치로 중앙에 고정 */
+
+/* 1) 홈 아이콘 (배경 없이 그레이 only) */
+.homeButton  svg,   /* if you wrapped icon in Link.navButton */
+.notificationButton svg,
+.homeIcon, .notificationIcon {
+  width: 2rem;    /* 2rem = 32px */
+  height: 2rem;
+  color: #374151; /* 혹은 원하시는 그레이 컬러 */
+}
+
+/* 2) 중앙 로고 텍스트 */
 .logo {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  
-  font-size: 1.875rem;
-  font-weight: 800;
-  background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+  font-size: 2rem;           /* 32px */
+  font-weight: 700;
+  background: linear-gradient(90deg, #ec4899 0%, #8b5cf6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  text-fill-color: transparent;
-}
-
-/* 버튼 그룹은 flex-end 로 이미 우측 정렬 됨 */
-.buttonGroup {
-  display: flex;
-  gap: 1rem;
+  pointer-events: none;
+  white-space: nowrap;
 }
 
 .navButton {
