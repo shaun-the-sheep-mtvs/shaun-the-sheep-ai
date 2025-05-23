@@ -11,12 +11,14 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addMapping("/**")
                 .allowedOrigins(
                     "http://localhost:3000",
+                    "https://shaunthesheep.store",
                     "https://www.shaunthesheep.store",
-                    "https://shaun-the-sheep-ai-git-main-jkktoms-projects.vercel.app"
+                    "https://shaun-the-sheep-ai-git-main-jkktoms-projects.vercel.app",
+                    "https://api.shaunthesheep.store"
                 )
-                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")  // OPTIONS 추가
-                .allowedHeaders("*")                                       // 요청 헤더 전부 허용
-                .allowCredentials(true)                                    // 쿠키 같은 인증 정보 허용
-                .maxAge(3600);                                             // preflight 캐시 1시간
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")     
+                .allowedHeaders("*")
+                .allowCredentials(true)
+                .maxAge(3600);
     }
 }
