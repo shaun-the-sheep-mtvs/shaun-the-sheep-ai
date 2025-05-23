@@ -34,6 +34,7 @@ JENKINS_DOCKER_DEPLOYMENT.md
 supabaseSettings
 jake-seoul-region.pem
 zz.ubuntu/
+SETUP_HTTPS_BACKEND.md
 
 # Logs
 logs/

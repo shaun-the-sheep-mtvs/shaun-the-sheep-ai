@@ -25,6 +25,7 @@ pipeline {
         stage('Stop Old Container') {
             steps {
                 sh 'docker rm -f my-backend-container || true'
+                sh 'docker rmi my-backend:latest || true'
             }
         }
         stage('Run New Container') {
