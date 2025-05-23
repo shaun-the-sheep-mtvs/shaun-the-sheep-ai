@@ -209,8 +209,6 @@ export default function Home() {
     window.location.reload();
   }
 
-
-
   // if (error) {
   //   return <div className={styles.page}><p className={styles.error}>{error}</p></div>;
   // }
