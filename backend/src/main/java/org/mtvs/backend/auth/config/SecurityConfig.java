@@ -36,12 +36,10 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "https://shaunthesheep.store",
-                "https://www.shaunthesheep.store",
-                "https://shaun-the-sheep-ai-git-main-jkktoms-projects.vercel.app",
-                "https://api.shaunthesheep.store"
+        config.setAllowedOriginPatterns(List.of(
+                "http://localhost:*",
+                "https://*.shaunthesheep.store",
+                "https://*.vercel.app"                
         ));
         config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
