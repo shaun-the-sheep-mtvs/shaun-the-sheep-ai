@@ -23,6 +23,9 @@ export default function ChecklistPage() {
   const [done, setDone]               = useState(false);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const router = useRouter();
+  const [progress, setProgress] = useState(0);
+  useEffect(() => {setProgress(Math.round((idx/qs.length) * 100));
+  }, [idx]);
 
   // 페이지 로드 시: 카테고리별로 5문항 중 랜덤 3개씩 골라 총 12문제 세팅
   useEffect(() => {
@@ -107,8 +110,6 @@ export default function ChecklistPage() {
 
   // 질문 화면
   const q = qs[idx];
-  const progress = Math.round((idx / qs.length) * 100);
-
   const onSelect = (score: number, optionIdx: number) => {
     // 답안 추가
     setAnswers(a => [...a, { cat: q.category, score }]);
@@ -156,25 +157,23 @@ export default function ChecklistPage() {
   };
 
   return (
-    <div className={styles.page}>
-      <div className={styles.container}>
-        <h1 className={styles.title}>
-          질문. {idx + 1} / {qs.length} {q.text}
-        </h1>
-
-        <div className={styles.progress}>
-          <input
-            type="range"
-            min={0}
-            max={100}
-            value={progress}
-            disabled
-            style={{
-              background: `linear-gradient(to right, #ff8fab ${progress}%, #eee ${progress}%)`
-            }}
-          />
+     <div className={styles.page}>
+       <div className={styles.container}>
+         <h1 className={styles.title}>
+           질문. {idx + 1} / {qs.length} {q.text}
+         </h1>
+        {/* 애니메이션 슬라이더 */}
+        <div
+          className={styles.resultProgress}
+          style={{
+            '--bar-color': '#ff8fab',
+            '--range-percentage': `${progress}%`,
+            backgroundSize: `${progress}% 100%`
+          } as React.CSSProperties}
+        >
+          <input type="range" min={0} max={100} value={progress} readOnly />
         </div>
-
+        
         <div className={styles.options}>
           {q.options.map((opt, i) => (
             <div key={i} className={styles.optionWrapper}>

@@ -1,0 +1,56 @@
+/* src/app/checklist/ChecklistLayout.module.css */
+
+.navbar {
+  width: 100%;
+  padding: 1rem 2rem;
+  background: #fff;
+  border-bottom: 1px solid rgba(0,0,0,0.08);
+  display: flex;
+  justify-content: flex-end;   /* 버튼 그룹은 오른쪽 끝에 붙입니다 */
+  align-items: center;
+  position: relative;          /* 로고 절대 위치를 위한 기준 */
+}
+
+/* 로고를 절대 위치로 중앙에 고정 */
+.logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  
+  font-size: 1.875rem;
+  font-weight: 800;
+  background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+/* 버튼 그룹은 flex-end 로 이미 우측 정렬 됨 */
+.buttonGroup {
+  display: flex;
+  gap: 1rem;
+}
+
+.navButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  background-color: #c084fc;
+  color: #fff;
+  border: none;
+  border-radius: 9999px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+.navButton:hover {
+  background-color: #8b5cf6;
+  transform: translateY(-1px);
+}
+
+

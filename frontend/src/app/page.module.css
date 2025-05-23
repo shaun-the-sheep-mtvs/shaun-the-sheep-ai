@@ -1386,10 +1386,10 @@ a.secondary {
 }
 
 .analysisType {
-  font-size: 2rem;  /* 1.625rem에서 증가 */
+  font-size: 1.5rem;  
   font-weight: 700;
   color: var(--text-dark);
-  margin-bottom: 1.5rem;  /* 1.25rem에서 증가 */
+  margin-bottom: 1.1rem;  
   display: inline-block;
   position: relative;
   z-index: 1;
@@ -1408,10 +1408,10 @@ a.secondary {
 }
 
 .analysisDesc {
-  font-size: 1.5rem;  /* 1.125rem에서 증가 */
+  font-size: 1.25rem;  
   line-height: 1.6;
   color: #374151;
-  margin-bottom: 2rem;  /* 1.5rem에서 증가 */
+  margin-bottom: 1.2rem;  
   position: relative;
   z-index: 1;
   letter-spacing: -0.01em;
@@ -1420,26 +1420,26 @@ a.secondary {
 .adviceLabel {
   display: flex;
   align-items: center;
-  gap: 0.75rem;  /* 0.5rem에서 증가 */
-  font-size: 1.5rem;  /* 1.125rem에서 증가 */
+  gap: 0.75rem;  
+  font-size: 1.25rem;  
   font-weight: 700;
   color: var(--primary-mint);
-  margin-bottom: 1.25rem;  /* 1rem에서 증가 */
-  padding-bottom: 1rem;  /* 0.75rem에서 증가 */
+  margin-bottom: 0.3rem;  
+  padding-bottom: 1rem;  
   border-bottom: 1px solid rgba(61, 213, 152, 0.2);
 }
 
 .analysisAdvice {
   background: rgba(61, 213, 152, 0.08);
   border-radius: 1rem;
-  padding: 1.25rem;
+  padding: 1.2rem;
   position: relative;
   display: flex;
   flex-direction: column;
 }
 
 .adviceContent {
-  font-size: 1.5rem;  /* 1.125rem에서 증가 */
+  font-size: 1rem; 
   line-height: 1.6;
   color: #374151;
   font-weight: 500;
@@ -2235,9 +2235,9 @@ a.secondary {
   max-width: 300px;
   margin: 2rem auto 0;
   padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #fde047 0%, #fcd34d 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
   color: #111827;
-  border: none;
+  border: 2px solid #40DDBA;;
   border-radius: 9999px;
   font-size: 1rem;
   font-weight: 600;
@@ -2250,7 +2250,7 @@ a.secondary {
 .viewMoreBtn:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15), 0 3px 6px -1px rgba(0, 0, 0, 0.08);
-  background: linear-gradient(135deg, #fcd34d 0%, #fbbf24 100%);
+  background: linear-gradient(135deg, #40DDBA 0%, #40DDBA 100%);
 }
 
 .viewMoreBtn .buttonIcon {
@@ -2344,6 +2344,29 @@ a.secondary {
   font-weight: 600;
 }
 
+  .logoutButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;                /* 아이콘과 텍스트 사이 간격 */
+  background-color: #D8B4FE;  /* 연보라 계열 배경 */
+  color: white;               /* 텍스트 흰색 */
+  padding: 0.5rem 1.5rem;     /* 상하 0.5rem, 좌우 1.5rem */
+  border: none;
+  border-radius: 9999px;      /* 완전한 pill 모양 */
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;  /* “LOG OUT” 처럼 전부 대문자 */
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.logoutButton:hover {
+  background-color: #C084FC;
+  transform: translateY(-1px);
+}
+
+
 @media (max-width: 768px) {
   .mbtiCode span {
     width: 4rem;  /* 3rem에서 증가 */
@@ -2363,16 +2386,4 @@ a.secondary {
   .adviceContent {
     font-size: 1.25rem;  /* 1rem에서 증가 */
   }
-
-  .logoutButton {
-    background: #f00;
-  color: #fff;
-  padding: .5rem 1rem;
-  border-radius: .25rem;
-  border: none;
-  cursor: pointer;
-  }
-  .logoutButton:hover {
-  background: #c00;
-}
 }

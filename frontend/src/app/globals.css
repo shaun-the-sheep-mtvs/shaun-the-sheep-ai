@@ -1,6 +1,21 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --bg-pink-light: #fff4f6;
+  --bg-white: #ffffff;
+  --text-dark: #374151;
+  --text-medium: #6b7280;
+
+  --purple-primary: #8b5cf6;
+  --purple-light:   #c084fc;
+  --purple-hover:   #aa6df9;
+
+  --bar-moisture:   #4caf50;
+  --bar-oil:        #2196f3;
+  --bar-sensitivity:#f44336;
+  --bar-tension:    #ff9800;
+
+  --font-main: 'Pretendard', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
