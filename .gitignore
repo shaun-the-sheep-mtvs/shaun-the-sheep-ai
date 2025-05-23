@@ -32,6 +32,8 @@ shaunjake.pem
 shellscript
 JENKINS_DOCKER_DEPLOYMENT.md
 supabaseSettings
+jake-seoul-region.pem
+zz.ubuntu/
 
 # Logs
 logs/
