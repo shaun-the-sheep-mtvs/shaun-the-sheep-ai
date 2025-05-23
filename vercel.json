@@ -3,12 +3,14 @@
   "git": {
     "deploymentEnabled": {
       "dev": true,
-      "main": false,
+      "main": true,
       "ai-feature": false,
       "feature/*": false,
+      "fix/*": false,
       "security": false,
       "temp": false,
-      "temptemp": false
+      "temptemp": false,
+      "newtest": false
     }
   },
   "buildCommand": "npm run build",
@@ -20,4 +22,4 @@
       "memory": 3008
     }
   }
-} 
+}
