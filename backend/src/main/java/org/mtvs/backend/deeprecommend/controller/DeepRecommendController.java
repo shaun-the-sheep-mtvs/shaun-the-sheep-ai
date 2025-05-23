@@ -1,6 +1,7 @@
 package org.mtvs.backend.deeprecommend.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.model.User;
 import org.mtvs.backend.deeprecommend.service.DeepRecommendService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +15,8 @@ public class DeepRecommendController {
     @Autowired
     private DeepRecommendService recommendService;
     @PostMapping("/recommend")
-    public String ask(@RequestBody User user){
-        return recommendService.askOpenAI(user.getId());
+    public String ask(@AuthenticationPrincipal CustomUserDetails user){
+        return recommendService.askOpenAI(user.getUser().getId());
     }
 
 }

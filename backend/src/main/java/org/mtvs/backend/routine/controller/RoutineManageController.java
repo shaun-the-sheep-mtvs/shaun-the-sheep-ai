@@ -47,6 +47,7 @@ public class RoutineManageController {
 
     @PostMapping("/api/routine/create")
     public ResponseEntity<Integer> write(@RequestBody RequestJsonArrayRoutineDTO routinesDTO , @AuthenticationPrincipal CustomUserDetails user) {
+        System.out.println(user);
         routineManageSerivce.createRoutine(routinesDTO,user.getUser().getUsername());
         return ResponseEntity.ok(200);
     }
