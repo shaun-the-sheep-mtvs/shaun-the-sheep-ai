@@ -5,6 +5,7 @@ pipeline {
         DB_URL = 'jdbc:postgresql://aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres'
         DB_USERNAME = 'postgres.vmseaaxnzizueahbonmg'
         DB_PASSWORD = credentials('SUPABASE_PASSWORD')
+        GEMINI_API_KEY = credentials('GEMINI_API_KEY')
     }
 
     stages {
@@ -39,6 +40,7 @@ pipeline {
                     -e DB_URL=$DB_URL \
                     -e DB_USERNAME=$DB_USERNAME \
                     -e DB_PASSWORD=$DB_PASSWORD \
+                    -e GEMINI_API_KEY=$GEMINI_API_KEY \
                     -p 8081:8080 \
                     my-backend:latest
                 '''
