@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Post } from "../../types/Post";
 
-const API_URL = "http://localhost:8080/api/posts";
+const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/api/posts`;
 
 export default function TestDBCRUD() {
   const [posts, setPosts] = useState<Post[]>([]);

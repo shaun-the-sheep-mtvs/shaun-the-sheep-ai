@@ -13,8 +13,26 @@ Team leader Merges main branch with dev branch and pushes.
 The github is webhook connected with main branch to ec2 for backend build
 The frontend is deployed to Vercel, and main branch and dev branch is deployed.
 EC2 has jenkins and docker, building project backend as docker and runs it.
-EC2 is ubuntu.
+EC2 is ubuntu. almost all ports are open and as below
 
+sgr-095b99fca3208e4d3
+443
+TCP
+0.0.0.0/0
+
+sgr-0dad8fbf9f518fd6d
+8080
+TCP
+0.0.0.0/0
+
+sgr-0d8ef43aaea469d49
+80
+TCP
+0.0.0.0/0
+sgr-02d4220ad4c5ecc1b
+22
+TCP
+125.132.216.190/32
 
 ## Main Directories
 - [frontend/](mdc:frontend) — Contains the Next.js frontend application. Entry point: [frontend/src/app/page.tsx](mdc:frontend/src/app/page.tsx)
