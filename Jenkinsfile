@@ -2,9 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DB_URL=jdbc:postgresql://aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres
-        DB_USERNAME=postgres.vmseaaxnzizueahbonmg
-        DB_PASSWORD = credentials('SUPABASE_PASSWORD') // Use Jenkins credentials for secrets!
+        DB_URL      'jdbc:postgresql://aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres'
+        DB_USERNAME 'postgres.vmseaaxnzizueahbonmg'
+        DB_PASSWORD credentials('SUPABASE_PASSWORD')
     }
 
     stages {
