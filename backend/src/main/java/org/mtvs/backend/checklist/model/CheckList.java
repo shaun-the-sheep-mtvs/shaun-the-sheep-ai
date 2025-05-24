@@ -2,7 +2,7 @@ package org.mtvs.backend.checklist.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;
 
 import java.time.LocalDateTime;
 import java.util.List;

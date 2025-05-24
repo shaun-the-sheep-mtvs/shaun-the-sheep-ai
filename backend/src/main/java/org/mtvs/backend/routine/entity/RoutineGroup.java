@@ -15,9 +15,9 @@ public class RoutineGroup {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Long userId;
+    private String userId;
 
-    public RoutineGroup(Long userId){
+    public RoutineGroup(String userId){
         this.userId = userId;
     }
 }

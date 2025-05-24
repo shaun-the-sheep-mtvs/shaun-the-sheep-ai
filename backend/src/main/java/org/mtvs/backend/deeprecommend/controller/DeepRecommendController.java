@@ -1,7 +1,7 @@
 package org.mtvs.backend.deeprecommend.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.deeprecommend.service.DeepRecommendService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

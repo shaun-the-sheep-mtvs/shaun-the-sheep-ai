@@ -27,7 +27,7 @@
 .loginContainer h1 {
   text-align: center;
   margin-bottom: 1.5rem;
-  color: #333;
+  color: #ff8fab;
 }
 
 .loginForm {
@@ -62,7 +62,7 @@
 .loginButton {
   width: 100%;
   padding: 12px;
-  background-color: #007bff;
+  background-color: #ff8fab;
   color: white;
   border: none;
   border-radius: 4px;
@@ -72,7 +72,7 @@
 
 .registerButton {
   width: 100%;
-  padding: 12px;
+  padding: 10px;
   background-color: #6c757d;
   color: white;
   border: none;
@@ -93,10 +93,10 @@
 
 .registerLink {
   text-align: center;
-  color: #007bff;
-  font-size: 14px;
+  color: #ff8fab;
+  font-size: 14x;
   cursor: pointer;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .registerLink:hover {

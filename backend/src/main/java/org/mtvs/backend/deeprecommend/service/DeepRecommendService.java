@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.mtvs.backend.auth.dto.ProblemDto;
-import org.mtvs.backend.auth.model.User;
-import org.mtvs.backend.auth.repository.UserRepository;
+import org.mtvs.backend.user.dto.ProblemDto;
+import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.deeprecommend.config.OpenConfig;
 import org.mtvs.backend.deeprecommend.dto.RecommendDTO;
 import org.mtvs.backend.deeprecommend.dto.RequestDTO;
@@ -46,7 +46,7 @@ public class DeepRecommendService {
         this.routineChangeRepository = routineChangeRepository;
     }
 
-    public String askOpenAI(long userId) {
+    public String askOpenAI(String userId) {
 
         ProblemDto getProblemByUsername = userRepository.findAllRoutineByUserId(userId);
         List<RoutinesDto> recommend = routineRepository.findAllRoutineByUserId(userId);

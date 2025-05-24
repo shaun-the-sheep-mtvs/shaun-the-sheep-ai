@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { QUESTIONS, Question, Category } from '@/data/questions';
+import { apiConfig } from '@/config/api';
 import styles from './page.checklist.module.css';
 import { CONCERNS } from '@/data/concerns';
 import { useRouter } from 'next/navigation';
@@ -179,8 +180,6 @@ export default function ChecklistPage() {
     </div>
   );
 }
-
-
 
 
 

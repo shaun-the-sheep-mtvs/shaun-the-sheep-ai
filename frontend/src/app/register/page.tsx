@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiConfig } from '@/config/api';
 import styles from './page.module.css';
 
 export default function RegisterPage() {
@@ -15,45 +16,43 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
 
-    try {
-      const res = await fetch('http://localhost:8080/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
-      });
+        try {
+            const res = await fetch(apiConfig.endpoints.auth.signup, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password }),
+            });
 
-      console.log('status:', res.status);
-      const data = await res.json();
-      console.log('response data:', data);
+            console.log('status:', res.status);
 
-      if (!res.ok) {
-        setError(data.error || data.message || '회원가입에 실패했습니다.');
-        return;
-      }
+            if (!res.ok) {
+                const errorText = await res.text();
+                setError(errorText || '회원가입에 실패했습니다.');
+                return;
+            }
 
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-
-      // 가입 성공 후 체크리스트 페이지로 이동
-      router.push('/checklist');
-    } catch (err) {
-      setError('네트워크 오류가 발생했습니다.');
-    }
-  };
+            // 가입 성공 후 로그인 페이지로 이동
+            router.push('/login');
+        } catch (error) {
+            console.error('Register error:', error);
+            setError('네트워크 오류가 발생했습니다.');
+        }
+    };
 
   return (
     <div className={styles.page}>
       <main className={styles.main}>
         <div className={styles.registerContainer}>
-          <h1>Sign Up</h1>
+          <h1>Shaun</h1>
           {error && <p className={styles.error}>{error}</p>}
 
           <form onSubmit={handleSubmit} className={styles.registerForm}>
             <div className={styles.formGroup}>
-              <label htmlFor="username">Username</label>
+              <label htmlFor="username">사용자 이름</label>
               <input
                 id="username"
                 type="text"
+                placeholder="사용자를 입력해주세요"
                 value={username}
                 onChange={e => setUsername(e.target.value)}
                 required
@@ -61,10 +60,11 @@ export default function RegisterPage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">이메일</label>
               <input
                 id="email"
                 type="email"
+                placeholder="이메일을 입력해주세요"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
@@ -72,19 +72,25 @@ export default function RegisterPage() {
             </div>
 
             <div className={styles.formGroup}>
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">패스워드</label>
               <input
                 id="password"
                 type="password"
+                
+                placeholder="패스워드를 입력해주세요"
                 value={password}
+              
                 onChange={e => setPassword(e.target.value)}
                 required
               />
             </div>
 
             <button type="submit" className={styles.registerButton}>
-              Create Account
+              가입 하기
             </button>
+            <div className={styles.loginLink} onClick={() => router.push('/login')}>
+              로그인
+            </div>
           </form>
         </div>
       </main>

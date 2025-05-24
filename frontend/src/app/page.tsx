@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles } from "lucide-react";
 import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/data/useCurrentUser';
+import { apiConfig } from '@/config/api';
 
 // 서버가 내려주는 타입 (영문 키)
 interface CheckListResponse {
@@ -146,7 +147,7 @@ export default function Home() {
     setIsLoggedIn(!!token);
     
     if (token) {
-      fetch('http://localhost:8080/api/checklist', {
+      fetch(apiConfig.endpoints.checklist.base, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => {
@@ -170,7 +171,7 @@ export default function Home() {
     setIsLoggedIn(!!token);
     
     if (token) {
-      fetch('http://localhost:8080/api/checklist/mbti', {
+      fetch(apiConfig.endpoints.checklist.mbti, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => {
@@ -415,7 +416,7 @@ export default function Home() {
                 <div className={styles.sectionDesc}>
                   전문적인 피부 진단으로 더 정확한 결과를 확인하세요</div>
               </div>
-              <Link href="/checklist" className={styles.goBtn}>
+              <Link href="/routine-manage" className={styles.goBtn}>
                 <ClipboardCheck className={styles.buttonIcon} />
                 정밀 피부 검사 받기
               </Link>

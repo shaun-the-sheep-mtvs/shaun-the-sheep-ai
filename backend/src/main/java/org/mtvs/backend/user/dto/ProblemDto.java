@@ -1,8 +1,8 @@
-package org.mtvs.backend.auth.dto;
+package org.mtvs.backend.user.dto;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;
 
 import java.util.List;
 

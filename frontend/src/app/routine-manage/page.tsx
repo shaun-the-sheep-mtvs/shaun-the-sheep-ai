@@ -2,7 +2,9 @@
 
 import React, { useState } from 'react';
 import styles from './page.module.css';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
+import Link from 'next/link';
+import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X } from "lucide-react";
 
 const ROUTINE_TIMES = [
   { label: '아침', value: 'MORNING' },
@@ -22,6 +24,15 @@ const getInputRowClass = (routineTime: string) => {
   let base = styles['input-row'];
   if (routineTime === 'MORNING') return base + ' ' + styles['morning'];
   if (routineTime === 'EVENING') return base + ' ' + styles['evening'];
+  if (routineTime === 'BOTH') return base + ' ' + styles['both'];
+  return base;
+};
+
+const getCompleteButtonClass = (selectedTime: string) => {
+  let base = styles['complete-btn'];
+  if (selectedTime === 'MORNING') return base + ' ' + styles['morning'];
+  if (selectedTime === 'EVENING') return base + ' ' + styles['evening'];
+  if (selectedTime === 'BOTH') return base + ' ' + styles['both'];
   return base;
 };
 
@@ -34,6 +45,8 @@ interface Product {
 }
 
 const RoutineManagePage = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const pathname = usePathname();
   const router = useRouter();
   const [selectedTime, setSelectedTime] = useState<'MORNING' | 'EVENING' | 'BOTH'>('MORNING');
   const [products, setProducts] = useState<Product[]>([
@@ -42,10 +55,16 @@ const RoutineManagePage = () => {
   ]);
   const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
   
- 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
 
-  // POST 요청 함수
-  const handleAddRoutine = async () => {
+  // 사이드바 외부 클릭시 닫기
+  const handleOverlayClick = () => {
+    setIsSidebarOpen(false);
+  };
+
+  const handleComplete = async () => {
     // 공백 입력 방지
     const isAnyFieldEmpty = products.some(product => 
       !product.name.trim() || !product.kind.trim() || !product.method.trim()
@@ -87,6 +106,7 @@ const RoutineManagePage = () => {
       const data = await response.json();
       console.log('Success:', data);
       alert('등록되었습니다.');
+      router.push('/step2'); // 등록 성공 후 다음 페이지로 이동
     } catch (error) {
       console.error('Error:', error);
       alert('요청 중 오류가 발생했습니다.');
@@ -117,19 +137,68 @@ const RoutineManagePage = () => {
     }]);
   };
 
-  const handleComplete = () => {
-    router.push('/routine-complete'); // 다음 페이지로 이동
-  };
-
   return (
-    <div className={styles.container}>
+    <div className={styles.wrapper}>
+      {/* 네비게이션 바 */}
+      <nav className={styles.navbar}>
+        <button className={styles.mobileMenuToggle} onClick={toggleSidebar}>
+          {isSidebarOpen ? <X className={styles.menuToggleIcon} /> : <Menu className={styles.menuToggleIcon} />}
+        </button>
+        <div className={styles.logoContainer}>
+          <h1 className={styles.logo}>Shaun</h1>
+        </div>
+      </nav>
+
+      {/* 메뉴 오버레이 */}
+      <div
+        className={`${styles.menuOverlay} ${isSidebarOpen ? styles.show : ''}`}
+        onClick={handleOverlayClick}
+      />
+
+      {/* 사이드바 */}
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarLogo}>Shaun</h2>
+          <button className={styles.closeButton} onClick={() => setIsSidebarOpen(false)}>
+            <X className={styles.closeIcon} />
+          </button>
+        </div>
+
+        <ul className={styles.sidebarMenu}>
+          <li className={pathname === '/' ? styles.menuActive : ''}>
+            <Link href="/" className={styles.menuLink}>
+              <HomeIcon className={styles.menuIcon} />
+              홈화면
+            </Link>
+          </li>
+          <li className={pathname === '/checklist' ? styles.menuActive : ''}>
+            <Link href="/checklist" className={styles.menuLink}>
+              <ClipboardCheck className={styles.menuIcon} />
+              검사하기
+            </Link>
+          </li>
+          <li className={pathname === '/chat' ? styles.menuActive : ''}>
+            <Link href="/chat" className={styles.menuLink}>
+              <MessageCircle className={styles.menuIcon} />
+              AI 채팅
+            </Link>
+          </li>
+          <li className={pathname === '/profile' ? styles.menuActive : ''}>
+            <Link href="/profile" className={styles.menuLink}>
+              <User className={styles.menuIcon} />
+              회원정보
+            </Link>
+          </li>
+        </ul>
+      </aside>
+      
       <div className={styles['page-layout']}>
         {/* 왼쪽: 루틴 등록 폼 */}
         <div className={styles['form-section']}>
           <div className={styles.card}>
             {/* 상단 네비게이션 */}
             <div className={styles.topnav}>
-              <span className={styles['topnav-title']}>루틴관리</span>
+              <span className={styles['topnav-title']}>정밀 피부검사</span>
             </div>
             {/* STEP 1, STEP 2 */}
             <div className={styles.steps}>
@@ -216,14 +285,7 @@ const RoutineManagePage = () => {
             {/* 버튼 그룹 */}
             <div className={styles['button-group']}>
               <button
-                className={styles['submit-btn']}
-                onClick={handleAddRoutine}
-                type="button"
-              >
-                등록
-              </button>
-              <button
-                className={styles['complete-btn']}
+                className={getCompleteButtonClass(selectedTime)}
                 onClick={handleComplete}
                 type="button"
               >
@@ -232,7 +294,6 @@ const RoutineManagePage = () => {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );

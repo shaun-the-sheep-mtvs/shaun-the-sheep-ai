@@ -2,15 +2,14 @@ package org.mtvs.backend.routine.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.mtvs.backend.auth.model.User;
-import org.mtvs.backend.auth.repository.UserRepository;
+import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
 import org.mtvs.backend.routine.dto.RequestRoutineAllDTO;
 import org.mtvs.backend.routine.entity.Routine;
 import org.mtvs.backend.routine.entity.RoutineGroup;
 import org.mtvs.backend.routine.repository.RoutineGroupRepository;
-import org.mtvs.backend.routine.repository.RoutineRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mtvs.backend.routine.repository.RoutineRepository; 
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,9 +26,7 @@ public class RoutineManageService {
     @Transactional
     public void createRoutine(RequestJsonArrayRoutineDTO routinesDTO, String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
-        RoutineGroup routineGroup = new RoutineGroup(
-                user.getId()
-        );
+        RoutineGroup routineGroup = new RoutineGroup();
 
         routineGroupRepository.save(routineGroup);
 

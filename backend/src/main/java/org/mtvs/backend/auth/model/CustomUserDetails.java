@@ -1,54 +1,65 @@
 package org.mtvs.backend.auth.model;
 
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
+import org.mtvs.backend.user.entity.User;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
 
-
 @Data
+@RequiredArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
     private final User user;
 
-    public CustomUserDetails(User user) {
-        this.user = user;
-    }
-    /**
-     * Returns the authorities granted to the user. Cannot return <code>null</code>.
-     *
-     * @return the authorities, sorted by natural key (never <code>null</code>)
-     */
-//    나중에 구현
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        // Parse roles from user.getRoles() - e.g., "ROLE_USER,ROLE_ADMIN"
+        return user.getRoles() != null && !user.getRoles().isEmpty()
+                ? List.of(new SimpleGrantedAuthority(user.getRoles()))
+                : List.of(new SimpleGrantedAuthority("ROLE_USER"));
     }
 
-    /**
-     * Returns the password used to authenticate the user.
-     *
-     * @return the password
-     */
     @Override
     public String getPassword() {
         return user.getPassword();
     }
 
-    /**
-     * Returns the username used to authenticate the user. Cannot return
-     * <code>null</code>.
-     *
-     * @return the username (never <code>null</code>)
-     */
     @Override
     public String getUsername() {
         return user.getUsername();
     }
 
-    public User getUser() {
-        return user;
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
+
+    // Convenience methods for controllers
+    public String getEmail() {
+        return user.getEmail();
+    }
+
+    public String getUserId() {
+        return user.getId();
     }
 }
