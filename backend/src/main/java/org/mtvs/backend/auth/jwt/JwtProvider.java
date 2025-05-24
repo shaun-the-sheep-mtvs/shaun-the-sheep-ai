@@ -28,17 +28,15 @@ public class JwtProvider {
     public String generateToken(String email) {
         log.info("[JWT 생성] 이메일 : {}", email);
 
-        Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
         Date expiry = new Date(now.getTime() + validityInMs);
         Key key = Keys.hmacShaKeyFor(secretKey.getBytes());
 
-        claims.put("roles", List.of("ROLE_USER"));
-
         log.debug("[JWT 생성 완료] 만료시간 : {}", expiry);
 
         return Jwts.builder()
-                .setClaims(claims)
+                .setSubject(email)
+                .claim("roles", List.of("ROLE_USER"))
                 .setIssuedAt(now)
                 .setExpiration(expiry)
                 .signWith(key)

@@ -25,7 +25,7 @@ repositories {
 
 // Version management
 ext {
-    jwtVersion = '0.12.5'
+    jwtVersion = '0.11.5'
     nettyVersion = '4.1.108.Final'
     modelMapperVersion = '3.2.0'
     springDotenvVersion = '4.0.0'
