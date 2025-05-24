@@ -6,11 +6,11 @@ import java.util.List;
 
 
 public class UserRequestDTO {
-    private Long userId;
+    private String userId;
     private User.SkinType skinType;
     private List<String> troubles;
 
-    public UserRequestDTO(Long userId, User.SkinType skinType, List<String> troubles) {
+    public UserRequestDTO(String userId, User.SkinType skinType, List<String> troubles) {
         this.userId = userId;
         this.skinType = skinType;
         this.troubles = troubles;
@@ -18,11 +18,11 @@ public class UserRequestDTO {
 
     public UserRequestDTO() {}
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

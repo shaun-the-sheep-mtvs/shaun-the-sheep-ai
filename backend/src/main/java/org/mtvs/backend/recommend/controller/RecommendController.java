@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.recommend.dto.RequestDTO;
-import org.mtvs.backend.auth.model.User.SkinType;
+import org.mtvs.backend.user.entity.User.SkinType;
 import org.mtvs.backend.recommend.dto.ResponseDTO;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;

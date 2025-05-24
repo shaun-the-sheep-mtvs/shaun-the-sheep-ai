@@ -25,7 +25,7 @@ public class JwtUtil {
         return Keys.hmacShaKeyFor(secret.getBytes());
     }
 
-    public String generateAccessToken(String email, String username, long id) {
+    public String generateAccessToken(String email, String username, String id) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + accessTokenExpiration);
 
@@ -85,8 +85,8 @@ public class JwtUtil {
         }
     }
 
-    public Long getUserId(String token) {
-        return parseClaims(token).get("id", Long.class);
+    public String getUserId(String token) {
+        return parseClaims(token).get("id", String.class);
     }
 
     public String getUsername(String token) {

@@ -10,7 +10,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, String> {
     Optional<User> findByUsername(String username);
     Optional<User> findByEmail(String email);
     Page<User> findByUsernameContaining(String username, Pageable pageable);
@@ -28,5 +28,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT new org.mtvs.backend.user.dto.ProblemDto(u.skinType, u.troubles) " +
             "FROM User u WHERE u.id = :userId")
-    ProblemDto findAllRoutineByUserId(@Param("userId") Long userId);
+    ProblemDto findAllRoutineByUserId(@Param("userId") String userId);
 }

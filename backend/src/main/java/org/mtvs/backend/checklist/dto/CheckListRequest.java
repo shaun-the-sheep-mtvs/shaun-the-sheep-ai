@@ -1,18 +1,18 @@
 package org.mtvs.backend.checklist.dto;
 
 public class CheckListRequest {
-    private Long userId;
+    private String userId;
     private Integer moisture;
     private Integer oil;
     private Integer sensitivity;
     private Integer tension;
     private String username;
 
-    public Long getUserId() {
+    public String getUserId() {
         return userId;
     }
 
-    public void setUserId(Long userId) {
+    public void setUserId(String userId) {
         this.userId = userId;
     }
 

@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mtvs.backend.global.config.CustomUserDetails;
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -49,7 +49,7 @@ public class JwtFilter extends OncePerRequestFilter {
                                 return new RuntimeException("유저 없음");
                             });
 
-                    CustomUserDetails userDetails = new CustomUserDetails(user.getId(), user.getEmail(), user.getUsername());
+                    CustomUserDetails userDetails = new CustomUserDetails(user);
 
                     Authentication authentication = new UsernamePasswordAuthenticationToken(
                             userDetails, null, userDetails.getAuthorities()

@@ -46,7 +46,7 @@ public class DeepRecommendService {
         this.routineChangeRepository = routineChangeRepository;
     }
 
-    public String askOpenAI(long userId) {
+    public String askOpenAI(String userId) {
 
         ProblemDto getProblemByUsername = userRepository.findAllRoutineByUserId(userId);
         List<RoutinesDto> recommend = routineRepository.findAllRoutineByUserId(userId);
