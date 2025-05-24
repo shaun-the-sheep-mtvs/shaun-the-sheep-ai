@@ -26,8 +26,6 @@ export default function RootLayout({
         >
         <head>
             <link rel="icon" href="/favicon.ico" />
-            {/* 로그인 폼 스크립트 로드 */}
-            <Script src="/scripts/login.js" strategy="beforeInteractive" />
         </head>
         <body>
             {children}

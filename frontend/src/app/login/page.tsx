@@ -29,13 +29,19 @@ export default function Home() {
                   return;
               }
 
-              // JWT 토큰은 Authorization 헤더에 있음
-              const authHeader = res.headers.get('Authorization');
-              if (authHeader && authHeader.startsWith('Bearer ')) {
-                  const token = authHeader.substring(7);
-                  // 쿠키에 토큰 저장 (Path=/ 반드시 포함)
-                  document.cookie = `token=${token}; Path=/; SameSite=Lax; max-age=3600`;
-                  console.log('쿠키에 저장된 값:', document.cookie);
+              // JSON 응답에서 토큰 추출
+              const authResponse = await res.json();
+              console.log('authResponse:', authResponse);
+              
+              if (authResponse.accessToken) {
+                  // localStorage에 토큰 저장
+                  localStorage.setItem('accessToken', authResponse.accessToken);
+                  localStorage.setItem('refreshToken', authResponse.refreshToken);
+                  console.log('token:', authResponse.accessToken);
+              } else {
+                  console.log('token: null');
+                  setError('토큰을 받지 못했습니다.');
+                  return;
               }
 
               // 로그인 성공 후 홈페이지로 이동
