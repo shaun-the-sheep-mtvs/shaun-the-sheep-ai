@@ -9,8 +9,7 @@ import org.mtvs.backend.routine.dto.RequestRoutineAllDTO;
 import org.mtvs.backend.routine.entity.Routine;
 import org.mtvs.backend.routine.entity.RoutineGroup;
 import org.mtvs.backend.routine.repository.RoutineGroupRepository;
-import org.mtvs.backend.routine.repository.RoutineRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mtvs.backend.routine.repository.RoutineRepository; 
 import org.springframework.stereotype.Service;
 
 import java.util.List;
