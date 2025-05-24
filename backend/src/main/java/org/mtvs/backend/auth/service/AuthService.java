@@ -2,9 +2,11 @@ package org.mtvs.backend.auth.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.jwt.JwtProvider;
+import org.mtvs.backend.auth.util.JwtUtil;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +23,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
+    private final JwtUtil jwtUtil;
 
     /**
      * 회원가입
@@ -32,8 +35,8 @@ public class AuthService {
         if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
             log.warn("[회원가입] 이미 존재하는 이메일 요청 : 이메일={}", dto.getEmail());
             throw new RuntimeException("이미 존재하는 이메일입니다.");
-
         }
+        
         User user = new User(
                 dto.getEmail(),
                 passwordEncoder.encode(dto.getPassword()),
@@ -44,9 +47,9 @@ public class AuthService {
     }
 
     /**
-     * 로그인
+     * 로그인 - 액세스 토큰과 리프레시 토큰 모두 반환
      */
-    public String login(LoginRequest dto) {
+    public AuthResponse login(LoginRequest dto) {
         log.info("[로그인] 서비스 호출 : 이메일={}", dto.getEmail());
 
         User user = userRepository.findByEmail(dto.getEmail())
@@ -60,7 +63,48 @@ public class AuthService {
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
+        // 액세스 토큰과 리프레시 토큰 생성
+        String accessToken = jwtProvider.generateToken(user.getEmail());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
         log.info("[로그인] 완료 : 이메일={}", dto.getEmail());
-        return jwtProvider.generateToken(user.getEmail());
+        return new AuthResponse(accessToken, refreshToken);
+    }
+
+    /**
+     * 리프레시 토큰으로 새로운 액세스 토큰 발급
+     */
+    public AuthResponse refreshToken(String refreshToken) {
+        log.info("[토큰 갱신] 요청");
+
+        try {
+            // 리프레시 토큰 유효성 검증
+            if (!jwtUtil.validateToken(refreshToken)) {
+                log.warn("[토큰 갱신] 실패 - 유효하지 않은 리프레시 토큰");
+                throw new RuntimeException("유효하지 않은 리프레시 토큰입니다.");
+            }
+
+            // 리프레시 토큰에서 사용자 정보 추출
+            String email = jwtUtil.getSubjectFromToken(refreshToken);
+            
+            // 사용자 존재 확인
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+            // 새로운 토큰 생성
+            String newAccessToken = jwtProvider.generateToken(user.getEmail());
+            String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
+            log.info("[토큰 갱신] 완료 : 이메일={}", email);
+            return new AuthResponse(newAccessToken, newRefreshToken);
+
+        } catch (Exception e) {
+            log.error("[토큰 갱신] 오류 : {}", e.getMessage());
+            throw new RuntimeException("토큰 갱신 중 오류가 발생했습니다.");
+        }
+    }
+
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 }

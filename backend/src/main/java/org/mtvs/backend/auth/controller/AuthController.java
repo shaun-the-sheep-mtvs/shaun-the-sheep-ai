@@ -2,13 +2,11 @@ package org.mtvs.backend.auth.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.service.AuthService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -36,21 +34,41 @@ public class AuthController {
     }
 
     /*
-     * 로그인
+     * 로그인 - 액세스 토큰과 리프레시 토큰 반환
      * */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest dto) {
         log.info("[로그인] 요청 수신: 이메일={}", dto.getEmail());
 
         try {
-            String token = authService.login(dto);
+            AuthResponse authResponse = authService.login(dto);
             log.info("[로그인] 성공 : 이메일={}", dto.getEmail());
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + token)
-                    .body("로그인 성공");
+            return ResponseEntity.ok(authResponse);
         } catch (RuntimeException e) {
             log.warn("[로그인] 실패 : {}", e.getMessage());
             return ResponseEntity.status(401).body("로그인 실패: " + e.getMessage());
+        }
+    }
+
+    /*
+     * 토큰 갱신 - 리프레시 토큰으로 새로운 액세스 토큰 발급
+     * */
+    @PostMapping("/refresh")
+    public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String refreshToken) {
+        log.info("[토큰 갱신] 요청 수신");
+
+        try {
+            // Bearer 토큰에서 실제 토큰 추출
+            String token = refreshToken.startsWith("Bearer ") 
+                    ? refreshToken.substring(7) 
+                    : refreshToken;
+
+            AuthResponse authResponse = authService.refreshToken(token);
+            log.info("[토큰 갱신] 성공");
+            return ResponseEntity.ok(authResponse);
+        } catch (RuntimeException e) {
+            log.warn("[토큰 갱신] 실패 : {}", e.getMessage());
+            return ResponseEntity.status(401).body("토큰 갱신 실패: " + e.getMessage());
         }
     }
 }
