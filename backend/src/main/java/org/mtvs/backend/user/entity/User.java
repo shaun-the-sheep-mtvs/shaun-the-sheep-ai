@@ -45,6 +45,8 @@ public class User extends BaseEntity {
     @Column(columnDefinition = "jsonb")
     private List<String> troubles;   
 
+    public User() {}
+
     public User(String email, String password, String username) {
         this.email = email;
         this.password = password;

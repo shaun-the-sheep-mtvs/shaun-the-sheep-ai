@@ -8,7 +8,7 @@ spring:
       maximum-pool-size: 2
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -22,6 +22,6 @@ spring:
       url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
       key: ${GEMINI_API_KEY}
 jwt:
-  secret: n3Jka8==SAMPLESECRET===tYk9fA=
+  secret: n3Jka8==asdnfkja;lsdmfka;sdfmk===tYk9fA=
   access-token-expiration: 3600000 # 1 hour (ms)
   refresh-token-expiration: 604800000 # 7 days (ms)

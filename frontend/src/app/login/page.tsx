@@ -15,31 +15,33 @@ export default function Home() {
           setError(null);
 
           try {
-              const res = await fetch('http://localhost:8080/auth/login', {
+              const res = await fetch('http://localhost:8080/api/auth/login', {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ email, password }),
               });
 
              console.log('status:', res.status);
-             const data = await res.json();
-             console.log('response data:', data);
 
               if (!res.ok) {
-              setError(data.error || data.message || '로그인에 실패했습니다.');
-              return;
+                  const errorText = await res.text();
+                  setError(errorText || '로그인에 실패했습니다.');
+                  return;
               }
 
-              if (data.token) {
-               // **쿠키에 토큰 저장** (Path=/ 반드시 포함)
-              document.cookie = `token=${data.token}; Path=/; SameSite=Lax`;
-              console.log('쿠키에 저장된 값:', document.cookie);
+              // JWT 토큰은 Authorization 헤더에 있음
+              const authHeader = res.headers.get('Authorization');
+              if (authHeader && authHeader.startsWith('Bearer ')) {
+                  const token = authHeader.substring(7);
+                  // 쿠키에 토큰 저장 (Path=/ 반드시 포함)
+                  document.cookie = `token=${token}; Path=/; SameSite=Lax; max-age=3600`;
+                  console.log('쿠키에 저장된 값:', document.cookie);
               }
 
-
-              // 가입 성공 후 로그인 페이지로 이동
+              // 로그인 성공 후 홈페이지로 이동
               router.push('/');
-          } catch {
+          } catch (error) {
+              console.error('Login error:', error);
               setError('네트워크 오류가 발생했습니다.');
           }
       };

@@ -16,25 +16,24 @@ export default function RegisterPage() {
         setError(null);
 
         try {
-            const res = await fetch('http://localhost:8080/auth/register', {
+            const res = await fetch('http://localhost:8080/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password }),
             });
 
             console.log('status:', res.status);
-           const data = await res.json();
-           console.log('response data:', data);
 
             if (!res.ok) {
-               // 백엔드에서 { error: "메시지" } 형태로 내려온다고 가정
-              setError(data.error || data.message || '회원가입에 실패했습니다.');
-              return;
-           }
+                const errorText = await res.text();
+                setError(errorText || '회원가입에 실패했습니다.');
+                return;
+            }
 
-            // 가입 성공 후 체크리스트트 페이지로 이동
-            router.push('/checklist');
-        } catch {
+            // 가입 성공 후 로그인 페이지로 이동
+            router.push('/login');
+        } catch (error) {
+            console.error('Register error:', error);
             setError('네트워크 오류가 발생했습니다.');
         }
     };
