@@ -34,11 +34,11 @@ public class JwtFilter extends OncePerRequestFilter {
 
         String requestURI = request.getRequestURI();
         String authHeader = request.getHeader("Authorization");
-        log.debug("[JWT 필터] 요청 URI : {}", requestURI);
+        log.info("[JWT 필터] 요청 URI : {}, Authorization 헤더 존재: {}", requestURI, authHeader != null);
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
-            log.debug("[JWT 필터] Authorization 헤더에서 토큰 추출 성공");
+            log.info("[JWT 필터] Authorization 헤더에서 토큰 추출 성공: {}", token.substring(0, Math.min(token.length(), 20)) + "...");
 
             try {
                 if (jwtUtil.validateToken(token)) {
@@ -60,14 +60,14 @@ public class JwtFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     log.info("[JWT 필터] SecurityContext 인증 완료 : 사용자 ID={}, 이메일={}",
                             user.getId(), user.getEmail());
-                }else{
+                } else {
                     log.warn("[JWT 필터] 토큰 유효성 검사 실패");
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 log.error("[JWT 필터] 토큰 처리 중 오류 발생 : {}", e.getMessage());
             }
-        }else{
-            log.debug("[JWT 필터] Authorization 헤더 토큰 없음");
+        } else {
+            log.info("[JWT 필터] Authorization 헤더 토큰 없음 - 인증 없이 계속 진행");
         }
 
         chain.doFilter(request, response);
