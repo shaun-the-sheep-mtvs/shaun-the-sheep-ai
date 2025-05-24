@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiConfig } from '@/config/api';
 import styles from './page.module.css';
 
 export default function RegisterPage() {
@@ -16,7 +17,7 @@ export default function RegisterPage() {
     setError(null);
 
         try {
-            const res = await fetch('http://localhost:8080/api/auth/signup', {
+            const res = await fetch(apiConfig.endpoints.auth.signup, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username, email, password }),

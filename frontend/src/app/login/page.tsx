@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiConfig } from '@/config/api';
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -15,7 +16,7 @@ export default function Home() {
     setError(null);
 
           try {
-              const res = await fetch('http://localhost:8080/api/auth/login', {
+              const res = await fetch(apiConfig.endpoints.auth.login, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({ email, password }),

@@ -64,7 +64,7 @@ public class AuthService {
         }
 
         // 액세스 토큰과 리프레시 토큰 생성
-        String accessToken = jwtProvider.generateToken(user.getEmail());
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getUsername(), user.getId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
         log.info("[로그인] 완료 : 이메일={}", dto.getEmail());
@@ -92,7 +92,7 @@ public class AuthService {
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
             // 새로운 토큰 생성
-            String newAccessToken = jwtProvider.generateToken(user.getEmail());
+            String newAccessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getUsername(), user.getId());
             String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
             log.info("[토큰 갱신] 완료 : 이메일={}", email);

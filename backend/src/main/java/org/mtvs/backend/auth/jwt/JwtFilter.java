@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mtvs.backend.auth.model.CustomUserDetails;
+import org.mtvs.backend.auth.util.JwtUtil;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -23,6 +24,7 @@ import java.io.IOException;
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtProvider jwtProvider;
+    private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
     @Override
@@ -39,8 +41,8 @@ public class JwtFilter extends OncePerRequestFilter {
             log.debug("[JWT 필터] Authorization 헤더에서 토큰 추출 성공");
 
             try {
-                if (jwtProvider.validateToken(token)) {
-                    String email = jwtProvider.getEmailFromToken(token);
+                if (jwtUtil.validateToken(token)) {
+                    String email = jwtUtil.getEmail(token);
                     log.info("[JWT 필터] 토큰 검증 성공 : 이메일={}", email);
 
                     User user = userRepository.findByEmail(email)

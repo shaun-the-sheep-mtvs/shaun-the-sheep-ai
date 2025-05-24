@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { QUESTIONS, Question, Category } from '@/data/questions';
+import { apiConfig } from '@/config/api';
 import styles from './page.checklist.module.css';
 import { useRouter } from 'next/navigation';
 
@@ -126,7 +127,7 @@ export default function ChecklistPage() {
           return;
         }
 
-        fetch('http://localhost:8080/api/checklist', {
+        fetch(apiConfig.endpoints.checklist.base, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

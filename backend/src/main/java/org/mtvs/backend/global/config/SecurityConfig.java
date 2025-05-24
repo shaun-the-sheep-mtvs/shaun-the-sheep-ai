@@ -28,18 +28,30 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Support multiple environments: local development, production domains, Vercel
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",           // Development only
-                "https://*.shaunthesheep.store", // Production HTTPS
-                "https://*.vercel.app"           // Vercel HTTPS
-        ));
         
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // Support multiple environments with environment-specific configurations
+        List<String> allowedOrigins = List.of(
+                // Development environments
+                "http://localhost:*",
+                "http://127.0.0.1:*",
+                
+                // Production domains
+                "https://*.shaunthesheep.store",
+                "https://shaunthesheep.store",
+                "https://api.shaunthesheep.store",
+                
+                // Vercel deployment domains
+                "https://*.vercel.app",
+                "https://shaun-the-sheep-ai.vercel.app",
+                "https://shaun-the-sheep-ai-*.vercel.app"
+        );
+        
+        config.setAllowedOriginPatterns(allowedOrigins);
+        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization"));
+        config.setExposedHeaders(List.of("Authorization", "Content-Type", "Accept"));
         config.setAllowCredentials(true);
-        config.setMaxAge(3600L);
+        config.setMaxAge(3600L); // 1 hour preflight cache
         
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);

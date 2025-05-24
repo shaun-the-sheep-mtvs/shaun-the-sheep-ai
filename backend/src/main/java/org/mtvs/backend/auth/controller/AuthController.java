@@ -7,6 +7,7 @@ import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.service.AuthService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @Slf4j
@@ -69,6 +70,31 @@ public class AuthController {
         } catch (RuntimeException e) {
             log.warn("[토큰 갱신] 실패 : {}", e.getMessage());
             return ResponseEntity.status(401).body("토큰 갱신 실패: " + e.getMessage());
+        }
+    }
+
+    /*
+     * 현재 사용자 정보 조회
+     * */
+    @GetMapping("/me")
+    public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal org.mtvs.backend.auth.model.CustomUserDetails userDetails) {
+        log.info("[현재 사용자 조회] 요청 수신");
+
+        try {
+            // CustomUserDetails에서 사용자 정보 추출
+            var user = userDetails.getUser();
+            
+            // 응답 DTO 생성
+            var response = new java.util.HashMap<String, Object>();
+            response.put("id", user.getId());
+            response.put("username", user.getUsername());
+            response.put("email", user.getEmail());
+            
+            log.info("[현재 사용자 조회] 성공 : 이메일={}", user.getEmail());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.warn("[현재 사용자 조회] 실패 : {}", e.getMessage());
+            return ResponseEntity.status(401).body("사용자 정보 조회 실패: " + e.getMessage());
         }
     }
 }

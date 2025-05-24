@@ -8,6 +8,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import AnalysisBox from '@/components/AnalysisBox';
 import Greeting from '@/components/Greeting';
 import { useCurrentUser } from '@/data/useCurrentUser';
+import { apiConfig } from '@/config/api';
 
 // 서버가 내려주는 타입 (영문 키)
 interface CheckListResponse {
@@ -148,7 +149,7 @@ export default function Home() {
     setIsLoggedIn(!!token);
     
     if (token) {
-      fetch('http://localhost:8080/api/checklist', {
+      fetch(apiConfig.endpoints.checklist.base, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => {
@@ -172,7 +173,7 @@ export default function Home() {
     setIsLoggedIn(!!token);
     
     if (token) {
-      fetch('http://localhost:8080/api/checklist/mbti', {
+      fetch(apiConfig.endpoints.checklist.mbti, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => {
