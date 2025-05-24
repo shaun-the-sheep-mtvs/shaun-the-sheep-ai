@@ -2,7 +2,7 @@ package org.mtvs.backend.routine.controller;
 
 
 import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
-import org.mtvs.backend.service.RoutineManageSerivce;
+import org.mtvs.backend.routine.service.RoutineManageSerivce;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
