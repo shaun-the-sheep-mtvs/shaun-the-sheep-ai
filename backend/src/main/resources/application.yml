@@ -23,9 +23,9 @@ spring:
 gemini:
   api:
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
-    key: AIzaSyB_2HpZAgp2_ORDmWZ21TI18sgNQ_DGNDM
+    key: { gemini secret key  }
 
 jwt:
-  secret: n3Jka8==asdnfkja;lsdmfka;sdfmk===tYk9fA=
+  secret: { jwt secret key  }
   access-token-expiration: 3600000 # 1 hour (ms)
   refresh-token-expiration: 604800000 # 7 days (ms)
