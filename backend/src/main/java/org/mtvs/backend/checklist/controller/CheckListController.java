@@ -1,44 +1,52 @@
-// src/main/java/org/mtvs/backend/checklist/controller/CheckListController.java
 package org.mtvs.backend.checklist.controller;
 
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.service.CheckListService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
-@RequestMapping("/checklist")
+@RequestMapping("/api/checklist")
 public class CheckListController {
+
     private final CheckListService service;
 
     public CheckListController(CheckListService service) {
         this.service = service;
     }
 
+    /** 저장: Principal 로부터 username(email)을 꺼내서 서비스 호출 */
     @PostMapping
-    public ResponseEntity<CheckListResponse> create(
-            @AuthenticationPrincipal UserDetails user,
-            @RequestBody CheckListRequest req) {
-
-        CheckListResponse created =
-                service.create(user.getUsername(), req);
-
-        return ResponseEntity.ok(created);
+    public CheckListResponse create(
+            @RequestBody CheckListRequest req,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        return service.create(req, userDetails.getUsername());
     }
 
     @GetMapping
-    public ResponseEntity<List<CheckListResponse>> list(
-            @AuthenticationPrincipal UserDetails user) {
+    public List<CheckListResponse> findAll(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
+        return service.findAllForCurrentUser(customUserDetail.getUser().getUsername());
+    }
 
-        List<CheckListResponse> list =
-                service.findAllForUser(user.getUsername());
+    @GetMapping("/mbti")
+    public String MBTIResponse(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
+        String email = customUserDetail.getUser().getEmail();
+        System.out.println(email);
+        String MBTI = service.getSkinTypeByEmail(email);
+        System.out.println(MBTI);
 
-        return ResponseEntity.ok(list);
+        return MBTI;
     }
 }
+
+
+
+
+
+
+
 

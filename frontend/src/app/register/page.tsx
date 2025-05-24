@@ -5,15 +5,15 @@ import { useRouter } from 'next/navigation';
 import styles from './page.module.css';
 
 export default function RegisterPage() {
-    const [username, setUsername] = useState('');
-    const [email,    setEmail]    = useState('');
-    const [password, setPassword] = useState('');
-    const [error,    setError]    = useState<string | null>(null);
-    const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
+  const [error,    setError]    = useState<string | null>(null);
+  const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
         try {
             const res = await fetch('http://localhost:8080/api/auth/signup', {
@@ -38,55 +38,62 @@ export default function RegisterPage() {
         }
     };
 
-    return (
-  <div className={styles.page}>
-    <main className={styles.main}>
-      {/* 프레임 */}
-      <div className={styles.registerContainer}>
-        <h1>Sign Up</h1>
-        {error && <p className={styles.error}>{error}</p>}
+  return (
+    <div className={styles.page}>
+      <main className={styles.main}>
+        <div className={styles.registerContainer}>
+          <h1>Shaun</h1>
+          {error && <p className={styles.error}>{error}</p>}
 
-        {/* 폼 전체에 registerForm 클래스 */}
-        <form onSubmit={handleSubmit} className={styles.registerForm}>
-          <div className={styles.formGroup}>
-            <label htmlFor="username">Username</label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              required
-            />
-          </div>
+          <form onSubmit={handleSubmit} className={styles.registerForm}>
+            <div className={styles.formGroup}>
+              <label htmlFor="username">사용자 이름</label>
+              <input
+                id="username"
+                type="text"
+                placeholder="사용자를 입력해주세요"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-          </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="email">이메일</label>
+              <input
+                id="email"
+                type="email"
+                placeholder="이메일을 입력해주세요"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-          </div>
+            <div className={styles.formGroup}>
+              <label htmlFor="password">패스워드</label>
+              <input
+                id="password"
+                type="password"
+                
+                placeholder="패스워드를 입력해주세요"
+                value={password}
+              
+                onChange={e => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-          <button type="submit" className={styles.registerButton}>
-            Create Account
-          </button>
-        </form>
-      </div>
-    </main>
-  </div>
-);
+            <button type="submit" className={styles.registerButton}>
+              가입 하기
+            </button>
+            <div className={styles.loginLink} onClick={() => router.push('/login')}>
+              로그인
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  );
 }
+

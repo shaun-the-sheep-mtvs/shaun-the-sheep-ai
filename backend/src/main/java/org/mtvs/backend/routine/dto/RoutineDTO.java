@@ -38,4 +38,5 @@ public class RoutineDTO {
     private Kinds kind;
     private Time time;
     private String method;
+    private int orders;
 }

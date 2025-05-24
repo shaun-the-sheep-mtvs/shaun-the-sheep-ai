@@ -1,4 +1,6 @@
 spring:
+  dotenv:
+    location: .env.local
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5432/sheep-ai-db}
     username: ${DB_USERNAME:user}

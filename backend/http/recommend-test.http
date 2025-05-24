@@ -3,9 +3,9 @@ POST http://localhost:8080/api/recommend/diagnoses
 Content-Type: application/json
 
 {
-  "userId": 1,
-  "skinType": "DRY",
-  "troubles": ["여드름", "홍조"]
+  "userId": 3,
+  "skinType": "복합성",
+  "troubles": ["T존 유분", "볼 건조함"]
 }
 
 ### 사용자 ID만 보내는 간소화된 테스트 (/diagnoses 엔드포인트)

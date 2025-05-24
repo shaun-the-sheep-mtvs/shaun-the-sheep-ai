@@ -5,14 +5,14 @@ import { useRouter } from 'next/navigation';
 import styles from "./page.module.css";
 
 export default function Home() {
-      const [email,    setEmail]    = useState('');
-      const [password, setPassword] = useState('');
-      const [error,    setError]    = useState<string | null>(null);
-      const router = useRouter();
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
+  const [error,    setError]    = useState<string | null>(null);
+  const router = useRouter();
 
-      const handleSubmit = async (e: React.FormEvent) => {
-          e.preventDefault();
-          setError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
           try {
               const res = await fetch('http://localhost:8080/api/auth/login', {
@@ -49,27 +49,27 @@ export default function Home() {
     <div className={styles.page}>
       <main className={styles.main}>
         <div className={styles.loginContainer}>
-          <h1>Login</h1>
+          <h1>Shaun</h1>
           <form className={styles.loginForm} onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
-              <label htmlFor="email">Email</label>
+              <label htmlFor="email">이메일</label>
               <input
                 type="email"
                 id="email"
                 name="email"
-                placeholder="Enter your email"
+                placeholder="이메일을 입력해주세요"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
               />
             </div>
             <div className={styles.formGroup}>
-              <label htmlFor="password">Password</label>
+              <label htmlFor="password">패스워드</label>
               <input
                 type="password"
                 id="password"
                 name="password"
-                placeholder="Enter your password"
+                placeholder="패스워드를 입력해주세요"
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 required
@@ -77,11 +77,15 @@ export default function Home() {
             </div>
             {error && <p className={styles.error}>{error}</p>}
             <button type="submit" className={styles.loginButton}>
-              Sign In
+              로그인
             </button>
+            <div className={styles.registerLink} onClick={() => router.push('/register')}>
+              회원가입
+            </div>
           </form>
         </div>
       </main>
     </div>
   );
 }
+
