@@ -3,12 +3,9 @@ package org.mtvs.backend.recommend.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.auth.model.CustomUserDetails;
-import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.recommend.dto.RequestDTO;
-import org.mtvs.backend.user.entity.User.SkinType;
-import org.mtvs.backend.user.repository.UserRepository;
+import org.mtvs.backend.auth.model.User.SkinType;
 import org.mtvs.backend.recommend.dto.ResponseDTO;
-import org.mtvs.backend.recommend.dto.UserRequestDTO;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,18 +26,14 @@ public class RecommendController {
     private String geminiApiUrl;
 
     private final RestTemplate restTemplate;
-    private final UserRepository userRepository;
     private final ObjectMapper objectMapper;
 
     @Autowired
     public RecommendController(@Qualifier("geminiRestTemplate") RestTemplate restTemplate,
-                              UserRepository userRepository,
                               ObjectMapper objectMapper) {
         this.restTemplate = restTemplate;
-        this.userRepository = userRepository;
         this.objectMapper = objectMapper;
     }
-
 
     @PostMapping("/api/recommend/diagnoses")
     public ResponseEntity<?> diagnose(@AuthenticationPrincipal CustomUserDetails customUserDetail) {

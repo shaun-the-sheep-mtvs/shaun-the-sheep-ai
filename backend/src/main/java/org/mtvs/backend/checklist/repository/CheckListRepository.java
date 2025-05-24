@@ -10,6 +10,6 @@ import java.util.Optional;
 public interface CheckListRepository extends JpaRepository<CheckList, Long> {
     List<CheckList> findByUserOrderByCreatedAtDesc(User user);
     
-    // Spring Data JPA 메소드 네이밍 컨벤션 사용
-    Optional<CheckList> findFirstByUser_IdOrderByCreatedAtDesc(Long userId);
+    // Spring Data JPA 메소드 네이밍 컨벤션 사용 - User ID는 String (UUID)
+    Optional<CheckList> findFirstByUser_IdOrderByCreatedAtDesc(String userId);
 }
