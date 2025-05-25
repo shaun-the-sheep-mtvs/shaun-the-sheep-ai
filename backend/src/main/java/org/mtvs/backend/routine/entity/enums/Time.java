@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum Time {
     MORNING("MORNING"),
-    NIGHT("NIGHT"),
-    BOTH("BOTH");
+    NIGHT("NIGHT");
+
 
     private final String label;
 

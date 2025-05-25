@@ -44,7 +44,7 @@ interface Product {
   orders: number;
 }
 
-const RoutineManagePage = () => {
+export default function RoutineManagePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
@@ -80,7 +80,6 @@ const RoutineManagePage = () => {
       alert('로그인이 필요합니다.');
       return;
     }
-
     try {
       const response = await fetch('http://localhost:8080/api/routine/create', {
         method: 'POST',
@@ -98,15 +97,17 @@ const RoutineManagePage = () => {
           }))
         }),
       });
-
+  
       if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
+        const errorText = await response.text();
+        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
       }
-
-      const data = await response.json();
-      console.log('Success:', data);
-      alert('등록되었습니다.');
-      router.push('/step2'); // 등록 성공 후 다음 페이지로 이동
+  
+      const result = await response.text();
+    console.log('Success:', result);
+    alert('등록되었습니다.');
+       router.push('/step2'); // 등록 성공 후 다음 페이지로 이동
+      
     } catch (error) {
       console.error('Error:', error);
       alert('요청 중 오류가 발생했습니다.');
@@ -297,6 +298,4 @@ const RoutineManagePage = () => {
       </div>
     </div>
   );
-};
-
-export default RoutineManagePage; 
+} 
