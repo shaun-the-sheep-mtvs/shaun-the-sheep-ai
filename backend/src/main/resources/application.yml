@@ -1,3 +1,6 @@
+server:
+  port: 8080
+
 spring:
   dotenv:
     location: .env.local
@@ -10,7 +13,7 @@ spring:
       maximum-pool-size: 2
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -23,9 +26,9 @@ spring:
 gemini:
   api:
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
-    key: ${gemini_secret_key}
+    key: ${gemini_secret_key:AIzaSyB_2HpZAgp2_ORDmWZ21TI18sgNQ_DGNDM}
 
 jwt:
-  secret: ${jwt_secret_key}
+  secret: ${jwt_secret_key:n3Jka8asdnfkjalsdmfkasdfmktYk9fA}
   access-token-expiration: 3600000 # 1 hour (ms)
   refresh-token-expiration: 604800000 # 7 days (ms)

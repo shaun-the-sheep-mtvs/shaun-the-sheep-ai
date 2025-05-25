@@ -5,7 +5,9 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.auth.model.CustomUserDetails;
+import org.mtvs.backend.recommend.dto.ProductDTO;
 import org.mtvs.backend.recommend.dto.RequestDTO;
+import org.mtvs.backend.recommend.service.ProductService;
 import org.mtvs.backend.user.entity.User.SkinType;
 import org.mtvs.backend.recommend.dto.ResponseDTO;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,22 +33,23 @@ public class RecommendController {
 
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
+    private final ProductService productService;
 
-    @Autowired
-    public RecommendController(@Qualifier("geminiRestTemplate") RestTemplate restTemplate,
-                              ObjectMapper objectMapper) {
+    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
+        this.productService = productService;
     }
 
     @PostMapping("/api/recommend/diagnoses")
     public ResponseEntity<?> diagnose(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
 
+
         // 사용자의 피부 타입과 고민 목록을 가져옴
         SkinType skinType = customUserDetail.getUser().getSkinType();
         List<String> concerns = customUserDetail.getUser().getTroubles();
 
-        String geminiURL = geminiApiUrl + "?key=" + geminiApiKey;
+        String geminiURL = geminiApiUrl;
 
         // Gemini API에 전달할 프롬프트 생성 - 간결하게 변경
         String prompt = String.format(
@@ -54,7 +57,8 @@ public class RecommendController {
                         "다음 조건에 맞는 스킨케어 제품을 JSON 형식으로 추천해 주세요:\n" +
                         "- 각 제형(토너, 세럼, 로션, 크림)별로 3개의 제품을 추천합니다.\n" +
                         "- 각 제품에 대해 '제품명', '추천타입', '성분'을 한국어로 포함합니다.\n" +
-                        "- JSON의 키 중 skinType, concerns, recommendations는 반드시 영어로 작성되어야 합니다." +
+                        "- '추천타입'은 '건성', '지성', '복합성', '민감성', '수분부족지성' 중 하나만 골라서 적어줘.\n" +
+                        "- JSON의 키 중 skinType, concerns, recommendations는 반드시 영어로 작성되어야 합니다.\n" +
                         "- JSON의 키 중 '제품명', '추천타입', '성분'은 반드시 한국어로 작성되어야 합니다.\n" +
                         "- JSON의 키 중 'toner', 'serum', 'lotion', 'cream' 은 반드시 영어로 작성되어야 합니다.\n" +
                         "- 제품명, 추천타입, 성분명은 모두 한국어로 작성해 주세요.\n" +
@@ -96,10 +100,13 @@ public class RecommendController {
 //                    throw JsonMappingException.fromUnexpectedIOE(e);
 //                }
 //            }
+
             JsonNode jsonNode = objectMapper.readTree(cleanedJson);
+            System.out.println(jsonNode);
+            productService.saveProducts(jsonNode, customUserDetail.getUser().getEmail());
 
             // 파싱된 JSON을 반환
-            return ResponseEntity.ok(jsonNode);
+            return ResponseEntity.ok("ok");
 
         } catch (Exception e) {
             System.err.println("오류 발생: " + e.getMessage());
