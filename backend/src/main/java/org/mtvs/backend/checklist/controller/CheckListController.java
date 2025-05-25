@@ -26,13 +26,13 @@ public class CheckListController {
             @RequestBody CheckListRequest req,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return service.create(userDetails.getUsername(), req);
+        return service.create(req, userDetails.getUsername());
     }
 
     /** 사용자의 모든 체크리스트 조회 */
     @GetMapping
     public List<CheckListResponse> findAll(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
-        return service.findAllForUser(customUserDetail.getUser().getUsername());
+        return service.findAllForCurrentUser(customUserDetail.getUser().getUsername());
     }
 
     @GetMapping("/mbti")

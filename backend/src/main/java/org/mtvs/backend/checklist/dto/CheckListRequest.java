@@ -8,12 +8,10 @@ public class CheckListRequest {
     private Integer oil;
     private Integer sensitivity;
     private Integer tension;
+    private List<String> troubles;
     private String username;
 
     public String getUserId() {
-    private List<String> troubles;
-
-    public Long getUserId() {
         return userId;
     }
 
@@ -69,3 +67,4 @@ public class CheckListRequest {
         this.username = username;
     }
 }
+

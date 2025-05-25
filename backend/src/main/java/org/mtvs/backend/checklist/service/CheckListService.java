@@ -5,7 +5,6 @@ import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
-import org.mtvs.backend.checklist.dto.MBTIdto;
 import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
 import org.mtvs.backend.checklist.repository.MBTIMappingRepository;
@@ -17,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -86,7 +84,7 @@ public class CheckListService {
             throw new UsernameNotFoundException(email);
         }
         User userEntity = user.get();
-        Long userId = userEntity.getId();
+        String userId = userEntity.getId();
 
         Optional<CheckList> checkList = checkListRepo.findFirstByUser_IdOrderByCreatedAtDesc(userId);
 

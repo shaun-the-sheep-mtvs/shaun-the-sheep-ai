@@ -1,14 +1,14 @@
 package org.mtvs.backend.checklist.model;
 
 import jakarta.persistence.*;
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;      // ← 수정된 경로
 
 @Entity
 @Table(name = "mbti_mapping")
 public class MBTIMapping {
     @Id
     @Column(length = 4)
-    private String code;            // MOST, MOSL, …
+    private String code;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "skin_type", nullable = false)
