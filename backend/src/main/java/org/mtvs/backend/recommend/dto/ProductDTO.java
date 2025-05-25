@@ -16,7 +16,7 @@ import java.util.List;
 public class ProductDTO {
     private String id;
 
-    private Product.FormulationType formulationType;
+    private String formulationType;
 
     private List<String> ingredients;
 

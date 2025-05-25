@@ -21,13 +21,12 @@ public class Product {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
-    public enum FormulationType {
-        건성, 지성, 복합성, 민감성, 수부지
-    }
+//    public enum FormulationType {
+//        건성, 지성, 복합성, 민감성, 수부지
+//    }
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "formulation")
-    private FormulationType formulationType;
+    private String formulationType;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "ingredients", columnDefinition = "jsonb")
@@ -51,11 +50,11 @@ public class Product {
         this.id = id;
     }
 
-    public FormulationType getFormulationType() {
+    public String getFormulationType() {
         return formulationType;
     }
 
-    public void setFormulationType(FormulationType formulationType) {
+    public void setFormulationType(String formulationType) {
         this.formulationType = formulationType;
     }
 

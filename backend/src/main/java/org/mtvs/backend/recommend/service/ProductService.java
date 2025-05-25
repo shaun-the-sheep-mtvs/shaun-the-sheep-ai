@@ -37,28 +37,27 @@ public class ProductService {
 
         // 각 배열을 순회하면서 개별 제품 저장
         for (JsonNode product : tonerArray) {
-            saveProduct(product, userId);
+            saveProduct(product, userId, "toner");
         }
 
         for (JsonNode product : serumArray) {
-            saveProduct(product, userId);
+            saveProduct(product, userId, "serum");
         }
 
         for (JsonNode product : lotionArray) {
-            saveProduct(product, userId);
+            saveProduct(product, userId, "lotion");
         }
 
         for (JsonNode product : creamArray) {
-            saveProduct(product, userId);
+            saveProduct(product, userId, "cream");
         }
 
     }
-    
-    public void saveProduct(JsonNode jsonNode, String userId) {
+
+    public void saveProduct(JsonNode jsonNode, String userId, String formulation) {
 
         // ObjectNode 로 캐스팅
         ObjectNode objectNode = (ObjectNode) jsonNode;
-
 
         ProductDTO dto = new ProductDTO();
         // 제품명
@@ -80,14 +79,15 @@ public class ProductService {
         dto.setIngredients(ingredients);
 
         // formulationType (추천타입 기반 매핑)
-        String recommendedType = dto.getRecommendedType();
-        if (recommendedType != null) {
-            try {
-                dto.setFormulationType(Product.FormulationType.valueOf(recommendedType));
-            } catch (IllegalArgumentException e) {
-                dto.setFormulationType(null);
-            }
-        }
+//        String recommendedType = dto.getRecommendedType();
+//        if (recommendedType != null) {
+//            try {
+//                dto.setFormulationType(Product.FormulationType.valueOf(recommendedType));
+//            } catch (IllegalArgumentException e) {
+//                dto.setFormulationType(null);
+//            }
+//        }
+        dto.setFormulationType(formulation);
         dto.setUserId(userId);
 
         // User 엔티티 조회
