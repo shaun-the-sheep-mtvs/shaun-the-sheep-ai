@@ -1,14 +1,13 @@
 // src/app/layout.tsx
 import type { Metadata } from "next";
-import { Inter } from "next/font/google";
+import { GeistSans, GeistMono } from 'geist/font';
 import "./globals.css";
-import Script from "next/script";
-import Link from "next/link";
+import AuthGuard from '@/components/AuthGuard';
+import Nav from '@/components/Nav';
+import Script from 'next/script';
 
-const inter = Inter({
-    subsets: ["latin"],
-    variable: "--font-inter",
-});
+const geistSans = GeistSans;
+const geistMono = GeistMono;
 
 export const metadata: Metadata = {
     title: "Shaun the Sheep MTVS",
@@ -16,21 +15,20 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({
-                                       children,
-                                   }: {
+    children,
+}: {
     children: React.ReactNode;
 }) {
     return (
         <html
             lang="en"
-            className={inter.variable}
+            className={`${geistSans.variable} ${geistMono.variable}`}
         >
         <head>
-            {/* 로그인 폼 스크립트 로드 */}
-            <Script src="/scripts/login.js" strategy="beforeInteractive" />
+            <link rel="icon" href="/favicon.ico" />
         </head>
         <body>
-        {children}
+            {children}
         </body>
         </html>
     );

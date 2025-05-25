@@ -1,40 +1,48 @@
 package org.mtvs.backend.checklist.service;
 
+import jakarta.transaction.Transactional;
+import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
+import org.mtvs.backend.checklist.dto.MBTIdto;
 import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
-import org.mtvs.backend.auth.model.User;
-import org.mtvs.backend.auth.service.AuthService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 public class CheckListService {
     private final CheckListRepository repo;
-    private final AuthService authService;    // UserRepository 대신 AuthService 사용
+    private final UserRepository userRepository;
 
-    public CheckListService(CheckListRepository repo, AuthService authService) {
+    public CheckListService(CheckListRepository repo, UserRepository userRepository) {
         this.repo = repo;
-        this.authService = authService;
+        this.userRepository = userRepository;
     }
 
     public CheckListResponse create(String username, CheckListRequest req) {
-        User user = authService.findByUsername(username);  // Optional 풀고 예외처리
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         CheckList entity = new CheckList();
         entity.setUser(user);
         entity.setMoisture(req.getMoisture());
         entity.setOil(req.getOil());
         entity.setSensitivity(req.getSensitivity());
         entity.setTension(req.getTension());
+
         CheckList saved = repo.save(entity);
         return toDto(saved);
     }
 
     public List<CheckListResponse> findAllForUser(String username) {
-        User user = authService.findByUsername(username);
+        User user = userRepository.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
         return repo.findByUserOrderByCreatedAtDesc(user)
                 .stream()
                 .map(this::toDto)
@@ -51,5 +59,37 @@ public class CheckListService {
         dto.setCreatedAt(e.getCreatedAt());
         return dto;
     }
+
+    public String getSkinTypeByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
+        String userId = user.getId();
+
+        Optional<CheckList> checkList = repo.findFirstByUser_IdOrderByCreatedAtDesc(userId);
+
+        if (checkList.isEmpty()) {
+            throw new UsernameNotFoundException(email);
+        }
+
+        CheckList result = checkList.get();
+        Map<String, String> ratings = new HashMap<>();
+        // M : moisture , D : dry
+        ratings.put("moisture", result.getMoisture() >= 60 ? "M" : "D");
+        // O : oil , B : Barren(빈약함)
+        ratings.put("oil", result.getOil() >= 60 ? "O" : "B");
+        // S : sensitivity, I : Insensitive
+        ratings.put("sensitivity", result.getSensitivity() >= 60 ? "S" : "I");
+        // L : laxity(느슨함)
+        ratings.put("tension", result.getTension() >= 60 ? "T" : "L");
+
+        // 피부 타입 조합 생성 (예: MOSL, DBIL 등)
+        String skinType = ratings.get("moisture") + ratings.get("sensitivity") +
+                         ratings.get("oil") + ratings.get("tension");
+        System.out.println(skinType);
+        return skinType;
+    }
 }
+
+
+
 

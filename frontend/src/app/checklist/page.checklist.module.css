@@ -3,55 +3,112 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #fff4f6;
-  font-family: var(--font-geist-sans);
+  background: var(--bg-pink-light);
+  font-family: var(--font-main);
 }
 
 .container {
   width: 100%;
   max-width: 600px;
-  background: #fff;
+  background: var(--bg-white);
   padding: 2rem;
-  border-radius: 12px;
+  border-radius: 1.25rem;
   box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+
+  opacity: 0;                        /* 시작 시 완전 투명 */
+  transform: translateY(20px);       /* 시작 시 아래로 20px 이동 */
+  animation: slideUp 0.6s ease-out forwards;
+}
+
+@keyframes slideUp {
+  to {
+    opacity: 1;                      /* 끝나면 불투명 */
+    transform: translateY(0);        /* 원위치 */
+  }
 }
 
 .title {
   text-align: center;
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  color: #333;
+  margin-bottom: 1.5rem;
+  font-size: 1.75rem;
+  color: var(--text-dark);
+  font-weight: 700;
 }
 
-/* 진행도 슬라이더 */
-.progress input[type="range"] {
+/* 3) 진행도 슬라이더 (공통) */
+.progress input[type="range"],
+.resultProgress input[type="range"] {
   -webkit-appearance: none;
   width: 100%;
   height: 12px;
-  background: #eee;
-  border-radius: 6px;
+  background: none;
   outline: none;
+  cursor: default;
 }
 
 .progress input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 24px;
   height: 24px;
-  background: #ff8fab;
+  background: var(--purple-primary);
+  border: 4px solid var(--bg-white);
   border-radius: 50%;
   margin-top: -6px;
-  cursor: default;
 }
 
-/* 옵션 버튼 레이아웃 */
+.resultProgress {
+  width: 100%;
+  height: 12px;
+  border-radius: 6px;
+
+  /* 1) 배경색만 깔고 */
+  background-color: #eee;
+
+  /* 2) 채워질 부분만 그라디언트로 레이어드 */
+  background-image: linear-gradient(
+    to right,
+    var(--bar-color), /* 시작부터 끝까지 같은 색 */
+    var(--bar-color)
+  );
+  background-repeat: no-repeat;
+
+  /* 3) 초기엔 0%만 채워놓고 */
+  background-size: 0% 100%;
+
+  /* 4) 트랜지션 정의 */
+  transition: background-size 1s ease-out;
+}
+
+/* 4) 슬라이더별 색상 변수 교체 */
+.progress.moisture input[type="range"]::-webkit-slider-thumb { /* thumb 색만 바뀌면 충분 */
+  background: var(--bar-moisture);
+}
+.progress.oil        input[type="range"]::-webkit-slider-thumb {
+  background: var(--bar-oil);
+}
+.progress.sensitivity input[type="range"]::-webkit-slider-thumb {
+  background: var(--bar-sensitivity);
+}
+.progress.tension    input[type="range"]::-webkit-slider-thumb {
+  background: var(--bar-tension);
+}
+
+/* 5) 옵션 버튼 스타일 */
 .options {
   display: flex;
-  justify-content: space-between;
-  margin-top: 2rem;
+  justify-content: center;  /* 그룹 전체를 가운데에 모아서 */
+  gap: 2rem;                /* 옵션 사이 간격은 고정 */
+  margin-top: 2.5rem;
 }
 
 .optionWrapper {
-  text-align: center;
+  /* 1) 가로 폭을 고정 */
+  width: 100px;             /* 최대 라벨 길이에 맞춰 조정 */
+  
+  /* 2) 레이아웃은 수직 정렬 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .option {
@@ -60,23 +117,41 @@
   border: 3px solid #ccc;
   border-radius: 50%;
   background: #fff;
-  transition: all 0.2s;
+  transition: 
+    background-color 0.2s,
+    border-color 0.2s,
+    box-shadow 0.2s;
   cursor: pointer;
 }
 
 .option:hover {
-  border-color: #ff8fab;
+  border-color: var(--purple-primary);
+  background-color: var(--purple-light);
 }
 
-.selected {
-  background: #ff8fab;
-  border-color: #ff8fab;
-  box-shadow: 0 0 8px rgba(255,143,171,0.4);
+.option.selected {
+  background-color: var(--purple-light);
+  border-color: var(--purple-primary);
+  box-shadow: 0 0 8px rgba(192, 132, 252, 0.4);
+}
+
+.option.selected:hover {
+  background-color: var(--purple-hover);
+  border-color: var(--purple-primary);
 }
 
 .optionLabel {
   display: block;
   margin-top: 0.5rem;
-  font-size: 0.85rem;
-  color: #666;
+  font-family: var(--font-option);
+  font-weight: 500;
+  font-size: 0.95rem;
+  color: #333;
+  letter-spacing: -0.02em;
 }
+
+/* 6) 결과 슬라이더 track 은 .resultProgress 배경으로 */
+.resultProgress input[type="range"]::-webkit-slider-thumb {
+  display: none;
+}
+

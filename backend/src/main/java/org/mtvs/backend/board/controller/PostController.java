@@ -11,6 +11,13 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/posts")
 @RequiredArgsConstructor
+@CrossOrigin(origins = {
+    "http://localhost:3000",
+    "https://shaunthesheep.store",
+    "https://www.shaunthesheep.store",
+    "https://shaun-the-sheep-ai-git-main-jkktoms-projects.vercel.app",
+    "https://api.shaunthesheep.store"
+})
 public class PostController {
     private final PostService postService;
 

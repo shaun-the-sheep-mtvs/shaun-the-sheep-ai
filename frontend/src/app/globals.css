@@ -1,6 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --bg-pink-light: #fff4f6;
+  --bg-white: #ffffff;
+  --text-dark: #374151;
+  --text-medium: #6b7280;
+
+  --purple-primary: #8b5cf6;
+  --purple-light:   #c084fc;
+  --purple-hover:   #aa6df9;
+
+  --bar-moisture:   #4caf50;
+  --bar-oil:        #2196f3;
+  --bar-sensitivity:#f44336;
+  --bar-tension:    #ff9800;
+
+  --font-main: 'Pretendard', sans-serif;
+  --font-option: 'Noto Sans KR', sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -10,16 +28,16 @@
   }
 }
 
-html,
-body {
-  max-width: 100vw;
-  overflow-x: hidden;
+body,
+html {
+  background: #fefbfc !important;
+  color: #222 !important;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Pretendard', Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
