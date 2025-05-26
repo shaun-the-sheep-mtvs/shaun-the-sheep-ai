@@ -1,44 +1,76 @@
 'use client'
-import React, { useState } from 'react'
+
+import React, { useEffect, useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import type { ChatMessageDTO } from '../../types/ChatMessageDTO'
 import { Stethoscope, Send, Menu, User, Bot } from 'lucide-react'
 import styles from './page.module.css'
+import Sidebar from '@/components/Sidebar'
+import { useCurrentUser } from '@/data/useCurrentUser'
 
 export default function AIDoctorChatPage() {
+  const router = useRouter()
+  const { user, loading } = useCurrentUser()
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [activeNav, setActiveNav] = useState("ai-chat")
+
+  // 로그아웃 처리: 토큰 제거 후 /login으로 이동
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken')
+    router.push('/login')
+  }
+
+  // 마운트 시 로그인 상태 체크
+  useEffect(() => {
+    if (!localStorage.getItem('accessToken')) {
+      router.push('/login')
+    }
+  }, [router])
+
   const [messages, setMessages] = useState<ChatMessageDTO[]>([
     {
-      role: 'ai',
-      content: '안녕하세요! 👋 AI 의사입니다. 건강 상담을 시작해보세요!',
+      role: "ai",
+      content: "안녕하세요! 👋 AI 의사입니다. 건강 상담을 시작해보세요!",
       timestamp: new Date().toISOString(),
     },
   ])
-  const [input, setInput] = useState('')
+  const [input, setInput] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // 새 메시지가 추가될 때마다 스크롤 맨 아래로
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
+  }, [messages])
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(prev => !prev)
+  }
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!input.trim()) return
 
     const userMessage: ChatMessageDTO = {
-      role: 'user',
+      role: "user",
       content: input,
       timestamp: new Date().toISOString(),
     }
     const newMessages = [...messages, userMessage]
     setMessages(newMessages)
-    setInput('')
+    setInput("")
     setIsLoading(true)
 
     try {
-      // AI 호출 (Next.js API 혹은 직접 백엔드)
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: newMessages }),
+      // AI 응답 받기
+      const res = await fetch("http://localhost:8080/api/chat-messages/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(newMessages),
       })
-      if (!res.ok) throw new Error(await res.text())
-      const aiDto: ChatMessageDTO = await res.json()
+      if (!res.ok) throw new Error(`AI 호출 실패: ${await res.text()}`)
 
+      const aiDto: ChatMessageDTO = await res.json()
       const aiMessage: ChatMessageDTO = {
         role: aiDto.role,
         content: aiDto.content,
@@ -46,34 +78,54 @@ export default function AIDoctorChatPage() {
       }
       setMessages([...newMessages, aiMessage])
 
-      // 백엔드 저장
-      await fetch('http://localhost:8080/api/chat-messages/bulk', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      // 대화 기록 백엔드에 저장
+      await fetch("http://localhost:8080/api/chat-messages/bulk", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify([userMessage, aiMessage]),
       })
     } catch (err) {
       console.error(err)
+      // 오류 메시지 표시
+      const errorMessage: ChatMessageDTO = {
+        role: "ai",
+        content: "죄송합니다. 일시적인 오류가 발생했습니다. 다시 시도해 주세요.",
+        timestamp: new Date().toISOString(),
+      }
+      setMessages(prev => [...prev, errorMessage])
     } finally {
       setIsLoading(false)
     }
   }
 
+  const handleNavClick = (navId: string) => {
+    setActiveNav(navId)
+  }
+
   return (
     <div className={styles.page}>
-      {/* Header */}
+      {/* 사이드바 */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        activeNav={activeNav}
+        onNavClick={handleNavClick}
+      />
+
+      {/* 헤더 */}
       <header className={styles.header}>
-        <button className={styles.iconButton}>
+        <button className={styles.iconButton} onClick={toggleSidebar}>
           <Menu size={24} />
         </button>
         <h1 className={styles.logo}>
           <Stethoscope className={styles.logoIcon} /> AI Doctor
         </h1>
-        <button className={styles.iconButton}>
-          <User size={24} />
+        <button className={styles.logoutButton} onClick={handleLogout}>
+          로그아웃
         </button>
       </header>
 
+      {/* 메인 콘텐츠 */}
       <main className={styles.main}>
         {/* 환영 배너 */}
         <div className={styles.welcomeBanner}>
@@ -81,11 +133,14 @@ export default function AIDoctorChatPage() {
             <span className={styles.wave}>👋</span> 환영합니다!
           </p>
           <h2 className={styles.welcomeTitle}>
-            <span className={styles.highlight}>건강상담</span> 님, 맞춤형 스킨케어를 시작해보세요!
+            {loading
+              ? <span>…로딩 중…</span>
+              : <><span className={styles.highlight}>{user?.username ?? '사용자'}</span>님, 맞춤형 스킨케어를 시작해보세요!</>
+            }
           </h2>
         </div>
 
-        {/* Chat 박스 */}
+        {/* 채팅 영역 */}
         <section className={styles.chatSection}>
           <div className={styles.chatHeader}>
             <h3>AI 의사 상담</h3>
@@ -96,36 +151,33 @@ export default function AIDoctorChatPage() {
             {messages.map((msg, i) => (
               <div
                 key={i}
-                className={
-                  msg.role === 'user'
-                    ? `${styles.message} ${styles.user}`
-                    : `${styles.message} ${styles.ai}`
-                }
+                className={`${styles.message} ${msg.role === "user" ? styles.user : styles.ai}`}
               >
                 <div className={styles.avatar}>
-                  {msg.role === 'user' ? <User /> : <Bot />}
+                  {msg.role === "user" ? <User /> : <Bot />}
                 </div>
                 <div className={styles.bubble}>
                   <p>{msg.content}</p>
                   <span className={styles.time}>
                     {new Date(msg.timestamp).toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
+                      hour: "2-digit",
+                      minute: "2-digit",
                     })}
                   </span>
                 </div>
               </div>
             ))}
+
             {isLoading && (
               <div className={`${styles.message} ${styles.ai}`}>
-                <div className={styles.avatar}>
-                  <Bot />
-                </div>
+                <div className={styles.avatar}><Bot /></div>
                 <div className={styles.bubble}>
-                  <span className={styles.loading}>...</span>
+                  <span className={styles.loading}>AI가 응답을 생성하고 있습니다...</span>
                 </div>
               </div>
             )}
+
+            <div ref={messagesEndRef} />
           </div>
 
           <form onSubmit={handleSubmit} className={styles.inputForm}>
@@ -133,37 +185,15 @@ export default function AIDoctorChatPage() {
               type="text"
               placeholder="건강 관련 질문을 입력해주세요..."
               value={input}
-              onChange={(e) => setInput(e.target.value)}
+              onChange={e => setInput(e.target.value)}
               disabled={isLoading}
               className={styles.input}
             />
-            <button
-              type="submit"
-              disabled={!input.trim() || isLoading}
-              className={styles.sendButton}
-            >
+            <button type="submit" disabled={!input.trim() || isLoading} className={styles.sendButton}>
               <Send /> 전송
             </button>
           </form>
         </section>
-
-        {/* 팁 & 현황 */}
-        <div className={styles.cards}>
-          <div className={styles.card}>
-            <div className={styles.cardIcon}>💡</div>
-            <div>
-              <h4>건강 팁</h4>
-              <p>규칙적인 운동과 충분한 수면이 건강의 기본입니다.</p>
-            </div>
-          </div>
-          <div className={styles.card}>
-            <div className={styles.cardIcon}>📊</div>
-            <div>
-              <h4>상담 현황</h4>
-              <p>오늘 {messages.length}개의 메시지를 주고받았습니다.</p>
-            </div>
-          </div>
-        </div>
       </main>
     </div>
   )

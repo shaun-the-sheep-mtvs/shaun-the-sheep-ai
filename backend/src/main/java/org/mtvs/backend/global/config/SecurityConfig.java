@@ -69,6 +69,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/health").permitAll()
+                        .requestMatchers("api/chat-messages/ask").permitAll()
 
                         // Protected endpoints
                         .requestMatchers("/api/recommend/**").authenticated()
