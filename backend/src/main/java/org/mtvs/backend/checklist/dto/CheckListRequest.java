@@ -1,11 +1,14 @@
 package org.mtvs.backend.checklist.dto;
 
+import java.util.List;
+
 public class CheckListRequest {
     private String userId;
     private Integer moisture;
     private Integer oil;
     private Integer sensitivity;
     private Integer tension;
+    private List<String> troubles;
     private String username;
 
     public String getUserId() {
@@ -48,6 +51,14 @@ public class CheckListRequest {
         this.tension = tension;
     }
 
+    public List<String> getTroubles() {
+        return troubles;
+    }
+
+    public void setTroubles(List<String> troubles) {
+        this.troubles = troubles;
+    }
+
     public String getUsername() {
         return username;
     }
@@ -56,3 +67,4 @@ public class CheckListRequest {
         this.username = username;
     }
 }
+

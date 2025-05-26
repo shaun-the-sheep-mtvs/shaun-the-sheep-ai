@@ -1,5 +1,6 @@
 ### 피부 진단 및 제품 추천 테스트 (/diagnoses 엔드포인트)
 POST http://localhost:8080/api/recommend/diagnoses
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
 
 {

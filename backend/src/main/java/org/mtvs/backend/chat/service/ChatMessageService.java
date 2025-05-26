@@ -1,17 +1,34 @@
 package org.mtvs.backend.chat.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.chat.entity.ChatMessage;
 import org.mtvs.backend.chat.repository.ChatMessageRepository;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
+    private static final Map<String,String> TEMPLATE_PROMPTS = Map.of(
+            "skin_dry", "당신은 피부 보습 전문가입니다. '피부가 건조해요' 라는 질문이 들어오면, 반드시 다음과 같은 구조로 답변하세요:\n\n" +
+                    "1. 문제 원인 요약\n2. 추천 제품 및 사용법\n3. 추가 팁\n\n",
+            "skin_acne", "당신은 여드름 치료 전문가입니다. '여드름 고민' 질문이 들어오면, 반드시 다음 구조로 답변하세요:\n\n" +
+                    "- 원인\n- 식습관/생활습관 조언\n- 추천 성분\n\n"
+    );
     private final ChatMessageRepository chatMessageRepository;
+    private final WebClient webClient;
+    @Value("${gemini.api.key}")
+    private String apiKey;
 
     public List<ChatMessage> findAll() {
         return chatMessageRepository.findAll();
@@ -28,4 +45,84 @@ public class ChatMessageService {
     public void deleteById(Long id) {
         chatMessageRepository.deleteById(id);
     }
-} 
+
+    @SuppressWarnings("unchecked")
+    public ChatMessage askAI_Single(
+            List<ChatMessage> history,
+            String userQuestion,
+            String templateKey
+    ) {
+        // 1) 생성 설정
+        Map<String,Object> generationConfig = Map.of(
+                "temperature", 0.2,
+                "topK", 40,
+                "topP", 0.95,
+                "maxOutputTokens", 50
+        );
+
+        // 2) contents 리스트 만들기 (템플릿이 있으면 맨 앞에 system 역할로 삽입)
+        List<Map<String,Object>> contents = new ArrayList<>();
+        if (templateKey != null && TEMPLATE_PROMPTS.containsKey(templateKey)) {
+            contents.add(Map.of(
+                    "role", "system",
+                    "parts", List.of(Map.of("text", "답변은 최대 2문장 이내의 간결한 형태로만 제공해주세요."))
+            ));
+        }
+        // user 메시지
+        contents.add(Map.of(
+                "role", "user",
+                "parts", List.of(Map.of("text", userQuestion))
+        ));
+
+        // 3) request body
+        Map<String,Object> body = Map.of(
+                "contents", contents,
+                "generationConfig", generationConfig
+        );
+
+        // 4) API 호출
+        Map<String,Object> res = webClient.post()
+                .uri(b -> b
+                        .path("/v1beta/models/gemini-2.0-flash:generateContent")
+                        .queryParam("key", apiKey)
+                        .build()
+                )
+                .bodyValue(body)
+                .retrieve()
+                .bodyToMono(new ParameterizedTypeReference<Map<String,Object>>() {})
+                .block();
+
+        // 5) 로깅
+        try {
+            System.out.println(">>> AI raw response:\n"
+                    + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(res));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        // 6) 결과 파싱
+        List<Map<String,Object>> candidates = (List<Map<String,Object>>) res.get("candidates");
+        if (candidates == null || candidates.isEmpty()) {
+            throw new RuntimeException("AI output이 없습니다.");
+        }
+        Map<String,Object> contentMap = (Map<String,Object>) candidates.get(0).get("content");
+        if (contentMap == null) {
+            throw new RuntimeException("AI content가 없습니다.");
+        }
+        List<Map<String,Object>> parts = (List<Map<String,Object>>) contentMap.get("parts");
+        if (parts == null || parts.isEmpty()) {
+            throw new RuntimeException("AI parts가 없습니다.");
+        }
+        String aiText = (String) parts.get(0).get("text");
+        if (aiText == null) {
+            throw new RuntimeException("AI text가 없습니다.");
+        }
+
+        // 7) DB에 저장
+        ChatMessage aiMsg = new ChatMessage();
+        aiMsg.setRole("ai");
+        aiMsg.setContent(aiText);
+        aiMsg.setTimestamp(LocalDateTime.now());
+        return chatMessageRepository.save(aiMsg);
+    }
+}
