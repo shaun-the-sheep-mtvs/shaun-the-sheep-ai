@@ -1,10 +1,10 @@
-package org.mtvs.backend.recommend.dto;
+package org.mtvs.backend.product.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.mtvs.backend.recommend.entity.Product;
+import org.mtvs.backend.product.entity.Product;
 import org.mtvs.backend.user.entity.User;
 
 import java.util.List;

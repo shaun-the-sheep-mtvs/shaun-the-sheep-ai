@@ -1,18 +1,17 @@
-package org.mtvs.backend.recommend.service;
+package org.mtvs.backend.product.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import org.mtvs.backend.recommend.dto.ProductDTO;
-import org.mtvs.backend.recommend.entity.Product;
-import org.mtvs.backend.recommend.repository.ProductRepository;
+import org.mtvs.backend.product.dto.ProductDTO;
+import org.mtvs.backend.product.entity.Product;
+import org.mtvs.backend.product.repository.ProductRepository;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -23,6 +22,24 @@ public class ProductService {
     public ProductService(ProductRepository productRepository, UserRepository userRepository) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+    }
+
+    public List<ProductDTO> getProducts(String userId){
+        // userId에 해당된 추천 제품들이 있는지 확인
+        boolean exists = productRepository.existsById(userId);
+        if (!exists) {
+            throw new RuntimeException("해당 유저의 추천 제품이 존재하지 않습니다. 체크리스트는 최초 1회 필요합니다.");
+        }
+        // userId에 해당된 추천 제품 리스트 가져오기
+        List<Product> products = productRepository.findByUserId(userId);
+        List<ProductDTO> productDTOs = new ArrayList<>();
+
+        // 엔티티를 DTO로 변환
+        for (Product product : products) {
+            ProductDTO productDTO = ProductDTO.fromEntity(product);
+            productDTOs.add(productDTO);
+        }
+        return productDTOs;
     }
 
     public void saveProducts(JsonNode productJson, String email) {

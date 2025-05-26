@@ -1,9 +1,8 @@
-package org.mtvs.backend.recommend.entity;
+package org.mtvs.backend.product.entity;
 
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Comment;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.mtvs.backend.user.entity.User;

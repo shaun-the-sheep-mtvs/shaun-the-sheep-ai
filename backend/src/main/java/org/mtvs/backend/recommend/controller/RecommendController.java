@@ -1,25 +1,22 @@
 package org.mtvs.backend.recommend.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.auth.model.CustomUserDetails;
-import org.mtvs.backend.recommend.dto.ProductDTO;
+import org.mtvs.backend.product.dto.ProductDTO;
 import org.mtvs.backend.recommend.dto.RequestDTO;
-import org.mtvs.backend.recommend.service.ProductService;
+import org.mtvs.backend.product.service.ProductService;
 import org.mtvs.backend.user.entity.User.SkinType;
 import org.mtvs.backend.recommend.dto.ResponseDTO;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping
@@ -115,5 +112,17 @@ public class RecommendController {
             // 오류 시 원본 문자열 반환 (프론트엔드에서 처리)
             return ResponseEntity.ok(rawResponse);
         }
+    }
+    
+    public List<ProductDTO> ThreeProducts(@AuthenticationPrincipal CustomUserDetails customUserDetail){
+        // 토큰에 있는 아이디를 불러옴
+        String Id = customUserDetail.getUser().getId();
+        // 아이디에 해당된 제품 리스트를 섞기
+        List<ProductDTO> products = productService.getProducts(Id);
+        Collections.shuffle(products);
+        // 3개 반환
+        return products.stream()
+                .limit(3)
+                .collect(Collectors.toList());
     }
 }
