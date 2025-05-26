@@ -12,7 +12,6 @@ import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -27,8 +26,10 @@ public class AuthService {
 
     /**
      * 회원가입
+     *
+     * @return
      */
-    public void signup(SignupRequest dto) {
+    public User signup(SignupRequest dto) {
         log.info("[회원 가입] 서비스 호출 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
 
         // 이메일 존재 여부 확인
@@ -44,6 +45,7 @@ public class AuthService {
         );
         userRepository.save(user);
         log.info("[회원 가입] 완료 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
+        return user;
     }
 
     /**

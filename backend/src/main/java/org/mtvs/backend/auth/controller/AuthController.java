@@ -6,6 +6,8 @@ import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.service.AuthService;
+import org.mtvs.backend.auth.util.JwtUtil;
+import org.mtvs.backend.user.entity.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;

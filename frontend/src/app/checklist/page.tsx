@@ -3,7 +3,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { QUESTIONS, Question, Category } from '@/data/questions';
-import { apiConfig } from '@/config/api';
 import styles from './page.checklist.module.css';
 import { CONCERNS } from '@/data/concerns';
 import { useRouter } from 'next/navigation';
@@ -28,8 +27,13 @@ export default function ChecklistPage() {
   const router = useRouter();
   const [progress, setProgress] = useState(0);
   const [selectedConcerns, setSelectedConcerns] = useState<string[]>([]);
-  useEffect(() => {setProgress(Math.round((idx/qs.length) * 100));
-  }, [idx]);
+  useEffect(() => {
+  if (qs.length > 0) {
+    setProgress(Math.round((idx / qs.length) * 100));
+  } else {
+    setProgress(0);
+  }
+}, [idx, qs.length]);
 
   // 페이지 로드 시: 카테고리별로 5문항 중 랜덤 3개씩 골라 총 12문제 세팅
   useEffect(() => {

@@ -96,6 +96,7 @@ public class JwtUtil {
     public String getEmail(String token) {
         return parseClaims(token).get("email", String.class);
     }
+
 }
 
 

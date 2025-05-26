@@ -1,0 +1,205 @@
+/* 전체 페이지 배경 */
+.page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f3e8ff 0%, #fdf2f8 100%);
+  font-family: sans-serif;
+  color: #333;
+}
+
+/* 상단 헤더 */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+.iconButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+.logoIcon {
+  margin-right: 8px;
+  color: #ec4899;
+}
+
+/* 메인 컨텐츠 영역 */
+.main {
+  flex: 1;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* 환영 배너 */
+.welcomeBanner {
+  background: #f3e8ff;
+  border-radius: 12px;
+  padding: 16px;
+}
+.welcomeText {
+  display: flex;
+  align-items: center;
+  font-size: 1rem;
+  margin-bottom: 8px;
+}
+.wave {
+  font-size: 1.5rem;
+  margin-right: 8px;
+}
+.welcomeTitle {
+  font-size: 1.125rem;
+}
+.highlight {
+  color: #ec4899;
+  font-weight: bold;
+}
+
+/* 채팅 섹션 */
+.chatSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.chatHeader {
+  background: linear-gradient(90deg, #8b5cf6, #ec4899);
+  color: #fff;
+  padding: 16px;
+  border-radius: 12px 12px 0 0;
+}
+.chatHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+}
+.chatHeader p {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+}
+
+/* 메시지 영역 */
+.messagesWrapper {
+  background: #fff;
+  border-radius: 0 0 12px 12px;
+  padding: 16px;
+  height: 300px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+.message.ai {
+  justify-content: flex-start;
+}
+.message.user {
+  justify-content: flex-end;
+}
+.avatar {
+  width: 32px;
+  height: 32px;
+  background: #e0f7fa;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.message.ai .avatar {
+  background: #dcfce7;
+}
+.bubble {
+  max-width: 70%;
+  background: #dcfce7;
+  padding: 8px 12px;
+  border-radius: 12px;
+  position: relative;
+}
+.message.user .bubble {
+  background: #fce7f3;
+}
+.time {
+  display: block;
+  font-size: 0.75rem;
+  color: #777;
+  margin-top: 4px;
+  text-align: right;
+}
+.loading {
+  font-size: 1.25rem;
+  animation: blink 1s infinite;
+}
+@keyframes blink {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
+
+/* 입력폼 */
+.inputForm {
+  display: flex;
+  gap: 8px;
+}
+.input {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 9999px;
+  outline: none;
+}
+.input:disabled {
+  background: #f5f5f5;
+}
+.sendButton {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #ec4899;
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+.sendButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* 팁 & 현황 카드 */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+.card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #fff;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+.cardIcon {
+  font-size: 1.5rem;
+  background: #e0f7fa;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
