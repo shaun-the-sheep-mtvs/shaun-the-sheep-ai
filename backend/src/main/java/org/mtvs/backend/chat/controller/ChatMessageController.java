@@ -19,14 +19,14 @@ public class ChatMessageController {
     private ChatMessageDTO toDTO(ChatMessage entity) {
         return entity.toDTO();
     }
-
-    private ChatMessage toEntity(ChatMessageDTO dto) {
-        ChatMessage entity = new ChatMessage();
-        entity.setId(dto.getId());
-        entity.setRole(dto.getRole());
-        entity.setContent(dto.getContent());
-        entity.setTimestamp(dto.getTimestamp());
-        return entity;
+    
+        private ChatMessage toEntity(ChatMessageDTO dto) {
+            ChatMessage entity = new ChatMessage();
+            entity.setId(dto.getId());
+            entity.setRole(dto.getRole());
+            entity.setContent(dto.getContent());
+            entity.setTimestamp(dto.getTimestamp());
+            return entity;
     }
 
     @GetMapping

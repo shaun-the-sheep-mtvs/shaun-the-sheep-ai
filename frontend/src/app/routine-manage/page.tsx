@@ -8,31 +8,27 @@ import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X } f
 
 const ROUTINE_TIMES = [
   { label: '아침', value: 'MORNING' },
-  { label: '저녁', value: 'EVENING' },
-  { label: '둘다', value: 'BOTH' },
+  { label: '저녁', value: 'NIGHT' },
 ];
 
 const getButtonClass = (routineTime: string, selected: string) => {
   let base = styles['routine-btn'];
   if (routineTime === 'MORNING' && selected === 'MORNING') return base + ' ' + styles['selected-morning'];
-  if (routineTime === 'EVENING' && selected === 'EVENING') return base + ' ' + styles['selected-evening'];
-  if (routineTime === 'BOTH' && selected === 'BOTH') return base + ' ' + styles['selected-both'];
+  if (routineTime === 'NIGHT' && selected === 'NIGHT') return base + ' ' + styles['selected-evening'];
   return base;
 };
 
 const getInputRowClass = (routineTime: string) => {
   let base = styles['input-row'];
   if (routineTime === 'MORNING') return base + ' ' + styles['morning'];
-  if (routineTime === 'EVENING') return base + ' ' + styles['evening'];
-  if (routineTime === 'BOTH') return base + ' ' + styles['both'];
+  if (routineTime === 'NIGHT') return base + ' ' + styles['evening'];
   return base;
 };
 
 const getCompleteButtonClass = (selectedTime: string) => {
   let base = styles['complete-btn'];
   if (selectedTime === 'MORNING') return base + ' ' + styles['morning'];
-  if (selectedTime === 'EVENING') return base + ' ' + styles['evening'];
-  if (selectedTime === 'BOTH') return base + ' ' + styles['both'];
+  if (selectedTime === 'NIGHT') return base + ' ' + styles['evening'];
   return base;
 };
 
@@ -44,15 +40,23 @@ interface Product {
   orders: number;
 }
 
+// 미리보기 제품 그룹 타입 정의
+interface PreviewProductGroup {
+  time: 'MORNING' | 'NIGHT';
+  products: Product[];
+}
+
 export default function RoutineManagePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const [selectedTime, setSelectedTime] = useState<'MORNING' | 'EVENING' | 'BOTH'>('MORNING');
+  const [selectedTime, setSelectedTime] = useState<'MORNING' | 'NIGHT'>('MORNING');
+  const [currentStep, setCurrentStep] = useState<'time' | 'product'>('time');
   const [products, setProducts] = useState<Product[]>([
     { name: '', kind: '', method: '', orders: 1 },
     { name: '', kind: '', method: '', orders: 2 },
   ]);
+  const [previewGroups, setPreviewGroups] = useState<PreviewProductGroup[]>([]);
   const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
   
   const toggleSidebar = () => {
@@ -64,7 +68,7 @@ export default function RoutineManagePage() {
     setIsSidebarOpen(false);
   };
 
-  const handleComplete = async () => {
+  const handleAddToPreview = () => {
     // 공백 입력 방지
     const isAnyFieldEmpty = products.some(product => 
       !product.name.trim() || !product.kind.trim() || !product.method.trim()
@@ -75,11 +79,35 @@ export default function RoutineManagePage() {
       return;
     }
 
+    // 미리보기에 현재 시간대와 함께 추가
+    setPreviewGroups(prev => [...prev, {
+      time: selectedTime,
+      products: [...products]
+    }]);
+    
+    // 입력창 초기화
+    setProducts([
+      { name: '', kind: '', method: '', orders: 1 },
+      { name: '', kind: '', method: '', orders: 2 },
+    ]);
+
+    // 시간 선택 단계로 돌아가기
+    setCurrentStep('time');
+  };
+
+  const handleComplete = async () => {
+    // 미리보기 제품이 없으면 경고
+    if (previewGroups.length === 0) {
+      alert('등록할 제품이 없습니다.');
+      return;
+    }
+
     const token = localStorage.getItem('accessToken');
     if (!token) {
       alert('로그인이 필요합니다.');
       return;
     }
+
     try {
       const response = await fetch('http://localhost:8080/api/routine/create', {
         method: 'POST',
@@ -88,13 +116,15 @@ export default function RoutineManagePage() {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          routines: products.map(product => ({
-            name: product.name,
-            kind: product.kind,
-            time: selectedTime,
-            method: product.method,
-            orders: product.orders
-          }))
+          routines: previewGroups.flatMap((group, groupIndex) => 
+            group.products.map((product, productIndex) => ({
+              name: product.name,
+              kind: product.kind,
+              time: group.time,
+              method: product.method,
+              orders: productIndex + 1
+            }))
+          )
         }),
       });
   
@@ -104,9 +134,9 @@ export default function RoutineManagePage() {
       }
   
       const result = await response.text();
-    console.log('Success:', result);
-    alert('등록되었습니다.');
-       router.push('/step2'); // 등록 성공 후 다음 페이지로 이동
+      console.log('Success:', result);
+      alert('등록되었습니다.');
+      router.push('/step2');
       
     } catch (error) {
       console.error('Error:', error);
@@ -136,6 +166,15 @@ export default function RoutineManagePage() {
       method: '', 
       orders: prev.length + 1 
     }]);
+  };
+
+  const handleTimeSelect = (time: 'MORNING' | 'NIGHT') => {
+    setSelectedTime(time);
+    setCurrentStep('product');
+  };
+
+  const handleBack = () => {
+    setCurrentStep('time');
   };
 
   return (
@@ -199,7 +238,7 @@ export default function RoutineManagePage() {
           <div className={styles.card}>
             {/* 상단 네비게이션 */}
             <div className={styles.topnav}>
-              <span className={styles['topnav-title']}>정밀 피부검사</span>
+              <span className={styles['topnav-title']}>루틴 분석</span>
             </div>
             {/* STEP 1, STEP 2 */}
             <div className={styles.steps}>
@@ -207,94 +246,154 @@ export default function RoutineManagePage() {
               <span className={styles.step + ' ' + styles.inactive}>STEP 2</span>
               <div className={styles['step-divider']} />
             </div>
-            {/* 1. 루틴 시간 선택 */}
-            <div style={{ marginBottom: 32 }}>
-              <div className={styles['section-title']}>1. 루틴 시간을 선택해주세요.</div>
-              <div className={styles['routine-times']}>
-                {ROUTINE_TIMES.map((t) => (
+            
+            {currentStep === 'time' ? (
+              <div style={{ marginBottom: 32 }}>
+                <div className={styles['section-title']}>1. 루틴 시간을 선택해주세요.</div>
+                <div className={styles['routine-times']}>
+                  {ROUTINE_TIMES.map((t) => (
+                    <button
+                      key={t.value}
+                      className={getButtonClass(t.value, selectedTime)}
+                      onClick={() => handleTimeSelect(t.value as any)}
+                      type="button"
+                    >
+                      {t.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              <>
+                <div style={{ marginBottom: 32 }}>
+                  <div className={styles['section-title']}>
+                    <div className={styles['time-selection-header']}>
+                      <button 
+                        className={styles['back-button']}
+                        onClick={handleBack}
+                        type="button"
+                      >
+                        ← 이전
+                      </button>
+                      <span className={styles.selectedTime}>선택된 시간: {
+                        selectedTime === 'MORNING' ? '아침' : '저녁'
+                      }</span>
+                    </div>
+                  </div>
+                  <div className={styles['section-title']}>2. 단계에 해당하는 제품을 입력해주세요.</div>
+                  <div className={styles.inputs}>
+                    {products.map((product, idx) => (
+                      <div
+                        key={idx}
+                        className={getInputRowClass(selectedTime)}
+                      >
+                        <div className={styles['input-top']}>
+                          <input
+                            className={styles.input}
+                            placeholder="제품명"
+                            value={product.name}
+                            onChange={(e) => handleProductChange(idx, 'name', e.target.value)}
+                          />
+                          <select
+                            className={styles['input-select']}
+                            value={product.kind}
+                            onChange={(e) => handleProductChange(idx, 'kind', e.target.value)}
+                          >
+                            <option value="">종류 선택</option>
+                            <option value="토너">토너</option>
+                            <option value="앰플">앰플</option>
+                            <option value="크림">크림</option>
+                            <option value="스킨">스킨</option>
+                            <option value="세럼">세럼</option>
+                            <option value="로션">로션</option>
+                          </select>
+                          <button
+                            className={styles['remove-btn']}
+                            onClick={() => handleRemoveProduct(idx)}
+                            type="button"
+                            aria-label="삭제"
+                          >
+                            -
+                          </button>
+                        </div>
+                        <input
+                          className={styles['input-method']}
+                          placeholder="방법"
+                          value={product.method}
+                          onChange={(e) => handleProductChange(idx, 'method', e.target.value)}
+                        />
+                      </div>
+                    ))}
+                  </div>
+                  <div className={styles['add-btn-row']}>
+                    <button
+                      className={styles['add-btn']}
+                      onClick={handleAddProduct}
+                      type="button"
+                      aria-label="추가"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+                <div className={styles['button-group']}>
                   <button
-                    key={t.value}
-                    className={getButtonClass(t.value, selectedTime)}
-                    onClick={() => setSelectedTime(t.value as any)}
+                    className={getCompleteButtonClass(selectedTime)}
+                    onClick={handleAddToPreview}
                     type="button"
                   >
-                    {t.label}
+                    추가
                   </button>
-                ))}
-              </div>
-            </div>
-            {/* 2. 단계별 제품 입력 */}
-            <div style={{ marginBottom: 32 }}>
-              <div className={styles['section-title']}>2. 단계에 해당하는 제품을 입력해주세요.</div>
-              <div className={styles.inputs}>
-                {products.map((product, idx) => (
-                  <div
-                    key={idx}
-                    className={getInputRowClass(selectedTime)}
-                  >
-                    <div className={styles['input-top']}>
-                      <input
-                        className={styles.input}
-                        placeholder="제품명"
-                        value={product.name}
-                        onChange={(e) => handleProductChange(idx, 'name', e.target.value)}
-                      />
-                      <select
-                        className={styles['input-select']}
-                        value={product.kind}
-                        onChange={(e) => handleProductChange(idx, 'kind', e.target.value)}
-                      >
-                        <option value="">종류 선택</option>
-                        <option value="토너">토너</option>
-                        <option value="앰플">앰플</option>
-                        <option value="크림">크림</option>
-                        <option value="스킨">스킨</option>
-                        <option value="세럼">세럼</option>
-                        <option value="로션">로션</option>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
 
-                      </select>
-                      <button
-                        className={styles['remove-btn']}
-                        onClick={() => handleRemoveProduct(idx)}
-                        type="button"
-                        aria-label="삭제"
-                      >
-                        -
-                      </button>
-                    </div>
-                    <input
-                      className={styles['input-method']}
-                      placeholder="방법"
-                      value={product.method}
-                      onChange={(e) => handleProductChange(idx, 'method', e.target.value)}
-                    />
-                  </div>
-                ))}
+        {/* 오른쪽: 미리보기 섹션 */}
+        {previewGroups.length > 0 && (
+          <div className={styles['preview-section']}>
+            <div className={styles.card}>
+              <div className={styles['preview-header']}>
+                <h3>등록 예정 루틴</h3>
               </div>
-              {/* 플러스 버튼 */}
-              <div className={styles['add-btn-row']}>
+              {previewGroups.map((group, groupIndex) => (
+                <div key={groupIndex} className={styles['preview-group']}>
+                  <div className={styles['preview-time']}>
+                    {group.time === 'MORNING' ? '아침' : '저녁'} 루틴
+                  </div>
+                  <div className={styles['preview-list']}>
+                    {group.products.map((product, idx) => (
+                      <div key={idx} className={styles['preview-item']}>
+                        <div className={styles['preview-order']}>{idx + 1}</div>
+                        <div className={styles['preview-content']}>
+                          <div className={styles['preview-name']}>
+                            {product.name}
+                          </div>
+                          <div className={styles['preview-kind']}>
+                            {product.kind}
+                          </div>
+                          <div className={styles['preview-method']}>
+                            {product.method}
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+              <div className={styles['preview-actions']}>
                 <button
-                  className={styles['add-btn']}
-                  onClick={handleAddProduct}
+                  className={styles['complete-btn']}
+                  onClick={handleComplete}
                   type="button"
-                  aria-label="추가"
                 >
-                  +
+                  완료
                 </button>
               </div>
             </div>
-            {/* 버튼 그룹 */}
-            <div className={styles['button-group']}>
-              <button
-                className={getCompleteButtonClass(selectedTime)}
-                onClick={handleComplete}
-                type="button"
-              >
-                완료
-              </button>
-            </div>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );
