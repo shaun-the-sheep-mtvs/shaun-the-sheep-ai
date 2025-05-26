@@ -20,10 +20,24 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ChatMessageService {
     private static final Map<String,String> TEMPLATE_PROMPTS = Map.of(
-            "skin_dry", "당신은 피부 보습 전문가입니다. '피부가 건조해요' 라는 질문이 들어오면, 반드시 다음과 같은 구조로 답변하세요:\n\n" +
-                    "1. 문제 원인 요약\n2. 추천 제품 및 사용법\n3. 추가 팁\n\n",
-            "skin_acne", "당신은 여드름 치료 전문가입니다. '여드름 고민' 질문이 들어오면, 반드시 다음 구조로 답변하세요:\n\n" +
-                    "- 원인\n- 식습관/생활습관 조언\n- 추천 성분\n\n"
+            "skin_dry",
+            "당신은 피부 보습 전문가입니다. ‘피부가 건조해요’라는 질문이 들어오면, " +
+                    "다음 조건을 반드시 지켜 답변하세요:\n" +
+                    "1) 공백 포함 **240자 이내**로 문장을 끝낼것\n" +
+                    "2) 한 문단(한 줄)으로 작성\n" +
+                    "3) “troubles”는 [건조함, 번들거림, 민감함, …, 결 거칠음] 중 하나만 언급\n\n" +
+                    "– 문제 원인 요약\n" +
+                    "– 추천 제품 및 사용법\n" +
+                    "– 추가 팁",
+            "skin_acne",
+            "당신은 여드름 치료 전문가입니다. ‘여드름 고민’ 질문이 들어오면, " +
+                    "다음 조건을 반드시 지켜 답변하세요:\n" +
+                    "1) 공백 포함 **240자 이내**로 문장을 끝낼것\n" +
+                    "2) 한 문단(한 줄)으로 작성\n" +
+                    "3) “troubles”는 [건조함, 번들거림, 민감함, …, 결 거칠음] 중 하나만 언급\n\n" +
+                    "- 원인\n" +
+                    "- 식습관/생활습관 조언\n" +
+                    "- 추천 성분"
     );
     private final ChatMessageRepository chatMessageRepository;
     private final WebClient webClient;
@@ -57,15 +71,17 @@ public class ChatMessageService {
                 "temperature", 0.2,
                 "topK", 40,
                 "topP", 0.95,
-                "maxOutputTokens", 50
+                "maxOutputTokens", 255,
+                "stopSequences", List.of("\n\n")
         );
 
         // 2) contents 리스트 만들기 (템플릿이 있으면 맨 앞에 system 역할로 삽입)
         List<Map<String,Object>> contents = new ArrayList<>();
         if (templateKey != null && TEMPLATE_PROMPTS.containsKey(templateKey)) {
+            String prompt = TEMPLATE_PROMPTS.get(templateKey);
             contents.add(Map.of(
                     "role", "system",
-                    "parts", List.of(Map.of("text", "답변은 최대 2문장 이내의 간결한 형태로만 제공해주세요."))
+                    "parts", List.of(Map.of("text", prompt))
             ));
         }
         // user 메시지
@@ -113,9 +129,15 @@ public class ChatMessageService {
         if (parts == null || parts.isEmpty()) {
             throw new RuntimeException("AI parts가 없습니다.");
         }
+        // 6) parse
         String aiText = (String) parts.get(0).get("text");
         if (aiText == null) {
             throw new RuntimeException("AI text가 없습니다.");
+        }
+
+        int maxLen = 250;
+        if (aiText.length() > maxLen) {
+            aiText = aiText.substring(0, maxLen);
         }
 
         // 7) DB에 저장
