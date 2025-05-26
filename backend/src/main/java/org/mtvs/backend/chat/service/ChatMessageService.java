@@ -1,20 +1,17 @@
 package org.mtvs.backend.chat.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.chat.entity.ChatMessage;
 import org.mtvs.backend.chat.repository.ChatMessageRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -22,6 +19,12 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
+    private static final Map<String,String> TEMPLATE_PROMPTS = Map.of(
+            "skin_dry", "당신은 피부 보습 전문가입니다. '피부가 건조해요' 라는 질문이 들어오면, 반드시 다음과 같은 구조로 답변하세요:\n\n" +
+                    "1. 문제 원인 요약\n2. 추천 제품 및 사용법\n3. 추가 팁\n\n",
+            "skin_acne", "당신은 여드름 치료 전문가입니다. '여드름 고민' 질문이 들어오면, 반드시 다음 구조로 답변하세요:\n\n" +
+                    "- 원인\n- 식습관/생활습관 조언\n- 추천 성분\n\n"
+    );
     private final ChatMessageRepository chatMessageRepository;
     private final WebClient webClient;
     @Value("${gemini.api.key}")
@@ -44,26 +47,40 @@ public class ChatMessageService {
     }
 
     @SuppressWarnings("unchecked")
-    public ChatMessage askAI_Single(List<ChatMessage> history, String userQuestion) {
-        // 1) request body 구성
+    public ChatMessage askAI_Single(
+            List<ChatMessage> history,
+            String userQuestion,
+            String templateKey
+    ) {
+        // 1) 생성 설정
         Map<String,Object> generationConfig = Map.of(
                 "temperature", 0.2,
-                "topK",  40,             // 필요에 따라 조정
-                "topP",  0.95,           // 필요에 따라 조정
-                "maxOutputTokens", 256
+                "topK", 40,
+                "topP", 0.95,
+                "maxOutputTokens", 50
         );
 
-        Map<String,Object> contentEntry = Map.of(
+        // 2) contents 리스트 만들기 (템플릿이 있으면 맨 앞에 system 역할로 삽입)
+        List<Map<String,Object>> contents = new ArrayList<>();
+        if (templateKey != null && TEMPLATE_PROMPTS.containsKey(templateKey)) {
+            contents.add(Map.of(
+                    "role", "system",
+                    "parts", List.of(Map.of("text", "답변은 최대 2문장 이내의 간결한 형태로만 제공해주세요."))
+            ));
+        }
+        // user 메시지
+        contents.add(Map.of(
                 "role", "user",
                 "parts", List.of(Map.of("text", userQuestion))
-        );
+        ));
 
+        // 3) request body
         Map<String,Object> body = Map.of(
-                "contents", List.of(contentEntry),
+                "contents", contents,
                 "generationConfig", generationConfig
         );
 
-        // 2) API 호출
+        // 4) API 호출
         Map<String,Object> res = webClient.post()
                 .uri(b -> b
                         .path("/v1beta/models/gemini-2.0-flash:generateContent")
@@ -75,32 +92,24 @@ public class ChatMessageService {
                 .bodyToMono(new ParameterizedTypeReference<Map<String,Object>>() {})
                 .block();
 
-        ObjectMapper mapper = new ObjectMapper();
-
+        // 5) 로깅
         try {
-            System.out.println(">>> AI raw response:\n" +
-                    mapper.writerWithDefaultPrettyPrinter().writeValueAsString(res));
+            System.out.println(">>> AI raw response:\n"
+                    + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(res));
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
 
-        // 2) candidates 리스트 꺼내기
-        List<Map<String,Object>> candidates =
-                (List<Map<String,Object>>) res.get("candidates");
+        // 6) 결과 파싱
+        List<Map<String,Object>> candidates = (List<Map<String,Object>>) res.get("candidates");
         if (candidates == null || candidates.isEmpty()) {
             throw new RuntimeException("AI output이 없습니다.");
         }
-
-        // 3) 첫 번째 candidate의 content 맵 꺼내기
-        Map<String,Object> contentMap =
-                (Map<String,Object>) candidates.get(0).get("content");
+        Map<String,Object> contentMap = (Map<String,Object>) candidates.get(0).get("content");
         if (contentMap == null) {
             throw new RuntimeException("AI content가 없습니다.");
         }
-
-        // 4) parts 배열에서 첫 번째 part, 그리고 text 꺼내기
-        List<Map<String,Object>> parts =
-                (List<Map<String,Object>>) contentMap.get("parts");
+        List<Map<String,Object>> parts = (List<Map<String,Object>>) contentMap.get("parts");
         if (parts == null || parts.isEmpty()) {
             throw new RuntimeException("AI parts가 없습니다.");
         }
@@ -109,14 +118,11 @@ public class ChatMessageService {
             throw new RuntimeException("AI text가 없습니다.");
         }
 
-        // 5) 엔티티에 세팅 후 저장
+        // 7) DB에 저장
         ChatMessage aiMsg = new ChatMessage();
         aiMsg.setRole("ai");
         aiMsg.setContent(aiText);
         aiMsg.setTimestamp(LocalDateTime.now());
-        chatMessageRepository.save(aiMsg);
-
-        return aiMsg;
+        return chatMessageRepository.save(aiMsg);
     }
-
 }

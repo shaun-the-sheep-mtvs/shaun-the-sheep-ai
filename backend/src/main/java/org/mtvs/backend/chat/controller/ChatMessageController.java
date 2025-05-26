@@ -88,6 +88,7 @@ public class ChatMessageController {
 
     @PostMapping("/ask")
     public ResponseEntity<ChatMessageDTO> askAI(
+            @RequestParam(value = "templateKey", required = false) String templateKey,
             @RequestBody List<ChatMessageDTO> historyDto
     ) throws JsonProcessingException {
         // 1) DTO → Entity 변환
@@ -101,15 +102,15 @@ public class ChatMessageController {
                 })
                 .collect(Collectors.toList());
 
-        // 2) userQuestion 추출: history 의 마지막 user 메시지를 질문으로
+        // 2) 마지막 user 메시지를 질문으로
         String userQuestion = history.stream()
                 .filter(m -> "user".equals(m.getRole()))
                 .map(ChatMessage::getContent)
-                .reduce((first, second) -> second)  // 마지막 메시지
+                .reduce((first, second) -> second)
                 .orElse("");
 
-        // 3) AI 서비스 호출 (단일 텍스트 생성)
-        ChatMessage aiMsg = chatMessageService.askAI_Single(history, userQuestion);
+        // 3) AI 호출 (templateKey 함께 전달)
+        ChatMessage aiMsg = chatMessageService.askAI_Single(history, userQuestion, templateKey);
 
         // 4) Entity → DTO 변환
         ChatMessageDTO responseDto = new ChatMessageDTO();
