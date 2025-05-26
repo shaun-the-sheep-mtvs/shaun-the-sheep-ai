@@ -26,7 +26,7 @@ public class ProductService {
 
     public List<ProductDTO> getProducts(String userId){
         // userId에 해당된 추천 제품들이 있는지 확인
-        boolean exists = productRepository.existsById(userId);
+        boolean exists = productRepository.existsByUserId(userId);
         if (!exists) {
             throw new RuntimeException("해당 유저의 추천 제품이 존재하지 않습니다. 체크리스트는 최초 1회 필요합니다.");
         }

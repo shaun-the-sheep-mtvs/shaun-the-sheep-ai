@@ -8,4 +8,6 @@ import java.util.List;
 public interface ProductRepository extends JpaRepository<Product, String> {
 
     List<Product> findByUserId(String id);
+    boolean existsByUserId(String id);
+
 }

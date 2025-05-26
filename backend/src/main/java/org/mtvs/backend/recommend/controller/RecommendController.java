@@ -113,7 +113,8 @@ public class RecommendController {
             return ResponseEntity.ok(rawResponse);
         }
     }
-    
+
+    @GetMapping("api/recommend/random-recommendations")
     public List<ProductDTO> ThreeProducts(@AuthenticationPrincipal CustomUserDetails customUserDetail){
         // 토큰에 있는 아이디를 불러옴
         String Id = customUserDetail.getUser().getId();
