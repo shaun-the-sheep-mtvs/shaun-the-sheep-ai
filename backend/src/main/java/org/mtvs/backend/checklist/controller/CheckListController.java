@@ -5,6 +5,7 @@ import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.service.CheckListService;
+import org.mtvs.backend.recommend.controller.RecommendController;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -15,9 +16,11 @@ import java.util.List;
 public class CheckListController {
 
     private final CheckListService service;
+    private final RecommendController recommendController;
 
-    public CheckListController(CheckListService service) {
+    public CheckListController(CheckListService service, RecommendController recommendController) {
         this.service = service;
+        this.recommendController = recommendController;
     }
 
     /** 체크리스트 저장 */
@@ -26,7 +29,10 @@ public class CheckListController {
             @RequestBody CheckListRequest req,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        return service.create(req, userDetails.getUsername());
+        recommendController.diagnose(userDetails);
+
+        return service.create(userDetails.getUsername(), req);
+>>>>>>> 3aadfe749b304a3847c78ef7a05fd03805574669
     }
 
     /** 사용자의 모든 체크리스트 조회 */

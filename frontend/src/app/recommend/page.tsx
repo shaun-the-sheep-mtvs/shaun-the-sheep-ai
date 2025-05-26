@@ -6,6 +6,7 @@ import Image from "next/image"
 import styles from "./recommend.module.css"
 import { useState, useEffect } from "react"
 import axios from "axios"
+import { useCurrentUser } from "@/data/useCurrentUser";
 
 interface Product {
   제품명: string;
@@ -96,6 +97,8 @@ export default function RecommendPage() {
   const [recommendData, setRecommendData] = useState<RecommendData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, loading: userLoading } = useCurrentUser();
+
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -292,13 +295,15 @@ export default function RecommendPage() {
             <div className={styles["greeting-background"]}></div>
             <div className={styles["greeting-content"]}>
               <div className={styles["user-avatar"]}>
-                <span className={styles["avatar-text"]}>마</span>
+                <span className={styles["avatar-text"]}>{user?.username.charAt(0)}</span>
               </div>
               <div className={styles["greeting-text-container"]}>
                 <div className={styles["greeting-text-wrapper"]}>
                   <p className={styles["greeting-label"]}>반갑습니다</p>
                   <p className={styles["greeting-text"]}>
-                    안녕하세요, <span className={styles["user-name"]}>마라님</span>
+                    <span className={styles["user-name"]}>
+                    {userLoading ? 'Loading...' : user ? user.username : 'Guest'}
+                      </span> 님!
                   </p>
                 </div>
               </div>
