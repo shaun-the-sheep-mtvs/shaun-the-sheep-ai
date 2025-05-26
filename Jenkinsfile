@@ -6,7 +6,7 @@ pipeline {
         DB_USERNAME = 'postgres.vmseaaxnzizueahbonmg'
         DB_PASSWORD = credentials('SUPABASE_PASSWORD')
         GEMINI_API_KEY = credentials('GEMINI_API_KEY')
-        JWT_SECRET_KEY = credentials('JWT_SECRET_KEY')
+        JWT_SECRET = credentials('JWT_SECRET_KEY')
     }
 
     tools {
@@ -47,7 +47,7 @@ pipeline {
                     -e DB_USERNAME=$DB_USERNAME \
                     -e DB_PASSWORD=$DB_PASSWORD \
                     -e GEMINI_API_KEY=$GEMINI_API_KEY \
-                    -e JWT_SECRET_KEY=$JWT_SECRET_KEY \
+                    -e JWT_SECRET=$JWT_SECRET \
                     -p 8081:8080 \
                     my-backend:latest
                 '''
