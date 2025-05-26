@@ -31,7 +31,7 @@ public class CheckListController {
     ) {
         recommendController.diagnose(userDetails);
 
-        return service.create(userDetails.getUsername(), req);
+        return service.create(req, userDetails.getUsername());
     }
 
     /** 사용자의 모든 체크리스트 조회 */
