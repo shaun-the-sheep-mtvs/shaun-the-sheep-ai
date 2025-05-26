@@ -27,14 +27,7 @@ Thumbs.db
 
 # Environment files
 .env.local
-meta_user09_accessKeys_shaunthesheep.csv
-shaunjake.pem
-shellscript
-JENKINS_DOCKER_DEPLOYMENT.md
-supabaseSettings
-jake-seoul-region.pem
-zz.ubuntu/
-SETUP_HTTPS_BACKEND.md
+/resources/
 
 # Logs
 logs/
