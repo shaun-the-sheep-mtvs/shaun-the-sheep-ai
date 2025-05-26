@@ -5,6 +5,8 @@
   flex-direction: column;
   align-items: center;
   padding: 80px 0 48px;
+  opacity: 0;
+  animation: fadeIn 0.5s ease-out forwards;
 }
 
 .page-layout {
@@ -36,6 +38,9 @@
   padding: 48px;
   border: 1px solid #fbcfe8;
   position: relative;
+  opacity: 0;
+  animation: slideUp 0.5s ease-out forwards;
+  animation-delay: 0.2s;
 }
 .topnav {
   display: flex;
@@ -100,11 +105,12 @@
   color: #1e293b;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
 }
 .routine-btn:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
   box-shadow: 0 4px 12px 0 rgba(0,0,0,0.08);
 }
 .routine-btn.selected-morning {
@@ -139,11 +145,13 @@
   border: 1.5px solid #e2e8f0;
   box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
   gap: 12px;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  animation: slideIn 0.3s ease-out;
 }
 .input-row:hover {
   border-color: #cbd5e1;
   box-shadow: 0 4px 12px 0 rgba(0,0,0,0.06);
+  transform: translateY(-1px);
 }
 .input-row.morning {
   background: #fdf2f8;
@@ -323,6 +331,12 @@
   padding: 20px;
   border: 1.5px solid #e5e7eb;
   box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+  animation: slideIn 0.3s ease-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.routine-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px 0 rgba(0,0,0,0.06);
 }
 .routine-header {
   display: flex;
@@ -519,4 +533,184 @@
   width: 20px;
   height: 20px;
   margin-right: 12px;
+}
+
+.time-selection-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  position: relative;
+  width: 100%;
+}
+
+.back-button {
+  position: absolute;
+  left: 0;
+  background: #f8fafc;
+  border: 1.5px solid #e2e8f0;
+  color: #64748b;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 8px 16px;
+  border-radius: 999px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 4px 0 rgba(0,0,0,0.04);
+}
+
+.back-button:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px 0 rgba(0,0,0,0.08);
+}
+
+.selectedTime {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1e293b;
+  text-align: center;
+}
+
+.preview-section {
+  width: 100%;
+  max-width: 400px;
+  margin-left: 24px;
+}
+
+.preview-header {
+  margin-bottom: 24px;
+}
+
+.preview-header h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 8px;
+}
+
+.preview-time {
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.preview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.preview-item {
+  display: flex;
+  gap: 16px;
+  padding: 16px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  animation: slideIn 0.3s ease-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.preview-item:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px 0 rgba(0,0,0,0.06);
+}
+
+.preview-order {
+  width: 24px;
+  height: 24px;
+  background: #e2e8f0;
+  color: #64748b;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.preview-content {
+  flex: 1;
+}
+
+.preview-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.preview-kind {
+  font-size: 14px;
+  color: #64748b;
+  margin-bottom: 4px;
+}
+
+.preview-method {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.5;
+}
+
+.preview-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.preview-group {
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.preview-group:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: none;
+}
+
+.preview-time {
+  font-size: 16px;
+  color: #64748b;
+  font-weight: 500;
+  margin-bottom: 16px;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  display: inline-block;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 } 

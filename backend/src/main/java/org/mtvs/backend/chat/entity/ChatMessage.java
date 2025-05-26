@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.flywaydb.core.internal.util.JsonUtils;
 import org.mtvs.backend.chat.dto.ChatMessageDTO;
 import java.time.LocalDateTime;
 
@@ -17,7 +18,6 @@ public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String role; // "user" or "ai"
     private String content;
     private LocalDateTime timestamp;

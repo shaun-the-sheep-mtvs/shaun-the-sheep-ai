@@ -3,6 +3,7 @@ package org.mtvs.backend.routine.repository;
 import org.mtvs.backend.routine.dto.RequestRoutineAllDTO;
 import org.mtvs.backend.routine.dto.RoutinesDto;
 import org.mtvs.backend.routine.entity.Routine;
+import org.mtvs.backend.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,5 +21,7 @@ public interface RoutineRepository extends JpaRepository<Routine, Integer> {
     List<RoutinesDto> findAllRoutineByUserId(@Param("userId") String userId);
 
 
+    List<Routine> findRoutinesByUser(User user);
 
+    List<Routine> findRoutinesByRoutineGroupId(Long routineGroupId);
 }
