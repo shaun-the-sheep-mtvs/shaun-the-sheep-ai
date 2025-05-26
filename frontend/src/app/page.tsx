@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import Link from 'next/link';
-import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles } from "lucide-react";
+import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles, FileText } from "lucide-react";
 import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/data/useCurrentUser';
 import { apiConfig } from '@/config/api';
@@ -379,6 +379,12 @@ export default function Home() {
                     {mbtiList[mbti as keyof typeof mbtiList].advice}
                   </div>
                 </div>
+                
+                {/* 상세 리포트 버튼 추가 */}
+                <Link href="/report" className={styles.reportButton}>
+                  <FileText className={styles.buttonIcon} />
+                  피부 분석 상세 리포트 보기
+                </Link>
               </div>
             </section>
 

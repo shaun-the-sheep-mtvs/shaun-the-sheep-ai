@@ -43,7 +43,6 @@ export default function ChecklistResult({ checklist }: Props) {
             style={{ width: `${checklist.sensitivity}%` }}
           />
         </div>
-
         <div>탄력 <span>{checklist.tension}%</span></div>
         <div className={styles.bar}>
           <div
