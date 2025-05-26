@@ -29,7 +29,6 @@ ext {
     nettyVersion = '4.1.108.Final'
     modelMapperVersion = '3.2.0'
     springDotenvVersion = '4.0.0'
-    hyperPersistenceVersion = '3.9.8'
 }
 
 dependencies {
