@@ -32,7 +32,6 @@ public class CheckListController {
         recommendController.diagnose(userDetails);
 
         return service.create(userDetails.getUsername(), req);
->>>>>>> 3aadfe749b304a3847c78ef7a05fd03805574669
     }
 
     /** 사용자의 모든 체크리스트 조회 */
