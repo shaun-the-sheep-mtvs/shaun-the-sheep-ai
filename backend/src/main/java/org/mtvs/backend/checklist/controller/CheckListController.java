@@ -12,7 +12,6 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 @RequestMapping("/api/checklist")
 public class CheckListController {
 
@@ -30,9 +29,10 @@ public class CheckListController {
             @RequestBody CheckListRequest req,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        CheckListResponse result = service.create(req, userDetails.getUsername());
+        CheckListResponse response = service.create(req, userDetails.getUsername());
         recommendController.diagnose(userDetails);
-        return result;
+
+        return response;
     }
 
     /** 사용자의 모든 체크리스트 조회 */

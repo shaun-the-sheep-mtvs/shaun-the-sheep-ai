@@ -4,10 +4,15 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.product.dto.ProductDTO;
+import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
+import org.mtvs.backend.product.entity.Product;
+import org.mtvs.backend.product.repository.ProductRepository;
 import org.mtvs.backend.recommend.dto.RequestDTO;
 import org.mtvs.backend.product.service.ProductService;
+import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.entity.User.SkinType;
 import org.mtvs.backend.recommend.dto.ResponseDTO;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -16,12 +21,14 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping
 public class RecommendController {
 
+    private final ProductRepository productRepository;
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
@@ -31,16 +38,18 @@ public class RecommendController {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private final ProductService productService;
+    private final UserRepository userRepository;
 
-    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService) {
+    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.productService = productService;
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
     }
 
     @PostMapping("/api/recommend/diagnoses")
     public ResponseEntity<?> diagnose(CustomUserDetails customUserDetail) {
-
 
         // 사용자의 피부 타입과 고민 목록을 가져옴
         SkinType skinType = customUserDetail.getUser().getSkinType();
@@ -113,7 +122,8 @@ public class RecommendController {
             return ResponseEntity.ok(rawResponse);
         }
     }
-    
+
+    @GetMapping("api/recommend/random-recommendations")
     public List<ProductDTO> ThreeProducts(@AuthenticationPrincipal CustomUserDetails customUserDetail){
         // 토큰에 있는 아이디를 불러옴
         String Id = customUserDetail.getUser().getId();
@@ -124,5 +134,12 @@ public class RecommendController {
         return products.stream()
                 .limit(3)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("api/recommend/user-recommendations")
+    public ProductsWithUserInfoResponseDTO UserRecommendation(@AuthenticationPrincipal CustomUserDetails customUserDetail){
+        // 토큰에 있는 유저 Id 사용
+        String userId = customUserDetail.getUser().getId();
+        return productService.getBalancedRecommendations(userId);
     }
 }
