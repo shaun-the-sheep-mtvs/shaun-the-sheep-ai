@@ -71,7 +71,6 @@ public class RecommendController {
                         "- '고민'은 문자열 배열(string[])이어야 합니다.\n" +
                         "- '성분'도 문자열 배열(string[])이어야 합니다.\n" +
                         "- '추천타입'은 제품의 특징을 설명하는 문자열입니다.\n" +
-                        "- 실제 존재하는 한국 화장품 브랜드의 제품명을 사용해 주세요.\n" +
                         "응답은 JSON 코드 블록 없이 순수한 JSON 형식으로 제공해 주세요.",
                 skinType, String.join(", ", concerns)
         );

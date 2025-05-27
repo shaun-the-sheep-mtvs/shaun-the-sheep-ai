@@ -8,8 +8,10 @@ import org.mtvs.backend.product.entity.Product;
 import org.mtvs.backend.product.repository.ProductRepository;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -80,19 +82,35 @@ public class ProductService {
 
         // 각 배열을 순회하면서 개별 제품 저장
         for (JsonNode product : tonerArray) {
-            saveProduct(product, userId, "toner");
+            try {
+                saveProduct(product, userId, "toner");
+            } catch (Exception e) {
+                System.err.println("토너 저장 실패 : " + e.getMessage());
+            }
         }
 
         for (JsonNode product : serumArray) {
-            saveProduct(product, userId, "serum");
+            try {
+                saveProduct(product, userId, "serum");
+            } catch (Exception e) {
+                System.err.println("세럼 저장 실패 : " + e.getMessage());
+            }
         }
 
         for (JsonNode product : lotionArray) {
-            saveProduct(product, userId, "lotion");
+            try {
+                saveProduct(product, userId, "lotion");
+            } catch (Exception e) {
+                System.err.println("로션 저장 실패 : " + e.getMessage());
+            }
         }
 
         for (JsonNode product : creamArray) {
-            saveProduct(product, userId, "cream");
+            try {
+                saveProduct(product, userId, "cream");
+            } catch (Exception e) {
+                System.err.println("크림 저장 실패 : " + e.getMessage());
+            }
         }
 
     }
