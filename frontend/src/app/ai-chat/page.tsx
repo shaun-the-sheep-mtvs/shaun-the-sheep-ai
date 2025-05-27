@@ -118,7 +118,7 @@ export default function AIDoctorChatPage() {
           <Menu size={24} />
         </button>
         <h1 className={styles.logo}>
-          <Stethoscope className={styles.logoIcon} /> AI Doctor
+          <Stethoscope className={styles.logoIcon} /> AI Counseling
         </h1>
         <button className={styles.logoutButton} onClick={handleLogout}>
           로그아웃
@@ -143,7 +143,7 @@ export default function AIDoctorChatPage() {
         {/* 채팅 영역 */}
         <section className={styles.chatSection}>
           <div className={styles.chatHeader}>
-            <h3>AI 의사 상담</h3>
+            <h3>AI 상담</h3>
             <p>건강 상태를 분석하여 맞춤형 케어를 제안합니다</p>
           </div>
 
@@ -183,7 +183,7 @@ export default function AIDoctorChatPage() {
           <form onSubmit={handleSubmit} className={styles.inputForm}>
             <input
               type="text"
-              placeholder="건강 관련 질문을 입력해주세요..."
+              placeholder="궁금하신 피부부 관련 질문을 입력해주세요..."
               value={input}
               onChange={e => setInput(e.target.value)}
               disabled={isLoading}
