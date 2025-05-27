@@ -1,7 +1,5 @@
 package org.mtvs.backend.chat.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.chat.entity.ChatMessage;
 import org.mtvs.backend.chat.repository.ChatMessageRepository;
@@ -69,46 +67,45 @@ public class ChatMessageService {
     ) {
         // 1) 생성 설정
         Map<String,Object> generationConfig = Map.of(
-                "temperature", 0.2,
-                "topK", 40,
-                "topP", 0.95,
-                "maxOutputTokens", 255,
-                "stopSequences", List.of("\n\n")
+                "temperature",      0.2,
+                "topK",             40,
+                "topP",             0.95,
+                "maxOutputTokens",  1000           // 필요에 따라 늘리거나 줄여보세요
         );
 
-        // 2) contents 리스트 만들기 (템플릿이 있으면 맨 앞에 system 역할로 삽입)
+        // 2) contents 리스트 만들기
         List<Map<String,Object>> contents = new ArrayList<>();
 
+        // (1) system 프롬프트
         if (templateKey != null && TEMPLATE_PROMPTS.containsKey(templateKey)) {
             contents.add(Map.of(
-                    "role", "user",
+                    "role",  "system",
                     "parts", List.of(Map.of("text", TEMPLATE_PROMPTS.get(templateKey)))
             ));
         }
 
+        // (2) 대화 히스토리
         for (ChatMessage msg : history) {
-            String role = msg.getRole().equals("user")
-                    ? "user"
-                    : "model";
+            String role = "user".equals(msg.getRole()) ? "user" : "assistant";
             contents.add(Map.of(
-                    "role", role,
+                    "role",  role,
                     "parts", List.of(Map.of("text", msg.getContent()))
             ));
         }
 
-        // user 메시지
+        // (3) 마지막 질문
         contents.add(Map.of(
-                "role", "user",
+                "role",  "user",
                 "parts", List.of(Map.of("text", userQuestion))
         ));
 
         // 3) request body
         Map<String,Object> body = Map.of(
-                "contents", contents,
+                "contents",         contents,
                 "generationConfig", generationConfig
         );
 
-        // 4) API 호출
+        // 4) API 호출 & 에러 로깅
         Map<String,Object> res = webClient.post()
                 .uri(b -> b
                         .path("/v1beta/models/gemini-2.0-flash:generateContent")
@@ -117,7 +114,7 @@ public class ChatMessageService {
                 )
                 .bodyValue(body)
                 .retrieve()
-                .onStatus(s-> s.is4xxClientError(), resp ->
+                .onStatus(status -> status.is4xxClientError(), resp ->
                         resp.bodyToMono(String.class)
                                 .flatMap(errBody -> {
                                     System.err.println("=== 400 응답 바디 ===");
@@ -134,21 +131,10 @@ public class ChatMessageService {
             throw new RuntimeException("AI output이 없습니다.");
         }
         Map<String,Object> contentMap = (Map<String,Object>) candidates.get(0).get("content");
-        if (contentMap == null) {
-            throw new RuntimeException("AI content가 없습니다.");
-        }
-        List<Map<String,Object>> parts = (List<Map<String,Object>>) contentMap.get("parts");
-        if (parts == null || parts.isEmpty()) {
-            throw new RuntimeException("AI parts가 없습니다.");
-        }
-        // 6) parse
-        String aiText = ((String) parts.get(0).get("text")).trim();
+        List<Map<String,Object>> parts     = (List<Map<String,Object>>) contentMap.get("parts");
+        String aiText = parts.get(0).get("text").toString().trim();
 
-        if (aiText.length() > 250) {
-            aiText = aiText.substring(0, 250);
-        }
-
-        // 7) DB에 저장
+        // 6) DB에 온전히 저장 (자르지 않음)
         ChatMessage aiMsg = new ChatMessage();
         aiMsg.setRole("ai");
         aiMsg.setContent(aiText);

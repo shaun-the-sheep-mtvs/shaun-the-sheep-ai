@@ -19,6 +19,7 @@ public class ChatMessage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String role; // "user" or "ai"
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDateTime timestamp;
     // Optionally, add a conversationId or userId for grouping
