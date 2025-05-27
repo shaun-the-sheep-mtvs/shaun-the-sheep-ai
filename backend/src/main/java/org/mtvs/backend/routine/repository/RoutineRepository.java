@@ -19,7 +19,7 @@ public interface RoutineRepository extends JpaRepository<Routine, Integer> {
     List<RequestRoutineAllDTO> findAllRoutineDTOByUserId(@Param("userId") String userId);
 
 
-    @Query("SELECT new org.mtvs.backend.routine.dto.RoutinesDto(r.name, r.kind, r.method, r.orders, r.time) " +
+    @Query("SELECT new org.mtvs.backend.routine.dto.RoutinesDto(r.id, r.name, r.kind, r.method, r.orders, r.time, r.routineGroupId) " +
             "FROM Routine r WHERE r.user.id = :userId")
     List<RoutinesDto> findAllRoutineByUserId(@Param("userId") String userId);
 
@@ -34,5 +34,5 @@ public interface RoutineRepository extends JpaRepository<Routine, Integer> {
             "   FROM Routine r2 " +
             "   WHERE r2.user.id = :userId" +
             ")")
-    List<RoutinesDto> findRoutinesByUserId(@Param("userId") Long userId);
+    List<RoutinesDto> findRoutinesByUserId(@Param("userId") String userId);
 }

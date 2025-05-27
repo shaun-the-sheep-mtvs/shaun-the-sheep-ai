@@ -2,12 +2,9 @@ package org.mtvs.backend.routine.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.mtvs.backend.routine.dto.*;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
-import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
-import org.mtvs.backend.routine.dto.RoutineDTO;
-import org.mtvs.backend.routine.dto.RoutineGroupDTO;
-import org.mtvs.backend.routine.dto.RoutinesDto;
 import org.mtvs.backend.routine.entity.Routine;
 import org.mtvs.backend.routine.entity.RoutineGroup;
 import org.mtvs.backend.routine.repository.RoutineGroupRepository;
@@ -58,8 +55,10 @@ public class RoutineManageService {
             dtos.add(new RequestRoutineAllDTO(routine));
         });
         return dtos;
+    }
+
     /* step2. 기존 루틴 조회 */
-    public List<RoutinesDto> getRoutineList(Long userId) {
+    public List<RoutinesDto> getRoutineList(String userId) {
         return routineRepository.findRoutinesByUserId(userId);
     }
 

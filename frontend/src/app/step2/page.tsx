@@ -122,12 +122,14 @@ export default function Step2() {
             withCredentials: true,
         });
 
+
         Promise.all([fetchSkinData, fetchExistingRoutines, fetchRecommendedRoutines, fetchDeepRecommendations, fetchUserData])
             .then(([skinDataResponse, existingRoutinesResponse, recommendedRoutinesResponse, deepRecommendationsResponse, userDataResponse]) => {
                 setUserSkinData(skinDataResponse.data);
                 console.log('User Data Response:', userDataResponse.data); // 사용자 데이터 응답 확인
                 setUserData(userDataResponse.data); // 사용자 정보 상태 설정
 
+                // 기존 루틴
                 const existingRoutinesFromApi = existingRoutinesResponse.data;
                 const transformedExistingRoutines: DisplayRoutineItem[] = existingRoutinesFromApi.map(apiItem => ({
                     title: apiItem.name,
@@ -138,7 +140,8 @@ export default function Step2() {
 
                 setMorningRoutine(transformedExistingRoutines.filter(r => r.time === 'morning').sort((a, b) => a.orders - b.orders));
                 setNightRoutine(transformedExistingRoutines.filter(r => r.time === 'night').sort((a, b) => a.orders - b.orders));
-
+                
+                // 맞춤 루틴
                 const recommendedRoutinesFromApi = recommendedRoutinesResponse.data;
                 const transformedRecommendedRoutines: DisplayRoutineItem[] = recommendedRoutinesFromApi.map(apiItem => ({
                     title: apiItem.routineName,
@@ -149,19 +152,20 @@ export default function Step2() {
                 setRecommendedMorningRoutine(transformedRecommendedRoutines.filter(r => r.time === 'morning').sort((a, b) => a.orders - b.orders));
                 setRecommendedNightRoutine(transformedRecommendedRoutines.filter(r => r.time === 'night').sort((a, b) => a.orders - b.orders));
 
+
                 const deepRecommendationsFromApi = deepRecommendationsResponse.data;
                 console.log(deepRecommendationsFromApi);
                 const changes: ProductChangeItem[] = [];
                 const additions: ProductAdditionItem[] = [];
 
                 deepRecommendationsFromApi.forEach(item => {
-                    if (item.action === 'Add') { // 소문자로 비교 수정
+                    if (item.action === 'Replace') { // 소문자로 비교 수정
                         changes.push({
                             currentProduct: item.routineName || '', 
                             suggest_product: item.suggestProduct, 
                             reason: item.reason,
                         });
-                    } else if (item.action === 'Replace') { // 소문자로 비교 수정
+                    } else if (item.action === 'Add') { // 소문자로 비교 수정
                         additions.push({
                             addProduct: item.suggestProduct,
                             reason: item.reason,
@@ -316,57 +320,69 @@ export default function Step2() {
                 <div className={styles['step2-section-title']} style={{marginTop: 48}}>제품 변경 및 추가 추천</div>
                 <div className={styles['step2-change-box']}>
                   <div className={styles['change-recommend-title']}>기존 루틴에서 변경하면 좋을 제품</div>
-                  {productChanges.map((item, idx) => (
-                    <div className={styles['change-recommend-card']} key={`change-${idx}-${item.suggest_product}`}>
-                      <div className={styles['change-product-row']}>
-                        <div className={styles['change-product-col']}>
-                          <div className={styles['change-product-row']}>
-                            <div className={styles['change-product-icon']}>
-                              <svg width="24" height="24" fill="none" stroke="#bdbdbd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /></svg>
-                            </div>
-                            <div>
-                              <div className={styles['change-product-label']}>현재 사용 중</div>
-                              <div className={styles['change-product-title']}>{item.currentProduct}</div>
-                            </div>
-                          </div>
-                          <div className={styles['change-arrow']}>
-                            <svg width="24" height="24" fill="none" stroke="#4CD3A5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" /></svg>
-                          </div>
-                          <div className={styles['change-product-row']}>
-                            <div className={`${styles['change-product-icon']} ${styles['green']}`}> 
-                              <svg width="24" height="24" fill="none" stroke="#4CD3A5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /></svg>
-                            </div>
-                            <div>
-                              <div className={`${styles['change-product-label']} ${styles['green']}`}>추천 제품</div>
-                              <div className={styles['change-product-title']}>{item.suggest_product}</div>
-                            </div>
-                          </div>
-                        </div>
-                        <div>
-                          <button onClick={() => handleBuyButtonClick(item.suggest_product)} className={styles['buy-btn']}>구매하기</button>
-                        </div>
-                      </div>
-                      <div className={styles['change-reason-box']}>
-                        <p className={styles['change-reason-text']}>{item.reason}</p>
-                      </div>
+                  {productChanges.length === 0 ? (
+                    <div className={styles['empty-message-card']}>
+                      <p>변경할 제품이 없습니다.</p>
                     </div>
-                  ))}
+                  ) : (
+                    productChanges.map((item, idx) => (
+                      <div className={styles['change-recommend-card']} key={`change-${idx}-${item.suggest_product}`}>
+                        <div className={styles['change-product-row']}>
+                          <div className={styles['change-product-col']}>
+                            <div className={styles['change-product-row']}>
+                              <div className={styles['change-product-icon']}>
+                                <svg width="24" height="24" fill="none" stroke="#bdbdbd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /></svg>
+                              </div>
+                              <div>
+                                <div className={styles['change-product-label']}>현재 사용 중</div>
+                                <div className={styles['change-product-title']}>{item.currentProduct}</div>
+                              </div>
+                            </div>
+                            <div className={styles['change-arrow']}>
+                              <svg width="24" height="24" fill="none" stroke="#4CD3A5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><polyline points="19 12 12 19 5 12" /></svg>
+                            </div>
+                            <div className={styles['change-product-row']}>
+                              <div className={`${styles['change-product-icon']} ${styles['green']}`}>
+                                <svg width="24" height="24" fill="none" stroke="#4CD3A5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /></svg>
+                              </div>
+                              <div>
+                                <div className={`${styles['change-product-label']} ${styles['green']}`}>추천 제품</div>
+                                <div className={styles['change-product-title']}>{item.suggest_product}</div>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <button onClick={() => handleBuyButtonClick(item.suggest_product)} className={styles['buy-btn']}>구매하기</button>
+                          </div>
+                        </div>
+                        <div className={styles['change-reason-box']}>
+                          <p className={styles['change-reason-text']}>{item.reason}</p>
+                        </div>
+                      </div>
+                    ))
+                  )}
                   <div className={styles['change-recommend-title']} style={{marginTop: 32}}>추가하면 좋을 제품</div>
                   <div className={styles['add-recommend-grid']}>
-                    {productAdditions.map((item, idx) => (
-                      <div className={styles['add-recommend-card']} key={`add-${idx}-${item.addProduct}`}>
-                        <div className={styles['add-recommend-header']}>
-                          <div style={{display: 'flex', alignItems: 'center'}}>
-                            <div className={styles['add-product-icon']}>
-                              <svg width="20" height="20" fill="none" stroke="#4CD3A5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
-                            </div>
-                            <div className={styles['add-product-title']}>{item.addProduct}</div>
-                          </div>
-                          <button onClick={() => handleBuyButtonClick(item.addProduct)} className={styles['buy-btn']}>구매하기</button>
-                        </div>
-                        <div className={styles['add-reason']}>{item.reason}</div>
+                    {productAdditions.length === 0 ? (
+                      <div className={styles['empty-message-card']}>
+                        <p>추가할 추천 제품이 없습니다.</p>
                       </div>
-                    ))}
+                    ) : (
+                      productAdditions.map((item, idx) => (
+                        <div className={styles['add-recommend-card']} key={`add-${idx}-${item.addProduct}`}>
+                          <div className={styles['add-recommend-header']}>
+                            <div style={{display: 'flex', alignItems: 'center'}}>
+                              <div className={styles['add-product-icon']}>
+                                <svg width="20" height="20" fill="none" stroke="#4CD3A5" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
+                              </div>
+                              <div className={styles['add-product-title']}>{item.addProduct}</div>
+                            </div>
+                            <button onClick={() => handleBuyButtonClick(item.addProduct)} className={styles['buy-btn']}>구매하기</button>
+                          </div>
+                          <div className={styles['add-reason']}>{item.reason}</div>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
                 {/* 완료 버튼 */}

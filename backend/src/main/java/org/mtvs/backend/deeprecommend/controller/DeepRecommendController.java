@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/deep")
 public class DeepRecommendController {
 
     @Autowired
@@ -31,7 +31,7 @@ public class DeepRecommendController {
     }
 
     /* step2. 제품 변경 및 추가 추천 */
-    @GetMapping("/deep-recommend")
+    @GetMapping("/product-recommend")
     public ResponseEntity<List<RecommendResponseDTO>> getRecommendResponseDTOList(@AuthenticationPrincipal CustomUserDetails user) {
         List<RecommendResponseDTO> list= recommendService.getRecommendResponseDTOList(user.getUser().getId());
         return ResponseEntity.ok(list);

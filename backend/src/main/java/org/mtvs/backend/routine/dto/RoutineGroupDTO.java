@@ -9,5 +9,5 @@ import lombok.*;
 public class RoutineGroupDTO {
 
     private Long id;
-    private Long userId;
+    private String userId;
 }

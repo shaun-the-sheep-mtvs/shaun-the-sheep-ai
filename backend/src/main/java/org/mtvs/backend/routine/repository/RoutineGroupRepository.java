@@ -13,5 +13,5 @@ public interface RoutineGroupRepository extends JpaRepository<RoutineGroup, Long
             "WHERE r.id = (" +
             "   SELECT MAX(r2.id) FROM RoutineGroup r2 WHERE r2.userId = :userId" +
             ")")
-    RoutineGroupDTO findLatestRoutineGroup(@Param("userId") Long userId);
+    RoutineGroupDTO findLatestRoutineGroup(@Param("userId") String userId);
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.mtvs.backend.routine.entity.RoutineGroup;
 import org.mtvs.backend.user.dto.ProblemDto;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
@@ -166,7 +167,11 @@ public class DeepRecommendService {
                     );
 
                     User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("ID: " + userId + "인 사용자를 찾을 수 없습니다."));
+                    // 사용자가 본인 루틴을 입력 -> 입력과 동시에 routine_group id 가 생성 -> 생성된 id를 불러와서 ai가 추천하는 제품을 routine_change 에 저장
+
                     RoutineGroupDTO routineGroupDTO = routineGroupRepository.findLatestRoutineGroup(user.getId());
+
+                    System.out.println(routineGroupDTO.getId());
 
                     List<RoutineChange> routineChangeList = new ArrayList<>();
                     RoutineChange routineChange;

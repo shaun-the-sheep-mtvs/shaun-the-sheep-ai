@@ -811,3 +811,20 @@ align-items: flex-start;
 .buy-btn:hover {
   background: #3BC193;
 }
+
+.empty-message-card {
+  background-color: #f9f9f9; /* 밝은 배경색 */
+  border: 1px solid #eeeeee; /* 옅은 테두리 */
+  border-radius: 8px;        /* 둥근 모서리 */
+  padding: 24px;             /* 내부 여백 */
+  text-align: center;        /* 텍스트 중앙 정렬 */
+  margin-top: 16px;          /* 위쪽 여백 */
+  margin-bottom: 16px;       /* 아래쪽 여백 */
+  color: #555555;            /* 글자색 */
+  font-size: 0.95rem;        /* 글자 크기 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 은은한 그림자 */
+}
+
+.empty-message-card p {
+  margin: 0; /* p 태그의 기본 마진 제거 */
+}

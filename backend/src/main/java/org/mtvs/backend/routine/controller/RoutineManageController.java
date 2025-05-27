@@ -1,12 +1,11 @@
 package org.mtvs.backend.routine.controller;
 
 import org.mtvs.backend.auth.model.CustomUserDetails;
-import org.mtvs.backend.routine.dto.GroupIdDTO;
-import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
-import org.mtvs.backend.routine.dto.RequestRoutineAllDTO;
-import org.mtvs.backend.routine.dto.RoutineDTO;
+import org.mtvs.backend.routine.dto.*;
 import org.mtvs.backend.routine.service.RoutineManageService;
+import org.mtvs.backend.user.dto.ProblemDto;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +34,7 @@ public class RoutineManageController {
     }
 
     /* step2. 기존 루틴 조회 */
-    @GetMapping("/api/routine/existing")
+    @GetMapping("/existing")
     public ResponseEntity<?> existingRoutine(@AuthenticationPrincipal CustomUserDetails user) {
         if (user == null) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");

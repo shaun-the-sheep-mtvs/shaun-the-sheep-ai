@@ -7,6 +7,7 @@ import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.jwt.JwtProvider;
 import org.mtvs.backend.auth.util.JwtUtil;
+import org.mtvs.backend.user.dto.ProblemDto;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -110,18 +111,5 @@ public class AuthService {
 
     public Optional<User> getUserByLoginId(String loginId) {
         return userRepository.findByUsername(loginId);
-    }
-
-    /* step2. 피부 정보 조회 */
-    public ProblemDto loadUserSkinData(Long userId) {
-        ProblemDto skinData = userRepository.findUserSkinDataByUserId(userId);
-        if (skinData == null) {
-            throw new RuntimeException("피부 정보가 존재하지 않습니다. : " + userId);
-        }
-
-        return new ProblemDto(
-                skinData.getSkinType(),
-                skinData.getTroubles()
-        );
     }
 }
