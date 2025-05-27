@@ -25,13 +25,14 @@ public class ChatMessageService {
        구체적인 진단 질문을 스스로 생성하여 한 번에 하나씩 순차적으로 물어보세요. \s
     2) 최소 5개 이상의 상호작용(질문+답변)을 통해 충분한 정보를 수집한 후, \s
     3) **절대로 아래 JSON 매핑을 출력하지 말고 내부 참조용으로만 사용**하세요. \s
-    4) 최종 답변은 반드시 아래 **한 문단** 형식으로만 제공하세요:
+   4) 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(\\\\n)로만** 구분된 **5줄**로 출력하세요. \s
+   - 각 줄 앞뒤에 공백을 절대 추가하지 말고, 다른 구두점이나 글자를 붙이지 마세요.
             
-       **당신의 피부 타입**: <건성|지성|수분부족지성|복합성|민감성> \s
-       **피부 고민**: <건조함|번들거림|민감함|탄력 저하|홍조|톤 안정|색소침착|잔주름|모공 케어> \s
-       **추천 MBTI 코드**: <MOST|MOSL|…|DBIL|default> \s
-       **타입 설명**: <해당 코드에 매핑된 description> \s
-       **케어 팁**: <해당 코드에 매핑된 advice>
+       당신의 피부 타입: <건성|지성|수분부족지성|복합성|민감성>
+       피부 고민: <건조함|번들거림|민감함|탄력 저하|홍조|톤 안정|색소침착|잔주름|모공 케어>
+       추천 MBTI 코드: <MOST|MOSL|…|DBIL|default>
+       타입 설명: <해당 코드에 매핑된 description
+       케어 팁: <해당 코드에 매핑된 advice>
             
     예시(형식만):
             
@@ -41,18 +42,6 @@ public class ChatMessageService {
     타입 설명: 유분은 충분하지만 수분·탄력 모두 부족해 피부가 당기고 처짐이 느껴져요. \s
     케어 팁: 고보습 세럼과 탄력 강화 오일을 함께 사용하세요.
             
-    여기에 내부 참조용 JSON 매핑 삽입 — 사용자에게는 보이지 않음>
-    ```json
-                {
-                  "skinType": "<건성|지성|수분부족지성|복합성|민감성>",
-                  "concern": "<건조함|번들거림|민감함|탄력 저하|홍조|톤 안정|색소침착|잔주름|모공 케어>",
-                  "mbtiCode": "<MOST|MOSL|…|DBIL|default>",
-                  "detail": {
-                    "type": "<해당 코드의 type>",
-                    "description": "<description>",
-                    "advice": "<advice>"
-                  }
-                }
     concern 값은 반드시 다음 중 하나입니다
     건조함
     번들거림
@@ -151,7 +140,10 @@ public class ChatMessageService {
             "advice": "기본 보습과 탄력 관리 루틴을 꾸준히 지켜주세요."
           }
         }
-        “당신의 피부 타입은…, 고민은…, 추천 MBTI는…, 해당 타입에 대한 설명과 케어 팁은 …”
+        “당신의 피부 타입은…,\s
+         고민은…, \s
+         당신의 피부 MBTI는…, \s
+         해당 타입에 대한 설명과 케어 팁은 …”
         식으로 자연스럽고 친근하게 한 문단으로 풀어주세요.
 """ ;
     private final ChatMessageRepository chatMessageRepository;
@@ -177,6 +169,7 @@ public class ChatMessageService {
 
     @SuppressWarnings("unchecked")
     public ChatMessage askAI_Single(
+            String userId,
             List<ChatMessage> history,
             String userQuestion,
             String templateKey
@@ -252,6 +245,7 @@ public class ChatMessageService {
 
         // 6) DB에 온전히 저장 (자르지 않음)
         ChatMessage aiMsg = new ChatMessage();
+        aiMsg.setUserId(userId);
         aiMsg.setRole("ai");
         aiMsg.setContent(aiText);
         aiMsg.setTimestamp(LocalDateTime.now());

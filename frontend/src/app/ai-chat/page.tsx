@@ -30,7 +30,7 @@ export default function AIDoctorChatPage() {
   const [messages, setMessages] = useState<ChatMessageDTO[]>([
     {
       role: "ai",
-      content: "안녕하세요! 👋 AI 의사입니다. 건강 상담을 시작해보세요!",
+      content: "안녕하세요! 👋여러분의 도우미 Shaun 입니다. 상담을 시작해보세요!",
       timestamp: new Date().toISOString(),
     },
   ])
@@ -50,7 +50,8 @@ export default function AIDoctorChatPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!input.trim()) return
-
+    
+    const token = localStorage.getItem('accessToken')
     const userMessage: ChatMessageDTO = {
       role: "user",
       content: input,
@@ -61,11 +62,14 @@ export default function AIDoctorChatPage() {
     setInput("")
     setIsLoading(true)
 
-    try {
-      // AI 응답 받기
-      const res = await fetch("http://localhost:8080/api/chat-messages/ask", {
+     try {
+      // 1) AI 호출
+      const res = await fetch("http://localhost:8080/api/chat-messages/ask?templateKey=…", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,        // ← 여기에 넣어주세요
+        },
         body: JSON.stringify(newMessages),
       })
       if (!res.ok) throw new Error(`AI 호출 실패: ${await res.text()}`)

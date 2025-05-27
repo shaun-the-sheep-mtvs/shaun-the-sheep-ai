@@ -18,6 +18,7 @@ public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String userId;
     private String role; // "user" or "ai"
     @Column(columnDefinition = "TEXT")
     private String content;
@@ -26,6 +27,7 @@ public class ChatMessage {
 
     public ChatMessageDTO toDTO() {
         ChatMessageDTO dto = new ChatMessageDTO();
+        dto.setUserId(this.userId);
         dto.setId(this.id);
         dto.setRole(this.role);
         dto.setContent(this.content);
