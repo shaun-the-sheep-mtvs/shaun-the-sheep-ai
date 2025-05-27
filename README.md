@@ -3,6 +3,7 @@
 피부타입별 MBTI를 제공합니다.
 개인화된 피부 케어 전용 제품을 추천합니다.
 색조화장에 대해 AI 추천 컨텐츠를 보여줍니다.
+AI 모델은 Gemini 를 사용합니다.
 
 
 이 프로젝트는 Next.js 프론트엔드, Java Spring Boot 백엔드, 그리고 Vercel AI SDK를 활용한 AI 챗 통합을 포함하는 모노레포입니다. PostgreSQL 데이터베이스에 채팅 메시지를 저장하고, OpenAI, Groq 등 다양한 AI 제공자와 연동할 수 있습니다.
