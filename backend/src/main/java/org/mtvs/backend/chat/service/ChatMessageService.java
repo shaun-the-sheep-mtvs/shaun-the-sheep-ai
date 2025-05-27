@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -77,13 +78,24 @@ public class ChatMessageService {
 
         // 2) contents 리스트 만들기 (템플릿이 있으면 맨 앞에 system 역할로 삽입)
         List<Map<String,Object>> contents = new ArrayList<>();
+
         if (templateKey != null && TEMPLATE_PROMPTS.containsKey(templateKey)) {
-            String prompt = TEMPLATE_PROMPTS.get(templateKey);
             contents.add(Map.of(
-                    "role", "system",
-                    "parts", List.of(Map.of("text", prompt))
+                    "role", "user",
+                    "parts", List.of(Map.of("text", TEMPLATE_PROMPTS.get(templateKey)))
             ));
         }
+
+        for (ChatMessage msg : history) {
+            String role = msg.getRole().equals("user")
+                    ? "user"
+                    : "model";
+            contents.add(Map.of(
+                    "role", role,
+                    "parts", List.of(Map.of("text", msg.getContent()))
+            ));
+        }
+
         // user 메시지
         contents.add(Map.of(
                 "role", "user",
@@ -105,18 +117,18 @@ public class ChatMessageService {
                 )
                 .bodyValue(body)
                 .retrieve()
+                .onStatus(s-> s.is4xxClientError(), resp ->
+                        resp.bodyToMono(String.class)
+                                .flatMap(errBody -> {
+                                    System.err.println("=== 400 응답 바디 ===");
+                                    System.err.println(errBody);
+                                    return Mono.error(new RuntimeException("API 요청 에러: " + errBody));
+                                })
+                )
                 .bodyToMono(new ParameterizedTypeReference<Map<String,Object>>() {})
                 .block();
 
-        // 5) 로깅
-        try {
-            System.out.println(">>> AI raw response:\n"
-                    + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(res));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        // 6) 결과 파싱
+        // 5) 결과 파싱
         List<Map<String,Object>> candidates = (List<Map<String,Object>>) res.get("candidates");
         if (candidates == null || candidates.isEmpty()) {
             throw new RuntimeException("AI output이 없습니다.");
@@ -130,14 +142,10 @@ public class ChatMessageService {
             throw new RuntimeException("AI parts가 없습니다.");
         }
         // 6) parse
-        String aiText = (String) parts.get(0).get("text");
-        if (aiText == null) {
-            throw new RuntimeException("AI text가 없습니다.");
-        }
+        String aiText = ((String) parts.get(0).get("text")).trim();
 
-        int maxLen = 250;
-        if (aiText.length() > maxLen) {
-            aiText = aiText.substring(0, maxLen);
+        if (aiText.length() > 250) {
+            aiText = aiText.substring(0, 250);
         }
 
         // 7) DB에 저장
