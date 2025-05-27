@@ -1,6 +1,7 @@
 # Shaun the Sheep AI
-
-이것은 사용자가 AI를 연동하여 피부케어와 화장품에 대한 정보를 얻을 수 있는 AI web product 입니다.
+숀더쉽 스킨케어 AI 는 사용자가 스스로의 피부 상태를 파악하고 관리하는데 도움을 주는 서비스 입니다.
+피부타입별 MBTI를 제공합니다.
+피부 케어 전용 제품을 추천합니다.
 
 
 이 프로젝트는 Next.js 프론트엔드, Java Spring Boot 백엔드, 그리고 Vercel AI SDK를 활용한 AI 챗 통합을 포함하는 모노레포입니다. PostgreSQL 데이터베이스에 채팅 메시지를 저장하고, OpenAI, Groq 등 다양한 AI 제공자와 연동할 수 있습니다.
