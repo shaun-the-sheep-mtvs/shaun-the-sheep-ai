@@ -29,10 +29,9 @@ public class CheckListController {
             @RequestBody CheckListRequest req,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-
-        CheckListResponse result =  service.create(req, userDetails.getUsername());
-
+        CheckListResponse result = service.create(req, userDetails.getUsername());
         recommendController.diagnose(userDetails);
+
         return result;
     }
 

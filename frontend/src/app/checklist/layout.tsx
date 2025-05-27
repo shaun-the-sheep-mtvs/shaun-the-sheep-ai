@@ -1,39 +1,57 @@
 // src/app/checklist/layout.tsx
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Home as HomeIcon } from 'lucide-react';
+import { Home as HomeIcon, Menu as MenuIcon } from 'lucide-react';
+import Sidebar from '@/components/Sidebar';
 import styles from './ChecklistLayout.module.css';
 
 export default function ChecklistLayout({ children }: { children: React.ReactNode }) {
+  // ① 사이드바 열림 상태
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [activeNav, setActiveNav]     = useState('examination');
+
+  const toggleSidebar = () => setIsSidebarOpen(v => !v);
+
+  const handleNavClick = (navId: string) => {
+    setActiveNav(navId);
+    setIsSidebarOpen(false);
+  };
+
   return (
     <>
-      <nav className={styles.navbar}>
-        {/* 왼쪽: 홈 아이콘 */}
-        <Link href="/" className={styles.homeButton}>
-          <HomeIcon size={24} />
-        </Link>
+      {/* ② Sidebar */}
+      <Sidebar
+        isOpen={isSidebarOpen}
+        onClose={() => setIsSidebarOpen(false)}
+        activeNav={activeNav}
+        onNavClick={handleNavClick}
+      />
 
-        {/* 가운데: 로고 텍스트 */}
+      {/* ③ 헤더: 메뉴 버튼 / 홈 아이콘 / 타이틀 / 다시 검사하기 */}
+      <nav className={styles.navbar}>
+        <button className={styles.menuButton} onClick={toggleSidebar}>
+          <MenuIcon size={24} />
+        </button>
+
         <div className={styles.logo}>피부 진단 검사</div>
 
-        {/* 오른쪽: 다시 검사하기 (브라우저 리로드로 완전 초기화) */}
         <button
           type="button"
           className={styles.navButton}
-          onClick={() => {
-            // 퀴즈 페이지를 새로 로드해서 state 초기화
-            window.location.href = '/checklist';
-          }}
+          onClick={() => { window.location.href = '/checklist'; }}
         >
           다시 검사하기
         </button>
       </nav>
+
+      {/* ④ 본문 */}
       <main>{children}</main>
     </>
   );
 }
+
 
 
 

@@ -5,14 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
-import org.mtvs.backend.auth.jwt.JwtProvider;
 import org.mtvs.backend.auth.util.JwtUtil;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -22,13 +20,14 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
     private final JwtUtil jwtUtil;
 
     /**
      * 회원가입
+     *
+     * @return
      */
-    public void signup(SignupRequest dto) {
+    public User signup(SignupRequest dto) {
         log.info("[회원 가입] 서비스 호출 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
 
         // 이메일 존재 여부 확인
@@ -44,6 +43,7 @@ public class AuthService {
         );
         userRepository.save(user);
         log.info("[회원 가입] 완료 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
+        return user;
     }
 
     /**
