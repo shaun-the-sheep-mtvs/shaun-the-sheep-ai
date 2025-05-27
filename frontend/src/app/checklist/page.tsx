@@ -131,7 +131,7 @@ export default function ChecklistPage() {
      troubles:    labels       // 이제 label 배열로 POST
    };
     const token = localStorage.getItem('accessToken');
-    fetch('http://localhost:8080/api/checklist', {
+    fetch(apiConfig.endpoints.checklist.base, {
       method:'POST',
       headers:{
         'Content-Type':'application/json',
