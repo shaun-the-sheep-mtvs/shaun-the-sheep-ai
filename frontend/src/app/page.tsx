@@ -5,9 +5,8 @@ import styles from "./page.module.css";
 import Link from 'next/link';
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles } from "lucide-react";
 import { usePathname, useRouter } from 'next/navigation';
-import AnalysisBox from '@/components/AnalysisBox';
-import Greeting from '@/components/Greeting';
 import { useCurrentUser } from '@/data/useCurrentUser';
+import { apiConfig } from '@/config/api';
 
 // 서버가 내려주는 타입 (영문 키)
 interface CheckListResponse {
@@ -27,82 +26,82 @@ const products = [
 ];
 
 const mbtiList = {
-  "MSOT": {
+  "MOST": {
     "type": "민감성",
     "description": "수분과 유분이 충분하며 피부 탄력이 좋아 건강한 상태입니다.",
     "advice": "기본 보습·자외선 차단 루틴을 유지하고, 콜라겐·펩타이드 성분으로 탄력을 계속 관리하세요."
   },
-  "MSOL": {
+  "MOSL": {
     "type": "민감성",
     "description": "수분과 유분은 충분하지만 탄력이 떨어지고 자극에 민감할 수 있어요.",
     "advice": "저자극 탄력 강화 세럼을 사용하고, 충분한 수분과 영양 공급을 해주세요."
   },
-  "MSBT": {
+  "MBST": {
     "type": "민감성",
     "description": "수분은 풍부하나 유분이 부족해 건조함이 느껴질 수 있으며, 탄력은 좋은 편입니다.",
     "advice": "부드러운 오일 제품으로 유수분 균형을 맞추고, 탄력 증진 크림을 병행하세요."
   },
-  "MSBL": {
+  "MBSL": {
     "type": "민감성",
     "description": "수분은 충분하지만 유분과 탄력 모두 부족해 피부가 당기고 민감해질 수 있어요.",
     "advice": "고보습·장벽 강화 오일·세럼으로 영양을 채우고, 탄력 케어를 병행하세요."
   },
-  "MIOT": {
+  "MOIT": {
     "type": "지성",
     "description": "수분·유분·탄력 모두 좋은 균형 상태로, 안정적인 편입니다.",
     "advice": "기본 보습·자외선 차단 루틴을 유지하며, 탄력 유지 제품을 가볍게 사용하세요."
   },
-  "MIOL": {
+  "MOIL": {
     "type": "지성",
     "description": "수분과 유분은 충분하나 탄력만 떨어져 피부 처짐이 느껴질 수 있어요.",
     "advice": "탄력 강화 세럼과 마사지로 리프팅 관리하세요."
   },
-  "MIBT": {
+  "MBIT": {
     "type": "복합성",
     "description": "수분은 충분하나 유분이 부족해 건조함이 느껴지며, 탄력은 좋은 상태입니다.",
     "advice": "보습 오일·크림으로 유수분 밸런스를 맞추고, 탄력 유지를 위해 펩타이드 제품을 사용하세요."
   },
-  "MIBL": {
+  "MBIL": {
     "type": "복합성",
     "description": "수분은 충분하지만 유분·탄력 모두 부족해 당김과 처짐이 동시에 나타날 수 있어요.",
     "advice": "고보습·탄력 강화 오일 세럼을 집중적으로 사용하세요."
   },
-  "DSOT": {
+  "DOST": {
     "type": "수분부족지성",
     "description": "유분과 탄력은 좋으나 수분이 부족해 민감 반응이 나타날 수 있어요.",
     "advice": "저자극 수분 세럼과 마스크로 수분을 보충하고, 탄력 유지 루틴을 병행하세요."
   },
-  "DSOL": {
+  "DOSL": {
     "type": "수분부족지성",
     "description": "수분·탄력 모두 부족해 처짐이 느껴지며 자극에도 민감해요.",
     "advice": "고보습·탄력 강화 크림과 진정 세럼을 동시에 사용하세요."
   },
-  "DSBT": {
+  "DBST": {
     "type": "건성",
     "description": "수분·유분 부족으로 건조함이 심하나 탄력은 유지되고 있어요.",
     "advice": "고보습 크림과 오일로 영양을 채우고, 탄력 유지 제품을 함께 사용하세요."
   },
-  "DSBL": {
+  "DBSL": {
     "type": "건성",
     "description": "수분·유분·탄력이 모두 부족해 피부가 거칠고 처짐이 심해요.",
     "advice": "장벽 강화·고보습·탄력 케어 제품을 함께 사용하여 집중 관리하세요."
   },
-  "DIOT": {
+  "DOIT": {
     "type": "수분부족지성",
     "description": "유분과 탄력은 좋으나 수분이 부족해 당김이 느껴져요.",
     "advice": "수분 에센스와 마스크로 즉각적인 수분을 보충하세요."
   },
-  "DIOL": {
+  "DOIL": {
     "type": "수분부족지성",
     "description": "유분은 충분하나 수분·탄력 모두 부족해 피부가 당기고 처짐이 느껴져요.",
     "advice": "고보습 세럼과 탄력 강화 오일을 함께 사용하세요."
   },
-  "DIBT": {
+  "DBIT": {
     "type": "건성",
     "description": "수분·유분 부족으로 건조함이 있지만 탄력은 유지되고 있어요.",
     "advice": "보습 크림과 수분 세럼으로 피부 결을 개선하세요."
   },
-  "DIBL": {
+  "DBIL": {
     "type": "건성",
     "description": "수분·유분·탄력이 모두 부족해 피부가 건조하고 처짐이 심해요.",
     "advice": "고보습·탄력 강화 루틴을 집중적으로 적용하세요."
@@ -142,13 +141,14 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mbti, setMbti] = useState<string>("default");
   const [mbtiError, setMbtiError] = useState<string | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
     
     if (token) {
-      fetch('http://localhost:8080/api/checklist', {
+      fetch(apiConfig.endpoints.checklist.base, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => {
@@ -166,13 +166,12 @@ export default function Home() {
     }
   }, []);
 
-
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
     
     if (token) {
-      fetch('http://localhost:8080/api/checklist/mbti', {
+      fetch(apiConfig.endpoints.checklist.mbti, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => {
@@ -197,6 +196,33 @@ export default function Home() {
     }
   }, []);
 
+
+  // 서버에서 보내는 3개 제품 데이터 가져오기
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      fetch('http://localhost:8080/api/recommend/random-recommendations', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => {
+          if (!res.ok) throw new Error(`status ${res.status}`);
+          return res.json() as Promise<any[]>;
+        })
+        .then(data => {
+          console.log('API Response:', data); // 실제 데이터 구조 확인
+          const transformedProducts = data.map(product => ({
+            name: product.productName,
+            description: `${product.recommendedType} - ${product.ingredients.join(', ')}`
+          }));
+          setProducts(transformedProducts);
+        })
+        .catch(error => {
+          console.error('Error fetching products:', error);
+        });
+    }
+  }, []);
+  
+
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -208,15 +234,7 @@ export default function Home() {
     localStorage.removeItem('accessToken');
     window.location.reload();
   }
-
-
-
-  // if (error) {
-  //   return <div className={styles.page}><p className={styles.error}>{error}</p></div>;
-  // }
-  // if (!checklist) {
-  //   return <div className={styles.page}>로딩 중…</div>;
-  // }
+  
 
   // 한글 레이블 매핑
   const labels = {

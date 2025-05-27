@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiConfig } from '@/config/api';
 import styles from './page.module.css';
 
 export default function RegisterPage() {
@@ -15,31 +16,28 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
 
-    try {
-      const res = await fetch('http://localhost:8080/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
-      });
+        try {
+            const res = await fetch(apiConfig.endpoints.auth.signup, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, email, password }),
+            });
 
-      console.log('status:', res.status);
-      const data = await res.json();
-      console.log('response data:', data);
+            console.log('status:', res.status);
 
-      if (!res.ok) {
-        setError(data.error || data.message || '회원가입에 실패했습니다.');
-        return;
-      }
+            if (!res.ok) {
+                const errorText = await res.text();
+                setError(errorText || '회원가입에 실패했습니다.');
+                return;
+            }
 
-      localStorage.setItem('accessToken', data.accessToken);
-      localStorage.setItem('refreshToken', data.refreshToken);
-
-      // 가입 성공 후 체크리스트 페이지로 이동
-      router.push('/checklist');
-    } catch (err) {
-      setError('네트워크 오류가 발생했습니다.');
-    }
-  };
+            // 가입 성공 후 로그인 페이지로 이동
+            router.push('/login');
+        } catch (error) {
+            console.error('Register error:', error);
+            setError('네트워크 오류가 발생했습니다.');
+        }
+    };
 
   return (
     <div className={styles.page}>

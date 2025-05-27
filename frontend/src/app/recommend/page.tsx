@@ -6,11 +6,15 @@ import Image from "next/image"
 import styles from "./recommend.module.css"
 import { useState, useEffect } from "react"
 import axios from "axios"
+import { useCurrentUser } from "@/data/useCurrentUser";
 
 interface Product {
-  제품명: string;
-  추천타입: string;
-  성분: string[];
+  id: string;
+  formulation: string;
+  ingredients: string[];
+  recommendedType: string;
+  productName: string;
+  userId: string;
 }
 
 interface RecommendData {
@@ -24,38 +28,19 @@ interface RecommendData {
   };
 }
 
-// 백엔드 응답 인터페이스
+// 백엔드 응답 인터페이스 - 사용자 정보 + 제품 배열
 interface BackendResponse {
-  skinType: string;
-  concerns: string[];
-  recommendations: {
-    toner: Array<{
-      제품명: string;
-      추천타입: string;
-      성분: string[];
-    }>;
-    serum: Array<{
-      제품명: string;
-      추천타입: string;
-      성분: string[];
-    }>;
-    lotion: Array<{
-      제품명: string;
-      추천타입: string;
-      성분: string[];
-    }>;
-    cream: Array<{
-      제품명: string;
-      추천타입: string;
-      성분: string[];
-    }>;
+  userInfo: {
+    skinType: string;
+    troubles: string[];
   };
+  products: Product[];
 }
 
 // 백엔드 응답을 프론트엔드 형식으로 변환하는 함수
 function parseBackendResponse(data: BackendResponse): RecommendData {
   // 응답 데이터 안전성 검사
-  if (!data || !data.recommendations) {
+  if (!data || !data.userInfo || !data.products) {
     console.error('백엔드 응답 구조가 올바르지 않습니다:', data);
     
     // 기본 데이터 반환
@@ -71,23 +56,20 @@ function parseBackendResponse(data: BackendResponse): RecommendData {
     };
   }
   
-  // 각 제품 카테고리 변환 함수
-  const convertProducts = (products: Array<any> = []) => {
-    return products.map(item => ({
-      제품명: item.제품명 || '제품명 없음',
-      추천타입: item.추천타입 || '정보 없음',
-      성분: item.성분 || []
-    }));
-  };
+  // formulation을 기준으로 제품들을 분류
+  const toners = data.products.filter(product => product.formulation === 'toner');
+  const serums = data.products.filter(product => product.formulation === 'serum');
+  const lotions = data.products.filter(product => product.formulation === 'lotion');
+  const creams = data.products.filter(product => product.formulation === 'cream');
   
   return {
-    skinType: data.skinType || '알 수 없음',
-    concerns: data.concerns || ['정보 없음'],
+    skinType: data.userInfo.skinType || '알 수 없음',
+    concerns: data.userInfo.troubles || ['정보 없음'],
     recommendations: {
-      토너: convertProducts(data.recommendations.toner),
-      세럼: convertProducts(data.recommendations.serum),
-      로션: convertProducts(data.recommendations.lotion),
-      크림: convertProducts(data.recommendations.cream)
+      토너: toners,
+      세럼: serums,
+      로션: lotions,
+      크림: creams
     }
   };
 }
@@ -96,101 +78,58 @@ export default function RecommendPage() {
   const [recommendData, setRecommendData] = useState<RecommendData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { user, loading: userLoading } = useCurrentUser();
+
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     const fetchData = async () => {
       try {
-        const response = await axios.post('http://localhost:8080/api/recommend/diagnoses', {}, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+        const response = await axios.get('http://localhost:8080/api/recommend/user-recommendations', {
+          headers: { 'Authorization': `Bearer ${token}` }
         });
-        
         
         // 백엔드 응답 로깅
         console.log('백엔드 응답(원본):', response.data);
         
-        // 백엔드에서 문자열 형태로 JSON이 전달될 수 있으므로 파싱 시도
-        let parsedResponse;
-        try {
-          // 응답이 문자열인 경우 JSON으로 파싱
-          if (typeof response.data === 'string') {
-            // Gemini API가 반환하는 마크다운 형식의 코드 블록 마커 제거
-            let cleanedJson = response.data;
-            
-            // 시작 코드 블록 마커(```json, ```) 제거
-            cleanedJson = cleanedJson.replace(/^```json\s*|^```\s*/m, '');
-            
-            // 끝 코드 블록 마커(```) 제거
-            cleanedJson = cleanedJson.replace(/\s*```\s*$/m, '');
-            
-            console.log('정제된 JSON 문자열:', cleanedJson);
-            
-            // 정제된 문자열 파싱
-            parsedResponse = JSON.parse(cleanedJson);
-            console.log('파싱된 백엔드 응답:', parsedResponse);
-          } else {
-            // 이미 객체인 경우 그대로 사용
-            parsedResponse = response.data;
-          }
-        } catch (parseError) {
-          console.error('JSON 파싱 오류:', parseError, '원본 데이터:', response.data);
-          parsedResponse = null;
+        // 응답 데이터 검증 및 처리
+        if (!response.data) {
+          setError('저장된 추천 데이터가 없습니다. 체크리스트를 먼저 작성해주세요.');
+          return;
+        }
+
+        // 백엔드에서 일관된 JSON 객체로 응답한다고 가정
+        const parsedData = parseBackendResponse(response.data);
+        
+        // 추천 데이터가 비어있는지 확인
+        const hasRecommendations = Object.values(parsedData.recommendations).some(
+          category => category.length > 0
+        );
+        
+        if (!hasRecommendations) {
+          setError('저장된 추천 데이터가 없습니다. 체크리스트를 먼저 작성해주세요.');
+          return;
         }
         
-        // 테스트용 더미 데이터 (백엔드 응답이 예상과 다른 경우)
-        if (!parsedResponse || !parsedResponse.recommendations) {
-          console.warn('백엔드 응답이 예상 형식과 다르므로 더미 데이터를 사용합니다.');
-          
-          // 더미 데이터 - 백엔드에서 제공한 형식과 동일하게 구성
-          const dummyData = {
-            skin_type: "건성",
-            concerns: ["건조함", "각질"],
-            recommendations: {
-              toner: [
-                {
-                  제품명: "라운드랩 1025 독도 토너",
-                  추천이유: "피부 진정 및 수분 공급에 탁월합니다.",
-                  성분: ["해양 심층수", "판테놀", "알란토인"]
-                }
-              ],
-              serum: [
-                {
-                  제품명: "토리든 다이브인 세럼",
-                  추천이유: "저분자 히알루론산이 피부 속까지 수분을 채워줍니다.",
-                  성분: ["저분자 히알루론산", "D-판테놀", "알란토인"]
-                }
-              ],
-              lotion: [
-                {
-                  제품명: "세라비 모이스춰라이징 로션",
-                  추천이유: "세라마이드 성분이 피부 장벽을 강화합니다.",
-                  성분: ["세라마이드", "히알루론산", "글리세린"]
-                }
-              ],
-              cream: [
-                {
-                  제품명: "피지오겔 DMT 크림",
-                  추천이유: "건조하고 민감한 피부에 진정 효과를 제공합니다.",
-                  성분: ["피지오겔 복합체", "스쿠알란", "글리세린"]
-                }
-              ]
-            }
-          };
-          const parsedData = parseBackendResponse(dummyData as unknown as BackendResponse);
-          setRecommendData(parsedData);
-        } else {
-          // 정상적인 백엔드 응답인 경우
-          const parsedData = parseBackendResponse(parsedResponse);
-          setRecommendData(parsedData);
-        }
+        setRecommendData(parsedData);
       } catch (err) {
-        setError('데이터를 불러오는데 실패했습니다.');
         console.error('Error fetching data:', err);
         
-        // 오류 발생 시 더미 데이터 표시 (선택적)
-        // 실제 상용 환경에서는 적절한 오류 처리를 해야 함
+        // 에러 타입에 따른 구체적인 메시지 설정
+        if (axios.isAxiosError(err)) {
+          const status = err.response?.status;
+          if (status === 404) {
+            setError('저장된 추천 데이터가 없습니다. 체크리스트를 먼저 작성해주세요.');
+          } else if (status === 401) {
+            setError('로그인이 필요합니다. 다시 로그인해주세요.');
+          } else if (status && status >= 500) {
+            setError('서버에 문제가 발생했습니다. 잠시 후 다시 시도해주세요.');
+          } else {
+            setError('추천 데이터를 불러오는데 실패했습니다.');
+          }
+        } else {
+          setError('네트워크 연결을 확인해주세요.');
+        }
       } finally {
         setLoading(false);
       }
@@ -199,8 +138,13 @@ export default function RecommendPage() {
     fetchData();
   }, []);
 
+  // UI 표시용 헬퍼 함수들
+  const getProductName = (product: Product) => product.productName || '제품명 없음';
+  const getRecommendedType = (product: Product) => product.recommendedType || '정보 없음';
+  const getIngredients = (product: Product) => product.ingredients || [];
+
   const handleBuyButtonClick = (product: Product) => {
-    window.open(`https://www.coupang.com/np/search?component=&q=${product.제품명}`, '_blank ');
+    window.open(`https://www.coupang.com/np/search?component=&q=${product.productName}`, '_blank ');
   }
 
   if (loading) return (
@@ -218,7 +162,7 @@ export default function RecommendPage() {
           <div className={styles.loadingSpinner}>
             <Loader className={styles.loadingIcon} />
           </div>
-          <p className={styles.loadingText}>맞춤형 스킨케어 정보를 불러오는 중입니다</p>
+          <p className={styles.loadingText}>저장된 추천 정보를 불러오는 중입니다</p>
           <div className={styles.loadingBar}>
             <div className={styles.loadingBarProgress}></div>
           </div>
@@ -241,9 +185,17 @@ export default function RecommendPage() {
         <div className={styles.errorContainer}>
           <div className={styles.errorIcon}>❌</div>
           <p className={styles.errorText}>{error}</p>
-          <button onClick={() => window.location.reload()} className={`${styles["checklist-button"]} ${styles.retryButton}`}>
-            다시 시도하기
-          </button>
+          <div className={styles.errorButtons}>
+            <button onClick={() => window.location.reload()} className={`${styles["checklist-button"]} ${styles.retryButton}`}>
+              다시 시도하기
+            </button>
+            {error.includes('체크리스트') && (
+              <Link href="/checklist" className={`${styles["checklist-button"]}`}>
+                <ClipboardList size={16} />
+                체크리스트 작성하러 가기
+              </Link>
+            )}
+          </div>
         </div>
       </div>
     </div>
@@ -292,13 +244,15 @@ export default function RecommendPage() {
             <div className={styles["greeting-background"]}></div>
             <div className={styles["greeting-content"]}>
               <div className={styles["user-avatar"]}>
-                <span className={styles["avatar-text"]}>마</span>
+                <span className={styles["avatar-text"]}>{user?.username.charAt(0)}</span>
               </div>
               <div className={styles["greeting-text-container"]}>
                 <div className={styles["greeting-text-wrapper"]}>
                   <p className={styles["greeting-label"]}>반갑습니다</p>
                   <p className={styles["greeting-text"]}>
-                    안녕하세요, <span className={styles["user-name"]}>마라님</span>
+                    <span className={styles["user-name"]}>
+                    {userLoading ? 'Loading...' : user ? user.username : 'Guest'}
+                      </span> 님!
                   </p>
                 </div>
               </div>
@@ -352,14 +306,14 @@ export default function RecommendPage() {
               {recommendData.recommendations.토너.map((product, index) => (
                 <div key={`toner-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                    <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
+                    <Image src="/placeholder.svg" alt={getProductName(product)} width={120} height={160} className={styles["product-image"]} />
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
                     <div className={styles["product-details"]}>
-                      <p className={styles["product-title"]}>{product.제품명}</p>
+                      <p className={styles["product-title"]}>{getProductName(product)}</p>
                       <div className={styles["tooltip"]}>
-                        <p className={`${styles["product-attribute"]} ${styles["toner-attribute"]}`}>{product.추천타입 || "피부 진정"}</p>
+                        <p className={`${styles["product-attribute"]} ${styles["toner-attribute"]}`}>{getRecommendedType(product) || "피부 진정"}</p>
                       </div>
                       <div className={styles["product-ingredients-container"]}>
                         <p className={styles["ingredients-label"]}>
@@ -367,10 +321,10 @@ export default function RecommendPage() {
                           주요 성분
                         </p>
                         <p className={styles["product-ingredients"]}>
-                          {product.성분.length > 0 
-                            ? product.성분.map((ingredient, idx) => (
+                          {getIngredients(product).length > 0 
+                            ? getIngredients(product).map((ingredient: string, idx: number) => (
                                 <span key={idx} className={styles["ingredient-item"]}>
-                                  {ingredient}{idx < product.성분.length - 1 ? ', ' : ''}
+                                  {ingredient}{idx < getIngredients(product).length - 1 ? ', ' : ''}
                                 </span>
                               ))
                             : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
@@ -400,14 +354,14 @@ export default function RecommendPage() {
               {recommendData.recommendations.세럼.map((product, index) => (
                 <div key={`serum-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                    <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
+                    <Image src="/placeholder.svg" alt={getProductName(product)} width={120} height={160} className={styles["product-image"]} />
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
                     <div className={styles["product-details"]}>
-                      <p className={styles["product-title"]}>{product.제품명}</p>
+                      <p className={styles["product-title"]}>{getProductName(product)}</p>
                       <div className={styles["tooltip"]}>
-                        <p className={`${styles["product-attribute"]} ${styles["serum-attribute"]}`}>{product.추천타입 || "수분 공급"}</p>
+                        <p className={`${styles["product-attribute"]} ${styles["serum-attribute"]}`}>{getRecommendedType(product) || "수분 공급"}</p>
                       </div>
                       <div className={styles["product-ingredients-container"]}>
                         <p className={styles["ingredients-label"]}>
@@ -415,10 +369,10 @@ export default function RecommendPage() {
                           주요 성분
                         </p>
                         <p className={styles["product-ingredients"]}>
-                          {product.성분.length > 0 
-                            ? product.성분.map((ingredient, idx) => (
+                          {getIngredients(product).length > 0 
+                            ? getIngredients(product).map((ingredient: string, idx: number) => (
                                 <span key={idx} className={styles["ingredient-item"]}>
-                                  {ingredient}{idx < product.성분.length - 1 ? ', ' : ''}
+                                  {ingredient}{idx < getIngredients(product).length - 1 ? ', ' : ''}
                                 </span>
                               ))
                             : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
@@ -448,14 +402,14 @@ export default function RecommendPage() {
               {recommendData.recommendations.로션.map((product, index) => (
                 <div key={`lotion-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                    <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
+                    <Image src="/placeholder.svg" alt={getProductName(product)} width={120} height={160} className={styles["product-image"]} />
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
                     <div className={styles["product-details"]}>
-                      <p className={styles["product-title"]}>{product.제품명}</p>
+                      <p className={styles["product-title"]}>{getProductName(product)}</p>
                       <div className={styles["tooltip"]}>
-                        <p className={`${styles["product-attribute"]} ${styles["lotion-attribute"]}`}>{product.추천타입 || "보습 강화"}</p>
+                        <p className={`${styles["product-attribute"]} ${styles["lotion-attribute"]}`}>{getRecommendedType(product) || "보습 강화"}</p>
                       </div>
                       <div className={styles["product-ingredients-container"]}>
                         <p className={styles["ingredients-label"]}>
@@ -463,10 +417,10 @@ export default function RecommendPage() {
                           주요 성분
                         </p>
                         <p className={styles["product-ingredients"]}>
-                          {product.성분.length > 0 
-                            ? product.성분.map((ingredient, idx) => (
+                          {getIngredients(product).length > 0 
+                            ? getIngredients(product).map((ingredient: string, idx: number) => (
                                 <span key={idx} className={styles["ingredient-item"]}>
-                                  {ingredient}{idx < product.성분.length - 1 ? ', ' : ''}
+                                  {ingredient}{idx < getIngredients(product).length - 1 ? ', ' : ''}
                                 </span>
                               ))
                             : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
@@ -496,14 +450,14 @@ export default function RecommendPage() {
               {recommendData.recommendations.크림.map((product, index) => (
                 <div key={`cream-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                    <Image src="/placeholder.svg" alt={product.제품명} width={120} height={160} className={styles["product-image"]} />
+                    <Image src="/placeholder.svg" alt={getProductName(product)} width={120} height={160} className={styles["product-image"]} />
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
                     <div className={styles["product-details"]}>
-                      <p className={styles["product-title"]}>{product.제품명}</p>
+                      <p className={styles["product-title"]}>{getProductName(product)}</p>
                       <div className={styles["tooltip"]}>
-                        <p className={`${styles["product-attribute"]} ${styles["cream-attribute"]}`}>{product.추천타입 || "보습 케어"}</p>
+                        <p className={`${styles["product-attribute"]} ${styles["cream-attribute"]}`}>{getRecommendedType(product) || "보습 케어"}</p>
                       </div>
                       <div className={styles["product-ingredients-container"]}>
                         <p className={styles["ingredients-label"]}>
@@ -511,10 +465,10 @@ export default function RecommendPage() {
                           주요 성분
                         </p>
                         <p className={styles["product-ingredients"]}>
-                          {product.성분.length > 0 
-                            ? product.성분.map((ingredient, idx) => (
+                          {getIngredients(product).length > 0 
+                            ? getIngredients(product).map((ingredient: string, idx: number) => (
                                 <span key={idx} className={styles["ingredient-item"]}>
-                                  {ingredient}{idx < product.성분.length - 1 ? ', ' : ''}
+                                  {ingredient}{idx < getIngredients(product).length - 1 ? ', ' : ''}
                                 </span>
                               ))
                             : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>

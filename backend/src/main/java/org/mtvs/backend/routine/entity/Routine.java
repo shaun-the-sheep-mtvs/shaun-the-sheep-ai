@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.routine.entity.enums.Kinds;
 import org.mtvs.backend.routine.entity.enums.Time;
 import org.springframework.data.annotation.CreatedDate;

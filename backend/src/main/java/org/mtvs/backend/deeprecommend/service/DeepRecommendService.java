@@ -4,9 +4,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.mtvs.backend.auth.dto.ProblemDto;
-import org.mtvs.backend.auth.model.User;
-import org.mtvs.backend.auth.repository.UserRepository;
+import org.mtvs.backend.user.dto.ProblemDto;
+import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.deeprecommend.config.OpenConfig;
 import org.mtvs.backend.deeprecommend.dto.RecommendResponseDTO;
 import org.mtvs.backend.deeprecommend.dto.RequestDTO;
@@ -52,7 +52,7 @@ public class DeepRecommendService {
         this.routineGroupRepository = routineGroupRepository;
     }
 
-    public String askOpenAI(long userId) {
+    public String askOpenAI(String userId) {
 
         ProblemDto getProblemByUsername = userRepository.findUserSkinDataByUserId(userId);
         List<RoutinesDto> recommend = routineRepository.findRoutinesByUserId(userId);
@@ -263,12 +263,12 @@ public class DeepRecommendService {
     }
 
     /* step2. 맞춤 루틴 추천 조회 */
-    public List<RoutineChangeDTO> getRoutineChangeList(Long userId) {
+    public List<RoutineChangeDTO> getRoutineChangeList(String userId) {
         return routineChangeRepository.findRoutinesByUserId(userId);
     }
 
     /* step2. 제품 변경 및 추가 추천 */
-    public List<RecommendResponseDTO> getRecommendResponseDTOList(Long userId) {
+    public List<RecommendResponseDTO> getRecommendResponseDTOList(String userId) {
         return deepRecommendRepository.findLatestRecommendByUserId(userId);
     }
 }

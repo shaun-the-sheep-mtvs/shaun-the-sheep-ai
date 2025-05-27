@@ -2,8 +2,8 @@ package org.mtvs.backend.routine.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.mtvs.backend.auth.model.User;
-import org.mtvs.backend.auth.repository.UserRepository;
+import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
 import org.mtvs.backend.routine.dto.RoutineDTO;
 import org.mtvs.backend.routine.dto.RoutineGroupDTO;
@@ -14,6 +14,7 @@ import org.mtvs.backend.routine.repository.RoutineGroupRepository;
 import org.mtvs.backend.routine.repository.RoutineRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +34,6 @@ public class RoutineManageService {
         );
 
         routineGroupRepository.save(routineGroup);
-
         List<Routine> routines = routinesDTO.getRoutines().stream()
                 .map(routineDTO -> new Routine(
                         routineDTO.getName(),
@@ -50,13 +50,21 @@ public class RoutineManageService {
         routineRepository.saveAll(routines);
     }
 
+    // 사용자의 모든 루틴을 조회하는 메소드
+    public List<RequestRoutineAllDTO> getAllRoutines(String username) {
+        User user = userRepository.findByUsername(username).orElseThrow();
+        List<RequestRoutineAllDTO> dtos = new ArrayList<>();
+        routineRepository.findRoutinesByUser(user).forEach(routine -> {
+            dtos.add(new RequestRoutineAllDTO(routine));
+        });
+        return dtos;
     /* step2. 기존 루틴 조회 */
     public List<RoutinesDto> getRoutineList(Long userId) {
         return routineRepository.findRoutinesByUserId(userId);
     }
 
-//    // 사용자의 모든 루틴을 조회하는 메소드
-//    public List<RequestRoutineAllDTO> getAllRoutines(User user) {
-//        return routineRepository.findAllRoutineDTOByUserId(user.getId());
-//    }
+    public void deleteRoutine(long groupId) {
+        routineRepository.deleteAll(routineRepository.findRoutinesByRoutineGroupId(groupId));
+    }
+
 }

@@ -1,111 +1,111 @@
 package org.mtvs.backend.auth.service;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import jakarta.transaction.Transactional;
-import org.mtvs.backend.auth.dto.LoginDto;
-import org.mtvs.backend.auth.dto.ProblemDto;
-import org.mtvs.backend.auth.dto.RegistrationDto;
-import org.mtvs.backend.auth.model.User;
-import org.mtvs.backend.auth.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.mtvs.backend.auth.dto.AuthResponse;
+import org.mtvs.backend.auth.dto.LoginRequest;
+import org.mtvs.backend.auth.dto.SignupRequest;
+import org.mtvs.backend.auth.jwt.JwtProvider;
 import org.mtvs.backend.auth.util.JwtUtil;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.user.repository.UserRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
+@Slf4j
+@RequiredArgsConstructor
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
     private final JwtUtil jwtUtil;
 
-    public AuthService(UserRepository userRepository,BCryptPasswordEncoder passwordEncoder, JwtUtil jwtUtil) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.jwtUtil = jwtUtil;
-    }
+    /**
+     * 회원가입
+     */
+    public void signup(SignupRequest dto) {
+        log.info("[회원 가입] 서비스 호출 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
 
-    @Transactional
-    public RegistrationDto registerUser(RegistrationDto dto) {
-        Optional<User> existingUser = userRepository.findByEmail(dto.getEmail());
-        if (existingUser.isPresent()) {
-            throw new IllegalArgumentException("Email already exists");
+        // 이메일 존재 여부 확인
+        if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
+            log.warn("[회원가입] 이미 존재하는 이메일 요청 : 이메일={}", dto.getEmail());
+            throw new RuntimeException("이미 존재하는 이메일입니다.");
         }
 
-        // 순서 잘 지키기
         User user = new User(
-                dto.getUsername(),
-                dto.getEmail(),// 이메일 위치 수정
-                passwordEncoder.encode(dto.getPassword()),  // 비밀번호 위치 수정
-                LocalDateTime.now()
+                dto.getEmail(),
+                passwordEncoder.encode(dto.getPassword()),
+                dto.getUsername()
         );
-
-        User savedUser = userRepository.save(user);
-        return new RegistrationDto(savedUser.getUsername(), savedUser.getEmail(), savedUser.getPassword());
+        userRepository.save(user);
+        log.info("[회원 가입] 완료 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
     }
 
-    public String[] loginUser(LoginDto userLoginDTO) {
-        Optional<User> existingUser = userRepository.findByEmail(userLoginDTO.getEmail());
+    /**
+     * 로그인 - 액세스 토큰과 리프레시 토큰 모두 반환
+     */
+    public AuthResponse login(LoginRequest dto) {
+        log.info("[로그인] 서비스 호출 : 이메일={}", dto.getEmail());
 
-        // 이메일로 이미 존재하는 회원인지 확인
-        if (existingUser.isEmpty()) {
-            throw new IllegalArgumentException("User does not exist");
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> {
+                    log.warn("[로그인] 실패 - 존재하지 않는 사용자 : 이메일={}", dto.getEmail());
+                    return new RuntimeException("존재하지 않는 사용자입니다.");
+                });
+
+        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+            log.warn("[로그인] 실패 - 비밀번호 불일치 : 이메일={}", dto.getEmail());
+            throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
-        // 로그인 시 비밀번호가 일치하지 않을 경우 예외를 던져 인증 실패
-        if (!passwordEncoder.matches(userLoginDTO.getPassword(), existingUser.get().getPassword())) {
-            throw new RuntimeException("Invalid credentials");
-        }
+        // 액세스 토큰과 리프레시 토큰 생성
+        String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getUsername(), user.getId());
+        String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
-        // 로그인 시 비밀번호가 일치할 경우 각각 액세스 토큰과 리프레시 토큰 생성
-        String accessToken = jwtUtil.generateAccessToken(existingUser.get().getEmail(), existingUser.get().getUsername(),existingUser.get().getId());
-        String refreshToken = jwtUtil.generateRefreshToken(existingUser.get().getEmail());
-
-        // 두 토큰을 클라이언트에 반환
-        return new String[]{accessToken, refreshToken};
+        log.info("[로그인] 완료 : 이메일={}", dto.getEmail());
+        return new AuthResponse(accessToken, refreshToken);
     }
 
-    public String refreshToken (String refreshToken) {
-
-        // 리프레시 토큰이 유효한지 검사
-        if (!jwtUtil.validateToken(refreshToken)) {
-            throw new RuntimeException("Invalid refresh token");
-        }
+    /**
+     * 리프레시 토큰으로 새로운 액세스 토큰 발급
+     */
+    public AuthResponse refreshToken(String refreshToken) {
+        log.info("[토큰 갱신] 요청");
 
         try {
-            // 클레임이란?
-            Claims claims = jwtUtil.parseClaims(refreshToken);
-
-            // 토큰에서 사용자 정보 추출
-            String userEmail = claims.getSubject();
-            String username = claims.get("username", String.class);
-            long id = claims.get("id", Long.class);
-            if (userEmail == null || userEmail.isEmpty()) {
-                throw new IllegalArgumentException("Invalid refresh token: no user identifier found");
+            // 리프레시 토큰 유효성 검증
+            if (!jwtUtil.validateToken(refreshToken)) {
+                log.warn("[토큰 갱신] 실패 - 유효하지 않은 리프레시 토큰");
+                throw new RuntimeException("유효하지 않은 리프레시 토큰입니다.");
             }
-            // 리프레시 토큰이 유효하면
-            return jwtUtil.generateAccessToken(userEmail, username,id);
 
-        } catch (ExpiredJwtException e) {
-            throw new RuntimeException("Refresh token has expired", e);
+            // 리프레시 토큰에서 사용자 정보 추출
+            String email = jwtUtil.getSubjectFromToken(refreshToken);
+
+            // 사용자 존재 확인
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
+
+            // 새로운 토큰 생성
+            String newAccessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getUsername(), user.getId());
+            String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+
+            log.info("[토큰 갱신] 완료 : 이메일={}", email);
+            return new AuthResponse(newAccessToken, newRefreshToken);
+
         } catch (Exception e) {
-            throw new RuntimeException("Error processing refresh token", e);
+            log.error("[토큰 갱신] 오류 : {}", e.getMessage());
+            throw new RuntimeException("토큰 갱신 중 오류가 발생했습니다.");
         }
     }
-    public User findByEmail(String email) {
-        return userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                        new UsernameNotFoundException("User not found: " + email)
-                );
-    }
 
-    public User findByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(() ->
-                new UsernameNotFoundException("User not found: " + username));
+    public Optional<User> getUserByEmail(String email) {
+        return userRepository.findByEmail(email);
     }
 
     public Optional<User> getUserByLoginId(String loginId) {

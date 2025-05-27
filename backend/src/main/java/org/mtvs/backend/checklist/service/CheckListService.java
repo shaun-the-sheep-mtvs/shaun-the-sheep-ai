@@ -1,15 +1,14 @@
 package org.mtvs.backend.checklist.service;
 
 import jakarta.transaction.Transactional;
-import org.mtvs.backend.auth.model.User;
-import org.mtvs.backend.auth.repository.UserRepository;
+import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
-import org.mtvs.backend.checklist.dto.MBTIdto;
 import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
+import org.mtvs.backend.checklist.repository.MBTIMappingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -27,6 +25,8 @@ public class CheckListService {
     private UserRepository userRepo;
     @Autowired
     private CheckListRepository checkListRepo;
+    @Autowired
+    private MBTIMappingRepository mbtiMappingRepo;
 
     // 기존 repo, userRepo 주입 생략
 
@@ -41,8 +41,21 @@ public class CheckListService {
         entity.setOil(req.getOil());
         entity.setSensitivity(req.getSensitivity());
         entity.setTension(req.getTension());
-
         CheckList saved = checkListRepo.save(entity);
+
+        String mbtiCode = getSkinTypeByEmail(user.getEmail());
+
+        // 4) 매핑 테이블에서 한글 SkinType(enum) 조회
+        User.SkinType newSkinType = mbtiMappingRepo.findById(mbtiCode)
+                .orElseThrow(() ->
+                        new IllegalStateException("Unknown MBTI code: " + mbtiCode))
+                .getSkinType();
+
+        // 5) 유저 엔티티에 세팅 후 저장
+        user.setSkinType(newSkinType);
+        user.setTroubles(req.getTroubles());
+        userRepo.save(user);
+
         return toDto(saved);
     }
 
@@ -71,7 +84,7 @@ public class CheckListService {
             throw new UsernameNotFoundException(email);
         }
         User userEntity = user.get();
-        Long userId = userEntity.getId();
+        String userId = userEntity.getId();
 
         Optional<CheckList> checkList = checkListRepo.findFirstByUser_IdOrderByCreatedAtDesc(userId);
 
@@ -91,8 +104,8 @@ public class CheckListService {
         ratings.put("tension", result.getTension() >= 60 ? "T" : "L");
 
         // 피부 타입 조합 생성 (예: MOSL, DBIL 등)
-        String skinType = ratings.get("moisture") + ratings.get("sensitivity") +
-                         ratings.get("oil") + ratings.get("tension");
+        String skinType = ratings.get("moisture") + ratings.get("oil") +
+                          ratings.get("sensitivity") + ratings.get("tension");
         System.out.println(skinType);
         return skinType;
     }

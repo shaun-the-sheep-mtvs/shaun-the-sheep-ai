@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiConfig } from '@/config/api';
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -14,33 +15,43 @@ export default function Home() {
     e.preventDefault();
     setError(null);
 
-    try {
-      const res = await fetch('http://localhost:8080/auth/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),   // credentials 제거
-      });
+          try {
+              const res = await fetch(apiConfig.endpoints.auth.login, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ email, password }),
+              });
 
-      const data = await res.json();
+             console.log('status:', res.status);
 
-      if (!res.ok) {
-        setError(data.error || data.message || '로그인에 실패했습니다.');
-        return;
-      }
+              if (!res.ok) {
+                  const errorText = await res.text();
+                  setError(errorText || '로그인에 실패했습니다.');
+                  return;
+              }
 
-      // 서버 응답에서 토큰 꺼내서 저장
-      const { accessToken, refreshToken } = data;
-      localStorage.setItem('accessToken',  accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
+              // JSON 응답에서 토큰 추출
+              const authResponse = await res.json();
+              console.log('authResponse:', authResponse);
+              
+              if (authResponse.accessToken) {
+                  // localStorage에 토큰 저장
+                  localStorage.setItem('accessToken', authResponse.accessToken);
+                  localStorage.setItem('refreshToken', authResponse.refreshToken);
+                  console.log('token:', authResponse.accessToken);
+              } else {
+                  console.log('token: null');
+                  setError('토큰을 받지 못했습니다.');
+                  return;
+              }
 
-      // 로그인 후 홈(또는 대시보드)으로 이동
-      router.push('/');
-    } catch (err) {
-      console.error(err);
-      setError('네트워크 오류가 발생했습니다.');
-    }
-  };
-
+              // 로그인 성공 후 홈페이지로 이동
+              router.push('/');
+          } catch (error) {
+              console.error('Login error:', error);
+              setError('네트워크 오류가 발생했습니다.');
+          }
+      };
   return (
     <div className={styles.page}>
       <main className={styles.main}>

@@ -1,9 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { apiConfig } from '@/config/api';
 
 export interface CurrentUser {
-  id: number;
+  id: string;
   username: string;
   email: string;
 }
@@ -20,7 +21,7 @@ export function useCurrentUser() {
       return;
     }
 
-    fetch('http://localhost:8080/auth/me', {
+    fetch(apiConfig.endpoints.auth.me, {
       headers: {
         'Authorization': `Bearer ${token}`,
       }

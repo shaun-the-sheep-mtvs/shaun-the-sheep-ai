@@ -1,5 +1,6 @@
 package org.mtvs.backend.chat.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.chat.dto.ChatMessageDTO;
 import org.mtvs.backend.chat.entity.ChatMessage;
@@ -19,14 +20,14 @@ public class ChatMessageController {
     private ChatMessageDTO toDTO(ChatMessage entity) {
         return entity.toDTO();
     }
-
-    private ChatMessage toEntity(ChatMessageDTO dto) {
-        ChatMessage entity = new ChatMessage();
-        entity.setId(dto.getId());
-        entity.setRole(dto.getRole());
-        entity.setContent(dto.getContent());
-        entity.setTimestamp(dto.getTimestamp());
-        return entity;
+    
+        private ChatMessage toEntity(ChatMessageDTO dto) {
+            ChatMessage entity = new ChatMessage();
+            entity.setId(dto.getId());
+            entity.setRole(dto.getRole());
+            entity.setContent(dto.getContent());
+            entity.setTimestamp(dto.getTimestamp());
+            return entity;
     }
 
     @GetMapping
@@ -35,7 +36,9 @@ public class ChatMessageController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ChatMessageDTO> getMessageById(@PathVariable Long id) {
+    public ResponseEntity<ChatMessageDTO> getMessageById(
+            @PathVariable("id") Long id     // ← 여기 이름을 명시
+    ) {
         return chatMessageService.findById(id)
                 .map(this::toDTO)
                 .map(ResponseEntity::ok)
@@ -58,7 +61,10 @@ public class ChatMessageController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ChatMessageDTO> updateMessage(@PathVariable Long id, @RequestBody ChatMessageDTO dto) {
+    public ResponseEntity<ChatMessageDTO> updateMessage(
+            @PathVariable("id") Long id,    // ← 마찬가지로
+            @RequestBody ChatMessageDTO dto
+    ) {
         return chatMessageService.findById(id)
                 .map(existing -> {
                     ChatMessage entity = toEntity(dto);
@@ -69,12 +75,50 @@ public class ChatMessageController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMessage(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteMessage(
+            @PathVariable("id") Long id     // ← 그리고 여기에도
+    ) {
         if (chatMessageService.findById(id).isPresent()) {
             chatMessageService.deleteById(id);
             return ResponseEntity.noContent().build();
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @PostMapping("/ask")
+    public ResponseEntity<ChatMessageDTO> askAI(
+            @RequestParam(value = "templateKey", required = false) String templateKey,
+            @RequestBody List<ChatMessageDTO> historyDto
+    ) throws JsonProcessingException {
+        // 1) DTO → Entity 변환
+        List<ChatMessage> history = historyDto.stream()
+                .map(dto -> {
+                    ChatMessage msg = new ChatMessage();
+                    msg.setRole(dto.getRole());
+                    msg.setContent(dto.getContent());
+                    msg.setTimestamp(dto.getTimestamp());
+                    return msg;
+                })
+                .collect(Collectors.toList());
+
+        // 2) 마지막 user 메시지를 질문으로
+        String userQuestion = history.stream()
+                .filter(m -> "user".equals(m.getRole()))
+                .map(ChatMessage::getContent)
+                .reduce((first, second) -> second)
+                .orElse("");
+
+        // 3) AI 호출 (templateKey 함께 전달)
+        ChatMessage aiMsg = chatMessageService.askAI_Single(history, userQuestion, templateKey);
+
+        // 4) Entity → DTO 변환
+        ChatMessageDTO responseDto = new ChatMessageDTO();
+        responseDto.setId(aiMsg.getId());
+        responseDto.setRole(aiMsg.getRole());
+        responseDto.setContent(aiMsg.getContent());
+        responseDto.setTimestamp(aiMsg.getTimestamp());
+
+        return ResponseEntity.ok(responseDto);
     }
 } 

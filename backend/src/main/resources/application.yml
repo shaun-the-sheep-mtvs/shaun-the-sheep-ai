@@ -6,6 +6,8 @@ spring:
     username: ${DB_USERNAME:user}
     password: ${DB_PASSWORD:5656}
     driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 2
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,13 +23,9 @@ spring:
 gemini:
   api:
     url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
-    key: ${GEMINI_API_KEY:AIzaSyB_2HpZAgp2_ORDmWZ21TI18sgNQ_DGNDM}
+    key: ${GEMINI_API_KEY}
 
 jwt:
-  secret: n3Jka8+vTtK8aJ4zr9H3yX2lV9DGKQ1LNzR7BtYk9fA=
-  access-token-expiration: 86400000 # 24 (ms)
-  refresh-token-expiration: 86400000 # 24 (ms)
-
-# RecommendController용 설정
-gemini.api.key: ${GEMINI_API_KEY:AIzaSyB_2HpZAgp2_ORDmWZ21TI18sgNQ_DGNDM}
-gemini.api.url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+  secret: ${JWT_SECRET}
+  access-token-expiration: 3600000 # 1 hour (ms)
+  refresh-token-expiration: 604800000 # 7 days (ms)

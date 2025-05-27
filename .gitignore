@@ -27,6 +27,7 @@ Thumbs.db
 
 # Environment files
 .env.local
+resources
 
 # Logs
 logs/

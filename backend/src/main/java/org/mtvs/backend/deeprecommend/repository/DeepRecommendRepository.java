@@ -27,7 +27,7 @@ public interface DeepRecommendRepository extends JpaRepository<DeepRecommend,Int
            WHERE rg.userId = :userId
    )
 """)
-    List<RecommendResponseDTO> findLatestRecommendByUserId(@Param("userId") Long userId);
+    List<RecommendResponseDTO> findLatestRecommendByUserId(@Param("userId") String userId);
 
 //    @Query("""
 //    SELECT new org.mtvs.backend.deeprecommend.dto.RecommendResponseDTO(

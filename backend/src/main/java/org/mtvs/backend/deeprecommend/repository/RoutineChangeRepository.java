@@ -18,5 +18,5 @@ public interface RoutineChangeRepository extends JpaRepository<RoutineChange, Lo
             "   FROM RoutineGroup r2 " +
             "   WHERE r2.userId = :userId" +
             ")")
-    List<RoutineChangeDTO> findRoutinesByUserId(@Param("userId") Long userId);
+    List<RoutineChangeDTO> findRoutinesByUserId(@Param("userId") String userId);
 }
