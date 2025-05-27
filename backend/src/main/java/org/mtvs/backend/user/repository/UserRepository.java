@@ -31,4 +31,7 @@ public interface UserRepository extends JpaRepository<User, String> {
     ProblemDto findAllRoutineByUserId(@Param("userId") String userId);
 
     @Query("SELECT u.id FROM User u WHERE u.email = :email")
-    Optional<String> findUserIdByEmail(@Param("email") String email);}
+    Optional<String> findUserIdByEmail(@Param("email") String email);
+}
+
+

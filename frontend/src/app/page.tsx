@@ -141,6 +141,7 @@ export default function Home() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mbti, setMbti] = useState<string>("default");
   const [mbtiError, setMbtiError] = useState<string | null>(null);
+  const [products, setProducts] = useState<any[]>([]);
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -164,7 +165,6 @@ export default function Home() {
         .catch(() => setError('체크리스트를 불러오는 데 실패했습니다.'));
     }
   }, []);
-
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -196,6 +196,33 @@ export default function Home() {
     }
   }, []);
 
+
+  // 서버에서 보내는 3개 제품 데이터 가져오기
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      fetch('http://localhost:8080/api/recommend/random-recommendations', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      })
+        .then(res => {
+          if (!res.ok) throw new Error(`status ${res.status}`);
+          return res.json() as Promise<any[]>;
+        })
+        .then(data => {
+          console.log('API Response:', data); // 실제 데이터 구조 확인
+          const transformedProducts = data.map(product => ({
+            name: product.productName,
+            description: `${product.recommendedType} - ${product.ingredients.join(', ')}`
+          }));
+          setProducts(transformedProducts);
+        })
+        .catch(error => {
+          console.error('Error fetching products:', error);
+        });
+    }
+  }, []);
+  
+
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (!token) {
@@ -207,6 +234,7 @@ export default function Home() {
     localStorage.removeItem('accessToken');
     window.location.reload();
   }
+  
 
   // 한글 레이블 매핑
   const labels = {

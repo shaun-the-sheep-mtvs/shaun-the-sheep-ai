@@ -3,6 +3,7 @@ package org.mtvs.backend.product.service;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.mtvs.backend.product.dto.ProductDTO;
+import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
 import org.mtvs.backend.product.entity.Product;
 import org.mtvs.backend.product.repository.ProductRepository;
 import org.mtvs.backend.user.entity.User;
@@ -10,6 +11,8 @@ import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -24,9 +27,32 @@ public class ProductService {
         this.userRepository = userRepository;
     }
 
+    public List<Product> getProductsByFormulation(String userId, String formulation, int limit) {
+        List<Product> products = productRepository.findByUserIdAndFormulationType(userId, formulation);
+        Collections.shuffle(products);
+        return products.stream().limit(limit).collect(Collectors.toList());
+    }
+
+    public ProductsWithUserInfoResponseDTO getBalancedRecommendations(String userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Product> selectedProducts = new ArrayList<>();
+
+        // 각 제형별로 3개씩 추가
+        selectedProducts.addAll(getProductsByFormulation(userId, "toner", 3));
+        selectedProducts.addAll(getProductsByFormulation(userId, "serum", 3));
+        selectedProducts.addAll(getProductsByFormulation(userId, "lotion", 3));
+        selectedProducts.addAll(getProductsByFormulation(userId, "cream", 3));
+
+        return ProductsWithUserInfoResponseDTO.create(user, selectedProducts);
+    }
+
+
+
     public List<ProductDTO> getProducts(String userId){
         // userId에 해당된 추천 제품들이 있는지 확인
-        boolean exists = productRepository.existsById(userId);
+        boolean exists = productRepository.existsByUserId(userId);
         if (!exists) {
             throw new RuntimeException("해당 유저의 추천 제품이 존재하지 않습니다. 체크리스트는 최초 1회 필요합니다.");
         }
@@ -104,7 +130,7 @@ public class ProductService {
 //                dto.setFormulationType(null);
 //            }
 //        }
-        dto.setFormulationType(formulation);
+        dto.setFormulation(formulation);
         dto.setUserId(userId);
 
         // User 엔티티 조회
