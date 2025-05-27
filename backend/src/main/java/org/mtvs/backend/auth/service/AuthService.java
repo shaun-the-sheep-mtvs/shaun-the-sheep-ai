@@ -4,11 +4,11 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.transaction.Transactional;
 import org.mtvs.backend.auth.dto.LoginDto;
+import org.mtvs.backend.auth.dto.ProblemDto;
 import org.mtvs.backend.auth.dto.RegistrationDto;
 import org.mtvs.backend.auth.model.User;
 import org.mtvs.backend.auth.repository.UserRepository;
 import org.mtvs.backend.auth.util.JwtUtil;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -112,4 +112,16 @@ public class AuthService {
         return userRepository.findByUsername(loginId);
     }
 
+    /* step2. 피부 정보 조회 */
+    public ProblemDto loadUserSkinData(Long userId) {
+        ProblemDto skinData = userRepository.findUserSkinDataByUserId(userId);
+        if (skinData == null) {
+            throw new RuntimeException("피부 정보가 존재하지 않습니다. : " + userId);
+        }
+
+        return new ProblemDto(
+                skinData.getSkinType(),
+                skinData.getTroubles()
+        );
+    }
 }

@@ -8,7 +8,7 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -25,8 +25,8 @@ gemini:
 
 jwt:
   secret: n3Jka8+vTtK8aJ4zr9H3yX2lV9DGKQ1LNzR7BtYk9fA=
-  access-token-expiration: 3600000 # 1?? (ms)
-  refresh-token-expiration: 604800000 # 7? (ms)
+  access-token-expiration: 86400000 # 24 (ms)
+  refresh-token-expiration: 86400000 # 24 (ms)
 
 # RecommendController용 설정
 gemini.api.key: ${GEMINI_API_KEY:AIzaSyB_2HpZAgp2_ORDmWZ21TI18sgNQ_DGNDM}

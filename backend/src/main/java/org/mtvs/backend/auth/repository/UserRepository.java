@@ -27,5 +27,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT new org.mtvs.backend.auth.dto.ProblemDto(u.skinType, u.troubles) " +
             "FROM User u WHERE u.id = :userId")
-    ProblemDto findAllRoutineByUserId(@Param("userId") Long userId);
+    ProblemDto findUserSkinDataByUserId(@Param("userId") Long userId);
 }

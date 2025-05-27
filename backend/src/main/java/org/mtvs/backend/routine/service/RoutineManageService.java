@@ -5,12 +5,13 @@ import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.auth.model.User;
 import org.mtvs.backend.auth.repository.UserRepository;
 import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
-import org.mtvs.backend.routine.dto.RequestRoutineAllDTO;
+import org.mtvs.backend.routine.dto.RoutineDTO;
+import org.mtvs.backend.routine.dto.RoutineGroupDTO;
+import org.mtvs.backend.routine.dto.RoutinesDto;
 import org.mtvs.backend.routine.entity.Routine;
 import org.mtvs.backend.routine.entity.RoutineGroup;
 import org.mtvs.backend.routine.repository.RoutineGroupRepository;
 import org.mtvs.backend.routine.repository.RoutineRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -49,8 +50,13 @@ public class RoutineManageService {
         routineRepository.saveAll(routines);
     }
 
-    // 사용자의 모든 루틴을 조회하는 메소드
-    public List<RequestRoutineAllDTO> getAllRoutines(User user) {
-        return routineRepository.findAllRoutineDTOByUserId(user.getId());
+    /* step2. 기존 루틴 조회 */
+    public List<RoutinesDto> getRoutineList(Long userId) {
+        return routineRepository.findRoutinesByUserId(userId);
     }
+
+//    // 사용자의 모든 루틴을 조회하는 메소드
+//    public List<RequestRoutineAllDTO> getAllRoutines(User user) {
+//        return routineRepository.findAllRoutineDTOByUserId(user.getId());
+//    }
 }

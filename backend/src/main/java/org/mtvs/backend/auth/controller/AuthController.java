@@ -1,19 +1,19 @@
 package org.mtvs.backend.auth.controller;
 
 import jakarta.servlet.http.HttpServletResponse;
-import org.mtvs.backend.auth.dto.AuthResponse;
-import org.mtvs.backend.auth.dto.CurrentUserDto;
-import org.mtvs.backend.auth.dto.LoginDto;
-import org.mtvs.backend.auth.dto.RegistrationDto;
+import org.mtvs.backend.auth.dto.*;
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.auth.repository.UserRepository;
 import org.mtvs.backend.auth.service.AuthService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -23,10 +23,12 @@ import java.util.Map;
 public class AuthController {
     private static final Logger log = LoggerFactory.getLogger(AuthController.class);
     private final AuthService authService;
+    private final UserRepository userRepository;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, UserRepository userRepository) {
         this.authService = authService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/register")
@@ -87,5 +89,20 @@ public class AuthController {
                 user.getEmail()
         );
         return ResponseEntity.ok(dto);
+    }
+
+    /* step2. 피부 정보 조회 */
+    @GetMapping("/skin-data")
+    public ResponseEntity<?> getSkinData(@AuthenticationPrincipal CustomUserDetails user) {
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+
+        ProblemDto problemDto = authService.loadUserSkinData(user.getUser().getId());
+        if (problemDto == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("피부 정보가 없습니다.");
+        }
+
+        return ResponseEntity.ok(problemDto);
     }
 }

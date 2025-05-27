@@ -8,16 +8,18 @@ import org.mtvs.backend.auth.dto.ProblemDto;
 import org.mtvs.backend.auth.model.User;
 import org.mtvs.backend.auth.repository.UserRepository;
 import org.mtvs.backend.deeprecommend.config.OpenConfig;
-import org.mtvs.backend.deeprecommend.dto.RecommendDTO;
+import org.mtvs.backend.deeprecommend.dto.RecommendResponseDTO;
 import org.mtvs.backend.deeprecommend.dto.RequestDTO;
+import org.mtvs.backend.deeprecommend.dto.RoutineChangeDTO;
 import org.mtvs.backend.deeprecommend.entity.DeepRecommend;
 import org.mtvs.backend.deeprecommend.entity.RoutineChange;
 import org.mtvs.backend.deeprecommend.entity.enums.Action;
 import org.mtvs.backend.deeprecommend.repository.DeepRecommendRepository;
 import org.mtvs.backend.deeprecommend.repository.RoutineChangeRepository;
+import org.mtvs.backend.routine.dto.RoutineGroupDTO;
 import org.mtvs.backend.routine.dto.RoutinesDto;
-import org.mtvs.backend.routine.entity.RoutineGroup;
 import org.mtvs.backend.routine.entity.enums.Kinds; // Kinds Enum import 확인
+import org.mtvs.backend.routine.repository.RoutineGroupRepository;
 import org.mtvs.backend.routine.repository.RoutineRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
@@ -38,25 +40,27 @@ public class DeepRecommendService {
     private final OpenConfig openConfig;
     private final DeepRecommendRepository deepRecommendRepository;
     private final RoutineChangeRepository routineChangeRepository;
+    private final RoutineGroupRepository routineGroupRepository;
 
     @Autowired
-    public DeepRecommendService(RoutineRepository routineRepository, UserRepository userRepository, OpenConfig openConfig, DeepRecommendRepository deepRecommendRepository, RoutineChangeRepository routineChangeRepository) {
+    public DeepRecommendService(RoutineRepository routineRepository, UserRepository userRepository, OpenConfig openConfig, DeepRecommendRepository deepRecommendRepository, RoutineChangeRepository routineChangeRepository, RoutineGroupRepository routineGroupRepository) {
         this.routineRepository = routineRepository;
         this.userRepository = userRepository;
         this.openConfig = openConfig;
         this.deepRecommendRepository = deepRecommendRepository;
         this.routineChangeRepository = routineChangeRepository;
+        this.routineGroupRepository = routineGroupRepository;
     }
 
     public String askOpenAI(long userId) {
 
-        ProblemDto getProblemByUsername = userRepository.findAllRoutineByUserId(userId);
-        List<RoutinesDto> recommend = routineRepository.findAllRoutineByUserId(userId);
+        ProblemDto getProblemByUsername = userRepository.findUserSkinDataByUserId(userId);
+        List<RoutinesDto> recommend = routineRepository.findRoutinesByUserId(userId);
 
         // Kinds Enum의 모든 값을 문자열로 나열
         StringBuilder kindsList = new StringBuilder();
         for (Kinds kind : Kinds.values()) {
-            kindsList.append("\"").append(kind.getName()).append("\",");
+            kindsList.append("\"").append(kind.getNameTypeJson()).append("\",");
         }
         // 마지막 쉼표 제거
         if (kindsList.length() > 0) {
@@ -67,6 +71,7 @@ public class DeepRecommendService {
 
         try {
             ObjectMapper mapper = new ObjectMapper();
+            // Ensure RoutinesDto includes routineId for the prompt
             String json1 = mapper.writeValueAsString(recommend);
             String json2 = mapper.writeValueAsString(getProblemByUsername);
 
@@ -74,7 +79,7 @@ public class DeepRecommendService {
             String prompt = String.format(
                     "너는 피부관리 전문가야. 아래는 사용자의 스킨케어 루틴과 피부 고민 정보야:\n\n" +
                             "루틴(JSON): %s\n" +
-                            "피부 고민: %s\n\n" +
+                            "피부 고민: %s\n" +
 
                             "이제 아래 작업을 수행해줘:\n\n" +
 
@@ -86,16 +91,18 @@ public class DeepRecommendService {
                             "{\n" + // 전체 응답을 객체로 감싸도록 변경
                             "  \"루틴_검토\": [\n" + // 루틴 검토는 이 키 아래 배열로
                             "    {\n" +
+//                            "      \"routineId\": 123, \n" + // AI가 기존 루틴의 ID를 알 수 있도록 포함
                             "      \"routineName\": \"세안\",\n" +
-                            "      \"routineKind\": \"[토너, 앰플, 크림, 로션, 세럼]\",\n" +
+                            "      \"routineKind\": \"[토너, 앰플, 크림, 로션, 세럼] 중\",\n" +
                             "      \"routineTime\": \"MORNING\",\n" +
                             "      \"routineOrders\": 1,\n" +
-                            "      \"changeMethod\": 수분크림을 바르기 전, 피부 타입에 맞는 앰플이나 세럼을 추가하여 보습력을 높임\n" +
+                            "      \"changeMethod\": \"수분크림을 바르기 전, 피부 타입에 맞는 앰플이나 세럼을 추가하여 보습력을 높임\"\n" +
                             "    },\n" +
                             "    ...\n" +
                             "  ],\n" +
                             "  \"제품_추천\": [\n" + // 제품 추천은 이 키 아래 배열로
                             "    {\n" +
+                            "      \"기존 제품 ID\": 123, \n" + // 추가된 필드: 기존 제품의 ID (해당하는 경우)
                             "      \"추천 제품\": \"제품명\",\n" +
                             "      \"이유\": \"추천하는 이유\",\n" +
                             "      \"변화\": \"대체\", // 또는 \"추가\"\n" +
@@ -153,21 +160,29 @@ public class DeepRecommendService {
                         log.error("'루틴_검토' 키가 없거나 JSON 배열이 아닙니다.");
                         throw new IllegalStateException("Gemini 응답에 '루틴_검토' 배열이 없습니다.");
                     }
-                    List<RoutineChange> routineChanges = mapper.readValue(
+                    List<RoutineChangeDTO> routineChanges = mapper.readValue(
                             mapper.treeAsTokens(routineReviewNode),
-                            new TypeReference<List<RoutineChange>>() {}
+                            new TypeReference<List<RoutineChangeDTO>>() {}
                     );
 
                     User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("ID: " + userId + "인 사용자를 찾을 수 없습니다."));
-                    RoutineGroup routineGroup = new RoutineGroup(
-                            user.getId()
-                    );
+                    RoutineGroupDTO routineGroupDTO = routineGroupRepository.findLatestRoutineGroup(user.getId());
 
-                    for (RoutineChange rc : routineChanges) {
-                        rc.setUser(user);
-                        rc.setRoutineGroupId(routineGroup.getId());
+                    List<RoutineChange> routineChangeList = new ArrayList<>();
+                    RoutineChange routineChange;
+                    for (RoutineChangeDTO rc : routineChanges) {
+                        routineChange = new RoutineChange(
+                                rc.getRoutineName(),
+                                rc.getRoutineKind(),
+                                rc.getRoutineTime(),
+                                rc.getRoutineOrders(),
+                                rc.getChangeMethod(),
+                                user,
+                                routineGroupDTO.getId()
+                        );
+                        routineChangeList.add(routineChange);
                     }
-                    routineChangeRepository.saveAll(routineChanges);
+                    routineChangeRepository.saveAll(routineChangeList);
 
                     // "제품_추천" 배열 파싱
                     JsonNode productRecommendNode = actualData.get("제품_추천");
@@ -177,6 +192,10 @@ public class DeepRecommendService {
                     }
 
                     for(JsonNode item : productRecommendNode) {
+                        // Attempt to get existing product ID; default to -1 if not found or null
+                        Long existingProductId = item.has("기존 제품 ID") && !item.get("기존 제품 ID").isNull()
+                                ? item.get("기존 제품 ID").asLong() : null; // Changed to Long, can be null
+
                         String recommendProduct = item.get("추천 제품").asText();
                         String reason = item.get("이유").asText();
 
@@ -196,7 +215,7 @@ public class DeepRecommendService {
 
                         // Kinds Enum의 name 필드를 통해 Kinds 값을 찾음
                         for (Kinds k : Kinds.values()) {
-                            if (k.getName().equalsIgnoreCase(kindText)) {
+                            if (k.getNameTypeJson().equalsIgnoreCase(kindText)) {
                                 kind = k;
                                 break;
                             }
@@ -212,8 +231,14 @@ public class DeepRecommendService {
                                     action,
                                     kind,
                                     recommendProduct,
-                                    reason
+                                    reason,
+                                    routineGroupDTO.getId()
                             );
+
+                            /* 기존 제품을 추천 변경할 때 */
+                            if (existingProductId != null) {
+                                deepRecommend.setExistingProductId(existingProductId);
+                            }
                             deepRecommendRepository.save(deepRecommend);
                         }
                     }
@@ -235,5 +260,15 @@ public class DeepRecommendService {
             log.error("예상치 못한 오류 발생: ", e);
             return "예상치 못한 오류가 발생했습니다: " + e.getMessage();
         }
+    }
+
+    /* step2. 맞춤 루틴 추천 조회 */
+    public List<RoutineChangeDTO> getRoutineChangeList(Long userId) {
+        return routineChangeRepository.findRoutinesByUserId(userId);
+    }
+
+    /* step2. 제품 변경 및 추가 추천 */
+    public List<RecommendResponseDTO> getRecommendResponseDTOList(Long userId) {
+        return deepRecommendRepository.findLatestRecommendByUserId(userId);
     }
 }
