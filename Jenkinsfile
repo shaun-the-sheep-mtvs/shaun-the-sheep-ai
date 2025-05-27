@@ -2,6 +2,10 @@ pipeline {
     agent any
 
     environment {
+        // Set defaults (will be overwritten in script)
+        CONTAINER_NAME = 'backend-main'
+        HOST_PORT = '8081'
+        IMAGE_NAME = 'backend-main-image'
         DB_URL = 'jdbc:postgresql://aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres'
         DB_USERNAME = 'postgres.vmseaaxnzizueahbonmg'
         DB_PASSWORD = credentials('SUPABASE_PASSWORD')
@@ -15,6 +19,22 @@ pipeline {
     }
 
     stages {
+        stage('Set Environment for Branch') {
+            steps {
+                script {
+                    if (env.BRANCH_NAME == 'dev') {
+                        env.CONTAINER_NAME = 'backend-dev'
+                        env.HOST_PORT = '8082'
+                        env.IMAGE_NAME = 'backend-dev-image'
+                    } else {
+                        env.CONTAINER_NAME = 'backend-main'
+                        env.HOST_PORT = '8081'
+                        env.IMAGE_NAME = 'backend-main-image'
+                    }
+                    echo "Using container: ${env.CONTAINER_NAME}, port: ${env.HOST_PORT}, image: ${env.IMAGE_NAME}"
+                }
+            }
+        }
         stage('Build JAR') {
             steps {
                 dir('backend') {
@@ -24,33 +44,33 @@ pipeline {
         }
         stage('Stop Old Container') {
             steps {
-                sh 'docker rm -f my-backend-container || true'
+                sh "docker rm -f $CONTAINER_NAME || true"
             }
         }
         stage('Remove Old Image') {
             steps {
-                sh 'docker rmi my-backend:latest || true'
+                sh "docker rmi $IMAGE_NAME:latest || true"
             }
         }
         stage('Build Docker Image') {
             steps {
                 dir('backend') {
-                    sh 'docker build -t my-backend:latest .'
+                    sh "docker build -t $IMAGE_NAME:latest ."
                 }
             }
         }
         stage('Run New Container') {
             steps {
-                sh '''
-                docker run -d --name my-backend-container \
+                sh """
+                docker run -d --name $CONTAINER_NAME \
                     -e DB_URL=$DB_URL \
                     -e DB_USERNAME=$DB_USERNAME \
                     -e DB_PASSWORD=$DB_PASSWORD \
                     -e GEMINI_API_KEY=$GEMINI_API_KEY \
                     -e JWT_SECRET=$JWT_SECRET \
-                    -p 8081:8080 \
-                    my-backend:latest
-                '''
+                    -p $HOST_PORT:8080 \
+                    $IMAGE_NAME:latest
+                """
             }
         }
         stage('Cleanup Old Images') {
