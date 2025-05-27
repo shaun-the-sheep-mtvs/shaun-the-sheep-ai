@@ -450,6 +450,16 @@ export default function Home() {
                   <div className={styles.concernIcon}>🌡️</div>
                   <div className={styles.concernLabel}>민감성 개선</div>
                 </div>
+                <div className={styles.concernItem}>
+                  <div className={styles.concernIcon}>🧪</div>
+                  <div className={styles.concernLabel}>테스트</div>
+                  <button 
+                    onClick={() => router.push('/testweek')}
+                    className={styles.testButton}
+                  >
+                    테스트 페이지
+                  </button>
+                </div>
               </div>
             </section>
           </div>

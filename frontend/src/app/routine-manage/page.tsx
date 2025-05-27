@@ -177,6 +177,10 @@ export default function RoutineManagePage() {
     setCurrentStep('time');
   };
 
+  const handleRemovePreviewGroup = (groupIndex: number) => {
+    setPreviewGroups(prev => prev.filter((_, index) => index !== groupIndex));
+  };
+
   return (
     <div className={styles.wrapper}>
       {/* 네비게이션 바 */}
@@ -359,8 +363,18 @@ export default function RoutineManagePage() {
               </div>
               {previewGroups.map((group, groupIndex) => (
                 <div key={groupIndex} className={styles['preview-group']}>
-                  <div className={styles['preview-time']}>
-                    {group.time === 'MORNING' ? '아침' : '저녁'} 루틴
+                  <div className={styles['preview-header']}>
+                    <div className={styles['preview-time']}>
+                      {group.time === 'MORNING' ? '아침' : '저녁'} 루틴
+                    </div>
+                    <button
+                      className={styles['remove-preview-btn']}
+                      onClick={() => handleRemovePreviewGroup(groupIndex)}
+                      type="button"
+                      aria-label="삭제"
+                    >
+                      ×
+                    </button>
                   </div>
                   <div className={styles['preview-list']}>
                     {group.products.map((product, idx) => (

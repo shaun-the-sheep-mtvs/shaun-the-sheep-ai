@@ -1,23 +1,37 @@
 package org.mtvs.backend.naver.image.api;
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
+
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 
 
-
-
+@Component
 public class ApiSearchImage {
+    private String clientId = "TnNIUjJuo8gN5SXbqifW"; //애플리케이션 클라이언트 아이디값";
+    private String clientSecret = "18oUg19Ntx"; //애플리케이션 클라이언트 시크릿값";
+    private  Map<String , String> requestHeaders = new HashMap<>();
+    String apiURL = "https://openapi.naver.com/v1/search/shop.json" ;
+
+    public ApiSearchImage() {
+        requestHeaders.put("X-Naver-Client-Id", clientId);
+        requestHeaders.put("X-Naver-Client-Secret", clientSecret);
+    }
 
 
-    public String get(String apiUrl, Map<String, String> requestHeaders){
-        HttpURLConnection con = connect(apiUrl);
+    public String get(String text){
+        System.out.println(text);
+        String URL = this.apiURL+"?query="+text+"&display="+1+"&sort=sim";
+        System.out.println(URL);
+        HttpURLConnection con = connect(URL);
         try {
             con.setRequestMethod("GET");
             for(Map.Entry<String, String> header :requestHeaders.entrySet()) {
@@ -62,5 +76,14 @@ public class ApiSearchImage {
         } catch (IOException e) {
             throw new RuntimeException("API 응답을 읽는데 실패했습니다.", e);
         }
+    }
+
+    public String urlEncode(String text){
+        try {
+            text = URLEncoder.encode(text, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("검색어 인코딩 실패",e);
+        }
+        return text;
     }
 }

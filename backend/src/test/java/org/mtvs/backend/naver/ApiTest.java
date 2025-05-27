@@ -37,7 +37,7 @@ public class ApiTest {
 
         //WHEN
         /*(String apiUrl, Map<String, String> requestHeaders)*/
-        String responseBody = apiSearchImage.get(url, requestHeaders);
+        //String responseBody = apiSearchImage.get(url);
         Assertions.assertFalse(responseBody.isEmpty());
 
 
