@@ -97,12 +97,12 @@ export default function Step2() {
            return;
         }
 
-        const fetchUserData = axios.get<User>('http://localhost:8080/auth/me', { // 타입 User로 수정
+        const fetchUserData = axios.get<User>('http://localhost:8080/api/auth/me', { // 타입 User로 수정
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
 
-        const fetchSkinData = axios.get<UserSkinData>('http://localhost:8080/auth/skin-data', {
+        const fetchSkinData = axios.get<UserSkinData>('http://localhost:8080/api/user/skin-data', {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
@@ -112,12 +112,12 @@ export default function Step2() {
             withCredentials: true,
         });
 
-        const fetchRecommendedRoutines = axios.get<ApiRecommendedRoutineItem[]>('http://localhost:8080/api/routine-change', {
+        const fetchRecommendedRoutines = axios.get<ApiRecommendedRoutineItem[]>('http://localhost:8080/api/deep/routine-change', {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
 
-        const fetchDeepRecommendations = axios.get<ApiDeepRecommendItem[]>('http://localhost:8080/api/deep-recommend', {
+        const fetchDeepRecommendations = axios.get<ApiDeepRecommendItem[]>('http://localhost:8080/api/deep/product-recommend', {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
@@ -209,6 +209,7 @@ export default function Step2() {
                             <span style={{color:'#ff7eb3'}}>
                                 {userData === null ? 'Loading...' : userData ? userData.username : '고객'}
                             </span>
+
                             님 안녕하세요
                         </span>
                     </div>
