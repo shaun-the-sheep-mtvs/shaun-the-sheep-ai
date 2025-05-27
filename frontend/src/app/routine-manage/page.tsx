@@ -43,8 +43,8 @@ const RoutineManagePage = () => {
     { name: '', kind: '', method: '', orders: 2 },
   ]);
   const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
- 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -53,7 +53,6 @@ const RoutineManagePage = () => {
   const handleOverlayClick = () => {
     setIsSidebarOpen(false);
   };
-
 
   // POST 요청 함수
   const handleAddRoutine = async () => {
@@ -73,6 +72,7 @@ const RoutineManagePage = () => {
       return;
     }
 
+    setIsLoading(true);
     try {
       const response = await fetch('http://localhost:8080/api/routine/create', {
         method: 'POST',
@@ -101,6 +101,8 @@ const RoutineManagePage = () => {
     } catch (error) {
       console.error('Error:', error);
       alert('요청 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -128,9 +130,56 @@ const RoutineManagePage = () => {
     }]);
   };
 
-  const handleComplete = () => {
-    router.push('/step2'); // 다음 페이지로 이동
+  const handleComplete = async () => {
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      alert('로그인이 필요합니다.');
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await fetch('http://localhost:8080/api/recommend', {
+        method: 'POST', 
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          routines: products.map(product => ({
+            name: product.name,
+            kind: product.kind,
+            time: selectedTime,
+            method: product.method,
+            orders: product.orders
+          }))
+        }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ message: '추천 생성 중 오류가 발생했습니다.'}));
+        throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
+      }
+      
+      const recommendData = await response.json();
+      console.log('Recommendation data received (and saved in DB by backend):', recommendData);
+      alert('추천 데이터가 생성(저장)되었습니다. 다음 페이지로 이동합니다.');
+      router.push('/step2');
+    } catch (error: any) {
+      console.error('Error in handleComplete:', error);
+      alert(error.message || '요청 중 오류가 발생했습니다.');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className={styles.loadingOverlay}>
+        <div className={styles.loadingSpinner}></div>
+        <p>처리 중입니다. 잠시만 기다려주세요...</p>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.wrapper}>
@@ -231,6 +280,7 @@ const RoutineManagePage = () => {
                 className={styles['submit-btn']}
                 onClick={handleAddRoutine}
                 type="button"
+                disabled={isLoading}
               >
                 등록
               </button>
@@ -238,6 +288,7 @@ const RoutineManagePage = () => {
                 className={styles['complete-btn']}
                 onClick={handleComplete}
                 type="button"
+                disabled={isLoading}
               >
                 다음
               </button>
