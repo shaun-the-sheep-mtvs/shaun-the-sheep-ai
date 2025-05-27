@@ -132,10 +132,10 @@ export default function ChecklistPage() {
    };
     const token = localStorage.getItem('accessToken');
     fetch(apiConfig.endpoints.checklist.base, {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        Authorization: `Bearer ${token}`
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify(body)
     })
