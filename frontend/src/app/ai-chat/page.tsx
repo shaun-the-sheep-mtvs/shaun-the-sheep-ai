@@ -1,6 +1,7 @@
 "use client";
 import React, { useState } from "react";
 import { ChatMessageDTO } from "../../types/ChatMessageDTO";
+import { apiConfig } from "../../config/api";
 
 export default function AIChatPage() {
   const [messages, setMessages] = useState<ChatMessageDTO[]>([]);
@@ -41,7 +42,7 @@ export default function AIChatPage() {
     setIsLoading(false);
 
     // 4. Save both user and AI messages to backend
-    await fetch("http://localhost:8080/api/chat-messages/bulk", {
+    await fetch(apiConfig.baseURL + "/api/chat-messages/bulk", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify([userMessage, aiMessage]),
