@@ -1,0 +1,798 @@
+.reportPage {
+  min-height: 100vh;
+  padding: 2rem;
+  background: #FFF5F7;
+}
+
+.reportContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 1.5rem;
+  padding: 3rem;
+  box-shadow: 0 10px 25px -5px rgba(255, 182, 193, 0.1);
+}
+
+.reportHeader {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #FFB6C1, #FFC0CB);
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(255, 182, 193, 0.2);
+  position: relative;
+}
+
+.reportHeader h1 {
+  font-size: 2rem;
+  margin-bottom: 2rem;
+  color: #4A4A4A;
+  font-weight: 600;
+  position: relative;
+  padding-left: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.userName {
+  color: #a5f5ba;
+  font-weight: 700;
+}
+
+.reportHeader h1::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 1.2em;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.headerInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4rem;
+  margin: 0;
+  padding: 1.5rem 2rem;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+}
+
+.skinTypeIndicator,
+.mbtiIndicator {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  position: relative;
+  flex: 1;
+}
+
+.skinTypeIndicator::after {
+  content: '';
+  position: absolute;
+  right: -2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 80%;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.skinTypeIcon,
+.mbtiIcon {
+  width: 3.5rem;
+  height: 3.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff;
+  border-radius: 50%;
+  color: #FFB6C1;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.2);
+}
+
+.skinTypeName,
+.mbtiType {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #ffffff;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.skinTypeDescription,
+.mbtiDescription {
+  display: none;
+}
+
+.skinTypeContent,
+.mbtiContent {
+  display: flex;
+  align-items: center;
+}
+
+.skinTypeText,
+.mbtiText {
+  color: #4A4A4A;
+}
+
+.skinTypeText h3,
+.mbtiText h3 {
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: #4A4A4A;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.skinTypeText p,
+.mbtiText p {
+  display: none;
+}
+
+.skinTypeDescription {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.mbtiLabel {
+  font-size: 1.2rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.mbtiDescription {
+  color: #666;
+  font-size: 1.1rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.skinTypeDetails,
+.mbtiDetails {
+  display: grid;
+  gap: 1rem;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.detailItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.detailLabel {
+  font-weight: 500;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.detailItem ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.detailItem li {
+  color: #666;
+  padding: 0.25rem 0;
+  font-size: 1rem;
+  line-height: 1.5;
+  position: relative;
+  padding-left: 1.5rem;
+}
+
+.detailItem li:before {
+  content: "•";
+  color: #FFB6C1;
+  position: absolute;
+  left: 0.5rem;
+}
+
+/* 분석 컨테이너 스타일 */
+.analysisContainer {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.section {
+  margin-bottom: 3rem;
+  padding: 0 1rem;
+}
+
+.measurementSection,
+.detailSection {
+  margin-bottom: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.section h2 {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 1.2rem;
+  position: relative;
+  padding-left: 1rem;
+}
+
+.section h2::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 1.2em;
+  background: #FFB6C1;
+  border-radius: 2px;
+}
+
+/* 측정 바 스타일 */
+.measurementBars {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  height: 100%;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.measurementBar {
+  width: 100%;
+  cursor: pointer;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  background: #F5F5F5;
+  transition: all 0.3s ease;
+}
+
+.measurementBar:hover {
+  background: #FFE8D9;
+}
+
+.measurementBar.selected {
+  background: #FFF0F5;
+  border: 1px solid #FFB6C1;
+}
+
+.barLabel {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #1A1A1A;
+}
+
+.barContainer {
+  height: 12px;
+  background: #F5F5F5;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, #FFB6C1, #FFC0CB);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* 상세 분석 스타일 */
+.detailView {
+  flex: 1;
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 4px 15px rgba(255, 182, 193, 0.1);
+}
+
+.detailHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.detailIcon {
+  width: 3rem;
+  height: 3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #F5F5F5;
+  border-radius: 1rem;
+  font-size: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.detailHeader h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1A1A1A;
+}
+
+.detailDescription {
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 2rem;
+}
+
+.detailContent {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  flex: 1;
+}
+
+.characteristicItem {
+  background: #F5F5F5;
+  padding: 1.25rem;
+  border-radius: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.characteristicItem:hover {
+  background: #FFF0F5;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.characteristicNumber {
+  width: 24px;
+  height: 24px;
+  background: #FFB6C1;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.characteristicItem p {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* 관리법 스타일 */
+.careGuide {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.careSection {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  height: 100%;
+  min-height: 280px;
+}
+
+.careSection:hover {
+  background: #FFF0F5;
+  border: 1px solid #FFB6C1;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.careSection h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 1.2rem;
+  text-align: left;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #FFE8D9;
+}
+
+.careSection ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.careSection li {
+  color: #666;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.careSection li:last-child {
+  border-bottom: none;
+}
+
+/* 그래프 플레이스홀더 스타일 */
+.graphPlaceholder {
+  background: #FFF9F5;
+  padding: 3rem;
+  border-radius: 1rem;
+  text-align: center;
+}
+
+.graphIcon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.graphPlaceholder p {
+  color: #666;
+  margin: 0.5rem 0;
+}
+
+.graphSubtext {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+/* 피부 타입 분석 스타일 */
+.skinTypeAnalysis {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.skinTypeHeader {
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.skinTypeHeader h3 {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 0.5rem;
+}
+
+.skinTypeDescription {
+  color: #666;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.skinTypeContent {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.skinTypeSection {
+  background: #F5F5F5;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+  height: 100%;
+  min-height: 280px;
+}
+
+.skinTypeSection:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.skinTypeSection h4 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #1A1A1A;
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #FFE8D9;
+}
+
+.skinTypeSection ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.skinTypeSection li {
+  color: #666;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.skinTypeSection li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+/* 푸터 스타일 */
+.skinTypeFooter {
+  margin-top: 5rem;
+  padding: 2rem;
+  background: #FFF9F5;
+  border-radius: 1rem;
+  text-align: center;
+}
+
+.skinTypeIndicator {
+  margin-bottom: 1rem;
+}
+
+.skinTypeLabel {
+  color: #666;
+  margin-right: 0.5rem;
+}
+
+.skinTypeName {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.skinTypeDescription {
+  color: #666;
+  line-height: 1.6;
+  font-size: 1rem;
+}
+
+.graphContainer {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(255, 182, 193, 0.1);
+}
+
+.graphLegend {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #666;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+@media (max-width: 1024px) {
+  .analysisContainer {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .reportContainer {
+    padding: 2rem;
+  }
+
+  .skinTypeName {
+    font-size: 5rem;
+  }
+
+  .skinTypeDescription {
+    font-size: 1.5rem;
+  }
+
+  .measurementBars,
+  .detailView {
+    height: auto;
+  }
+
+  .skinTypeContent,
+  .careGuide {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .reportPage {
+    padding: 1rem;
+  }
+
+  .reportContainer {
+    padding: 1.5rem;
+  }
+
+  .reportHeader {
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .reportHeader h1 {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .userName {
+    font-size: 1.6rem;
+  }
+
+  .headerInfo {
+    padding: 1.2rem;
+    gap: 2rem;
+    flex-direction: column;
+  }
+
+  .skinTypeIndicator,
+  .mbtiIndicator {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .skinTypeIndicator::after {
+    display: none;
+  }
+
+  .skinTypeIcon,
+  .mbtiIcon {
+    width: 2.8rem;
+    height: 2.8rem;
+  }
+
+  .skinTypeName,
+  .mbtiType {
+    font-size: 1.6rem;
+  }
+
+  .section {
+    margin-bottom: 2rem;
+    padding: 0;
+  }
+
+  .analysisContainer {
+    gap: 1rem;
+  }
+
+  .measurementBar {
+    padding: 0.75rem;
+  }
+
+  .detailContent {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .characteristics,
+  .careGuide {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .characteristicItem,
+  .careSection {
+    padding: 1.5rem;
+  }
+
+  .detailView {
+    padding: 1.5rem;
+  }
+
+  .detailHeader {
+    margin-bottom: 1rem;
+  }
+
+  .detailIcon {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1.2rem;
+  }
+
+  .detailHeader h3 {
+    font-size: 1.2rem;
+  }
+
+  .skinTypeContent {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .skinTypeSection {
+    padding: 1.25rem;
+  }
+
+  .skinTypeHeader h3 {
+    font-size: 1.3rem;
+  }
+
+  .skinTypeFooter {
+    margin-top: 2rem;
+    padding: 1.5rem;
+  }
+
+  .characteristicItem {
+    padding: 1rem;
+  }
+
+  .characteristicNumber {
+    width: 1.75rem;
+    height: 1.75rem;
+    font-size: 0.9rem;
+  }
+
+  .characteristicItem p {
+    font-size: 0.95rem;
+  }
+
+  .mbtiType {
+    font-size: 1.8rem;
+  }
+
+  .graphLegend {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .legendItem {
+    font-size: 0.9rem;
+  }
+
+  .skinTypeContent,
+  .careGuide {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .skinTypeSection,
+  .careSection {
+    min-height: auto;
+    padding: 1.25rem;
+  }
+
+  .skinTypeSection h4,
+  .careSection h3 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+  }
+
+  .section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .skinTypeHeader h3 {
+    font-size: 1.2rem;
+  }
+
+  .skinTypeIcon,
+  .mbtiIcon {
+    width: 2rem;
+    height: 2rem;
+  }
+
+  .skinTypeIndicator::after {
+    right: -1rem;
+  }
+} 

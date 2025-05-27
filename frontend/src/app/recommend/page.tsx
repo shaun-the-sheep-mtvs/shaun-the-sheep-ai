@@ -7,6 +7,7 @@ import styles from "./recommend.module.css"
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { useCurrentUser } from "@/data/useCurrentUser";
+import apiConfig from "@/config/api";
 
 interface Product {
   id: string;
@@ -85,7 +86,7 @@ export default function RecommendPage() {
     const token = localStorage.getItem('accessToken');
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/recommend/user-recommendations', {
+        const response = await axios.get(apiConfig.endpoints.recommend.base + '/user-recommendations', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         

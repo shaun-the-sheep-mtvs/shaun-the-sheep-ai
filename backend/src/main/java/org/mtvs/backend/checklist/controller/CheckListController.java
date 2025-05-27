@@ -29,10 +29,11 @@ public class CheckListController {
             @RequestBody CheckListRequest req,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
-        CheckListResponse response = service.create(req, userDetails.getUsername());
-        recommendController.diagnose(userDetails);
 
-        return response;
+        CheckListResponse result =  service.create(req, userDetails.getUsername());
+
+        recommendController.diagnose(userDetails);
+        return result;
     }
 
     /** 사용자의 모든 체크리스트 조회 */

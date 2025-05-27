@@ -5,6 +5,7 @@ import styles from './page.module.css';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X } from "lucide-react";
+import apiConfig from '../../config/api';
 
 const ROUTINE_TIMES = [
   { label: '아침', value: 'MORNING' },
@@ -59,7 +60,7 @@ export default function RoutineManagePage() {
   const [previewGroups, setPreviewGroups] = useState<PreviewProductGroup[]>([]);
   const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
   
- 
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -429,8 +430,8 @@ export default function RoutineManagePage() {
           </div>
         )}
       </div>
-      
+
     </div>
-    
+
   );
 } 
