@@ -18,8 +18,9 @@ export const apiConfig = {
       base: `${API_BASE_URL}/api/routine`,
     },
     recommend: {
-      base: `${API_BASE_URL}/api/recommend/random-recommendations`,
-      user: `${API_BASE_URL}/api/recommend/user-recommendations`
+      diagnoses: `${API_BASE_URL}/api/recommend/diagnoses`,
+      random: `${API_BASE_URL}/api/recommend/random-recommendations`,
+      user: `${API_BASE_URL}/api/recommend/user-recommendations`,
     },
     chat: {
       base: `${API_BASE_URL}/api/chat-messages`,
