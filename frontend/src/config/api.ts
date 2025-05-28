@@ -16,6 +16,9 @@ export const apiConfig = {
     },
     routine: {
       base: `${API_BASE_URL}/api/routine`,
+      existing: `${API_BASE_URL}/api/routine/existing`,
+      create: `${API_BASE_URL}/api/routine/create`,
+      delete: `${API_BASE_URL}/api/routine/delete`,
     },
     recommend: {
       diagnoses: `${API_BASE_URL}/api/recommend/diagnoses`,

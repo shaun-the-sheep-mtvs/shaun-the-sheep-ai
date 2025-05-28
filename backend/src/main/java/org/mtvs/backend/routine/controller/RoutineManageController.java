@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/routine")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class RoutineManageController {
 
     private final RoutineManageService routineManageService;
