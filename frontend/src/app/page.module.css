@@ -1,5 +1,3 @@
-
-
 @media (prefers-color-scheme: dark) {
   .page {
     --gray-rgb: 255, 255, 255;
@@ -2218,38 +2216,36 @@ a.secondary {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
   width: 100%;
   max-width: 300px;
   margin: 2rem auto 0;
-  padding: 1rem 1.5rem;
-  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
-  color: #111827;
-  border: 2px solid #40DDBA;;
-  border-radius: 9999px;
-  font-size: 1rem;
+  padding: 1rem 1.75rem;
+  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  color: white;
+  border: none;
+  border-radius: 0.875rem;
+  font-size: 1.125rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.3s ease;
   text-decoration: none;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+  letter-spacing: -0.01em;
 }
 
 .viewMoreBtn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 8px -1px rgba(0, 0, 0, 0.15), 0 3px 6px -1px rgba(0, 0, 0, 0.08);
-  background: linear-gradient(135deg, #40DDBA 0%, #40DDBA 100%);
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
 }
 
 .viewMoreBtn .buttonIcon {
   width: 1.25rem;
   height: 1.25rem;
-  animation: sparkle 2s infinite;
-}
-
-@keyframes sparkle {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
 }
 
 .mbtiResult {
@@ -2374,4 +2370,31 @@ a.secondary {
   .adviceContent {
     font-size: 1.25rem;  /* 1rem에서 증가 */
   }
+}
+
+/* 상세 리포트 버튼 스타일 */
+.reportButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(to right, var(--primary-gradient-start), var(--primary-gradient-end));
+  color: black;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  font-size: 1.125rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  text-align: center;
+}
+
+.reportButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.buttonIcon {
+  width: 1.25rem;
+  height: 1.25rem;
 }

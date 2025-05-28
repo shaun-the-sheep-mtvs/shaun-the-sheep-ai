@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
-import org.mtvs.backend.auth.jwt.JwtProvider;
 import org.mtvs.backend.auth.util.JwtUtil;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
@@ -21,7 +20,6 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtProvider jwtProvider;
     private final JwtUtil jwtUtil;
 
     /**

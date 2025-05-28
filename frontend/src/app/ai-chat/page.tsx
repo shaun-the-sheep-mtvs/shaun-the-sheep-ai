@@ -7,6 +7,7 @@ import { Stethoscope, Send, Menu, User, Bot } from 'lucide-react'
 import styles from './page.module.css'
 import Sidebar from '@/components/Sidebar'
 import { useCurrentUser } from '@/data/useCurrentUser'
+import apiConfig from '@/config/api'
 
 export default function AIDoctorChatPage() {
   const router = useRouter()
@@ -83,13 +84,13 @@ export default function AIDoctorChatPage() {
       setMessages([...newMessages, aiMessage])
 
       // 대화 기록 백엔드에 저장
-      await fetch("http://localhost:8080/api/chat-messages/ask?templateKey=…", {
+      await fetch(apiConfig.endpoints.chat.base + "/bulk", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${token}`,        // ← 여기에 넣어주세요
         },
-        body: JSON.stringify(newMessages),
+        body: JSON.stringify([userMessage, aiMessage]),
       })
     } catch (err) {
       console.error(err)

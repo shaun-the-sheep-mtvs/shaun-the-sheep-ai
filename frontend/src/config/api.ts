@@ -19,6 +19,9 @@ export const apiConfig = {
     },
     recommend: {
       base: `${API_BASE_URL}/api/recommend`,
+    },
+    chat: {
+      base: `${API_BASE_URL}/api/chat-messages`,
     }
   }
 };

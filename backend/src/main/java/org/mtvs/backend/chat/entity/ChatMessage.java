@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.flywaydb.core.internal.util.JsonUtils;
 import org.mtvs.backend.chat.dto.ChatMessageDTO;
 import java.time.LocalDateTime;
 

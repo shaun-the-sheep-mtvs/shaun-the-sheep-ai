@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { QUESTIONS, Question, Category } from '@/data/questions';
 import { CONCERNS } from '@/data/concerns';
 import styles from './page.checklist.module.css';
+import apiConfig from '@/config/api';
 
 // Fisher–Yates 셔플 함수
 function shuffle<T>(arr: T[]): T[] {
@@ -130,11 +131,11 @@ export default function ChecklistPage() {
     };
 
     const token = localStorage.getItem('accessToken');
-    fetch('http://localhost:8080/api/checklist', {
+    fetch(apiConfig.endpoints.checklist.base, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(body),
     })
