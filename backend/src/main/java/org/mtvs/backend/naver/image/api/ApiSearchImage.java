@@ -28,9 +28,8 @@ public class ApiSearchImage {
 
 
     public String get(String text){
-        System.out.println(text);
         String URL = this.apiURL+"?query="+text+"&display="+1+"&sort=sim";
-        System.out.println(URL);
+
         HttpURLConnection con = connect(URL);
         try {
             con.setRequestMethod("GET");

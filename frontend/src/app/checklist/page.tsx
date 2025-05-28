@@ -144,6 +144,38 @@ export default function ChecklistPage() {
     .catch(()=> alert('제출 실패, 다시 시도해주세요.'));
   };
 
+  const fetchNaverData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      console.log('Current token:', token); // 토큰 확인용 로그
+      
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
+
+      const response = await fetch(`http://localhost:8080/api/naver`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Response status:', response.status); // 응답 상태 확인용 로그
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Naver API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching Naver data:', error);
+    }
+  };
+
   return (
     <div className={styles.page}>
       <div className={styles.container}>
@@ -171,7 +203,10 @@ export default function ChecklistPage() {
          <button
            className={styles.submitBtn}
            disabled={!selectedConcerns.length}
-           onClick={() => submitAll(selectedConcerns)}
+           onClick={async () => {
+             await submitAll(selectedConcerns);
+             await fetchNaverData();
+           }}
          >
            제출
          </button>

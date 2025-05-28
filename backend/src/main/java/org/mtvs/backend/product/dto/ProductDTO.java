@@ -20,6 +20,9 @@ public class ProductDTO {
     private String productName;
     private String userId;
 
+    //jun's
+    private String imageUrl;
+
     // 모든 필드를 받는 생성자
     public ProductDTO(String id, String formulation, List<String> ingredients,
                      String recommendedType, String productName, String userId) {
