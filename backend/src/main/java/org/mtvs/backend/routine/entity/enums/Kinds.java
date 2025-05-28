@@ -1,9 +1,11 @@
 package org.mtvs.backend.routine.entity.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
+@Getter
 public enum Kinds {
     토너("토너"),
     앰플("앰플"),
@@ -13,7 +15,7 @@ public enum Kinds {
     private final String name;
 
     @JsonValue
-    public String getName() {
+    public String getNameTypeJson() {
         return name;
     }
 
