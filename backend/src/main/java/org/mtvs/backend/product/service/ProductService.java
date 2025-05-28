@@ -29,7 +29,7 @@ public class ProductService {
         this.naverApiService = naverApiService;
     }
 
-    public List<Product> getProductsByFormulation(String userId, String formulation, int limit) {
+    public List<ProductDTO> getProductsByFormulation(String userId, String formulation, int limit) {
         List<Product> products = productRepository.findByUserIdAndFormulationType(userId, formulation);
         //object->dto
         List<ProductDTO> productsDTO = new ArrayList<>();
@@ -40,16 +40,16 @@ public class ProductService {
         for(ProductDTO product : productsDTO){
             product.setImageUrl(naverApiService.getImage(product.getProductName()));
         }
-        Collections.shuffle(products);
+        Collections.shuffle(productsDTO);
 
-        return products.stream().limit(limit).collect(Collectors.toList());
+        return productsDTO.stream().limit(limit).collect(Collectors.toList());
     }
 
     public ProductsWithUserInfoResponseDTO getBalancedRecommendations(String userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        List<Product> selectedProducts = new ArrayList<>();
+        List<ProductDTO> selectedProducts = new ArrayList<>();
 
         // 각 제형별로 3개씩 추가
         selectedProducts.addAll(getProductsByFormulation(userId, "toner", 3));

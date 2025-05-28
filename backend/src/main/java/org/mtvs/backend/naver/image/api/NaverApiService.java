@@ -18,11 +18,11 @@ public class NaverApiService {
     public void addImage(ImageDTO imageDTO) {
         String productName = imageDTO.getProductName();
         NaverImage naverImage = new NaverImage(imageDTO.getImageUrl(),productName );
-        if(naverImageAPIRepository.existsNaverImageByProductName(productName)){
-            throw new RuntimeException("이미 등록된 사진.");
+        if(!naverImageAPIRepository.existsNaverImageByProductName(productName)){
+            naverImageAPIRepository.save(naverImage);
         }
         System.out.println(naverImage);
-        naverImageAPIRepository.save(naverImage);
+
     }
 
     public String getImage(String productName) {
