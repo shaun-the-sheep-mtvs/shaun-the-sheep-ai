@@ -141,11 +141,13 @@ export default function ChecklistPage() {
   }
 
   // ▶ 2단계: 고민 선택 & 제출
-  const submitAll = (concernIds: string[]) => {
-    setSubmitting(true);
+const submitAll = async (concernIds: string[]): Promise<boolean> => {
+  setSubmitting(true);
+  try {
     const labels = concernIds
       .map(id => CONCERNS.find(c => c.id === id)?.label)
       .filter((l): l is string => !!l);
+
     const body = {
       moisture: percent('moisture'),
       oil: percent('oil'),
@@ -153,23 +155,31 @@ export default function ChecklistPage() {
       tension: percent('tension'),
       troubles: labels,
     };
+
     const token = localStorage.getItem('accessToken');
-    fetch(apiConfig.endpoints.checklist.base, {
+    const res = await fetch(apiConfig.endpoints.checklist.base, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`
       },
       body: JSON.stringify(body),
-    })
-      .then(res => {
-        if (!res.ok) throw new Error();
-        return res.json();
-      })
-      .then(() => router.push('/'))
-      .catch(() => alert('제출 실패, 다시 시도해주세요.'))
-      .finally(() => setSubmitting(false));
-  };
+    });
+
+    if (!res.ok) {
+      console.error('체크리스트 제출 실패:', await res.text());
+      return false;
+    }
+
+    await res.json();
+    return true;
+  } catch (err) {
+    console.error('제출 중 오류:', err);
+    return false;
+  } finally {
+    setSubmitting(false);
+  }
+};
 
     const fetchNaverData = async () => {
         try {
@@ -234,23 +244,25 @@ export default function ChecklistPage() {
         </div>
         <div className={styles.submitWrapper}>
          <button
-           className={styles.submitBtn}
-           disabled={!selectedConcerns.length}
-           onClick={async () => {
-             try {
-               const submitSuccess = await submitAll(selectedConcerns);
-               if (submitSuccess) {
-                 await fetchNaverData();
-                 router.push('/');
-               }
-             } catch (error) {
-               console.error('처리 중 오류 발생:', error);
-               alert('처리 중 오류가 발생했습니다. 다시 시도해주세요.');
-             }
-           }}
-         >
-           제출
-         </button>
+            className={styles.submitBtn}
+            disabled={!selectedConcerns.length || submitting}
+            onClick={async () => {
+          try {
+            const submitSuccess = await submitAll(selectedConcerns);
+          if (submitSuccess) {
+          await fetchNaverData();  // 네이버 연동이 필요하면
+          router.push('/');
+          } else {
+          alert('제출에 실패했습니다. 다시 시도해주세요.');
+          }
+          } catch (error) {
+          console.error('처리 중 오류 발생:', error);
+          alert('처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+        }
+  }}
+>
+  제출
+</button>
        </div>
       </div>
     </div>
