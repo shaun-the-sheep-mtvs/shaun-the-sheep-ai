@@ -16,6 +16,7 @@ interface Product {
   recommendedType: string;
   productName: string;
   userId: string;
+  imgUrl: string;
 }
 
 interface RecommendData {
@@ -143,7 +144,7 @@ export default function RecommendPage() {
   const getProductName = (product: Product) => product.productName || '제품명 없음';
   const getRecommendedType = (product: Product) => product.recommendedType || '정보 없음';
   const getIngredients = (product: Product) => product.ingredients || [];
-
+  const getImgUrl = (product:Product) => product.imgUrl ;
   const handleBuyButtonClick = (product: Product) => {
     window.open(`https://www.coupang.com/np/search?component=&q=${product.productName}`, '_blank ');
   }
@@ -307,7 +308,14 @@ export default function RecommendPage() {
               {recommendData.recommendations.토너.map((product, index) => (
                 <div key={`toner-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                    <Image src="/placeholder.svg" alt={getProductName(product)} width={120} height={160} className={styles["product-image"]} />
+                  <Image 
+                    src={getImgUrl(product)} 
+                    alt={getProductName(product)} 
+                    width={120} 
+                    height={160} 
+                    className={styles["product-image"]}
+                    unoptimized={true} // 네이버 이미지의 경우 최적화를 건너뛰는 것이 좋을 수 있습니다
+                  />
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>

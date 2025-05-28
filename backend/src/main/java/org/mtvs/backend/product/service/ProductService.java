@@ -2,6 +2,7 @@ package org.mtvs.backend.product.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.mtvs.backend.naver.image.api.NaverApiService;
 import org.mtvs.backend.product.dto.ProductDTO;
 import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
 import org.mtvs.backend.product.entity.Product;
@@ -21,15 +22,26 @@ public class ProductService {
 
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
-
-    public ProductService(ProductRepository productRepository, UserRepository userRepository) {
+    private final NaverApiService naverApiService;
+    public ProductService(ProductRepository productRepository, UserRepository userRepository, NaverApiService naverApiService) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
+        this.naverApiService = naverApiService;
     }
 
     public List<Product> getProductsByFormulation(String userId, String formulation, int limit) {
         List<Product> products = productRepository.findByUserIdAndFormulationType(userId, formulation);
+        //object->dto
+        List<ProductDTO> productsDTO = new ArrayList<>();
+        for(Product product : products){
+            productsDTO.add(new ProductDTO(product));
+        }
+        //dto set imageUrl
+        for(ProductDTO product : productsDTO){
+            product.setImageUrl(naverApiService.getImage(product.getProductName()));
+        }
         Collections.shuffle(products);
+
         return products.stream().limit(limit).collect(Collectors.toList());
     }
 
@@ -44,7 +56,7 @@ public class ProductService {
         selectedProducts.addAll(getProductsByFormulation(userId, "serum", 3));
         selectedProducts.addAll(getProductsByFormulation(userId, "lotion", 3));
         selectedProducts.addAll(getProductsByFormulation(userId, "cream", 3));
-
+        System.out.println(ProductsWithUserInfoResponseDTO.create(user, selectedProducts));
         return ProductsWithUserInfoResponseDTO.create(user, selectedProducts);
     }
 

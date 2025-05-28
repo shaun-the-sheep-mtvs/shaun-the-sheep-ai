@@ -34,6 +34,15 @@ public class ProductDTO {
         this.userId = userId;
     }
 
+    public ProductDTO(Product product) {
+        this.id = product.getId();
+        this.formulation = product.getFormulationType();
+        this.ingredients = product.getIngredients();
+        this.recommendedType = product.getRecommendedType();
+        this.productName = product.getProductName();
+        this.userId = product.getUser().getId();
+    }
+
     // 엔티티에서 DTO로 변환
     public static ProductDTO fromEntity(Product product) {
         return new ProductDTO(

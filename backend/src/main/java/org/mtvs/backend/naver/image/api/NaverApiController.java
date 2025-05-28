@@ -63,14 +63,17 @@ public class NaverApiController {
             if(!naverApiService.isExistImage(texts.get(i))){
                 responses.add(apiSearchImage.get(apiSearchImage.urlEncode(texts.get(i))));
                 //json 파싱
-                ObjectMapper objectMapper = new ObjectMapper();
-                try {
-                    JsonNode rootNode = objectMapper.readTree(responses.get(i));
-                    JsonNode imageNode = rootNode.findValue("image");
-                    naverApiService.addImage(new ImageDTO(imageNode.toString().replaceAll("\"",""),texts.get(i)));
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
+                //i++
+            }
+        }
+        ObjectMapper objectMapper = new ObjectMapper();
+        for(int j=0; j<responses.size(); j++){
+            try {
+                JsonNode rootNode = objectMapper.readTree(responses.get(j));
+                JsonNode imageNode = rootNode.findValue("image");
+                naverApiService.addImage(new ImageDTO(imageNode.toString().replaceAll("\"",""),texts.get(j)));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
             }
         }
         return ResponseEntity.ok(responses);
