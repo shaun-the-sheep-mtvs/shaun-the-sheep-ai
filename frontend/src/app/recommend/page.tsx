@@ -86,7 +86,7 @@ export default function RecommendPage() {
     const token = localStorage.getItem('accessToken');
     const fetchData = async () => {
       try {
-        const response = await axios.get(apiConfig.endpoints.recommend.base + '/user-recommendations', {
+        const response = await axios.get(apiConfig.endpoints.recommend.user, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
