@@ -83,10 +83,13 @@ export default function AIDoctorChatPage() {
       setMessages([...newMessages, aiMessage])
 
       // 대화 기록 백엔드에 저장
-      await fetch("http://localhost:8080/api/chat-messages/bulk", {
+      await fetch("http://localhost:8080/api/chat-messages/ask?templateKey=…", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify([userMessage, aiMessage]),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,        // ← 여기에 넣어주세요
+        },
+        body: JSON.stringify(newMessages),
       })
     } catch (err) {
       console.error(err)
