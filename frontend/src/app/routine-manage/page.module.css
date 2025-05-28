@@ -580,7 +580,12 @@
 }
 
 .preview-header {
-  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 0 4px;
+  position: relative;
 }
 
 .preview-header h3 {
@@ -594,6 +599,15 @@
   font-size: 16px;
   color: #64748b;
   font-weight: 500;
+  margin-bottom: 0;
+  padding: 8px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  display: inline-block;
+  height: 36px;
+  line-height: 20px;
+  display: flex;
+  align-items: center;
 }
 
 .preview-list {
@@ -682,6 +696,34 @@
   background: #f8fafc;
   border-radius: 8px;
   display: inline-block;
+}
+
+.remove-preview-btn {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-left: 8px;
+  line-height: 1;
+  position: absolute;
+  top: 4px;
+  right: 0;
+}
+
+.remove-preview-btn:hover {
+  background: #fee2e2;
+  color: #ef4444;
+  transform: scale(1.1);
 }
 
 @keyframes fadeIn {

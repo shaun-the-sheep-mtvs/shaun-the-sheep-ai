@@ -212,7 +212,8 @@ export default function Home() {
           console.log('API Response:', data); // 실제 데이터 구조 확인
           const transformedProducts = data.map(product => ({
             name: product.productName,
-            description: `${product.recommendedType} - ${product.ingredients.join(', ')}`
+            description: `${product.recommendedType} - ${product.ingredients.join(', ')}`,
+            imageUrl: product.imageUrl
           }));
           setProducts(transformedProducts);
         })
@@ -427,7 +428,9 @@ export default function Home() {
               <div className={styles.productList}>
                 {products.map((p, i) => (
                   <div key={i} className={styles.productCard}>
-                    <div className={styles.productImg}></div>
+                    <div className={styles.productImg}>
+                      <img src={p.imageUrl} alt={p.name} />
+                    </div>
                     <div className={styles.productName}>{p.name}</div>
                     <div className={styles.productDesc}>{p.description}</div>
                     <button className={styles.buyBtn}>
@@ -483,6 +486,16 @@ export default function Home() {
                 <div className={styles.concernItem}>
                   <div className={styles.concernIcon}>🌡️</div>
                   <div className={styles.concernLabel}>민감성 개선</div>
+                </div>
+                <div className={styles.concernItem}>
+                  <div className={styles.concernIcon}>🧪</div>
+                  <div className={styles.concernLabel}>테스트</div>
+                  <button 
+                    onClick={() => router.push('/testweek')}
+                    className={styles.testButton}
+                  >
+                    테스트 페이지
+                  </button>
                 </div>
               </div>
             </section>
