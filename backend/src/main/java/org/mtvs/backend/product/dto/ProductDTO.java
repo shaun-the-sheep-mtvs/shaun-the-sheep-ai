@@ -20,6 +20,9 @@ public class ProductDTO {
     private String productName;
     private String userId;
 
+    //jun's
+    private String imageUrl;
+
     // 모든 필드를 받는 생성자
     public ProductDTO(String id, String formulation, List<String> ingredients,
                      String recommendedType, String productName, String userId) {
@@ -29,6 +32,15 @@ public class ProductDTO {
         this.recommendedType = recommendedType;
         this.productName = productName;
         this.userId = userId;
+    }
+
+    public ProductDTO(Product product) {
+        this.id = product.getId();
+        this.formulation = product.getFormulationType();
+        this.ingredients = product.getIngredients();
+        this.recommendedType = product.getRecommendedType();
+        this.productName = product.getProductName();
+        this.userId = product.getUser().getId();
     }
 
     // 엔티티에서 DTO로 변환

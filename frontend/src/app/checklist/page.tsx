@@ -117,31 +117,73 @@ export default function ChecklistPage() {
   }
 
   // ▶ 2단계: concerns 화면
-  const submitAll = (concernIds: string[]) => {
-   // id → label 매핑
-   const labels = concernIds
-     .map(id => CONCERNS.find(c => c.id === id)?.label)
-     .filter((l): l is string => !!l);
+  const submitAll = async (concernIds: string[]) => {
+    try {
+      // id → label 매핑
+      const labels = concernIds
+        .map(id => CONCERNS.find(c => c.id === id)?.label)
+        .filter((l): l is string => !!l);
 
-   const body = {
-     moisture:    percent('moisture'),
-     oil:         percent('oil'),
-     sensitivity: percent('sensitivity'),
-     tension:     percent('tension'),
-     troubles:    labels       // 이제 label 배열로 POST
-   };
-    const token = localStorage.getItem('accessToken');
-    fetch('http://localhost:8080/api/checklist', {
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        Authorization: `Bearer ${token}`
-      },
-      body: JSON.stringify(body)
-    })
-    .then(res=>{ if(!res.ok) throw new Error(); return res.json()})
-    .then(()=> router.push('/'))
-    .catch(()=> alert('제출 실패, 다시 시도해주세요.'));
+      const body = {
+        moisture:    percent('moisture'),
+        oil:         percent('oil'),
+        sensitivity: percent('sensitivity'),
+        tension:     percent('tension'),
+        troubles:    labels       // 이제 label 배열로 POST
+      };
+      const token = localStorage.getItem('accessToken');
+      const response = await fetch(apiConfig.endpoints.checklist.base, {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+      
+      if (!response.ok) {
+        throw new Error('제출 실패');
+      }
+      
+      await response.json();
+      return true;
+    } catch (error) {
+      console.error('제출 중 오류 발생:', error);
+      alert('제출 실패, 다시 시도해주세요.');
+      return false;
+    }
+  };
+
+  const fetchNaverData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      console.log('Current token:', token); // 토큰 확인용 로그
+      
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
+
+      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Response status:', response.status); // 응답 상태 확인용 로그
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Naver API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching Naver data:', error);
+    }
   };
 
   return (
@@ -171,7 +213,18 @@ export default function ChecklistPage() {
          <button
            className={styles.submitBtn}
            disabled={!selectedConcerns.length}
-           onClick={() => submitAll(selectedConcerns)}
+           onClick={async () => {
+             try {
+               const submitSuccess = await submitAll(selectedConcerns);
+               if (submitSuccess) {
+                 await fetchNaverData();
+                 router.push('/');
+               }
+             } catch (error) {
+               console.error('처리 중 오류 발생:', error);
+               alert('처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+             }
+           }}
          >
            제출
          </button>

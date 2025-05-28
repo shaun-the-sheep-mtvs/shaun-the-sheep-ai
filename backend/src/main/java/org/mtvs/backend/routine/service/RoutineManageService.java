@@ -2,14 +2,13 @@ package org.mtvs.backend.routine.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.mtvs.backend.routine.dto.*;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
-import org.mtvs.backend.routine.dto.RequestJsonArrayRoutineDTO;
-import org.mtvs.backend.routine.dto.RequestRoutineAllDTO;
 import org.mtvs.backend.routine.entity.Routine;
 import org.mtvs.backend.routine.entity.RoutineGroup;
 import org.mtvs.backend.routine.repository.RoutineGroupRepository;
-import org.mtvs.backend.routine.repository.RoutineRepository; 
+import org.mtvs.backend.routine.repository.RoutineRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,8 +26,10 @@ public class RoutineManageService {
     @Transactional
     public void createRoutine(RequestJsonArrayRoutineDTO routinesDTO, String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
+        RoutineGroup routineGroup = new RoutineGroup(
+                user.getId()
+        );
 
-        RoutineGroup routineGroup = new RoutineGroup();
         routineGroupRepository.save(routineGroup);
         List<Routine> routines = routinesDTO.getRoutines().stream()
                 .map(routineDTO -> new Routine(
@@ -54,6 +55,11 @@ public class RoutineManageService {
             dtos.add(new RequestRoutineAllDTO(routine));
         });
         return dtos;
+    }
+
+    /* step2. 기존 루틴 조회 */
+    public List<RoutinesDto> getRoutineList(String userId) {
+        return routineRepository.findRoutinesByUserId(userId);
     }
 
     public void deleteRoutine(long groupId) {

@@ -3,7 +3,9 @@ package org.mtvs.backend.recommend.controller;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.auth.model.CustomUserDetails;
+import org.mtvs.backend.naver.image.api.NaverApiService;
 import org.mtvs.backend.product.dto.ProductDTO;
+import org.mtvs.backend.product.dto.ProductWithImageDTO;
 import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
 import org.mtvs.backend.product.entity.Product;
 import org.mtvs.backend.product.repository.ProductRepository;
@@ -39,17 +41,19 @@ public class RecommendController {
     private final ObjectMapper objectMapper;
     private final ProductService productService;
     private final UserRepository userRepository;
+    private final NaverApiService naverApiService;
 
-    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository) {
+    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.productService = productService;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.naverApiService = naverApiService;
     }
 
     @PostMapping("/api/recommend/diagnoses")
-    public ResponseEntity<?> diagnose(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
+    public ResponseEntity<?> diagnose(CustomUserDetails customUserDetail) {
 
         // 사용자의 피부 타입과 고민 목록을 가져옴
         SkinType skinType = customUserDetail.getUser().getSkinType();
@@ -127,7 +131,11 @@ public class RecommendController {
         // 토큰에 있는 아이디를 불러옴
         String Id = customUserDetail.getUser().getId();
         // 아이디에 해당된 제품 리스트를 섞기
+
         List<ProductDTO> products = productService.getProducts(Id);
+        for(ProductDTO product : products){
+            product.setImageUrl(naverApiService.getImage(product.getProductName()));
+        }
         Collections.shuffle(products);
         // 3개 반환
         return products.stream()

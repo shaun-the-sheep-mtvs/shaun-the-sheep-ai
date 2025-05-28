@@ -59,4 +59,20 @@
   transform: translateY(-1px);
 }
 
+.menuButton {
+  background: transparent;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 0.75rem;      /* 12px */
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s;
+  color: #374151;              /* 기본 회색 아이콘 */
+}
+
+/* hover 했을 때 배경과 아이콘 색 바꾸기 */
+.menuButton:hover {
+  background-color: #f3e8ff;   /* 연한 보라 배경 */
+  color: #8b5cf6;              /* 진한 보라 아이콘 */
+}
+
 
