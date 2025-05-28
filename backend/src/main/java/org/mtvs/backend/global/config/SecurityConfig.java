@@ -39,7 +39,11 @@ public class SecurityConfig {
                 "https://*.shaunthesheep.store",
                 "https://shaunthesheep.store",
                 "https://api.shaunthesheep.store",
-                
+                "https://dev.shaunthesheep.store",
+                "https://dev-api.shaunthesheep.store",
+                "http://localhost:3000",
+                "http://localhost:8080",
+
                 // Vercel deployment domains
                 "https://*.vercel.app",
                 "https://shaun-the-sheep-ai.vercel.app",
@@ -77,6 +81,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/routine/**").authenticated()
                         .requestMatchers("/api/user/**").authenticated()
                         .requestMatchers("/api/chat-messages/ask").authenticated()
+                        .requestMatchers("/api/checklist/**").authenticated()
+                        .requestMatchers("api/chat-messages/ask").authenticated()
                         // All other requests require authentication
                         .anyRequest().authenticated()
                 )

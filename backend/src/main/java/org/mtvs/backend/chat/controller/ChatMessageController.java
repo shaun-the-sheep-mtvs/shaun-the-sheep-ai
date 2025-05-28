@@ -2,10 +2,12 @@ package org.mtvs.backend.chat.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.chat.dto.ChatMessageDTO;
 import org.mtvs.backend.chat.entity.ChatMessage;
 import org.mtvs.backend.chat.service.ChatMessageService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -88,13 +90,16 @@ public class ChatMessageController {
 
     @PostMapping("/ask")
     public ResponseEntity<ChatMessageDTO> askAI(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam(value = "templateKey", required = false) String templateKey,
             @RequestBody List<ChatMessageDTO> historyDto
     ) throws JsonProcessingException {
+        String userId = userDetails.getUserId();
         // 1) DTO → Entity 변환
         List<ChatMessage> history = historyDto.stream()
                 .map(dto -> {
                     ChatMessage msg = new ChatMessage();
+                    msg.setUserId(dto.getUserId());
                     msg.setRole(dto.getRole());
                     msg.setContent(dto.getContent());
                     msg.setTimestamp(dto.getTimestamp());
@@ -110,10 +115,11 @@ public class ChatMessageController {
                 .orElse("");
 
         // 3) AI 호출 (templateKey 함께 전달)
-        ChatMessage aiMsg = chatMessageService.askAI_Single(history, userQuestion, templateKey);
+        ChatMessage aiMsg = chatMessageService.askAI_Single(userId, history, userQuestion, templateKey);
 
         // 4) Entity → DTO 변환
         ChatMessageDTO responseDto = new ChatMessageDTO();
+        responseDto.setUserId(aiMsg.getUserId());      // userId 채워줌
         responseDto.setId(aiMsg.getId());
         responseDto.setRole(aiMsg.getRole());
         responseDto.setContent(aiMsg.getContent());
