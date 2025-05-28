@@ -278,3 +278,36 @@
   font-size: 1.25rem;
   font-weight: bold;
 }
+.navRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backButton {
+  background-color: #fde0e0;     /* 연한 핑크 */
+  border: 1px solid #f8bbd0;     /* 조금 더 진한 핑크 */
+  border-radius: 50%;            
+  padding: 8px;                  
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover:not(:disabled) {
+  background-color: #f8bbd0;     /* 호버 시 강조된 핑크 */
+}
+
+.backButton:disabled {
+  background-color: #f7f7f7;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+.backIcon {
+  color: #e91e63;    /* 선명한 핫핑크 */
+  width: 20px;
+  height: 20px;
+}

@@ -7,6 +7,7 @@ import { QUESTIONS, Question, Category } from '@/data/questions';
 import { CONCERNS } from '@/data/concerns';
 import styles from './page.checklist.module.css';
 import apiConfig from '@/config/api';
+import {ArrowLeft } from 'lucide-react';
 
 // Fisher–Yates 셔플 함수
 function shuffle<T>(arr: T[]): T[] {
@@ -69,6 +70,15 @@ export default function ChecklistPage() {
     if (!qs.length) return <div className={styles.page}>로딩 중…</div>;
 
     const q = qs[idx];
+
+    // 뒤로가기 핸들러: idx를 한 칸 뒤로, answers 마지막 제거
+    const handleBack = () => {
+      if (idx === 0) return;
+      setIdx(i => i - 1);
+      setAnswers(a => a.slice(0, -1));
+      setSelectedOption(null);
+    };
+
     const onSelect = (score: number, optIdx: number) => {
       setAnswers(a => [...a, { cat: q.category, score }]);
       setSelectedOption(optIdx);
@@ -85,9 +95,19 @@ export default function ChecklistPage() {
     return (
       <div className={styles.page}>
         <div className={styles.container}>
-          <h1 className={styles.title}>
-            질문 {idx + 1} / {qs.length}: {q.text}
-          </h1>
+          <div className={styles.navRow}>
+            {/* ← 이전 버튼 */}
+            <button
+                onClick={handleBack}
+                disabled={idx === 0}
+                className={styles.backButton}
+              >
+              <ArrowLeft className={styles.backIcon} />
+            </button>
+            <h1 className={styles.title}>
+              질문 {idx + 1} / {qs.length}: {q.text}
+            </h1>
+          </div>
           <div
             className={styles.resultProgress}
             style={{
@@ -117,11 +137,9 @@ export default function ChecklistPage() {
   // ▶ 2단계: 고민 선택 & 제출
   const submitAll = (concernIds: string[]) => {
     setSubmitting(true);
-
     const labels = concernIds
       .map(id => CONCERNS.find(c => c.id === id)?.label)
       .filter((l): l is string => !!l);
-
     const body = {
       moisture: percent('moisture'),
       oil: percent('oil'),
@@ -129,7 +147,6 @@ export default function ChecklistPage() {
       tension: percent('tension'),
       troubles: labels,
     };
-
     const token = localStorage.getItem('accessToken');
     fetch(apiConfig.endpoints.checklist.base, {
       method: 'POST',
@@ -148,15 +165,14 @@ export default function ChecklistPage() {
       .finally(() => setSubmitting(false));
   };
 
+  // ▶ 2단계 렌더링
   return (
     <div className={styles.page}>
-      {/* 제출 중 오버레이 */}
       {submitting && (
         <div className={styles.loadingOverlay}>
           <div className={styles.spinner}>체크리스트 분석 중…</div>
         </div>
       )}
-
       <div className={styles.container}>
         <h1 className={styles.title}>피부 고민을 선택해주세요</h1>
         <div className={styles.concernsGrid}>
