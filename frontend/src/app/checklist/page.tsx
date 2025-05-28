@@ -153,7 +153,7 @@ export default function ChecklistPage() {
       {/* 제출 중 오버레이 */}
       {submitting && (
         <div className={styles.loadingOverlay}>
-          <div className={styles.spinner}>제출 중…</div>
+          <div className={styles.spinner}>체크리스트 분석 중…</div>
         </div>
       )}
 

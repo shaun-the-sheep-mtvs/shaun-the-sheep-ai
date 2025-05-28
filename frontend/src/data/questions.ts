@@ -11,200 +11,108 @@ export interface Question {
 // 4개 카테고리 × 5문제씩 = 총 20문항
 export const QUESTIONS: Question[] = [
   // --- moisture (수분) ---
-   {
-    id:  1,
+  {
+    id: 1,
     category: 'moisture',
     text: '하루 평균 물 섭취량은 어느 정도인가요?',
     options: [
-      { label: '1L 미만',      score: 4 },
-      { label: '1~1.5L',      score: 3 },
-      { label: '1.5~2L',      score: 2 },
-      { label: '2~2.5L',      score: 1 },
-      { label: '2.5L 이상',   score: 0 },
+      { label: '1L 미만', score: 2 },
+      { label: '1~2L',   score: 1 },
+      { label: '2L 이상', score: 0 },
     ],
   },
   {
-    id:  2,
+    id: 2,
     category: 'moisture',
     text: '피부가 당기거나 건조함을 느끼나요?',
     options: [
       { label: '전혀 아니다', score: 0 },
       { label: '가끔 그렇다', score: 1 },
       { label: '자주 그렇다', score: 2 },
-      { label: '거의 항상 그렇다', score: 3 },
-      { label: '항상 그렇다',   score: 4 },
     ],
   },
   {
-    id:  3,
+    id: 3,
     category: 'moisture',
-    text: '세안 후 피부 표면이 거칠게 느껴지나요?',
+    text: '세안 후 피부가 거칠게 느껴지나요?',
     options: [
       { label: '전혀 아니다', score: 0 },
       { label: '약간 그렇다', score: 1 },
-      { label: '보통이다',     score: 2 },
-      { label: '매우 그렇다', score: 3 },
-      { label: '극심하다',     score: 4 },
+      { label: '매우 그렇다', score: 2 },
     ],
   },
   {
-    id:  4,
+    id: 4,
     category: 'moisture',
     text: '하루에 몇 번 보습제를 덧발라 주시나요?',
     options: [
-      { label: '전혀 안 바른다',      score: 4 },
-      { label: '1번',                  score: 3 },
-      { label: '2번',                  score: 2 },
-      { label: '3~4번',                score: 1 },
-      { label: '5번 이상',             score: 0 },
+      { label: '없음',    score: 2 },
+      { label: '1번',     score: 1 },
+      { label: '2번 이상', score: 0 },
     ],
   },
   {
-    id:  5,
+    id: 5,
     category: 'moisture',
     text: '실내 난방/냉방 환경에서 피부가 건조해지나요?',
     options: [
-      { label: '전혀 아니다',          score: 0 },
-      { label: '가끔 그렇다',          score: 1 },
-      { label: '보통이다',              score: 2 },
-      { label: '매우 그렇다',          score: 3 },
-      { label: '항상 그렇다',          score: 4 },
-    ],
-  },
-  {
-    id:  6,
-    category: 'moisture',
-    text: '아침과 저녁, 스킨(토너)으로 피부를 정돈하나요?',
-    options: [
-      { label: '전혀 사용하지 않는다',  score: 4 },
-      { label: '가끔만 사용한다',        score: 3 },
-      { label: '대부분 사용한다',        score: 2 },
-      { label: '항상 사용한다',          score: 1 },
-      { label: '추가 보습 토너도 함께 사용', score: 0 },
-    ],
-  },
-  {
-    id:  7,
-    category: 'moisture',
-    text: '피부 각질이 일어나거나 벗겨지는 경험이 있나요?',
-    options: [
-      { label: '전혀 없다',            score: 0 },
-      { label: '가끔 있다',            score: 1 },
-      { label: '보통이다',              score: 2 },
-      { label: '자주 있다',            score: 3 },
-      { label: '항상 그렇다',          score: 4 },
-    ],
-  },
-  {
-    id:  8,
-    category: 'moisture',
-    text: '수분 마스크 팩(시트 마스크)을 얼마나 자주 사용하나요?',
-    options: [
-      { label: '전혀 사용하지 않는다', score: 4 },
-      { label: '월 1~2회',             score: 3 },
-      { label: '주 1회',               score: 2 },
-      { label: '주 2~3회',             score: 1 },
-      { label: '거의 매일 사용',       score: 0 },
+      { label: '전혀 아니다', score: 0 },
+      { label: '가끔 그렇다', score: 1 },
+      { label: '항상 그렇다', score: 2 },
     ],
   },
 
-  // --- oil (유분) 8문항 ---
-{
-  id: 9,
-  category: 'oil',
-  text: '오후나 저녁에 얼굴이 번들거림을 느끼나요?',
-  options: [
-    { label: '전혀 아니다',      score: 0 },
-    { label: '약간 있다',        score: 1 },
-    { label: '보통이다',          score: 2 },
-    { label: '자주 그렇다',      score: 3 },
-    { label: '항상 그렇다',      score: 4 },
-  ],
-},
-{
-  id: 10,
-  category: 'oil',
-  text: '코 주위나 이마에 모공이 도드라지나요?',
-  options: [
-    { label: '전혀 아니다',      score: 0 },
-    { label: '약간 그렇다',      score: 1 },
-    { label: '보통이다',          score: 2 },
-    { label: '자주 그렇다',      score: 3 },
-    { label: '항상 그렇다',      score: 4 },
-  ],
-},
-{
-  id: 11,
-  category: 'oil',
-  text: '피부 표면에 기름기가 오래 남아있나요?',
-  options: [
-    { label: '전혀 아니다',      score: 0 },
-    { label: '약간 그렇다',      score: 1 },
-    { label: '보통이다',          score: 2 },
-    { label: '자주 그렇다',      score: 3 },
-    { label: '항상 그렇다',      score: 4 },
-  ],
-},
-{
-  id: 12,
-  category: 'oil',
-  text: '화장한 부위가 쉽게 무너지거나 번지나요?',
-  options: [
-    { label: '전혀 아니다',      score: 0 },
-    { label: '가끔 그렇다',      score: 1 },
-    { label: '보통이다',          score: 2 },
-    { label: '자주 그렇다',      score: 3 },
-    { label: '항상 그렇다',      score: 4 },
-  ],
-},
-{
-  id: 13,
-  category: 'oil',
-  text: '매트한 제품을 사용해도 유분이 가시지 않나요?',
-  options: [
-    { label: '전혀 아니다',      score: 0 },
-    { label: '약간 그렇다',      score: 1 },
-    { label: '보통이다',          score: 2 },
-    { label: '자주 그렇다',      score: 3 },
-    { label: '항상 그렇다',      score: 4 },
-  ],
-},
-{
-  id: 14,
-  category: 'oil',
-  text: '유분 조절 토너나 오일 블로팅 페이퍼를 사용하나요?',
-  options: [
-    { label: '전혀 사용하지 않는다', score: 0 },
-    { label: '가끔만 사용한다',       score: 1 },
-    { label: '보통 사용한다',         score: 2 },
-    { label: '자주 사용한다',         score: 3 },
-    { label: '항상 사용한다',         score: 4 },
-  ],
-},
-{
-  id: 15,
-  category: 'oil',
-  text: '야외 활동 후 피부에 기름기가 더 많아지나요?',
-  options: [
-    { label: '전혀 아니다',      score: 0 },
-    { label: '약간 그렇다',      score: 1 },
-    { label: '보통이다',          score: 2 },
-    { label: '자주 그렇다',      score: 3 },
-    { label: '항상 그렇다',      score: 4 },
-  ],
-},
-{
-  id: 16,
-  category: 'oil',
-  text: '피지 과다로 인해 트러블(여드름 등)이 생긴 적이 있나요?',
-  options: [
-    { label: '전혀 없다',        score: 0 },
-    { label: '가끔 있다',        score: 1 },
-    { label: '보통이다',          score: 2 },
-    { label: '자주 있다',        score: 3 },
-    { label: '항상 생긴다',      score: 4 },
-  ],
-},
+  // --- oil (유분) ---
+  {
+    id: 6,
+    category: 'oil',
+    text: '오후나 저녁에 얼굴이 번들거림을 느끼나요?',
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '약간 있다',   score: 1 },
+      { label: '뚜렷하다',   score: 2 },
+    ],
+  },
+  {
+    id: 7,
+    category: 'oil',
+    text: '코 주위나 이마에 모공이 도드라지나요?',
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '약간 그렇다', score: 1 },
+      { label: '매우 그렇다', score: 2 },
+    ],
+  },
+  {
+    id: 8,
+    category: 'oil',
+    text: '피부 표면에 기름기가 오래 남아있나요?',
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '가끔 그렇다', score: 1 },
+      { label: '자주 그렇다', score: 2 },
+    ],
+  },
+  {
+    id: 9,
+    category: 'oil',
+    text: '화장한 부위가 쉽게 무너지거나 번지나요?',
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '가끔 그렇다', score: 1 },
+      { label: '항상 그렇다', score: 2 },
+    ],
+  },
+  {
+    id: 10,
+    category: 'oil',
+    text: '피부에 매트한 제품을 사용해도 번들거림이 가시지 않나요?',
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '약간 그렇다', score: 1 },
+      { label: '매우 그렇다', score: 2 },
+    ],
+  },
 
   // --- sensitivity (민감도) ---
   {
