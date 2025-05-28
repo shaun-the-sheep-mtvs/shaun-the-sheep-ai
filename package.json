@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "geist": "^1.4.2",
-    "recharts": "^2.15.3"
-  }
-}
