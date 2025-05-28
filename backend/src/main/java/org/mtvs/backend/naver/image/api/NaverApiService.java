@@ -13,12 +13,12 @@ public class NaverApiService {
         this.naverImageAPIRepository = naverImageAPIRepository;
     }
     public boolean isExistImage(String productName) {
-        return naverImageAPIRepository.findByProductName(productName);
+        return naverImageAPIRepository.existsNaverImageByProductName(productName);
     }
     public void addImage(ImageDTO imageDTO) {
         String productName = imageDTO.getProductName();
         NaverImage naverImage = new NaverImage(imageDTO.getImageUrl(),productName );
-        if(naverImageAPIRepository.findByProductName(productName)){
+        if(naverImageAPIRepository.existsNaverImageByProductName(productName)){
             throw new RuntimeException("이미 등록된 사진.");
         }
         System.out.println(naverImage);

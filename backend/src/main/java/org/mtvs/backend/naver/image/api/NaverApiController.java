@@ -51,10 +51,12 @@ public class NaverApiController {
     public ResponseEntity<?> saveImage(@AuthenticationPrincipal CustomUserDetails user) {
         //dto's productName=> Texts
        List<ProductDTO> dtos =productService.getProducts(user.getUser().getId());
+        System.out.println("dtosSize = " + dtos.size());
         List<String> texts= new ArrayList<>();
         for(ProductDTO dto : dtos) {
             texts.add(dto.getProductName());
         }
+        System.out.println(texts.size());
         //recommend 응답 한번에 몇개오나 분석.
         List<String> responses = new ArrayList<>();
         for(int i=0; i<texts.size(); i++){
