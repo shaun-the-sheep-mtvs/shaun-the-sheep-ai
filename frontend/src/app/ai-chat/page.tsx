@@ -191,7 +191,7 @@ export default function AIDoctorChatPage() {
           <form onSubmit={handleSubmit} className={styles.inputForm}>
             <input
               type="text"
-              placeholder="궁금하신 피부부 관련 질문을 입력해주세요..."
+              placeholder="궁금하신 피부 관련 질문을 입력해주세요..."
               value={input}
               onChange={e => setInput(e.target.value)}
               disabled={isLoading}
