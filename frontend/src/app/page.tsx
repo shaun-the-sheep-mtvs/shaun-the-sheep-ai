@@ -201,7 +201,7 @@ export default function Home() {
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (token) {
-      fetch(apiConfig.endpoints.recommend.base, {
+      fetch(apiConfig.endpoints.recommend.random, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => {
@@ -319,8 +319,8 @@ export default function Home() {
               검사하기
             </Link>
           </li>
-          <li className={pathname === '/ai-chat' ? styles.menuActive : ''}>
-            <Link href="/ai-chat" className={styles.menuLink}>
+          <li className={pathname === '/chat' ? styles.menuActive : ''}>
+            <Link href="/chat" className={styles.menuLink}>
               <MessageCircle className={styles.menuIcon} />
               AI 채팅
             </Link>

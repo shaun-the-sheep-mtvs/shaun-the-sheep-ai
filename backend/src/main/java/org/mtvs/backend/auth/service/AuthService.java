@@ -6,6 +6,7 @@ import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.util.JwtUtil;
+import org.mtvs.backend.user.dto.ProblemDto;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -35,7 +36,7 @@ public class AuthService {
             log.warn("[회원가입] 이미 존재하는 이메일 요청 : 이메일={}", dto.getEmail());
             throw new RuntimeException("이미 존재하는 이메일입니다.");
         }
-        
+
         User user = new User(
                 dto.getEmail(),
                 passwordEncoder.encode(dto.getPassword()),
@@ -86,7 +87,7 @@ public class AuthService {
 
             // 리프레시 토큰에서 사용자 정보 추출
             String email = jwtUtil.getSubjectFromToken(refreshToken);
-            
+
             // 사용자 존재 확인
             User user = userRepository.findByEmail(email)
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
@@ -106,5 +107,9 @@ public class AuthService {
 
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
+    }
+
+    public Optional<User> getUserByLoginId(String loginId) {
+        return userRepository.findByUsername(loginId);
     }
 }
