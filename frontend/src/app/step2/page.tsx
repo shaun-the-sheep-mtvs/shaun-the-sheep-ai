@@ -4,6 +4,9 @@ import React, { useState, useEffect } from 'react';
 import styles from './step2.module.css';
 import '../globals.css';
 import axios from 'axios';
+import { usePathname, useRouter } from 'next/navigation';
+import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles, FileText } from "lucide-react";
+import Link from 'next/link';
 
 // recommend/page.tsx에서 Product 타입을 가져옵니다.
 interface Product {
@@ -75,6 +78,8 @@ interface ProductAdditionItem {
 }
 
 export default function Step2() {
+    
+
     // 탭 상태: 'morning' 또는 'night'
     const [routineTab, setRoutineTab] = useState<'morning' | 'night'>('morning');
     const [userSkinData, setUserSkinData] = useState<UserSkinData | null>(null);
@@ -83,6 +88,10 @@ export default function Step2() {
     const [recommendedMorningRoutine, setRecommendedMorningRoutine] = useState<DisplayRoutineItem[]>([]);
     const [recommendedNightRoutine, setRecommendedNightRoutine] = useState<DisplayRoutineItem[]>([]);
     const [userData, setUserData] = useState<User | null>(null); // 사용자 정보 상태 추가
+    const router = useRouter();
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const pathname = usePathname();
     
     // 제품 변경 및 추가 추천 상태
     const [productChanges, setProductChanges] = useState<ProductChangeItem[]>([]);
@@ -184,6 +193,23 @@ export default function Step2() {
             });
     }, []);
 
+    const toggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
+      };
+
+    const handleLogout = () => {
+        localStorage.removeItem('accessToken');
+        window.location.reload();
+    }
+
+    const handleOverlayClick = () => {
+        setIsSidebarOpen(false);
+      };
+
+    const handleDoneButtonClick = () => { // 완료 버튼 핸들러 추가
+        router.push('/'); // 홈 화면으로 이동
+    };
+
     const handleBuyButtonClick = (productName: string) => {
         window.open(`https://www.coupang.com/np/search?component=&q=${productName}`, '_blank ');
     }
@@ -193,16 +219,85 @@ export default function Step2() {
     const currentRecommendedRoutine = routineTab === 'morning' ? recommendedMorningRoutine : recommendedNightRoutine;
 
     return (
-        <div className={styles['step2-wrapper']}>
-            {/* 사이드바 */}
-            <aside className={styles['step2-sidebar']}>
-                <div className={styles['step2-logo']}>스킨케어</div>
-                <ul className={styles['step2-menu']}>
-                    <li><span className={styles['step2-menu-icon']}>🏠</span>홈화면</li>
-                    <li className={styles['step2-menu-active']}><span className={styles['step2-menu-icon']}>📝</span>검사하기</li>
-                    <li><span className={styles['step2-menu-icon']}>👤</span>회원정보</li>
-                </ul>
-            </aside>
+        <div className={styles.wrapper}>
+      {/* 네비게이션 바 */}
+      <nav className={styles.navbar}>
+        <button className={styles.mobileMenuToggle} onClick={toggleSidebar}>
+          {isSidebarOpen ? <X className={styles.menuToggleIcon} /> : <Menu className={styles.menuToggleIcon} />}
+        </button>
+        <div className={styles.logoContainer}>
+          <h1 className={styles.logo}>Shaun</h1>
+        </div>
+
+        <div className={styles.navRight}>
+          {!isLoggedIn ? (
+            <>
+              <button 
+                className={styles.authButton}
+                onClick={() => router.push('/register')}
+              >
+                회원가입
+              </button>
+              <button 
+                className={styles.loginButton}
+                onClick={() => router.push('/login')}
+              >
+                로그인
+              </button>
+            </>
+          ):(
+            <button 
+              className={styles.logoutButton}
+              onClick={handleLogout}
+            >
+              로그아웃
+            </button>
+          )}
+        </div>
+      </nav>
+
+      {/* 메뉴 오버레이 */}
+      <div
+        className={`${styles.menuOverlay} ${isSidebarOpen ? styles.show : ''}`}
+        onClick={handleOverlayClick}
+      />
+
+      {/* 사이드바 */}
+      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
+        <div className={styles.sidebarHeader}>
+          <h2 className={styles.sidebarLogo}>Shaun</h2>
+          <button className={styles.closeButton} onClick={() => setIsSidebarOpen(false)}>
+            <X className={styles.closeIcon} />
+          </button>
+        </div>
+
+        <ul className={styles.sidebarMenu}>
+          <li className={pathname === '/' ? styles.menuActive : ''}>
+            <Link href="/" className={styles.menuLink}>
+              <HomeIcon className={styles.menuIcon} />
+              홈화면
+            </Link>
+          </li>
+          <li className={pathname === '/checklist' ? styles.menuActive : ''}>
+            <Link href="/checklist" className={styles.menuLink}>
+              <ClipboardCheck className={styles.menuIcon} />
+              검사하기
+            </Link>
+          </li>
+          <li className={pathname === '/ai-chat' ? styles.menuActive : ''}>
+            <Link href="/ai-chat" className={styles.menuLink}>
+              <MessageCircle className={styles.menuIcon} />
+              AI 채팅
+            </Link>
+          </li>
+          <li className={pathname === '/profile' ? styles.menuActive : ''}>
+            <Link href="/profile" className={styles.menuLink}>
+              <User className={styles.menuIcon} />
+              회원정보
+            </Link>
+          </li>
+        </ul>
+      </aside>
             {/* 메인 컨텐츠 */}
             <main className={styles['step2-main-content']}>
                 {/* 상단 헤더 */}
@@ -387,8 +482,7 @@ export default function Step2() {
                 </div>
                 {/* 완료 버튼 */}
                 <div className={styles['step2-bottom-btns']}>
-                    <button className={styles['step2-prev-btn']}>이전 단계</button>
-                    <button className={styles['step2-done-btn']}>완료</button>
+                    <button className={styles['step2-done-btn']} onClick={handleDoneButtonClick}>완료</button> {/* onClick 핸들러 연결 */}
                 </div>
             </main>
         </div>
