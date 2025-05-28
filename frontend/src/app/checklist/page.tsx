@@ -2,11 +2,11 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { QUESTIONS, Question, Category } from '@/data/questions';
-import { apiConfig } from '@/config/api';
-import styles from './page.checklist.module.css';
-import { CONCERNS } from '@/data/concerns';
 import { useRouter } from 'next/navigation';
+import { QUESTIONS, Question, Category } from '@/data/questions';
+import { CONCERNS } from '@/data/concerns';
+import styles from './page.checklist.module.css';
+import apiConfig from '@/config/api';
 
 // Fisher–Yates 셔플 함수
 function shuffle<T>(arr: T[]): T[] {
@@ -19,93 +19,91 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function ChecklistPage() {
-  const [stage, setStage] = useState<'quiz'|'concerns'>('quiz');
-  const [qs, setQs]                   = useState<Question[]>([]);
-  const [idx, setIdx]                 = useState(0);
-  const [answers, setAnswers]         = useState<{ cat: Category; score: number }[]>([]);
-  const [done, setDone]               = useState(false);
+  const [stage, setStage] = useState<'quiz' | 'concerns'>('quiz');
+  const [qs, setQs] = useState<Question[]>([]);
+  const [idx, setIdx] = useState(0);
+  const [answers, setAnswers] = useState<{ cat: Category; score: number }[]>([]);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const router = useRouter();
-  const [progress, setProgress] = useState(0);
   const [selectedConcerns, setSelectedConcerns] = useState<string[]>([]);
-  useEffect(() => {setProgress(Math.round((idx/qs.length) * 100));
-  }, [idx]);
+  const [progress, setProgress] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
 
-  // 페이지 로드 시: 카테고리별로 5문항 중 랜덤 3개씩 골라 총 12문제 세팅
+  // 문제 로딩 및 섞기
   useEffect(() => {
     const byCat: Record<Category, Question[]> = {
-      moisture:    [],
-      oil:         [],
+      moisture: [],
+      oil: [],
       sensitivity: [],
-      tension:     [],
+      tension: [],
     };
     for (const q of QUESTIONS) {
       byCat[q.category].push(q);
     }
-    const picked: Question[] = (Object.keys(byCat) as Category[])
+    const picked = (Object.keys(byCat) as Category[])
       .flatMap(cat => shuffle(byCat[cat]).slice(0, 3));
     setQs(shuffle(picked));
   }, []);
 
-  // 1) 카테고리별 점수 합계
+  // 진행도 계산
+  useEffect(() => {
+    setProgress(qs.length ? Math.round((idx / qs.length) * 100) : 0);
+  }, [idx, qs.length]);
+
+  // 카테고리별 총점
   const sums = answers.reduce<Record<Category, number>>((acc, { cat, score }) => {
     acc[cat] = (acc[cat] || 0) + score;
     return acc;
   }, { moisture: 0, oil: 0, sensitivity: 0, tension: 0 });
 
-  // 2) 백분율 계산
+  // 백분율 계산
   const percent = (cat: Category) => {
-  // ① 해당 카테고리에서 실제 뽑힌 문항 수 × 2(최대 점수)
-  const maxForCat = qs.filter(q => q.category === cat).length * 2;
-  if (maxForCat === 0) return 0;
-  // ② 백분율 계산 후, 100 이하로 클램프
-  const raw = Math.round((sums[cat] / maxForCat) * 100);
-  return Math.min(raw, 100);
-};
+    const maxForCat = qs.filter(q => q.category === cat).length * 2;
+    return maxForCat
+      ? Math.min(100, Math.round((sums[cat] / maxForCat) * 100))
+      : 0;
+  };
 
- if (stage === 'quiz') {
-    // 아직 질문 미로딩
+  // ▶ 1단계: 퀴즈
+  if (stage === 'quiz') {
     if (!qs.length) return <div className={styles.page}>로딩 중…</div>;
 
     const q = qs[idx];
-    const onSelect = (score:number, optIdx:number) => {
-      setAnswers(a=>[...a,{cat:q.category,score}]);
+    const onSelect = (score: number, optIdx: number) => {
+      setAnswers(a => [...a, { cat: q.category, score }]);
       setSelectedOption(optIdx);
-      setTimeout(()=>{
+      setTimeout(() => {
         setSelectedOption(null);
-        if (idx+1 >= qs.length) {
-          // 마지막 문항: 고민 선택 화면으로
+        if (idx + 1 >= qs.length) {
           setStage('concerns');
         } else {
-          setIdx(i=>i+1);
+          setIdx(i => i + 1);
         }
-      },150);
+      }, 150);
     };
 
     return (
       <div className={styles.page}>
         <div className={styles.container}>
           <h1 className={styles.title}>
-            질문 {idx+1} / {qs.length}: {q.text}
+            질문 {idx + 1} / {qs.length}: {q.text}
           </h1>
-          {/* 진행도 슬라이더 */}
           <div
             className={styles.resultProgress}
             style={{
               '--bar-color': '#ff8fab',
               '--range-percentage': `${progress}%`,
-              backgroundSize: `${progress}% 100%`
+              backgroundSize: `${progress}% 100%`,
             } as React.CSSProperties}
           >
-            <input type="range" min={0} max={100} value={progress} readOnly/>
+            <input type="range" min={0} max={100} value={progress} readOnly />
           </div>
-          {/* 선택지 */}
           <div className={styles.options}>
-            {q.options.map((opt,i)=>(
+            {q.options.map((opt, i) => (
               <div key={i} className={styles.optionWrapper}>
                 <button
-                  className={`${styles.option} ${selectedOption===i?styles.selected:''}`}
-                  onClick={()=>onSelect(opt.score,i)}
+                  className={`${styles.option} ${selectedOption === i ? styles.selected : ''}`}
+                  onClick={() => onSelect(opt.score, i)}
                 />
                 <span className={styles.optionLabel}>{opt.label}</span>
               </div>
@@ -116,66 +114,80 @@ export default function ChecklistPage() {
     );
   }
 
-  // ▶ 2단계: concerns 화면
+  // ▶ 2단계: 고민 선택 & 제출
   const submitAll = (concernIds: string[]) => {
-   // id → label 매핑
-   const labels = concernIds
-     .map(id => CONCERNS.find(c => c.id === id)?.label)
-     .filter((l): l is string => !!l);
+    setSubmitting(true);
 
-   const body = {
-     moisture:    percent('moisture'),
-     oil:         percent('oil'),
-     sensitivity: percent('sensitivity'),
-     tension:     percent('tension'),
-     troubles:    labels       // 이제 label 배열로 POST
-   };
+    const labels = concernIds
+      .map(id => CONCERNS.find(c => c.id === id)?.label)
+      .filter((l): l is string => !!l);
+
+    const body = {
+      moisture: percent('moisture'),
+      oil: percent('oil'),
+      sensitivity: percent('sensitivity'),
+      tension: percent('tension'),
+      troubles: labels,
+    };
+
     const token = localStorage.getItem('accessToken');
     fetch(apiConfig.endpoints.checklist.base, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
       },
-      body: JSON.stringify(body)
+      body: JSON.stringify(body),
     })
-    .then(res=>{ if(!res.ok) throw new Error(); return res.json()})
-    .then(()=> router.push('/'))
-    .catch(()=> alert('제출 실패, 다시 시도해주세요.'));
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(() => router.push('/'))
+      .catch(() => alert('제출 실패, 다시 시도해주세요.'))
+      .finally(() => setSubmitting(false));
   };
 
   return (
     <div className={styles.page}>
+      {/* 제출 중 오버레이 */}
+      {submitting && (
+        <div className={styles.loadingOverlay}>
+          <div className={styles.spinner}>제출 중…</div>
+        </div>
+      )}
+
       <div className={styles.container}>
         <h1 className={styles.title}>피부 고민을 선택해주세요</h1>
         <div className={styles.concernsGrid}>
-          {CONCERNS.map(c=>(
+          {CONCERNS.map(c => (
             <button
               key={c.id}
               type="button"
-              className={`${styles.concernBtn} ${selectedConcerns.includes(c.id)?styles.active:''}`}
-              onClick={()=>{
-                // 토글
-                setSelectedConcerns(prev=>{
-                  return prev.includes(c.id)
-                    ? prev.filter(x=>x!==c.id)
-                    : [...prev, c.id];
-                });
-              }}
+              className={`${styles.concernBtn} ${
+                selectedConcerns.includes(c.id) ? styles.active : ''
+              }`}
+              onClick={() =>
+                setSelectedConcerns(prev =>
+                  prev.includes(c.id)
+                    ? prev.filter(x => x !== c.id)
+                    : [...prev, c.id]
+                )
+              }
             >
               {c.label}
             </button>
           ))}
         </div>
         <div className={styles.submitWrapper}>
-         <button
-           className={styles.submitBtn}
-           disabled={!selectedConcerns.length}
-           onClick={() => submitAll(selectedConcerns)}
-         >
-           제출
-         </button>
-       </div>
+          <button
+            className={styles.submitBtn}
+            disabled={!selectedConcerns.length || submitting}
+            onClick={() => submitAll(selectedConcerns)}
+          >
+            제출
+          </button>
+        </div>
       </div>
     </div>
   );
