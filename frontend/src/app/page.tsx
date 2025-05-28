@@ -201,7 +201,7 @@ export default function Home() {
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (token) {
-      fetch(apiConfig.endpoints.recommend.base, {
+      fetch(apiConfig.endpoints.recommend.random, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
         .then(res => {
