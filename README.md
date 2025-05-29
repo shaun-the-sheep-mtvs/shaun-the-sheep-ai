@@ -358,3 +358,4 @@ Jenkins 파이프라인을 통한 자동 배포 지원
 [🌟 Star this repo](https://github.com/shaun-the-sheep-mtvs/shaun-the-sheep-ai) • [🐛 Report Bug](https://github.com/shaun-the-sheep-mtvs/shaun-the-sheep-ai/issues) • [💡 Request Feature](https://github.com/shaun-the-sheep-mtvs/shaun-the-sheep-ai/discussions)
 
 </div>
+shaun the sheep ai
