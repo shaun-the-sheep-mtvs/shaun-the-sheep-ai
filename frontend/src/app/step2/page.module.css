@@ -49,13 +49,13 @@
   color: #ff7eb3;
 }
 
-.step2-main-content {
+/* .step2-main-content {
   flex: 1;
   background: #fff;
   padding: 0 0 60px 0;
   position: relative;
   min-width: 0;
-}
+} */
 /* .step2-greeting {
   position: absolute;
   top: 32px;
@@ -90,7 +90,7 @@
 
 .step2-recommend-title {
   text-align: center;
-  font-size: 1.35rem;
+  font-size: 1.45rem;
   font-weight: 700;
   margin-bottom: 8px;
   color: #222;
@@ -98,7 +98,7 @@
 .step2-recommend-desc {
   text-align: center;
   color: #888;
-  font-size: 15px;
+  font-size: 16px;
   margin-bottom: 32px;
 }
 .step2-skin-type-box {
@@ -107,13 +107,13 @@
   padding: 24px 0 18px 0;
   color: #fff;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 19px;
   margin: 0 auto 32px auto;
-  max-width: 480px;
+  max-width: 600px;
   text-align: center;
 }
 .step2-skin-type-main {
-  font-size: 1.1em;
+  font-size: 1.15em;
   margin-bottom: 10px;
 }
 .step2-skin-type-tags {
@@ -126,22 +126,22 @@
   background: #38b2ac;
   border-radius: 12px;
   padding: 4px 16px;
-  font-size: 14px;
+  font-size: 15px;
   margin-top: 2px;
 }
 
 .step2-section-title {
   font-weight: 700;
-  font-size: 18px;
+  font-size: 19px;
   margin: 0 auto 18px auto;
-  max-width: 700px;
+  max-width: 900px;
   margin-top: 24px;
   color: #222;
 }
 
 .step2-tabs {
   display: flex;
-  max-width: 700px;
+  max-width: 900px;
   margin: 0 auto 0 auto;
   background: #f7f7f9;
   border-radius: 8px;
@@ -153,7 +153,7 @@
 .step2-tab {
   flex: 1;
   font-weight: 700;
-  font-size: 16px;
+  font-size: 17px;
   color: #888;
   padding: 10px 0;
   cursor: pointer;
@@ -179,7 +179,7 @@
   border-radius: 18px;
   box-shadow: 0 2px 8px 0 #f3e6ef;
   padding: 32px 24px 18px 24px;
-  max-width: 700px;
+  max-width: 900px;
   margin: 0 auto 0 auto;
   margin-bottom: 24px;
   border: 2px solid #b2e6e0;
@@ -197,7 +197,7 @@
   color: #249e8b;
   border-radius: 12px;
   padding: 4px 16px;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 600;
 }
 .step2-routine-list {
@@ -221,7 +221,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+  font-size: 19px;
   margin-right: 8px;
 }
 .step2-routine-info {
@@ -229,12 +229,12 @@
 }
 .step2-routine-title {
   font-weight: 700;
-  font-size: 16px;
+  font-size: 17px;
   color: #222;
 }
 .step2-routine-desc {
   color: #888;
-  font-size: 14px;
+  font-size: 15px;
   margin-top: 2px;
 }
 .step2-buy-btn {
@@ -244,7 +244,7 @@
   border-radius: 20px;
   padding: 4px 14px;
   font-weight: bold;
-  font-size: 0.9rem;
+  font-size: 0.95rem;
   cursor: pointer;
   transition: background 0.2s;
   margin-top: 2px;
@@ -260,14 +260,14 @@
   border-radius: 18px;
   box-shadow: 0 1px 4px 0 #ececec;
   padding: 32px 24px 32px 24px;
-  max-width: 700px;
+  max-width: 900px;
   margin: 0 auto 0 auto;
   margin-bottom: 24px;
   border: 1px solid #e5e7eb;
 }
 .step2-change-title {
   font-weight: 600;
-  font-size: 17px;
+  font-size: 18px;
   margin-bottom: 18px;
   color: #222;
 }
@@ -295,7 +295,7 @@
 }
 .step2-change-current b, .step2-change-recommend b {
   color: #222;
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 600;
 }
 .step2-change-arrow {
@@ -305,7 +305,7 @@
 }
 .step2-change-desc {
   color: #888;
-  font-size: 14px;
+  font-size: 15px;
   margin-left: 8px;
   margin-bottom: 8px;
   background: none;
@@ -338,12 +338,12 @@
 }
 .step2-add-name {
   font-weight: 600;
-  font-size: 16px;
+  font-size: 17px;
   color: #222;
 }
 .step2-add-desc {
   color: #888;
-  font-size: 14px;
+  font-size: 15px;
   margin-top: 2px;
 }
 
@@ -352,7 +352,7 @@
   justify-content: center;
   gap: 18px;
   margin: 48px 0 0 0; */
-  max-width: 700px;
+  max-width: 900px;
   margin: 0 auto 24px;
   /* padding: 32px 24px; */
   display: flex;
@@ -365,7 +365,7 @@
   border-radius: 32px;
   padding: 14px 48px;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 19px;
   cursor: pointer;
   margin-right: 8px;
   box-shadow: 0 2px 8px 0 #f3e6ef;
@@ -381,7 +381,7 @@
   border-radius: 32px;
   padding: 14px 48px;
   font-weight: 700;
-  font-size: 18px;
+  font-size: 19px;
   cursor: pointer;
   box-shadow: 0 2px 8px 0 #f3e6ef;
   transition: background 0.2s;
@@ -696,6 +696,12 @@ justify-content: space-between;
 align-items: flex-start;
 }
 
+.change-recommend-title {
+  font-size: 17px;
+  font-weight: bold;
+  margin-bottom: 24px; /* 텍스트와 박스 사이 간격 */
+}
+
 .change-recommend-card {
   background: #f9fafb;
   border-radius: 12px;
@@ -727,7 +733,7 @@ align-items: flex-start;
   border: 1px solid rgba(76, 211, 165, 0.3);
 }
 .change-product-label {
-  font-size: 13px;
+  font-size: 14px;
   color: #6b7280;
 }
 .change-product-label.green {
@@ -735,7 +741,7 @@ align-items: flex-start;
 }
 .change-product-title {
   font-weight: 500;
-  font-size: 15px;
+  font-size: 16px;
   color: #222;
 }
 .change-arrow {
@@ -751,7 +757,7 @@ align-items: flex-start;
   border: 1px solid #f3f4f6;
 }
 .change-reason-text {
-  font-size: 13px;
+  font-size: 14px;
   color: #4b5563;
 }
 .add-recommend-grid {
@@ -788,11 +794,11 @@ align-items: flex-start;
 }
 .add-product-title {
   font-weight: 500;
-  font-size: 15px;
+  font-size: 16px;
   color: #222;
 }
 .add-reason {
-  font-size: 13px;
+  font-size: 14px;
   color: #4b5563;
   margin-top: 10px;
   /* margin-left: 52px; */
@@ -803,7 +809,7 @@ align-items: flex-start;
   border-radius: 9999px;
   padding: 0 16px;
   height: 32px;
-  font-size: 13px;
+  font-size: 14px;
   border: none;
   cursor: pointer;
   transition: background 0.2s;
@@ -821,7 +827,7 @@ align-items: flex-start;
   margin-top: 16px;          /* 위쪽 여백 */
   margin-bottom: 16px;       /* 아래쪽 여백 */
   color: #555555;            /* 글자색 */
-  font-size: 0.95rem;        /* 글자 크기 */
+  font-size: 1rem;        /* 글자 크기 */
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 은은한 그림자 */
 }
 
@@ -874,7 +880,7 @@ align-items: flex-start;
 /* .wrapper 클래스는 step2.module.css 에 이미 존재하므로, 
    page.module.css의 .wrapper에만 있는 고유한 속성이나 변수만 가져오거나,
    두 스타일을 신중하게 병합해야 합니다.
-   여기서는 page.module.css의 wrapper 내용을 그대로 가져오되,
+   여기서는 page.module.css의 .wrapper 내용을 그대로 가져오되,
    기존 step2-wrapper와 충돌하지 않도록 주석 처리해두거나,
    필요한 부분만 선택적으로 가져오는 것을 권장합니다.
    아래는 page.module.css 의 .wrapper 에 있던 내용 중 일부입니다. */

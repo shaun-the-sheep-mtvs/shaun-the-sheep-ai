@@ -27,6 +27,14 @@ export const apiConfig = {
     },
     chat: {
       base: `${API_BASE_URL}/api/chat-messages`,
+    },
+    deep: {
+      recommend: `${API_BASE_URL}/api/deep/recommend`,
+      routineChange: `${API_BASE_URL}/api/deep/routine-change`,
+      productRecommend: `${API_BASE_URL}/api/deep/product-recommend`,
+    },
+    user: {
+      skinData: `${API_BASE_URL}/api/user/skin-data`,
     }
   }
 };

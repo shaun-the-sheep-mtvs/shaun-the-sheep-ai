@@ -65,7 +65,7 @@ export default function AIDoctorChatPage() {
 
      try {
       // 1) AI 호출
-      const res = await fetch("http://localhost:8080/api/chat-messages/ask?templateKey=…", {
+      const res = await fetch(apiConfig.endpoints.chat.base + "/ask?templateKey=…", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
