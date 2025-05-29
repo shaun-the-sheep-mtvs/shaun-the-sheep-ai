@@ -19,6 +19,7 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function ChecklistPage() {
+  const [initialLoaded, setInitialLoaded] = useState(false);
   const [stage, setStage] = useState<'quiz' | 'concerns'>('quiz');
   const [qs, setQs] = useState<Question[]>([]);
   const [idx, setIdx] = useState(0);
@@ -28,6 +29,33 @@ export default function ChecklistPage() {
   const [progress, setProgress] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken')
+    if (!token) return
+
+     fetch(`${apiConfig.endpoints.checklist.base}/latest`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+    .then(res => res.json())
+      .then((data: { troubles?: string[] }) => {
+        if (Array.isArray(data.troubles) && data.troubles.length > 0) {
+          const ids = data.troubles
+          .map(label =>
+            CONCERNS.find(c => c.label === label)?.id
+          )
+          .filter((id): id is string => !!id)
+          setSelectedConcerns(ids)
+        }
+      })
+      .catch(err => {
+        console.warn('최신 체크리스트 조회 실패, quiz부터 시작', err)
+      })
+  }, [])
 
   // 진행도 계산
   useEffect(() => {
@@ -222,7 +250,9 @@ export default function ChecklistPage() {
         </div>
       )}
       <div className={styles.container}>
-        <h1 className={styles.title}>피부 고민을 선택해주세요</h1>
+        <h1 className={styles.title}>
+          피부 고민을 선택해주세요
+          </h1>
         <div className={styles.concernsGrid}>
           {CONCERNS.map(c => (
             <button
