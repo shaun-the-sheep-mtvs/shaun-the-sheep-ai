@@ -35,6 +35,22 @@ interface DetailInfo {
 
 type MeasurementType = 'moisture' | 'oil' | 'sensitivity' | 'tension';
 
+interface MeasurementThreshold {
+  good: number;
+  caution: number;
+}
+
+interface MeasurementDescription {
+  good: string;
+  normal: string;
+  caution: string;
+}
+
+interface MeasurementStatus {
+  status: '좋음' | '보통' | '주의';
+  color: string;
+}
+
 const measurementInfo = {
   moisture: {
     title: "수분 지수",
@@ -621,7 +637,8 @@ const skinTypeAnalysis = {
       "수분과 유분이 모두 부족",
       "피부가 건조하고 당김",
       "각질이 자주 일어남",
-      "미세주름이 생기기 쉬움"
+      "미세주름이 생기기 쉬움",
+      "가끔씩 유발하는 간지러움"
     ],
     care: [
       "충분한 수분 공급",
@@ -924,6 +941,60 @@ const measurementColors: Record<MeasurementType, string> = {
   tension: '#81C784'
 };
 
+const getMeasurementStatus = (type: MeasurementType, value: number): MeasurementStatus => {
+  const thresholds: Record<MeasurementType, MeasurementThreshold> = {
+    moisture: { good: 60, caution: 40 },
+    oil: { good: 50, caution: 30 },
+    sensitivity: { good: 30, caution: 50 },
+    tension: { good: 70, caution: 50 }
+  };
+
+  const threshold = thresholds[type];
+  
+  if (type === 'sensitivity') {
+    // 민감도는 낮을수록 좋음
+    if (value <= threshold.good) return { status: '좋음', color: '#4CAF50' };
+    if (value <= threshold.caution) return { status: '보통', color: '#FFC107' };
+    return { status: '주의', color: '#F44336' };
+  } else {
+    // 나머지는 높을수록 좋음
+    if (value >= threshold.good) return { status: '좋음', color: '#4CAF50' };
+    if (value >= threshold.caution) return { status: '보통', color: '#FFC107' };
+    return { status: '주의', color: '#F44336' };
+  }
+};
+
+const getStatusDescription = (type: MeasurementType, value: number) => {
+  const status = getMeasurementStatus(type, value);
+  const descriptions: Record<MeasurementType, MeasurementDescription> = {
+    moisture: {
+      good: "피부가 충분한 수분을 가지고 있어 건강한 상태입니다. 피부 장벽이 튼튼하게 유지되어 외부 자극으로부터 피부를 보호하고 있습니다. 피부 결이 매끄럽고 탄력이 있으며, 메이크업이 자연스럽게 발립니다. 각질이 잘 일어나지 않고 피부 톤이 밝고 건강한 광채를 냅니다.",
+      normal: "수분이 약간 부족한 상태입니다. 피부가 가끔 당기는 느낌이 있고, 각질이 간헐적으로 발생할 수 있습니다. 메이크업이 부분적으로 들뜨는 현상이 나타나며, 피부 톤이 다소 칙칙해 보일 수 있습니다. 보습 관리가 필요한 상태입니다.",
+      caution: "피부가 심하게 건조한 상태입니다. 피부 장벽이 약화되어 외부 자극에 취약한 상태이며, 각질이 자주 발생하고 피부가 거칠어집니다. 메이크업이 들뜨고 가루가 일어나며, 피부 톤이 칙칙하고 피로해 보입니다. 집중적인 보습 관리가 시급한 상태입니다."
+    },
+    oil: {
+      good: "피부의 유분이 적절한 상태입니다. 피부 장벽이 건강하게 유지되어 수분 증발을 막고 피부를 보호하고 있습니다. 피부가 촉촉하고 윤기가 나며, 모공이 깨끗하게 유지됩니다. 피부 톤이 균일하고 건강한 광채를 냅니다.",
+      normal: "유분이 약간 부족하거나 과다한 상태입니다. T존이 번들거리거나 반대로 건조한 느낌이 있을 수 있으며, 모공이 약간 확장되어 보입니다. 피부 톤이 불균일하고 피부 결이 다소 거칠어 보일 수 있습니다. 유분 조절이 필요한 상태입니다.",
+      caution: "유분이 심하게 부족하거나 과다한 상태입니다. 피부 장벽이 불안정하여 트러블이 자주 발생하고, 모공이 크게 확장되어 있습니다. 피부가 번들거리거나 매우 건조하며, 여드름이나 염증이 쉽게 생길 수 있습니다. 적절한 유분 조절이 시급한 상태입니다."
+    },
+    sensitivity: {
+      good: "피부가 안정적이고 건강한 상태입니다. 피부 장벽이 튼튼하게 유지되어 외부 자극에 강한 상태입니다. 제품 교체나 환경 변화에도 피부가 잘 적응하며, 트러블이 잘 생기지 않습니다. 피부가 매끄럽고 건강한 광채를 냅니다.",
+      normal: "피부가 약간 민감한 상태입니다. 자극성 제품 사용 시 따끔거림이 있고, 날씨 변화나 환경 변화에 피부가 반응할 수 있습니다. 가끔 붉은 기가 올라오거나 가려움증이 발생할 수 있습니다. 진정 케어가 필요한 상태입니다.",
+      caution: "피부가 매우 민감한 상태입니다. 피부 장벽이 약화되어 외부 자극에 과민하게 반응합니다. 제품 사용 시 따끔거림과 붉은 기가 심하고, 트러블이 자주 발생합니다. 피부가 쉽게 자극받고 회복이 느리며, 가려움증이 지속될 수 있습니다. 집중적인 진정 케어가 시급한 상태입니다."
+    },
+    tension: {
+      good: "피부 탄력이 좋은 상태입니다. 콜라겐과 엘라스틴이 충분히 유지되어 피부가 탄탄하고 단단합니다. 주름이 거의 없고 피부 결이 매끄럽습니다. 피부가 촉촉하고 건강한 광채를 냅니다.",
+      normal: "피부 탄력이 약간 저하된 상태입니다. 미세한 주름이 보이고 피부가 약간 처지는 느낌이 있습니다. 피부 톤이 다소 칙칙해 보이며, 피부 결이 다소 거칠어 보일 수 있습니다. 탄력 케어가 필요한 상태입니다.",
+      caution: "피부 탄력이 많이 저하된 상태입니다. 콜라겐과 엘라스틴이 부족하여 주름이 뚜렷하게 보이고 피부가 처졌습니다. 피부 톤이 칙칙하고 피로해 보이며, 피부 결이 거칠어졌습니다. 집중적인 탄력 케어가 시급한 상태입니다."
+    }
+  };
+
+  const descriptionKey = status.status === '좋음' ? 'good' : 
+                        status.status === '보통' ? 'normal' : 'caution';
+  
+  return descriptions[type][descriptionKey];
+};
+
 export default function ReportPage() {
   const router = useRouter();
   const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
@@ -1100,16 +1171,7 @@ export default function ReportPage() {
                 </h3>
               </div>
               <p className={styles.detailDescription}>
-                {detailInfoMap[selectedMeasurement].description}
-                <br />
-                현재 수치: <span style={{ color: measurementColors[selectedMeasurement], fontWeight: 'bold' }}>
-                  {checklist?.[selectedMeasurement as keyof CheckListResponse]}%
-                </span>
-                <br />
-                측정 범위: {getAnalysisContent(
-                  selectedMeasurement,
-                  Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0
-                ).range}
+                {getStatusDescription(selectedMeasurement, Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0)}
               </p>
               <div className={styles.detailContent}>
                 {getAnalysisContent(
@@ -1139,10 +1201,10 @@ export default function ReportPage() {
         </div>
 
         <section className={styles.section}>
-          <h2>피부 타입 분석</h2>
+          <h2>종합 피부 분석</h2>
           <div className={styles.skinTypeAnalysis}>
             <div className={styles.skinTypeHeader}>
-              <h3>{skinTypeAnalysis[skinType].name} 피부</h3>
+              <h3>{skinTypeAnalysis[skinType].name} 피부에 대해서</h3>
               <p className={styles.skinTypeDescription}>
                 측정된 수분, 유분, 민감도를 종합적으로 분석한 결과입니다.
               </p>
@@ -1206,7 +1268,7 @@ export default function ReportPage() {
         </section>
 
         <section className={styles.section}>
-          <h2>맞춤 관리법</h2>
+          <h2>종합 맞춤 관리법</h2>
           <div className={styles.careGuide}>
             <div className={styles.careSection}>
               <h3>일상 관리</h3>
