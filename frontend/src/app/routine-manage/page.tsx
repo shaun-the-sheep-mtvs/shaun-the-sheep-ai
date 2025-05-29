@@ -5,7 +5,7 @@ import styles from './page.module.css';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X } from "lucide-react";
-import apiConfig from '../../config/api';
+import apiConfig from '@/config/api';
 
 const ROUTINE_TIMES = [
   { label: '아침', value: 'MORNING' },
@@ -112,7 +112,7 @@ export default function RoutineManagePage() {
 
     try {
       // 1. 첫 번째 API 호출: 루틴 생성 (사용자가 입력한 루틴 정보 저장)
-      const responseCreate = await fetch('http://localhost:8080/api/routine/create', {
+      const responseCreate = await fetch(apiConfig.endpoints.routine.create, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -144,7 +144,7 @@ export default function RoutineManagePage() {
       // 해당 ID로 루틴 정보와 피부 고민 정보를 DB에서 조회하여 AI 프롬프트를 구성합니다.
       // 따라서 프론트엔드는 요청 body를 보낼 필요가 없습니다.
       try {
-        const responseRecommend = await fetch('http://localhost:8080/api/deep/recommend', {
+        const responseRecommend = await fetch(apiConfig.endpoints.deep.recommend, {
           method: 'POST', // 컨트롤러가 @PostMapping이므로 POST 유지
           headers: {
             // 'Content-Type': 'application/json', // 본문이 없으므로 Content-Type 불필요
