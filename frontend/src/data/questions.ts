@@ -57,7 +57,7 @@ export const QUESTIONS: Question[] = [
     weight: 1.1,
     text: '하루에 수분이나 크림(로션)을 하루에 몇 번 바르시나요?',
     options: [
-      { label: '해당 없음', score: 4 },
+      { label: '0회', score: 4 },
       { label: '1회', score: 3 },
       { label: '2회', score: 2 },
       { label: '3회', score: 1 },
@@ -346,7 +346,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 26,
     category: 'tension',
-    weight: 1.5,
+    weight: 1.4,
     text: '최근 1개월 동안 거울로 볼 때 턱선이나 볼이 처져 보이나요?',
     options: [
       { label: "전혀 아니다", score: 0 },
@@ -385,7 +385,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 29,
     category: 'tension',
-    weight: 1.2,
+    weight: 1.3,
     text: '최근 1개월 동안 화장하거나 거울 볼 때 피부가 덜 탱탱하고 늘어져 보이나요?',
     options: [
       { label: "전혀 아니다", score: 0 },
@@ -398,7 +398,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 30,
     category: 'tension',
-    weight: 1.2,
+    weight: 1.1,
     text: '최근 1개월 동안 사진이나 영상에서 얼굴 윤곽이 흐릿해 보이나요?',
     options: [
       { label: "전혀 아니다", score: 0 },
