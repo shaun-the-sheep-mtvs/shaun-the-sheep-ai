@@ -2339,7 +2339,7 @@ a.secondary {
   border-radius: 9999px;      /* 완전한 pill 모양 */
   font-size: 1rem;
   font-weight: 600;
-  text-transform: uppercase;  /* “LOG OUT” 처럼 전부 대문자 */
+  text-transform: uppercase;  /* "LOG OUT" 처럼 전부 대문자 */
   cursor: pointer;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1);
   transition: background-color 0.2s, transform 0.1s;

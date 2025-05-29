@@ -18,12 +18,8 @@ public class ProductsWithUserInfoResponseDTO {
     private UserInfoDTO userInfo;
     private List<ProductDTO> products;
 
-    public static ProductsWithUserInfoResponseDTO create(User user, List<Product> products) {
+    public static ProductsWithUserInfoResponseDTO create(User user, List<ProductDTO> products) {
         UserInfoDTO userInfo = UserInfoDTO.fromUser(user);
-        List<ProductDTO> productDTOs = products.stream()
-                .map(ProductDTO::fromEntity)
-                .toList();
-
-        return new ProductsWithUserInfoResponseDTO(userInfo, productDTOs);
+        return new ProductsWithUserInfoResponseDTO(userInfo, products);
     }
 }

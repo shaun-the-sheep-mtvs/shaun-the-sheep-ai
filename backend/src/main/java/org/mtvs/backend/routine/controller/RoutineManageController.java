@@ -3,7 +3,6 @@ package org.mtvs.backend.routine.controller;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.routine.dto.*;
 import org.mtvs.backend.routine.service.RoutineManageService;
-import org.mtvs.backend.user.dto.ProblemDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +13,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/routine")
-@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:8080"})
 public class RoutineManageController {
 
     private final RoutineManageService routineManageService;
