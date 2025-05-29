@@ -1,6 +1,6 @@
 'use client';
 
-import { BarChart3, Droplets, Oil, Shield, Lightbulb } from 'lucide-react';
+import { BarChart3, Droplets, Droplet, Shield, Lightbulb } from 'lucide-react';
 import styles from './page.module.css';
 
 export default function SkinReportPage() {
@@ -37,7 +37,7 @@ export default function SkinReportPage() {
 
           <div className={styles['analysis-item']}>
             <div className={styles['analysis-item-title']}>
-              <Oil size={18} />
+              <Droplet size={18} />
               유분 상태 분석
             </div>
             <div className={styles['analysis-item-content']}>
