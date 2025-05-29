@@ -246,3 +246,68 @@
   background: #db2777;
 }
 
+.iconButton {
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: #6b7280;
+}
+
+.loadingOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+/* 간단한 텍스트 스피너 */
+.spinner {
+  padding: 1rem 2rem;
+  background: #ec4899;
+  color: white;
+  border-radius: 0.5rem;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+.navRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.backButton {
+  background-color: #fde0e0;     /* 연한 핑크 */
+  border: 1px solid #f8bbd0;     /* 조금 더 진한 핑크 */
+  border-radius: 50%;            
+  padding: 8px;                  
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s;
+}
+
+.backButton:hover:not(:disabled) {
+  background-color: #f8bbd0;     /* 호버 시 강조된 핑크 */
+}
+
+.backButton:disabled {
+  background-color: #f7f7f7;
+  border-color: #ddd;
+  cursor: not-allowed;
+}
+
+.backIcon {
+  color: #e91e63;    /* 선명한 핫핑크 */
+  width: 20px;
+  height: 20px;
+}

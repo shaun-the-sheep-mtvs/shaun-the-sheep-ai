@@ -5,6 +5,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.mtvs.backend.user.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -39,7 +40,7 @@ public class CheckList {
     @Column(name = "tension", nullable = false)
     private Integer tension;
 
-    private List<String> troubles;
+    private List<String> troubles = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

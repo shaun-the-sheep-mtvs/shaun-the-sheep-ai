@@ -16,9 +16,25 @@ export const apiConfig = {
     },
     routine: {
       base: `${API_BASE_URL}/api/routine`,
+      existing: `${API_BASE_URL}/api/routine/existing`,
+      create: `${API_BASE_URL}/api/routine/create`,
+      delete: `${API_BASE_URL}/api/routine/delete`,
     },
     recommend: {
-      base: `${API_BASE_URL}/api/recommend`,
+      diagnoses: `${API_BASE_URL}/api/recommend/diagnoses`,
+      random: `${API_BASE_URL}/api/recommend/random-recommendations`,
+      user: `${API_BASE_URL}/api/recommend/user-recommendations`,
+    },
+    chat: {
+      base: `${API_BASE_URL}/api/chat-messages`,
+    },
+    deep: {
+      recommend: `${API_BASE_URL}/api/deep/recommend`,
+      routineChange: `${API_BASE_URL}/api/deep/routine-change`,
+      productRecommend: `${API_BASE_URL}/api/deep/product-recommend`,
+    },
+    user: {
+      skinData: `${API_BASE_URL}/api/user/skin-data`,
     }
   }
 };

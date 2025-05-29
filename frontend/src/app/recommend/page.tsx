@@ -7,6 +7,7 @@ import styles from "./recommend.module.css"
 import { useState, useEffect } from "react"
 import axios from "axios"
 import { useCurrentUser } from "@/data/useCurrentUser";
+import apiConfig from "@/config/api";
 
 interface Product {
   id: string;
@@ -15,6 +16,7 @@ interface Product {
   recommendedType: string;
   productName: string;
   userId: string;
+  imageUrl: string;
 }
 
 interface RecommendData {
@@ -85,7 +87,7 @@ export default function RecommendPage() {
     const token = localStorage.getItem('accessToken');
     const fetchData = async () => {
       try {
-        const response = await axios.get('http://localhost:8080/api/recommend/user-recommendations', {
+        const response = await axios.get(apiConfig.endpoints.recommend.user, {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
@@ -142,7 +144,11 @@ export default function RecommendPage() {
   const getProductName = (product: Product) => product.productName || '제품명 없음';
   const getRecommendedType = (product: Product) => product.recommendedType || '정보 없음';
   const getIngredients = (product: Product) => product.ingredients || [];
-
+  const getImgUrl = (product:Product) => {
+    console.log('Product:', product);
+    console.log('Image URL:', product.imageUrl);
+    return product.imageUrl;
+  };
   const handleBuyButtonClick = (product: Product) => {
     window.open(`https://www.coupang.com/np/search?component=&q=${product.productName}`, '_blank ');
   }
@@ -288,9 +294,9 @@ export default function RecommendPage() {
               맞춤형 추천 제품
             </h2>
             <p className={styles["main-subtitle"]}>
-              <strong>{recommendData.skinType}</strong> 피부를 위해 엄선된 완벽한 스킨케어 루틴으로
+              <strong>{recommendData.skinType}</strong> 피부를 위해 엄선된 완벽한 스킨케어 루틴으로 <br />
               {recommendData.concerns.length > 0 && 
-                <span className={styles["highlight"]}> {recommendData.concerns.join(', ')}</span>} 고민을 해결해보세요!
+                <span className={styles["highlight"]}> {recommendData.concerns.join(', ')}</span>} 고민을 해결해보세요! <br /> <br />
             </p>
             <div className={styles["title-divider"]}></div>
           </div>
@@ -306,7 +312,13 @@ export default function RecommendPage() {
               {recommendData.recommendations.토너.map((product, index) => (
                 <div key={`toner-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                    <Image src="/placeholder.svg" alt={getProductName(product)} width={120} height={160} className={styles["product-image"]} />
+                  <img 
+                    src={getImgUrl(product)} 
+                    alt={getProductName(product)} 
+                    width={120} 
+                    height={160} 
+                    className={styles["product-image"]}
+                  />
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
@@ -354,7 +366,13 @@ export default function RecommendPage() {
               {recommendData.recommendations.세럼.map((product, index) => (
                 <div key={`serum-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                    <Image src="/placeholder.svg" alt={getProductName(product)} width={120} height={160} className={styles["product-image"]} />
+                  <img 
+                    src={getImgUrl(product)} 
+                    alt={getProductName(product)} 
+                    width={120} 
+                    height={160} 
+                    className={styles["product-image"]}
+                  />
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
@@ -402,7 +420,13 @@ export default function RecommendPage() {
               {recommendData.recommendations.로션.map((product, index) => (
                 <div key={`lotion-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                    <Image src="/placeholder.svg" alt={getProductName(product)} width={120} height={160} className={styles["product-image"]} />
+                  <img 
+                    src={getImgUrl(product)} 
+                    alt={getProductName(product)} 
+                    width={120} 
+                    height={160} 
+                    className={styles["product-image"]}
+                  />
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
@@ -450,7 +474,13 @@ export default function RecommendPage() {
               {recommendData.recommendations.크림.map((product, index) => (
                 <div key={`cream-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                    <Image src="/placeholder.svg" alt={getProductName(product)} width={120} height={160} className={styles["product-image"]} />
+                  <img 
+                    src={getImgUrl(product)} 
+                    alt={getProductName(product)} 
+                    width={120} 
+                    height={160} 
+                    className={styles["product-image"]}
+                  />
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>

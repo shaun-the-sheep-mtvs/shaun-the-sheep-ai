@@ -1,7 +1,5 @@
 package org.mtvs.backend.chat.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.chat.entity.ChatMessage;
 import org.mtvs.backend.chat.repository.ChatMessageRepository;
@@ -9,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -19,12 +18,43 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
-    private static final Map<String,String> TEMPLATE_PROMPTS = Map.of(
-            "skin_dry", "당신은 피부 보습 전문가입니다. '피부가 건조해요' 라는 질문이 들어오면, 반드시 다음과 같은 구조로 답변하세요:\n\n" +
-                    "1. 문제 원인 요약\n2. 추천 제품 및 사용법\n3. 추가 팁\n\n",
-            "skin_acne", "당신은 여드름 치료 전문가입니다. '여드름 고민' 질문이 들어오면, 반드시 다음 구조로 답변하세요:\n\n" +
-                    "- 원인\n- 식습관/생활습관 조언\n- 추천 성분\n\n"
-    );
+    private static final String MBTI_SYSTEM_PROMPT = """
+    당신은 피부 평가 전문가입니다.\s
+    대화를 통해 사용자의 피부 상태를 완전히 이해하기 위해,\s
+    1) 피부 타입(건성, 지성, 수분부족지성, 복합성, 민감성)을 분류할 수 있을 만큼 \s
+       구체적인 진단 질문을 스스로 생성하여 한 번에 하나씩 순차적으로 물어보세요. \s
+    2) 최소 5개 이상의 상호작용(질문+답변)을 통해 충분한 정보를 수집한 후, \s
+    3) 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(\\\\n)로만** 구분된 **5줄**로 출력하세요. \s
+    - 각 줄 앞뒤에 공백을 절대 추가하지 말고, 다른 구두점이나 글자를 붙이지 마세요.
+            
+       당신의 피부 타입: <건성|지성|수분부족지성|복합성|민감성>
+       피부 고민: <건조함|번들거림|민감함|탄력 저하|홍조|톤 안정|색소침착|잔주름|모공 케어>
+       타입 설명:
+       케어 팁:
+            
+    예시(형식만):
+            
+    당신의 피부 타입: 수분부족지성 \s
+    피부 고민: 탄력 저하 \s
+    타입 설명: 유분은 충분하지만 수분·탄력 모두 부족해 피부가 당기고 처짐이 느껴져요. \s
+    케어 팁: 고보습 세럼과 탄력 강화 오일을 함께 사용하세요.
+            
+    concern 값은 반드시 다음 중 하나입니다
+    건조함
+    번들거림
+    민감함
+    탄력 저하
+    홍조
+    톤 안정
+    색소침착
+    잔주름
+    모공 케어
+
+        “당신의 피부 타입은…,\s
+         고민은…, \s
+         해당 타입에 대한 설명과 케어 팁은 …”
+        식으로 자연스럽고 친근하게 한 문단으로 풀어주세요.
+""" ;
     private final ChatMessageRepository chatMessageRepository;
     private final WebClient webClient;
     @Value("${gemini.api.key}")
@@ -48,39 +78,52 @@ public class ChatMessageService {
 
     @SuppressWarnings("unchecked")
     public ChatMessage askAI_Single(
+            String userId,
             List<ChatMessage> history,
             String userQuestion,
             String templateKey
     ) {
         // 1) 생성 설정
         Map<String,Object> generationConfig = Map.of(
-                "temperature", 0.2,
-                "topK", 40,
-                "topP", 0.95,
-                "maxOutputTokens", 50
+                "temperature",      0.2,
+                "topK",             40,
+                "topP",             0.95,
+                "maxOutputTokens",  1000           // 필요에 따라 늘리거나 줄여보세요
         );
 
-        // 2) contents 리스트 만들기 (템플릿이 있으면 맨 앞에 system 역할로 삽입)
+        // 2) contents 리스트 만들기
         List<Map<String,Object>> contents = new ArrayList<>();
-        if (templateKey != null && TEMPLATE_PROMPTS.containsKey(templateKey)) {
+
+        // (1) system 프롬프트
+        contents.add(Map.of(
+                "role",  "user",
+                "parts", List.of(Map.of("text", MBTI_SYSTEM_PROMPT))
+        ));
+
+        // (2) 대화 히스토리
+        for (ChatMessage msg : history) {
+            String role = msg.getRole().equals("user")
+                    ? "user"
+                    : "model";                  // ai → model
             contents.add(Map.of(
-                    "role", "system",
-                    "parts", List.of(Map.of("text", "답변은 최대 2문장 이내의 간결한 형태로만 제공해주세요."))
+                    "role",  role,
+                    "parts", List.of(Map.of("text", msg.getContent()))
             ));
         }
-        // user 메시지
+
+        // (3) 마지막 질문
         contents.add(Map.of(
-                "role", "user",
+                "role",  "user",
                 "parts", List.of(Map.of("text", userQuestion))
         ));
 
         // 3) request body
         Map<String,Object> body = Map.of(
-                "contents", contents,
+                "contents",         contents,
                 "generationConfig", generationConfig
         );
 
-        // 4) API 호출
+        // 4) API 호출 & 에러 로깅
         Map<String,Object> res = webClient.post()
                 .uri(b -> b
                         .path("/v1beta/models/gemini-2.0-flash:generateContent")
@@ -89,37 +132,29 @@ public class ChatMessageService {
                 )
                 .bodyValue(body)
                 .retrieve()
+                .onStatus(status -> status.is4xxClientError(), resp ->
+                        resp.bodyToMono(String.class)
+                                .flatMap(errBody -> {
+                                    System.err.println("=== 400 응답 바디 ===");
+                                    System.err.println(errBody);
+                                    return Mono.error(new RuntimeException("API 요청 에러: " + errBody));
+                                })
+                )
                 .bodyToMono(new ParameterizedTypeReference<Map<String,Object>>() {})
                 .block();
 
-        // 5) 로깅
-        try {
-            System.out.println(">>> AI raw response:\n"
-                    + new ObjectMapper().writerWithDefaultPrettyPrinter().writeValueAsString(res));
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
-
-        // 6) 결과 파싱
+        // 5) 결과 파싱
         List<Map<String,Object>> candidates = (List<Map<String,Object>>) res.get("candidates");
         if (candidates == null || candidates.isEmpty()) {
             throw new RuntimeException("AI output이 없습니다.");
         }
         Map<String,Object> contentMap = (Map<String,Object>) candidates.get(0).get("content");
-        if (contentMap == null) {
-            throw new RuntimeException("AI content가 없습니다.");
-        }
-        List<Map<String,Object>> parts = (List<Map<String,Object>>) contentMap.get("parts");
-        if (parts == null || parts.isEmpty()) {
-            throw new RuntimeException("AI parts가 없습니다.");
-        }
-        String aiText = (String) parts.get(0).get("text");
-        if (aiText == null) {
-            throw new RuntimeException("AI text가 없습니다.");
-        }
+        List<Map<String,Object>> parts     = (List<Map<String,Object>>) contentMap.get("parts");
+        String aiText = parts.get(0).get("text").toString().trim();
 
-        // 7) DB에 저장
+        // 6) DB에 온전히 저장 (자르지 않음)
         ChatMessage aiMsg = new ChatMessage();
+        aiMsg.setUserId(userId);
         aiMsg.setRole("ai");
         aiMsg.setContent(aiText);
         aiMsg.setTimestamp(LocalDateTime.now());

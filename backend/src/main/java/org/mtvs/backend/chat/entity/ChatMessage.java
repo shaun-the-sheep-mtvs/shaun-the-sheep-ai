@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.flywaydb.core.internal.util.JsonUtils;
 import org.mtvs.backend.chat.dto.ChatMessageDTO;
 import java.time.LocalDateTime;
 
@@ -18,13 +17,16 @@ public class ChatMessage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String userId;
     private String role; // "user" or "ai"
+    @Column(columnDefinition = "TEXT")
     private String content;
     private LocalDateTime timestamp;
     // Optionally, add a conversationId or userId for grouping
 
     public ChatMessageDTO toDTO() {
         ChatMessageDTO dto = new ChatMessageDTO();
+        dto.setUserId(this.userId);
         dto.setId(this.id);
         dto.setRole(this.role);
         dto.setContent(this.content);

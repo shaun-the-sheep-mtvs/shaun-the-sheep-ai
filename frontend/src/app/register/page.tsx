@@ -16,28 +16,47 @@ export default function RegisterPage() {
     e.preventDefault();
     setError(null);
 
-        try {
-            const res = await fetch(apiConfig.endpoints.auth.signup, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password }),
-            });
+    try {
+      // 1) 회원가입
+      const signupRes = await fetch(apiConfig.endpoints.auth.signup, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
 
-            console.log('status:', res.status);
+      if (!signupRes.ok) {
+        const text = await signupRes.text();
+        setError(text || '회원가입에 실패했습니다.');
+        return;
+      }
 
-            if (!res.ok) {
-                const errorText = await res.text();
-                setError(errorText || '회원가입에 실패했습니다.');
-                return;
-            }
+      // 2) 바로 로그인
+      const loginRes = await fetch(apiConfig.endpoints.auth.login, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-            // 가입 성공 후 로그인 페이지로 이동
-            router.push('/login');
-        } catch (error) {
-            console.error('Register error:', error);
-            setError('네트워크 오류가 발생했습니다.');
-        }
-    };
+      if (!loginRes.ok) {
+        const text = await loginRes.text();
+        setError(text || '자동 로그인에 실패했습니다.');
+        return;
+      }
+
+      const { accessToken, refreshToken } = await loginRes.json();
+
+      // 3) 토큰 저장
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+
+      // 4) 체크리스트 페이지로 이동
+      router.push('/checklist');
+
+    } catch (err) {
+      console.error('Register/Login error:', err);
+      setError('네트워크 오류가 발생했습니다.');
+    }
+  };
 
   return (
     <div className={styles.page}>
@@ -76,10 +95,8 @@ export default function RegisterPage() {
               <input
                 id="password"
                 type="password"
-                
                 placeholder="패스워드를 입력해주세요"
                 value={password}
-              
                 onChange={e => setPassword(e.target.value)}
                 required
               />
@@ -88,7 +105,10 @@ export default function RegisterPage() {
             <button type="submit" className={styles.registerButton}>
               가입 하기
             </button>
-            <div className={styles.loginLink} onClick={() => router.push('/login')}>
+            <div
+              className={styles.loginLink}
+              onClick={() => router.push('/login')}
+            >
               로그인
             </div>
           </form>
@@ -97,4 +117,5 @@ export default function RegisterPage() {
     </div>
   );
 }
+
 

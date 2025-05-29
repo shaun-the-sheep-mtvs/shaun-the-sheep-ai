@@ -5,6 +5,7 @@ import styles from './page.module.css';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X } from "lucide-react";
+import apiConfig from '@/config/api';
 
 const ROUTINE_TIMES = [
   { label: '아침', value: 'MORNING' },
@@ -59,6 +60,7 @@ export default function RoutineManagePage() {
   const [previewGroups, setPreviewGroups] = useState<PreviewProductGroup[]>([]);
   const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
   
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
   };
@@ -109,14 +111,15 @@ export default function RoutineManagePage() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/routine/create', {
+      // 1. 첫 번째 API 호출: 루틴 생성 (사용자가 입력한 루틴 정보 저장)
+      const responseCreate = await fetch(apiConfig.endpoints.routine.create, {
         method: 'POST',
-        headers: { 
+        headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          routines: previewGroups.flatMap((group, groupIndex) => 
+          routines: previewGroups.flatMap((group) =>
             group.products.map((product, productIndex) => ({
               name: product.name,
               kind: product.kind,
@@ -127,19 +130,51 @@ export default function RoutineManagePage() {
           )
         }),
       });
-  
-      if (!response.ok) {
-        const errorText = await response.text();
-        throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
+
+      if (!responseCreate.ok) {
+        const errorText = await responseCreate.text();
+        throw new Error(`루틴 생성 실패! status: ${responseCreate.status}, message: ${errorText}`);
       }
-  
-      const result = await response.text();
-      console.log('Success:', result);
+
+      const resultCreate = await responseCreate.text();
+      console.log('루틴 생성 성공:', resultCreate);
+
+      // 2. 두 번째 API 호출: AI 추천 요청 트리거
+      // 서버가 @AuthenticationPrincipal을 통해 사용자 ID를 얻고,
+      // 해당 ID로 루틴 정보와 피부 고민 정보를 DB에서 조회하여 AI 프롬프트를 구성합니다.
+      // 따라서 프론트엔드는 요청 body를 보낼 필요가 없습니다.
+      try {
+        const responseRecommend = await fetch(apiConfig.endpoints.deep.recommend, {
+          method: 'POST', // 컨트롤러가 @PostMapping이므로 POST 유지
+          headers: {
+            // 'Content-Type': 'application/json', // 본문이 없으므로 Content-Type 불필요
+            'Authorization': `Bearer ${token}` // 사용자 식별을 위해 인증 토큰 전송
+          },
+          // body는 서버에서 처리하므로 프론트에서 보낼 필요 없음
+        });
+
+        if (!responseRecommend.ok) {
+          const errorTextRecommend = await responseRecommend.text();
+          console.error(`AI 추천 요청 실패! status: ${responseRecommend.status}, message: ${errorTextRecommend}`);
+          // 필요시 사용자에게 알림: alert('루틴은 등록되었으나, AI 추천을 받는 데 실패했습니다.');
+        } else {
+          const resultRecommend = await responseRecommend.text(); // AI 서비스의 응답 (JSON 문자열)
+          console.log('AI 추천 요청 성공:', resultRecommend);
+          // 여기서 resultRecommend (AI의 응답 JSON 문자열)를 파싱하여
+          // 필요한 경우 상태를 업데이트하거나 사용자에게 보여줄 수 있습니다.
+          // 예를 들어, localStorage에 저장하거나, 상태 변수에 저장 후 step2 페이지로 전달 등.
+        }
+      } catch (recommendError) {
+        console.error('AI 추천 API 호출 중 네트워크 오류 또는 기타 문제 발생:', recommendError);
+        // 필요시 사용자에게 알림: alert('루틴은 등록되었으나, AI 추천 요청 중 오류가 발생했습니다.');
+      }
+
+      // 첫 번째 API(루틴 생성)가 성공했으므로 알림 및 페이지 이동
       alert('등록되었습니다.');
-      router.push('/step2');
-      
-    } catch (error) {
-      console.error('Error:', error);
+      router.push('/step2'); // step2 페이지로 이동하여 추천 결과를 보여줄 수 있음
+
+    } catch (error) { // 주로 첫 번째 API 호출의 에러를 처리
+      console.error('Error in handleComplete:', error);
       alert('요청 중 오류가 발생했습니다.');
     }
   };
@@ -175,6 +210,10 @@ export default function RoutineManagePage() {
 
   const handleBack = () => {
     setCurrentStep('time');
+  };
+
+  const handleRemovePreviewGroup = (groupIndex: number) => {
+    setPreviewGroups(prev => prev.filter((_, index) => index !== groupIndex));
   };
 
   return (
@@ -359,8 +398,18 @@ export default function RoutineManagePage() {
               </div>
               {previewGroups.map((group, groupIndex) => (
                 <div key={groupIndex} className={styles['preview-group']}>
-                  <div className={styles['preview-time']}>
-                    {group.time === 'MORNING' ? '아침' : '저녁'} 루틴
+                  <div className={styles['preview-header']}>
+                    <div className={styles['preview-time']}>
+                      {group.time === 'MORNING' ? '아침' : '저녁'} 루틴
+                    </div>
+                    <button
+                      className={styles['remove-preview-btn']}
+                      onClick={() => handleRemovePreviewGroup(groupIndex)}
+                      type="button"
+                      aria-label="삭제"
+                    >
+                      ×
+                    </button>
                   </div>
                   <div className={styles['preview-list']}>
                     {group.products.map((product, idx) => (
@@ -395,6 +444,8 @@ export default function RoutineManagePage() {
           </div>
         )}
       </div>
+
     </div>
+
   );
 } 

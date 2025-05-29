@@ -1,5 +1,6 @@
 package org.mtvs.backend.checklist.dto;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CheckListRequest {
@@ -8,7 +9,7 @@ public class CheckListRequest {
     private Integer oil;
     private Integer sensitivity;
     private Integer tension;
-    private List<String> troubles;
+    private List<String> troubles = new ArrayList<>();
     private String username;
 
     public String getUserId() {
