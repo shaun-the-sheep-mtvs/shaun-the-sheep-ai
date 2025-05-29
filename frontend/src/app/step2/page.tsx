@@ -7,6 +7,7 @@ import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles, FileText } from "lucide-react";
 import Link from 'next/link';
+import apiConfig from '@/config/api';
 
 // recommend/page.tsx에서 Product 타입을 가져옵니다.
 interface Product {
@@ -106,27 +107,27 @@ export default function Step2() {
            return;
         }
 
-        const fetchUserData = axios.get<User>('http://localhost:8080/api/auth/me', { // 타입 User로 수정
+        const fetchUserData = axios.get<User>(apiConfig.endpoints.auth.me, { // 타입 User로 수점
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
 
-        const fetchSkinData = axios.get<UserSkinData>('http://localhost:8080/api/user/skin-data', {
+        const fetchSkinData = axios.get<UserSkinData>(apiConfig.endpoints.user.skinData, {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
 
-        const fetchExistingRoutines = axios.get<ApiRoutineItem[]>('http://localhost:8080/api/routine/existing', {
+        const fetchExistingRoutines = axios.get<ApiRoutineItem[]>(apiConfig.endpoints.routine.existing, {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
 
-        const fetchRecommendedRoutines = axios.get<ApiRecommendedRoutineItem[]>('http://localhost:8080/api/deep/routine-change', {
+        const fetchRecommendedRoutines = axios.get<ApiRecommendedRoutineItem[]>(apiConfig.endpoints.deep.routineChange, {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
 
-        const fetchDeepRecommendations = axios.get<ApiDeepRecommendItem[]>('http://localhost:8080/api/deep/product-recommend', {
+        const fetchDeepRecommendations = axios.get<ApiDeepRecommendItem[]>(apiConfig.endpoints.deep.productRecommend, {
             headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
