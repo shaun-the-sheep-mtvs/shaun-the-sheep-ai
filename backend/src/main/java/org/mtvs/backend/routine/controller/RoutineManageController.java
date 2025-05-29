@@ -3,7 +3,6 @@ package org.mtvs.backend.routine.controller;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.routine.dto.*;
 import org.mtvs.backend.routine.service.RoutineManageService;
-import org.mtvs.backend.user.dto.ProblemDto;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
