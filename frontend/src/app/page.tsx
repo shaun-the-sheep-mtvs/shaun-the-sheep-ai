@@ -83,7 +83,7 @@ const mbtiList = {
   },
   "DBSL": {
     "type": "건성",
-    "description": "수분·유분·탄력이 모두 부족해 피부가 거칠고 처짐이 심해요.",
+    "description": "수분·유분·탄력이 모두 부족해 피부가 거칠고 처짐이 심할 것으로 예상됩니다.",
     "advice": "장벽 강화·고보습·탄력 케어 제품을 함께 사용하여 집중 관리하세요."
   },
   "DOIT": {
@@ -103,7 +103,7 @@ const mbtiList = {
   },
   "DBIL": {
     "type": "건성",
-    "description": "수분·유분·탄력이 모두 부족해 피부가 건조하고 처짐이 심해요.",
+    "description": "수분·유분·탄력이 모두 부족해 피부가 건조하고 처짐이 심할 것으로 예상됩니다",
     "advice": "고보습·탄력 강화 루틴을 집중적으로 적용하세요."
   },
   "default": {
@@ -320,13 +320,13 @@ export default function Home() {
             </Link>
           </li>
           <li className={pathname === '/ai-chat' ? styles.menuActive : ''}>
-            <Link href="/ai-chat" className={styles.menuLink}>
+            <Link href="/" className={styles.menuLink}>
               <MessageCircle className={styles.menuIcon} />
               AI 채팅
             </Link>
           </li>
           <li className={pathname === '/profile' ? styles.menuActive : ''}>
-            <Link href="/profile" className={styles.menuLink}>
+            <Link href="/" className={styles.menuLink}>
               <User className={styles.menuIcon} />
               회원정보
             </Link>
@@ -363,6 +363,7 @@ export default function Home() {
                   <h2 className={styles.sectionMainTitle}>피부 분석 리포트</h2>
                   <div className={styles.sectionSubtitle}>피부 상태를 분석하여 맞춤형 케어 솔루션을 제안합니다</div>
                 </div>
+
                 
                 <div className={styles.resultSection}>
                   <div className={styles.checklistBox}>
@@ -411,7 +412,7 @@ export default function Home() {
                         {mbtiList[mbti as keyof typeof mbtiList].advice}
                       </div>
                     </div>
-                    
+
                     {/* 상세 리포트 버튼 추가 */}
                     <Link href="/report" className={styles.reportButton}>
                       <FileText className={styles.buttonIcon} />
@@ -432,12 +433,13 @@ export default function Home() {
                     더 많은 제품을 확인해보세요!
                   </div>
                 </div>
-                
+
                 <div className={styles.productList}>
                   {products.map((p, i) => (
                     <div key={i} className={styles.productCard}>
                       <div className={styles.productImg}>
                         {p.imageUrl ? (
+
                           <img 
                             src={p.imageUrl} 
                             alt={p.name}
@@ -482,7 +484,7 @@ export default function Home() {
                     전문적인 피부 진단으로 더 정확한 결과를 확인하세요
                   </div>
                 </div>
-                
+
                 <Link href="/routine-manage" className={styles.goBtn}>
                   <ClipboardCheck className={styles.buttonIcon} />
                   정밀 피부 검사 받기

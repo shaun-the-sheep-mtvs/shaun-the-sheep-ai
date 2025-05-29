@@ -34,18 +34,6 @@ public class NaverApiController {
         this.naverApiService = naverApiService;
     }
 
-
-    /*
-    * 해당하는 제품명이 없을때만 API 요청을 통해 이미지를 전달하고,
-    * Json->
-    * DB에 저장 시켜야함.
-    * 1. text에 해당하는 제품을 db에서 갖고온다.
-    * 2. 갖고 온거를 String[] 응답으로 전달해준다.
-    * 3. 없다면 Get요청을 보내서 응답을 전달한다. -> 또한 db에 저장도
-    * //밥먹고할일 db만들기.
-    * 첫 3개 제품 이미지 띄우기 -> 성공
-    * 성공시 맞춤형 제품 추천받기 이미지 띄우기도 해보기.
-    * */
     //front에서 보낼것.
     @GetMapping
     public ResponseEntity<?> saveImage(@AuthenticationPrincipal CustomUserDetails user) {
