@@ -19,11 +19,10 @@ function shuffle<T>(arr: T[]): T[] {
 }
 
 export default function ChecklistPage() {
-  const [initialLoaded, setInitialLoaded] = useState(false);
   const [stage, setStage] = useState<'quiz' | 'concerns'>('quiz');
   const [qs, setQs] = useState<Question[]>([]);
   const [idx, setIdx] = useState(0);
-  const [answers, setAnswers] = useState<{ cat: Category; score: number }[]>([]);
+  const [answers, setAnswers] = useState<{ cat: Category; score: number; weight: number }[]>([]);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [selectedConcerns, setSelectedConcerns] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
@@ -76,17 +75,22 @@ export default function ChecklistPage() {
   }, []);
 
   // 카테고리별 총점 & 백분율 계산
-  const sums = answers.reduce<Record<Category, number>>((acc, { cat, score }) => {
-    acc[cat] = (acc[cat] || 0) + score;
-    return acc;
-  }, { moisture: 0, oil: 0, sensitivity: 0, tension: 0 });
+  const weightedSums = answers.reduce<Record<Category, number>>((acc, { cat, score, weight }) => {
+  acc[cat] = (acc[cat] || 0) + score * weight;
+  return acc;
+}, { moisture: 0, oil: 0, sensitivity: 0, tension: 0 });
 
-  const percent = (cat: Category) => {
-    const maxForCat = qs.filter(q => q.category === cat).length * 2;
-    if (maxForCat === 0) return 0;
-    const raw = Math.round((sums[cat] / maxForCat) * 100);
-    return Math.min(raw, 100);
-  };
+const percent = (cat: Category) => {
+  const qsOfCat = qs.filter(q => q.category === cat);
+  // 카테고리별 최대 가중치 합계 = ∑(q.weight * maxScoreForQ)
+  const maxWeighted = qsOfCat.reduce((sum, q) => {
+    const maxScore = Math.max(...q.options.map(o => o.score));
+    return sum + q.weight * maxScore;
+  }, 0);
+  if (maxWeighted === 0) return 0;
+  const raw = Math.round((weightedSums[cat] / maxWeighted) * 100);
+  return Math.min(raw, 100);
+};
 
   // 체크리스트 서버 제출 (setSubmitting 은 handleSubmit에서 관리)
   const submitAll = async (concernIds: string[]): Promise<boolean> => {
@@ -188,7 +192,10 @@ export default function ChecklistPage() {
     };
 
     const onSelect = (score: number, optIdx: number) => {
-      setAnswers(a => [...a, { cat: q.category, score }]);
+      setAnswers(a => [
+         ...a,
+         { cat: q.category, score, weight: q.weight }
+      ]);
       setSelectedOption(optIdx);
       setTimeout(() => {
         setSelectedOption(null);

@@ -121,64 +121,113 @@ export const QUESTIONS: Question[] = [
   {
     id: 9,
     category: 'oil',
-    weight: 1.0,  // 기본
+    weight: 1.0,
     text: '오후에 얼굴에 번들거림을 느끼시나요?',
-    options: [ /* … */ ],
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '조금 번들거린다', score: 1 },
+      { label: '보통이다', score: 2 },
+      { label: '자주 번들거린다', score: 3 },
+      { label: '항상 번들거린다', score: 4 },
+    ],
   },
   {
     id: 10,
     category: 'oil',
-    weight: 1.2,  // T존 모공 확대는 지성 피부의 핵심 지표
+    weight: 1.2,
     text: '코 주변과 이마 모공이 눈에 띄게 확대되어 보이나요?',
-    options: [ /* … */ ],
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '조금 그렇다', score: 1 },
+      { label: '보통이다', score: 2 },
+      { label: '뚜렷하다', score: 3 },
+      { label: '매우 뚜렷하다', score: 4 },
+    ],
   },
   {
     id: 11,
     category: 'oil',
-    weight: 1.3,  // 세안 후 3시간 이내 유분 잔존은 매우 신뢰도 높음
+    weight: 1.3,
     text: '세안 후 3시간 이내에 피부 표면에 유분이 남아 있나요?',
-    options: [ /* … */ ],
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '조금 그렇다', score: 1 },
+      { label: '보통이다', score: 2 },
+      { label: '자주 그렇다', score: 3 },
+      { label: '항상 그렇다', score: 4 },
+    ],
   },
   {
     id: 12,
     category: 'oil',
-    weight: 1.0,  // 메이크업 내구성은 보조 지표
+    weight: 1.0,
     text: '파운데이션 등 화장한 부위가 쉽게 무너지거나 번지시나요?',
-    options: [ /* … */ ],
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '조금 번진다', score: 1 },
+      { label: '보통이다', score: 2 },
+      { label: '자주 번진다', score: 3 },
+      { label: '항상 번진다', score: 4 },
+    ],
   },
   {
     id: 13,
     category: 'oil',
-    weight: 0.8,  // 매트 제품 후에도 번들거림은 보조 항목
+    weight: 0.8,
     text: '매트 타입 제품 사용 후에도 번들거림이 남아 있나요?',
-    options: [ /* … */ ],
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '조금 그렇다', score: 1 },
+      { label: '보통이다', score: 2 },
+      { label: '자주 그렇다', score: 3 },
+      { label: '항상 그렇다', score: 4 },
+    ],
   },
   {
     id: 14,
     category: 'oil',
-    weight: 0.8,  // 블러셔/파우더 뒤 유분감 역시 부가 지표
+    weight: 0.8, 
     text: '블러셔나 파우더 사용 후에도 유분감이 느껴지나요?',
-    options: [ /* … */ ],
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '조금 있다', score: 1 },
+      { label: '보통이다', score: 2 },
+      { label: '자주 있다', score: 3 },
+      { label: '항상 있다', score: 4 },
+    ],
   },
   {
     id: 15,
     category: 'oil',
-    weight: 1.2,  // 특정 부위 집중 유분은 핵심
+    weight: 1.2,
     text: '하루 중 특정 부위(이마, 콧볼 등)에 유분이 더 몰리나요?',
-    options: [ /* … */ ],
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '조금 그렇다', score: 1 },
+      { label: '보통이다', score: 2 },
+      { label: '뚜렷하게 그렇다', score: 3 },
+      { label: '매우 그렇다', score: 4 },
+    ],
   },
   {
     id: 16,
     category: 'oil',
-    weight: 1.0,  // 직접 체크는 기본 가중치
+    weight: 1.0,
     text: '얼굴을 만졌을 때 손에 유분감이 묻어나나요?',
-    options: [ /* … */ ],
+    options: [
+      { label: '전혀 아니다', score: 0 },
+      { label: '조금 있다', score: 1 },
+      { label: '보통이다', score: 2 },
+      { label: '자주 있다', score: 3 },
+      { label: '항상 있다', score: 4 },
+    ],
   },
+
   // --- sensitivity ---
   {
     id: 17,
     category: 'sensitivity',
-    weight: 1.0,
+    weight: 1.5,
     text: '스킨케어 제품·비누 사용 직후 피부가 붉어지나요?',
     options: [
       { label: '전혀 아니다', score: 0 },
@@ -191,7 +240,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 18,
     category: 'sensitivity',
-    weight: 1.0,
+    weight: 1.3, 
     text: '온도·습도 변화 시 피부에 자극을 느끼시나요?',
     options: [
       { label: '전혀 아니다', score: 0 },
@@ -204,7 +253,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 19,
     category: 'sensitivity',
-    weight: 1.0,
+    weight: 1.5, 
     text: '알레르기 반응(발진·가려움 등)을 경험한 적이 있나요?',
     options: [
       { label: '전혀 없다', score: 0 },
@@ -217,7 +266,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 20,
     category: 'sensitivity',
-    weight: 1.0,
+    weight: 1.4, 
     text: '새 제품 사용 시 피부에 찌릿함·따가움을 느끼시나요?',
     options: [
       { label: '전혀 아니다', score: 0 },
@@ -230,7 +279,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 21,
     category: 'sensitivity',
-    weight: 1.0,
+    weight: 1.2,
     text: '자외선 노출 후 피부가 붉어지거나 따가움을 느끼시나요?',
     options: [
       { label: '전혀 아니다', score: 0 },
@@ -243,7 +292,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 22,
     category: 'sensitivity',
-    weight: 1.0,
+    weight: 1.1,
     text: '피부 트러블 시 가려움이나 통증을 느끼시나요?',
     options: [
       { label: '전혀 아니다', score: 0 },
@@ -269,7 +318,7 @@ export const QUESTIONS: Question[] = [
   {
     id: 24,
     category: 'sensitivity',
-    weight: 1.0,
+    weight: 0.8,
     text: '새로운 음식이나 향수 등 자극 원인 후 반응이 있나요?',
     options: [
       { label: '모름/해당 없음', score: 0 },
