@@ -59,7 +59,7 @@ export default function ChecklistPage() {
   // 진행도 계산
   useEffect(() => {
     setProgress(qs.length ? Math.round((idx / qs.length) * 100) : 0);
-  }, [idx, qs.length]);
+  }, [idx]);
 
   // 퀴즈 셋업: 카테고리별 3문항씩 랜덤 선택
   useEffect(() => {
@@ -191,10 +191,32 @@ const percent = (cat: Category) => {
       setSelectedOption(null);
     };
 
-    const onSelect = (score: number, optIdx: number) => {
+    const onSelect = (opt: { label: string; score: number }, optIdx: number) => {
+      // “모름”/“해당 없음”인 경우: 문항 교체만, idx 증가 X → progress 유지
+      if (opt.label === '모름' || opt.label === '해당 없음') {
+        setSelectedOption(optIdx);
+        const pool = QUESTIONS
+          .filter(x => x.category === q.category)
+          // 해당 옵션이 없는 문항만
+          .filter(x => !x.options.some(o => o.label === '모름' || o.label === '해당 없음'))
+          // 아직 qs에 없는 문항만
+          .filter(x => !qs.some(existing => existing.id === x.id));
+        if (pool.length) {
+          setQs(prev => {
+            const next = [...prev];
+            next[idx] = pool[0];
+            return next;
+          });
+        }
+        // 잠깐 선택 표시 후 해제
+        setTimeout(() => setSelectedOption(null), 150);
+        return;
+      }
+
+      // 일반 답변: 기록 & 다음으로
       setAnswers(a => [
-         ...a,
-         { cat: q.category, score, weight: q.weight }
+        ...a,
+        { cat: q.category, score: opt.score, weight: q.weight }
       ]);
       setSelectedOption(optIdx);
       setTimeout(() => {
@@ -237,7 +259,7 @@ const percent = (cat: Category) => {
               <div key={i} className={styles.optionWrapper}>
                 <button
                   className={`${styles.option} ${selectedOption === i ? styles.selected : ''}`}
-                  onClick={() => onSelect(opt.score, i)}
+                  onClick={() => onSelect(opt, i)}
                 />
                 <span className={styles.optionLabel}>{opt.label}</span>
               </div>

@@ -31,7 +31,7 @@ export const QUESTIONS: Question[] = [
     weight: 1.4,
     text: '세안 직후 피부가 당기거나 건조함을 느끼시나요?',
     options: [
-      { label: '전혀 아니다', score: 0 },
+      { label: '해당 없음', score: 0 },
       { label: '조금 그렇다', score: 1 },
       { label: '보통이다', score: 2 },
       { label: '자주 그렇다', score: 3 },
@@ -44,7 +44,7 @@ export const QUESTIONS: Question[] = [
     weight: 1.2,
     text: '세안 후 피부가 거칠게 느껴지시나요?',
     options: [
-      { label: '전혀 아니다', score: 0 },
+      { label: '해당 없음', score: 0 },
       { label: '조금 그렇다', score: 1 },
       { label: '보통이다', score: 2 },
       { label: '자주 그렇다', score: 3 },
@@ -57,7 +57,7 @@ export const QUESTIONS: Question[] = [
     weight: 1.1,
     text: '하루에 수분이나 크림(로션)을 하루에 몇 번 바르시나요?',
     options: [
-      { label: '0회', score: 4 },
+      { label: '해당 없음', score: 4 },
       { label: '1회', score: 3 },
       { label: '2회', score: 2 },
       { label: '3회', score: 1 },
@@ -109,7 +109,7 @@ export const QUESTIONS: Question[] = [
     weight: 0.7,
     text: '일주일에 수분 마스크팩을 얼마나 자주 사용하시나요?',
     options: [
-      { label: '전혀 사용하지 않음', score: 4 },
+      { label: '해당 없음', score: 4 },
       { label: '월 1회 미만', score: 3 },
       { label: '월 1~2회', score: 2 },
       { label: '주 1~2회', score: 1 },
@@ -150,7 +150,7 @@ export const QUESTIONS: Question[] = [
     weight: 1.3,
     text: '세안 후 3시간 이내에 피부 표면에 유분이 남아 있나요?',
     options: [
-      { label: '전혀 아니다', score: 0 },
+      { label: '해당 없음', score: 0 },
       { label: '조금 그렇다', score: 1 },
       { label: '보통이다', score: 2 },
       { label: '자주 그렇다', score: 3 },
@@ -163,7 +163,7 @@ export const QUESTIONS: Question[] = [
     weight: 1.0,
     text: '파운데이션 등 화장한 부위가 쉽게 무너지거나 번지시나요?',
     options: [
-      { label: '전혀 아니다', score: 0 },
+      { label: '해당 없음', score: 0 },
       { label: '조금 번진다', score: 1 },
       { label: '보통이다', score: 2 },
       { label: '자주 번진다', score: 3 },
@@ -176,7 +176,7 @@ export const QUESTIONS: Question[] = [
     weight: 0.8,
     text: '매트 타입 제품 사용 후에도 번들거림이 남아 있나요?',
     options: [
-      { label: '전혀 아니다', score: 0 },
+      { label: '해당 없음', score: 0 },
       { label: '조금 그렇다', score: 1 },
       { label: '보통이다', score: 2 },
       { label: '자주 그렇다', score: 3 },
@@ -189,7 +189,7 @@ export const QUESTIONS: Question[] = [
     weight: 0.8, 
     text: '블러셔나 파우더 사용 후에도 유분감이 느껴지나요?',
     options: [
-      { label: '전혀 아니다', score: 0 },
+      { label: '해당 없음', score: 0 },
       { label: '조금 있다', score: 1 },
       { label: '보통이다', score: 2 },
       { label: '자주 있다', score: 3 },
@@ -230,7 +230,7 @@ export const QUESTIONS: Question[] = [
     weight: 1.5,
     text: '스킨케어 제품·비누 사용 직후 피부가 붉어지나요?',
     options: [
-      { label: '전혀 아니다', score: 0 },
+      { label: '해당 없음', score: 0 },
       { label: '조금 붉어진다', score: 1 },
       { label: '보통이다', score: 2 },
       { label: '자주 그렇다', score: 3 },
@@ -269,7 +269,7 @@ export const QUESTIONS: Question[] = [
     weight: 1.4, 
     text: '새 제품 사용 시 피부에 찌릿함·따가움을 느끼시나요?',
     options: [
-      { label: '전혀 아니다', score: 0 },
+      { label: '해당 없음', score: 0 },
       { label: '조금 그렇다', score: 1 },
       { label: '보통이다', score: 2 },
       { label: '자주 그렇다', score: 3 },
@@ -321,7 +321,7 @@ export const QUESTIONS: Question[] = [
     weight: 0.8,
     text: '새로운 음식이나 향수 등 자극 원인 후 반응이 있나요?',
     options: [
-      { label: '모름/해당 없음', score: 0 },
+      { label: '전혀 없다.', score: 0 },
       { label: '조금 있다', score: 1 },
       { label: '보통이다', score: 2 },
       { label: '자주 있다', score: 3 },
