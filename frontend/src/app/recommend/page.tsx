@@ -299,9 +299,6 @@ export default function RecommendPage() {
                 <span className={styles["highlight"]}> {recommendData.concerns.join(', ')}</span>} 고민을 해결해보세요! <br /> <br />
             </p>
             <div className={styles["title-divider"]}></div>
-            <small style={{ color: '#888', fontWeight: 'bold' }}>
-              이 페이지의 일부 링크는 쿠팡 파트너스 활동을 통해 일정 수수료를 받을 수 있습니다.
-            </small>
           </div>
 
           {/* Toner Section */}
