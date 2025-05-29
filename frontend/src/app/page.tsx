@@ -382,7 +382,12 @@ export default function Home() {
               <div className={styles.analysisBox}>
                 <h3>피부 타입 분석</h3>
                 <div className={styles.mbtiResult}>
-                  <div className={styles.mbtiTitle}>피부 MBTI</div>
+                  <div className={styles.mbtiTitle}>
+                    <span className={styles.userName}>
+                      {loading ? 'Loading...' : user ? user.username : 'Guest'}
+                    </span>
+                    님의 피부 MBTI
+                  </div>
                   <div className={styles.mbtiCode}>
                     <span>{mbti.charAt(0)}</span>
                     <span>{mbti.charAt(1)}</span>
@@ -490,12 +495,7 @@ export default function Home() {
                 <div className={styles.concernItem}>
                   <div className={styles.concernIcon}>🧪</div>
                   <div className={styles.concernLabel}>테스트</div>
-                  <button 
-                    onClick={() => router.push('/testweek')}
-                    className={styles.testButton}
-                  >
-                    테스트 페이지
-                  </button>
+                
                 </div>
               </div>
             </section>

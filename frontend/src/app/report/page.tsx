@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { apiConfig } from '@/config/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Image from 'next/image';
-import { Info } from 'lucide-react';
+import { Info, Home } from 'lucide-react';
 
 interface CheckListResponse {
   id: number;
@@ -32,6 +32,8 @@ interface DetailInfo {
   solutions: string[];
   products: string[];
 }
+
+type MeasurementType = 'moisture' | 'oil' | 'sensitivity' | 'tension';
 
 const measurementInfo = {
   moisture: {
@@ -915,6 +917,13 @@ const getAnalysisContent = (type: string, value: number) => {
   return contents[type as keyof typeof contents][level];
 };
 
+const measurementColors: Record<MeasurementType, string> = {
+  moisture: '#4FC3F7',
+  oil: '#FFB74D',
+  sensitivity: '#F06292',
+  tension: '#81C784'
+};
+
 export default function ReportPage() {
   const router = useRouter();
   const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
@@ -922,7 +931,7 @@ export default function ReportPage() {
   const [error, setError] = useState<string | null>(null);
   const [mbti, setMbti] = useState<string>("default");
   const [skinInfo, setSkinInfo] = useState<SkinTypeInfo>(skinTypeInfoMap["default"]);
-  const [selectedMeasurement, setSelectedMeasurement] = useState<string>("moisture");
+  const [selectedMeasurement, setSelectedMeasurement] = useState<MeasurementType>("moisture");
   const [skinType, setSkinType] = useState<keyof typeof skinTypeAnalysis>('combination');
   const [userName, setUserName] = useState<string>("");
 
@@ -1013,6 +1022,13 @@ export default function ReportPage() {
     <div className={styles.reportPage}>
       <div className={styles.reportContainer}>
         <div className={styles.reportHeader}>
+          <button 
+            className={styles.homeButton}
+            onClick={() => router.push('/')}
+          >
+            <Home size={20} />
+            이전
+          </button>
           <h1>
             <span className={styles.userName}>
               {userName || 'Guest'}
@@ -1051,7 +1067,7 @@ export default function ReportPage() {
                 <div 
                   key={item.key} 
                   className={`${styles.measurementBar} ${selectedMeasurement === item.key ? styles.selected : ''}`}
-                  onClick={() => setSelectedMeasurement(item.key)}
+                  onClick={() => setSelectedMeasurement(item.key as MeasurementType)}
                 >
                   <div className={styles.barLabel}>
                     <span>{item.label}</span>
@@ -1071,14 +1087,24 @@ export default function ReportPage() {
           <section className={`${styles.section} ${styles.detailSection}`}>
             <h2>상세 분석 결과</h2>
             <div className={styles.detailView}>
-              <div className={styles.detailHeader}>
+              <div 
+                className={styles.detailHeader}
+                style={{ 
+                  backgroundColor: `${measurementColors[selectedMeasurement]}15`,
+                  borderLeft: `4px solid ${measurementColors[selectedMeasurement]}`
+                }}
+              >
                 <span className={styles.detailIcon}>{detailInfoMap[selectedMeasurement].icon}</span>
-                <h3>{detailInfoMap[selectedMeasurement].title} 분석</h3>
+                <h3 style={{ color: measurementColors[selectedMeasurement] }}>
+                  {detailInfoMap[selectedMeasurement].title} 분석
+                </h3>
               </div>
               <p className={styles.detailDescription}>
                 {detailInfoMap[selectedMeasurement].description}
                 <br />
-                현재 수치: {checklist?.[selectedMeasurement as keyof CheckListResponse]}%
+                현재 수치: <span style={{ color: measurementColors[selectedMeasurement], fontWeight: 'bold' }}>
+                  {checklist?.[selectedMeasurement as keyof CheckListResponse]}%
+                </span>
                 <br />
                 측정 범위: {getAnalysisContent(
                   selectedMeasurement,
@@ -1090,8 +1116,20 @@ export default function ReportPage() {
                   selectedMeasurement,
                   Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0
                 ).characteristics.map((item, index) => (
-                  <div key={index} className={styles.characteristicItem}>
-                    <span className={styles.characteristicNumber}>{index + 1}</span>
+                  <div 
+                    key={index} 
+                    className={styles.characteristicItem}
+                    style={{ 
+                      borderLeft: `3px solid ${measurementColors[selectedMeasurement]}`,
+                      backgroundColor: `${measurementColors[selectedMeasurement]}08`
+                    }}
+                  >
+                    <span 
+                      className={styles.characteristicNumber}
+                      style={{ backgroundColor: measurementColors[selectedMeasurement] }}
+                    >
+                      {index + 1}
+                    </span>
                     <p>{item}</p>
                   </div>
                 ))}
