@@ -139,7 +139,7 @@
   .sectionMainTitle {
     font-size: 2.25rem;
   }
-
+  
   .sectionSubtitle {
     font-size: 1.25rem;
   }
@@ -402,10 +402,12 @@ a.secondary {
   --primary-mint-light: #6ee7b7; /* 연한 민트색 - 더 밝게 (#34d399 → #6ee7b7) */
   --primary-teal: #2dd4bf; /* 진한 청록색 - 더 밝게 (#0d9488 → #2dd4bf) */
 
+
   /* RGB 값들 - rgba()에서 효율적으로 사용 */
   --primary-mint-rgb: 52, 211, 153; /* #34d399 RGB */
   --primary-mint-light-rgb: 110, 231, 183; /* #6ee7b7 RGB */
   --primary-teal-rgb: 45, 212, 191; /* #2dd4bf RGB */
+
 
   --light-mint: #ecfdf5; /* 하단 버튼 배경 */
   --bg-mint: #f0fdfa; /* 민트 배경 */
@@ -793,6 +795,7 @@ a.secondary {
     padding: 0.875rem 1.25rem;
     width: 100%;
   }
+
 
   .goBtn {
     font-size: 1.5rem;

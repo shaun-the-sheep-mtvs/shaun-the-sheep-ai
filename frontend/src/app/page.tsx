@@ -364,6 +364,7 @@ export default function Home() {
                   <div className={styles.sectionSubtitle}>피부 상태를 분석하여 맞춤형 케어 솔루션을 제안합니다</div>
                 </div>
 
+                
                 <div className={styles.resultSection}>
                   <div className={styles.checklistBox}>
                     <h3>진단 측정 결과</h3>
@@ -438,8 +439,9 @@ export default function Home() {
                     <div key={i} className={styles.productCard}>
                       <div className={styles.productImg}>
                         {p.imageUrl ? (
-                          <img
-                            src={p.imageUrl}
+
+                          <img 
+                            src={p.imageUrl} 
                             alt={p.name}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
