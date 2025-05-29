@@ -47,7 +47,7 @@ export default function RoutineManagePage() {
   const [previewGroups, setPreviewGroups] = useState<PreviewProductGroup[]>([]);
   const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
   const [selectedMeasurement, setSelectedMeasurement] = useState<MeasurementType | null>(null);
-  
+
 
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
@@ -230,14 +230,14 @@ export default function RoutineManagePage() {
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>, idx: number) => {
     e.preventDefault();
     e.dataTransfer.dropEffect = 'move';
-    
+
     const draggedIndex = parseInt(e.dataTransfer.getData('text/plain'));
     if (draggedIndex === idx) return;
 
     const items = document.querySelectorAll(`.${styles['input-row']}`);
     const draggedItem = items[draggedIndex] as HTMLElement;
     const currentItem = items[idx] as HTMLElement;
-    
+
     if (!draggedItem || !currentItem) return;
 
     // 이전 표시 제거
@@ -268,7 +268,7 @@ export default function RoutineManagePage() {
 
     const newProducts = [...products];
     const [draggedItem] = newProducts.splice(dragIndex, 1);
-    
+
     // 드롭 위치 조정
     const actualDropIndex = insertAfter ? dropIndex + 1 : dropIndex;
     newProducts.splice(actualDropIndex, 0, draggedItem);
@@ -372,7 +372,7 @@ export default function RoutineManagePage() {
     };
 
     const threshold = thresholds[type];
-    
+
     if (type === 'sensitivity') {
       // 민감도는 낮을수록 좋음
       if (value <= threshold.good) return { status: '좋음', color: '#4CAF50' };
@@ -411,9 +411,9 @@ export default function RoutineManagePage() {
       }
     };
 
-    const descriptionKey = status.status === '좋음' ? 'good' : 
+    const descriptionKey = status.status === '좋음' ? 'good' :
                           status.status === '보통' ? 'normal' : 'caution';
-    
+
     return descriptions[type][descriptionKey];
   };
 
@@ -532,7 +532,7 @@ export default function RoutineManagePage() {
                   </div>
                   <div className={styles['step-divider']} />
                 </div>
-                
+
                 {currentStep === 'time' ? (
                   <div style={{ marginBottom: 32 }}>
                     <div className={styles['section-title']}>1. 루틴 시간을 선택해주세요.</div>
@@ -558,7 +558,7 @@ export default function RoutineManagePage() {
                     <div style={{ marginBottom: 48 }}>
                       <div className={styles['section-title']}>
                         <div className={styles['time-selection-header']}>
-                          <button 
+                          <button
                             className={styles['back-button']}
                             onClick={handleBack}
                             type="button"

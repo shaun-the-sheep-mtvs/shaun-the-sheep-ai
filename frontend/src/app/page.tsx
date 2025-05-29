@@ -320,13 +320,13 @@ export default function Home() {
             </Link>
           </li>
           <li className={pathname === '/ai-chat' ? styles.menuActive : ''}>
-            <Link href="/ai-chat" className={styles.menuLink}>
+            <Link href="/" className={styles.menuLink}>
               <MessageCircle className={styles.menuIcon} />
               AI 채팅
             </Link>
           </li>
           <li className={pathname === '/profile' ? styles.menuActive : ''}>
-            <Link href="/profile" className={styles.menuLink}>
+            <Link href="/" className={styles.menuLink}>
               <User className={styles.menuIcon} />
               회원정보
             </Link>
@@ -357,145 +357,170 @@ export default function Home() {
             </div>
 
             {/* 체크리스트 결과 섹션 */}
-            <h2 className={styles.sectionTitle}>
-              <span>피부 분석 리포트</span>
-              <div className={styles.sectionDesc}>피부 상태를 분석하여 맞춤형 케어 솔루션을 제안합니다</div>
-            </h2>
-            <section className={styles.resultSection}>
-              <div className={styles.checklistBox}>
-                <h3>진단 측정 결과</h3>
-                <div className={styles.barWrap}>
-                  <div>수분 지수 <span>{checklist?.moisture ?? 0}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist?.moisture ?? 0}%`}} className={styles.barGold}></div></div>
-
-                  <div>유분 지수 <span>{checklist?.oil ?? 0}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist?.oil ?? 0}%`}} className={styles.barGoldLight}></div></div>
-
-                  <div>민감도 지수 <span>{checklist?.sensitivity ?? 0}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist?.sensitivity ?? 0}%`}} className={styles.barRed}></div></div>
-
-                  <div>탄력 지수 <span>{checklist?.tension ?? 0}%</span></div>
-                  <div className={styles.bar}><div style={{width: `${checklist?.tension ?? 0}%`}} className={styles.barGray}></div></div>
+            <section className={`${styles.pageSection} ${styles.analysisReportSection}`}>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionMainTitle}>피부 분석 리포트</h2>
+                  <div className={styles.sectionSubtitle}>피부 상태를 분석하여 맞춤형 케어 솔루션을 제안합니다</div>
                 </div>
-              </div>
 
-              <div className={styles.analysisBox}>
-                <h3>피부 타입 분석</h3>
-                <div className={styles.mbtiResult}>
-                  <div className={styles.mbtiTitle}>
-                    <span className={styles.userName}>
-                      {loading ? 'Loading...' : user ? user.username : 'Guest'}
-                    </span>
-                    님의 피부 MBTI
+                <div className={styles.resultSection}>
+                  <div className={styles.checklistBox}>
+                    <h3>진단 측정 결과</h3>
+                    <div className={styles.barWrap}>
+                      <div>수분 지수 <span>{checklist?.moisture ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${checklist?.moisture ?? 0}%`}} className={styles.barGold}></div></div>
+
+                      <div>유분 지수 <span>{checklist?.oil ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${checklist?.oil ?? 0}%`}} className={styles.barGoldLight}></div></div>
+
+                      <div>민감도 지수 <span>{checklist?.sensitivity ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${checklist?.sensitivity ?? 0}%`}} className={styles.barRed}></div></div>
+
+                      <div>탄력 지수 <span>{checklist?.tension ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${checklist?.tension ?? 0}%`}} className={styles.barGray}></div></div>
+                    </div>
                   </div>
-                  <div className={styles.mbtiCode}>
-                    <span>{mbti.charAt(0)}</span>
-                    <span>{mbti.charAt(1)}</span>
-                    <span>{mbti.charAt(2)}</span>
-                    <span>{mbti.charAt(3)}</span>
-                  </div>
-                  <div className={styles.mbtiDesc}>
-                    <div>Moisture</div>
-                    <div>Oily</div>
-                    <div>Sensitive</div>
-                    <div>Tension</div>
+
+                  <div className={styles.analysisBox}>
+                    <h3>피부 타입 분석</h3>
+                    <div className={styles.mbtiResult}>
+                      <div className={styles.mbtiTitle}>피부 MBTI</div>
+                      <div className={styles.mbtiCode}>
+                        <span>{mbti.charAt(0)}</span>
+                        <span>{mbti.charAt(1)}</span>
+                        <span>{mbti.charAt(2)}</span>
+                        <span>{mbti.charAt(3)}</span>
+                      </div>
+                      <div className={styles.mbtiDesc}>
+                        <div>Moisture</div>
+                        <div>Oily</div>
+                        <div>Sensitive</div>
+                        <div>Tension</div>
+                      </div>
+                    </div>
+                    <div className={styles.analysisType}>{mbtiList[mbti as keyof typeof mbtiList]?.type}</div>
+                    <div className={styles.analysisDesc}>
+                      {mbtiList[mbti as keyof typeof mbtiList]?.description}
+                    </div>
+                    <div className={styles.analysisAdvice}>
+                      <div className={styles.adviceLabel}>
+                        💡 추천 관리법
+                      </div>
+                      <div className={styles.adviceContent}>
+                        {mbtiList[mbti as keyof typeof mbtiList].advice}
+                      </div>
+                    </div>
+
+                    {/* 상세 리포트 버튼 추가 */}
+                    <Link href="/report" className={styles.reportButton}>
+                      <FileText className={styles.buttonIcon} />
+                      피부 분석 상세 리포트 보기
+                    </Link>
                   </div>
                 </div>
-                <div className={styles.analysisType}>{mbtiList[mbti as keyof typeof mbtiList]?.type}</div>
-                <div className={styles.analysisDesc}>
-                  {mbtiList[mbti as keyof typeof mbtiList]?.description}
-                </div>
-                <div className={styles.analysisAdvice}>
-                  <div className={styles.adviceLabel}>
-                    💡 추천 관리법
-                  </div>
-                  <div className={styles.adviceContent}>
-                    {mbtiList[mbti as keyof typeof mbtiList].advice}
-                  </div>
-                </div>
-                
-                {/* 상세 리포트 버튼 추가 */}
-                <Link href="/report" className={styles.reportButton}>
-                  <FileText className={styles.buttonIcon} />
-                  피부 분석 상세 리포트 보기
-                </Link>
               </div>
             </section>
 
             {/* 추천 제품 */}
-            <section className={styles.productSection}>
-              <h4>
-                <span style={{ color: '#333333', background: 'none', WebkitBackgroundClip: 'initial', WebkitTextFillColor: '#333333', backgroundClip: 'initial' }}>맞춤형 제품 추천</span>
-                <div className={styles.sectionDesc}>
-                  사용자의 피부 타입과 고민에 맞는 최적의 제품을 선별했습니다.<br/>
-                  더 많은 제품을 확인해보세요!</div>
-              </h4>
-              <div className={styles.productList}>
-                {products.map((p, i) => (
-                  <div key={i} className={styles.productCard}>
-                    <div className={styles.productImg}>
-                      <img src={p.imageUrl} alt={p.name} />
-                    </div>
-                    <div className={styles.productName}>{p.name}</div>
-                    <div className={styles.productDesc}>{p.description}</div>
-                    <button className={styles.buyBtn}>
-                      <ShoppingBag className={styles.buttonIcon} />
-                      자세히 보기
-                    </button>
+            <section className={`${styles.pageSection} ${styles.productRecommendSection}`}>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionMainTitle}>맞춤형 제품 추천</h2>
+                  <div className={styles.sectionSubtitle}>
+                    사용자의 피부 타입과 고민에 맞는 최적의 제품을 선별했습니다.<br/>
+                    더 많은 제품을 확인해보세요!
                   </div>
-                ))}
+                </div>
+
+                <div className={styles.productList}>
+                  {products.map((p, i) => (
+                    <div key={i} className={styles.productCard}>
+                      <div className={styles.productImg}>
+                        {p.imageUrl ? (
+                          <img
+                            src={p.imageUrl}
+                            alt={p.name}
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              const parent = target.parentElement;
+                              if (parent) {
+                                parent.classList.add(styles.noImage);
+                              }
+                            }}
+                          />
+                        ) : (
+                          <div className={styles.placeholderImage}>
+                            <div className={styles.placeholderIcon}>📦</div>
+                            <div className={styles.placeholderText}>제품 이미지</div>
+                          </div>
+                        )}
+                      </div>
+                      <div className={styles.productName}>{p.name}</div>
+                      <div className={styles.productDesc}>{p.description}</div>
+                      <button className={styles.buyBtn}>
+                        <ShoppingBag className={styles.buttonIcon} />
+                        자세히 보기
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <Link href="/recommend" className={styles.viewMoreBtn}>
+                  <Sparkles className={styles.buttonIcon} />
+                  맞춤형 제품 추천 받기
+                </Link>
               </div>
-              <Link href="/recommend" className={styles.viewMoreBtn}>
-                <Sparkles className={styles.buttonIcon} />
-                맞춤형 제품 추천 받기
-              </Link>
             </section>
 
             {/* 더 자세한 추천 */}
-            <section className={styles.recommendSection}>
-              <div className={styles.recommendTitle}>
-                <span>더 정확한 분석이 필요하신가요?</span>
-                <div className={styles.sectionDesc}>
-                  전문적인 피부 진단으로 더 정확한 결과를 확인하세요</div>
-              </div>
-              <Link href="/routine-manage" className={styles.goBtn}>
-                <ClipboardCheck className={styles.buttonIcon} />
-                정밀 피부 검사 받기
-              </Link>
+            <section className={`${styles.pageSection} ${styles.moreAnalysisSection}`}>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionMainTitle}>더 정확한 분석이 필요하신가요?</h2>
+                  <div className={styles.sectionSubtitle}>
+                    전문적인 피부 진단으로 더 정확한 결과를 확인하세요
+                  </div>
+                </div>
 
-              <div className={styles.concernTitle}>
-                <span>피부 고민별 솔루션</span>
-                <div className={styles.sectionDesc}>
-                  특정 피부 고민에 맞는 맞춤형 솔루션을 찾아보세요.<br/>
-                  어떤 부분을 개선하고 싶으신가요?
-                </div>
+                <Link href="/routine-manage" className={styles.goBtn}>
+                  <ClipboardCheck className={styles.buttonIcon} />
+                  정밀 피부 검사 받기
+                </Link>
               </div>
+            </section>
 
-              <div className={styles.concernList}>
-                <div className={styles.concernItem}>
-                  <div className={styles.concernIcon}>💧</div>
-                  <div className={styles.concernLabel}>유·수분 밸런스</div>
+            <section className={`${styles.pageSection} ${styles.skinSolutionsSection}`}>
+              <div className={styles.sectionContent}>
+                <div className={styles.sectionHeader}>
+                  <h2 className={styles.sectionMainTitle}>피부 고민별 솔루션</h2>
+                  <div className={styles.sectionSubtitle}>
+                    특정 피부 고민에 맞는 맞춤형 솔루션을 찾아보세요.<br/>
+                    어떤 부분을 개선하고 싶으신가요?
+                  </div>
                 </div>
-                <div className={styles.concernItem}>
-                  <div className={styles.concernIcon}>🔬</div>
-                  <div className={styles.concernLabel}>트러블 케어</div>
-                </div>
-                <div className={styles.concernItem}>
-                  <div className={styles.concernIcon}>🌊</div>
-                  <div className={styles.concernLabel}>보습 강화</div>
-                </div>
-                <div className={styles.concernItem}>
-                  <div className={styles.concernIcon}>🔥</div>
-                  <div className={styles.concernLabel}>진정 케어</div>
-                </div>
-                <div className={styles.concernItem}>
-                  <div className={styles.concernIcon}>🌡️</div>
-                  <div className={styles.concernLabel}>민감성 개선</div>
-                </div>
-                <div className={styles.concernItem}>
-                  <div className={styles.concernIcon}>🧪</div>
-                  <div className={styles.concernLabel}>테스트</div>
-                
+
+                <div className={styles.concernList}>
+                  <div className={styles.concernItem}>
+                    <div className={styles.concernIcon}>💧</div>
+                    <div className={styles.concernLabel}>유·수분 밸런스</div>
+                  </div>
+                  <div className={styles.concernItem}>
+                    <div className={styles.concernIcon}>🔬</div>
+                    <div className={styles.concernLabel}>트러블 케어</div>
+                  </div>
+                  <div className={styles.concernItem}>
+                    <div className={styles.concernIcon}>🌊</div>
+                    <div className={styles.concernLabel}>보습 강화</div>
+                  </div>
+                  <div className={styles.concernItem}>
+                    <div className={styles.concernIcon}>🔥</div>
+                    <div className={styles.concernLabel}>진정 케어</div>
+                  </div>
+                  <div className={styles.concernItem}>
+                    <div className={styles.concernIcon}>🌡️</div>
+                    <div className={styles.concernLabel}>민감성 개선</div>
+                  </div>
                 </div>
               </div>
             </section>

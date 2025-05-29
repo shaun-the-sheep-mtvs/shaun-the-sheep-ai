@@ -294,9 +294,9 @@ export default function RecommendPage() {
               맞춤형 추천 제품
             </h2>
             <p className={styles["main-subtitle"]}>
-              <strong>{recommendData.skinType}</strong> 피부를 위해 엄선된 완벽한 스킨케어 루틴으로
+              <strong>{recommendData.skinType}</strong> 피부를 위해 엄선된 완벽한 스킨케어 루틴으로 <br />
               {recommendData.concerns.length > 0 && 
-                <span className={styles["highlight"]}> {recommendData.concerns.join(', ')}</span>} 고민을 해결해보세요!
+                <span className={styles["highlight"]}> {recommendData.concerns.join(', ')}</span>} 고민을 해결해보세요! <br /> <br />
             </p>
             <div className={styles["title-divider"]}></div>
           </div>
