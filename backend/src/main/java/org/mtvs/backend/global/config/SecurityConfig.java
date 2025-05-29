@@ -82,7 +82,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/**").authenticated()
                         .requestMatchers("/api/chat-messages/ask").authenticated()
                         .requestMatchers("/api/checklist/**").authenticated()
-                        .requestMatchers("api/chat-messages/ask").authenticated()
                         // All other requests require authentication
                         .anyRequest().authenticated()
                 )

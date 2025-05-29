@@ -26,7 +26,7 @@ public class RoutineChange {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int routineChangeId;
+    private Long routineChangeId;
 
     @Column(name = "routine_name")
     private String routineName;

@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { apiConfig } from '@/config/api';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Image from 'next/image';
-import { Info, Home } from 'lucide-react';
+import { Info, Home, BarChart3, Droplet, Shield, Lightbulb } from 'lucide-react';
 
 interface CheckListResponse {
   id: number;
@@ -34,6 +34,22 @@ interface DetailInfo {
 }
 
 type MeasurementType = 'moisture' | 'oil' | 'sensitivity' | 'tension';
+
+interface MeasurementThreshold {
+  good: number;
+  caution: number;
+}
+
+interface MeasurementDescription {
+  good: string;
+  normal: string;
+  caution: string;
+}
+
+interface MeasurementStatus {
+  status: '좋음' | '보통' | '주의' | '충분' | '부족';
+  color: string;
+}
 
 const measurementInfo = {
   moisture: {
@@ -621,7 +637,8 @@ const skinTypeAnalysis = {
       "수분과 유분이 모두 부족",
       "피부가 건조하고 당김",
       "각질이 자주 일어남",
-      "미세주름이 생기기 쉬움"
+      "미세주름이 생기기 쉬움",
+      "가끔씩 유발하는 간지러움"
     ],
     care: [
       "충분한 수분 공급",
@@ -701,37 +718,92 @@ const skinTypeAnalysis = {
   }
 };
 
-const mbtiDescriptionMap: { [key: string]: string } = {
-  "MOSL": "수분이 풍부하고 유분도 많은 피부지만 민감하고 탄력이 부족한 타입",
-  "MOSH": "수분과 유분이 풍부하면서 민감도와 탄력 저하까지 있는 타입",
-  "MOBL": "수분은 풍부하나 유분이 부족하고, 피부는 민감하지 않으며 탄력이 떨어진 타입",
-  "MOBH": "수분은 풍부하지만 유분 부족, 민감하지 않음, 탄력 저하를 모두 가진 타입",
-
-  // 건성(Dry) 타입
-  "DBST": "수분과 유분이 모두 부족하며 피부가 민감하고 탄력은 양호한 타입",
-  "DBSL": "수분과 유분이 모두 부족하고 민감하며 탄력도 떨어진 타입",
-  "DBIL": "수분과 유분이 부족하지만 민감하지 않고 탄력이 떨어진 타입",
-  "DBIH": "수분과 유분이 부족하고 민감하지 않으며 탄력도 저하된 타입",
-
-  // 지성(Oily) 타입
- "OBST": "수분은 부족하지만 유분은 과다하고, 피부가 민감하며 탄력은 양호한 타입",
-  "OBSL": "수분은 부족하고 유분은 과다하며 민감하고 탄력도 부족한 타입",
-  "OBIL": "수분은 부족하고 유분은 과다하지만 민감하지 않고 탄력이 떨어진 타입",
-  "OBIH": "수분 부족, 유분 과다, 민감하지 않음, 탄력 저하가 복합된 타입",
-
-  // 복합성(Combination) 타입
-  "CBST": "수분과 유분이 균형 잡힌 복합성 피부로, 민감하고 탄력은 양호한 타입",
-  "CBSL": "복합성 피부이며 민감하고 탄력이 부족한 타입",
-  "CBIL": "복합성 피부로 민감하지 않지만 탄력이 부족한 타입",
-  "CBIH": "복합성 피부로 민감하지 않고 탄력도 저하된 타입",
-
-  // 수분부족 지성(Hydrated) 타입
-  "HBST": "수분부족 지성",
-  "HBSL": "수분부족 지성",
-  "HBIL": "수분부족 지성",
-  "HBIH": "수분부족 지성",
-
-  "default": "아직 피부 타입이 분석되지 않았습니다."
+const mbtiList = {
+  "MOST": {
+    "type": "민감성",
+    "description": "수분과 유분이 충분하며 피부 탄력이 좋아 건강한 상태입니다.",
+    "advice": "기본 보습·자외선 차단 루틴을 유지하고, 콜라겐·펩타이드 성분으로 탄력을 계속 관리하세요."
+  },
+  "MOSL": {
+    "type": "민감성",
+    "description": "수분과 유분은 충분하지만 탄력이 떨어지고 자극에 민감할 수 있어요.",
+    "advice": "저자극 탄력 강화 세럼을 사용하고, 충분한 수분과 영양 공급을 해주세요."
+  },
+  "MBST": {
+    "type": "민감성",
+    "description": "수분은 풍부하나 유분이 부족해 건조함이 느껴질 수 있으며, 탄력은 좋은 편입니다.",
+    "advice": "부드러운 오일 제품으로 유수분 균형을 맞추고, 탄력 증진 크림을 병행하세요."
+  },
+  "MBSL": {
+    "type": "민감성",
+    "description": "수분은 충분하지만 유분과 탄력 모두 부족해 피부가 당기고 민감해질 수 있어요.",
+    "advice": "고보습·장벽 강화 오일·세럼으로 영양을 채우고, 탄력 케어를 병행하세요."
+  },
+  "MOIT": {
+    "type": "지성",
+    "description": "수분·유분·탄력 모두 좋은 균형 상태로, 안정적인 편입니다.",
+    "advice": "기본 보습·자외선 차단 루틴을 유지하며, 탄력 유지 제품을 가볍게 사용하세요."
+  },
+  "MOIL": {
+    "type": "지성",
+    "description": "수분과 유분은 충분하나 탄력만 떨어져 피부 처짐이 느껴질 수 있어요.",
+    "advice": "탄력 강화 세럼과 마사지로 리프팅 관리하세요."
+  },
+  "MBIT": {
+    "type": "복합성",
+    "description": "수분은 충분하나 유분이 부족해 건조함이 느껴지며, 탄력은 좋은 상태입니다.",
+    "advice": "보습 오일·크림으로 유수분 밸런스를 맞추고, 탄력 유지를 위해 펩타이드 제품을 사용하세요."
+  },
+  "MBIL": {
+    "type": "복합성",
+    "description": "수분은 충분하지만 유분·탄력 모두 부족해 당김과 처짐이 동시에 나타날 수 있어요.",
+    "advice": "고보습·탄력 강화 오일 세럼을 집중적으로 사용하세요."
+  },
+  "DOST": {
+    "type": "수분부족지성",
+    "description": "유분과 탄력은 좋으나 수분이 부족해 민감 반응이 나타날 수 있어요.",
+    "advice": "저자극 수분 세럼과 마스크로 수분을 보충하고, 탄력 유지 루틴을 병행하세요."
+  },
+  "DOSL": {
+    "type": "수분부족지성",
+    "description": "수분·탄력 모두 부족해 처짐이 느껴지며 자극에도 민감해요.",
+    "advice": "고보습·탄력 강화 크림과 진정 세럼을 동시에 사용하세요."
+  },
+  "DBST": {
+    "type": "건성",
+    "description": "수분·유분 부족으로 건조함이 심하나 탄력은 유지되고 있어요.",
+    "advice": "고보습 크림과 오일로 영양을 채우고, 탄력 유지 제품을 함께 사용하세요."
+  },
+  "DBSL": {
+    "type": "건성",
+    "description": "수분·유분·탄력이 모두 부족해 피부가 거칠고 처짐이 심할 것으로 예상됩니다다.",
+    "advice": "장벽 강화·고보습·탄력 케어 제품을 함께 사용하여 집중 관리하세요."
+  },
+  "DOIT": {
+    "type": "수분부족지성",
+    "description": "유분과 탄력은 좋으나 수분이 부족해 당김이 느껴져요.",
+    "advice": "수분 에센스와 마스크로 즉각적인 수분을 보충하세요."
+  },
+  "DOIL": {
+    "type": "수분부족지성",
+    "description": "유분은 충분하나 수분·탄력 모두 부족해 피부가 당기고 처짐이 느껴져요.",
+    "advice": "고보습 세럼과 탄력 강화 오일을 함께 사용하세요."
+  },
+  "DBIT": {
+    "type": "건성",
+    "description": "수분·유분 부족으로 건조함이 있지만 탄력은 유지되고 있어요.",
+    "advice": "보습 크림과 수분 세럼으로 피부 결을 개선하세요."
+  },
+  "DBIL": {
+    "type": "건성",
+    "description": "수분·유분·탄력이 모두 부족해 피부가 건조하고 처짐이 심할 것으로 예상됩니다.",
+    "advice": "고보습·탄력 강화 루틴을 집중적으로 적용하세요."
+  },
+  "default": {
+    "type": "복합성",
+    "description": "피부 균형이 잘 잡힌 상태입니다.",
+    "advice": "기본 보습과 탄력 관리 루틴을 꾸준히 지켜주세요."
+  }
 };
 
 const getAnalysisContent = (type: string, value: number) => {
@@ -924,6 +996,65 @@ const measurementColors: Record<MeasurementType, string> = {
   tension: '#81C784'
 };
 
+const getMeasurementStatus = (type: MeasurementType, value: number): MeasurementStatus => {
+  const thresholds: Record<MeasurementType, MeasurementThreshold> = {
+    moisture: { good: 60, caution: 40 },
+    oil: { good: 50, caution: 30 },
+    sensitivity: { good: 30, caution: 50 },
+    tension: { good: 70, caution: 50 }
+  };
+
+  const threshold = thresholds[type];
+  
+  if (type === 'sensitivity') {
+    // 민감도는 낮을수록 좋음
+    if (value <= threshold.good) return { status: '좋음', color: '#4CAF50' };
+    if (value <= threshold.caution) return { status: '보통', color: '#FFC107' };
+    return { status: '주의', color: '#F44336' };
+  } else if (type === 'moisture' || type === 'oil') {
+    // 수분과 유분은 부족/보통/충분으로 표시
+    if (value >= threshold.good) return { status: '충분', color: '#4CAF50' };
+    if (value >= threshold.caution) return { status: '보통', color: '#FFC107' };
+    return { status: '부족', color: '#F44336' };
+  } else {
+    // 나머지는 높을수록 좋음
+    if (value >= threshold.good) return { status: '좋음', color: '#4CAF50' };
+    if (value >= threshold.caution) return { status: '보통', color: '#FFC107' };
+    return { status: '주의', color: '#F44336' };
+  }
+};
+
+const getStatusDescription = (type: MeasurementType, value: number) => {
+  const status = getMeasurementStatus(type, value);
+  const descriptions: Record<MeasurementType, MeasurementDescription> = {
+    moisture: {
+      good: "피부가 충분한 수분을 가지고 있어 건강한 상태입니다. 피부 장벽이 튼튼하게 유지되어 외부 자극으로부터 피부를 보호하고 있습니다. 피부 결이 매끄럽고 탄력이 있으며, 메이크업이 자연스럽게 발립니다. 각질이 잘 일어나지 않고 피부 톤이 밝고 건강한 광채를 냅니다.",
+      normal: "수분이 약간 부족한 상태입니다. 피부가 가끔 당기는 느낌이 있고, 각질이 간헐적으로 발생할 수 있습니다. 메이크업이 부분적으로 들뜨는 현상이 나타나며, 피부 톤이 다소 칙칙해 보일 수 있습니다. 보습 관리가 필요한 상태입니다.",
+      caution: "피부가 심하게 건조한 상태입니다. 피부 장벽이 약화되어 외부 자극에 취약한 상태이며, 각질이 자주 발생하고 피부가 거칠어집니다. 메이크업이 들뜨고 가루가 일어나며, 피부 톤이 칙칙하고 피로해 보입니다. 집중적인 보습 관리가 시급한 상태입니다."
+    },
+    oil: {
+      good: "피부의 유분이 적절한 상태입니다. 피부 장벽이 건강하게 유지되어 수분 증발을 막고 피부를 보호하고 있습니다. 피부가 촉촉하고 윤기가 나며, 모공이 깨끗하게 유지됩니다. 피부 톤이 균일하고 건강한 광채를 냅니다.",
+      normal: "유분이 약간 부족하거나 과다한 상태입니다. T존이 번들거리거나 반대로 건조한 느낌이 있을 수 있으며, 모공이 약간 확장되어 보입니다. 피부 톤이 불균일하고 피부 결이 다소 거칠어 보일 수 있습니다. 유분 조절이 필요한 상태입니다.",
+      caution: "유분이 심하게 부족하거나 과다한 상태입니다. 피부 장벽이 불안정하여 트러블이 자주 발생하고, 모공이 크게 확장되어 있습니다. 피부가 번들거리거나 매우 건조하며, 여드름이나 염증이 쉽게 생길 수 있습니다. 적절한 유분 조절이 시급한 상태입니다."
+    },
+    sensitivity: {
+      good: "피부가 안정적이고 건강한 상태입니다. 피부 장벽이 튼튼하게 유지되어 외부 자극에 강한 상태입니다. 제품 교체나 환경 변화에도 피부가 잘 적응하며, 트러블이 잘 생기지 않습니다. 피부가 매끄럽고 건강한 광채를 냅니다.",
+      normal: "피부가 약간 민감한 상태입니다. 자극성 제품 사용 시 따끔거림이 있고, 날씨 변화나 환경 변화에 피부가 반응할 수 있습니다. 가끔 붉은 기가 올라오거나 가려움증이 발생할 수 있습니다. 진정 케어가 필요한 상태입니다.",
+      caution: "피부가 매우 민감한 상태입니다. 피부 장벽이 약화되어 외부 자극에 과민하게 반응합니다. 제품 사용 시 따끔거림과 붉은 기가 심하고, 트러블이 자주 발생합니다. 피부가 쉽게 자극받고 회복이 느리며, 가려움증이 지속될 수 있습니다. 집중적인 진정 케어가 시급한 상태입니다."
+    },
+    tension: {
+      good: "피부 탄력이 좋은 상태입니다. 콜라겐과 엘라스틴이 충분히 유지되어 피부가 탄탄하고 단단합니다. 주름이 거의 없고 피부 결이 매끄럽습니다. 피부가 촉촉하고 건강한 광채를 냅니다.",
+      normal: "피부 탄력이 약간 저하된 상태입니다. 미세한 주름이 보이고 피부가 약간 처지는 느낌이 있습니다. 피부 톤이 다소 칙칙해 보이며, 피부 결이 다소 거칠어 보일 수 있습니다. 탄력 케어가 필요한 상태입니다.",
+      caution: "피부 탄력이 많이 저하된 상태입니다. 콜라겐과 엘라스틴이 부족하여 주름이 뚜렷하게 보이고 피부가 처졌습니다. 피부 톤이 칙칙하고 피로해 보이며, 피부 결이 거칠어졌습니다. 집중적인 탄력 케어가 시급한 상태입니다."
+    }
+  };
+
+  const descriptionKey = status.status === '좋음' ? 'good' : 
+                        status.status === '보통' ? 'normal' : 'caution';
+  
+  return descriptions[type][descriptionKey];
+};
+
 export default function ReportPage() {
   const router = useRouter();
   const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
@@ -1037,18 +1168,17 @@ export default function ReportPage() {
           </h1>
           <div className={styles.headerInfo}>
             <div className={styles.skinTypeIndicator}>
-              <span className={styles.skinTypeName}>{skinTypeAnalysis[skinType].name} 피부</span>
+              <span className={styles.skinTypeName}>
+                {mbtiList[mbti as keyof typeof mbtiList]?.type || '일반'} 피부
+              </span>
               <p className={styles.skinTypeDescription}>
-                {skinType === 'dry' && "수분과 유분이 모두 부족한 건성 피부입니다. 충분한 보습 관리가 필요합니다."}
-                {skinType === 'oily' && "유분이 많고 번들거리는 지성 피부입니다. 적절한 유분 조절이 필요합니다."}
-                {skinType === 'combination' && "부위별로 다른 특성을 보이는 복합성 피부입니다. 맞춤 관리가 필요합니다."}
-                {skinType === 'dehydrated' && "수분은 부족하고 유분은 많은 수분지 피부입니다. 수분 공급이 중요합니다."}
+                {mbtiList[mbti as keyof typeof mbtiList]?.description || '피부 상태를 분석해주세요.'}
               </p>
             </div>
             <div className={styles.mbtiIndicator}>
               <span className={styles.mbtiType}>{mbti}</span>
               <p className={styles.mbtiDescription}>
-                {mbtiDescriptionMap[mbti] || mbtiDescriptionMap["default"]}
+                {mbtiList[mbti as keyof typeof mbtiList]?.description || mbtiList[mbti as keyof typeof mbtiList]?.advice || '피부 상태를 분석해주세요.'}
               </p>
             </div>
           </div>
@@ -1063,24 +1193,49 @@ export default function ReportPage() {
                 { key: 'oil', label: '유분', value: checklist?.oil ?? 0 },
                 { key: 'sensitivity', label: '민감도', value: checklist?.sensitivity ?? 0 },
                 { key: 'tension', label: '탄력도', value: checklist?.tension ?? 0 }
-              ].map(item => (
-                <div 
-                  key={item.key} 
-                  className={`${styles.measurementBar} ${selectedMeasurement === item.key ? styles.selected : ''}`}
-                  onClick={() => setSelectedMeasurement(item.key as MeasurementType)}
-                >
-                  <div className={styles.barLabel}>
-                    <span>{item.label}</span>
-                    <span>{item.value}%</span>
+              ].map(item => {
+                const status = getMeasurementStatus(item.key as MeasurementType, item.value);
+                return (
+                  <div 
+                    key={item.key} 
+                    className={`${styles.measurementBar} ${selectedMeasurement === item.key ? styles.selected : ''}`}
+                    onClick={() => setSelectedMeasurement(item.key as MeasurementType)}
+                  >
+                    <div className={styles.barLabel}>
+                      <span>{item.label}</span>
+                      <div className={styles.valueContainer}>
+                        <span className={styles.value}>{item.value}%</span>
+                        <span 
+                          className={styles.statusIndicator}
+                          style={{ 
+                            backgroundColor: status.color,
+                            color: status.color === '#FFC107' ? '#000' : '#fff'
+                          }}
+                        >
+                          {status.status}
+                        </span>
+                      </div>
+                    </div>
+                    <div className={styles.barContainer}>
+                      <div 
+                        className={styles.barFill} 
+                        style={{ 
+                          width: `${item.value}%`,
+                          backgroundColor: status.color
+                        }}
+                      />
+                    </div>
+                    <div className={styles.measurementDescription}>
+                      <p className={styles.idealRange}>
+                        {measurementInfo[item.key as keyof typeof measurementInfo].ideal}
+                      </p>
+                      <p className={styles.description}>
+                        {measurementInfo[item.key as keyof typeof measurementInfo].description}
+                      </p>
+                    </div>
                   </div>
-                  <div className={styles.barContainer}>
-                    <div 
-                      className={styles.barFill} 
-                      style={{ width: `${item.value}%` }}
-                    />
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
 
@@ -1095,56 +1250,83 @@ export default function ReportPage() {
                 }}
               >
                 <span className={styles.detailIcon}>{detailInfoMap[selectedMeasurement].icon}</span>
-                <h3 style={{ color: measurementColors[selectedMeasurement] }}>
-                  {detailInfoMap[selectedMeasurement].title} 분석
-                </h3>
-              </div>
-              <p className={styles.detailDescription}>
-                {detailInfoMap[selectedMeasurement].description}
-                <br />
-                현재 수치: <span style={{ color: measurementColors[selectedMeasurement], fontWeight: 'bold' }}>
-                  {checklist?.[selectedMeasurement as keyof CheckListResponse]}%
-                </span>
-                <br />
-                측정 범위: {getAnalysisContent(
-                  selectedMeasurement,
-                  Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0
-                ).range}
-              </p>
-              <div className={styles.detailContent}>
-                {getAnalysisContent(
-                  selectedMeasurement,
-                  Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0
-                ).characteristics.map((item, index) => (
-                  <div 
-                    key={index} 
-                    className={styles.characteristicItem}
+                <div className={styles.detailTitleContainer}>
+                  <h3 style={{ color: measurementColors[selectedMeasurement] }}>
+                    {detailInfoMap[selectedMeasurement].title} 분석
+                  </h3>
+                  <span 
+                    className={styles.statusBadge}
                     style={{ 
-                      borderLeft: `3px solid ${measurementColors[selectedMeasurement]}`,
-                      backgroundColor: `${measurementColors[selectedMeasurement]}08`
+                      backgroundColor: getMeasurementStatus(selectedMeasurement, Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0).color,
+                      color: getMeasurementStatus(selectedMeasurement, Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0).color === '#FFC107' ? '#000' : '#fff'
                     }}
                   >
-                    <span 
-                      className={styles.characteristicNumber}
-                      style={{ backgroundColor: measurementColors[selectedMeasurement] }}
-                    >
-                      {index + 1}
-                    </span>
-                    <p>{item}</p>
+                    {getMeasurementStatus(selectedMeasurement, Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0).status}
+                  </span>
+                </div>
+              </div>
+              <div className={styles.detailContent}>
+                <div className={styles.detailSection}>
+                  <h4>현재 상태</h4>
+                  <p className={styles.detailDescription}>
+                    {getStatusDescription(selectedMeasurement, Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0)}
+                  </p>
+                </div>
+                <div className={styles.detailSection}>
+                  <h4>주요 특징</h4>
+                  <div className={styles.characteristicsList}>
+                    {getAnalysisContent(
+                      selectedMeasurement,
+                      Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0
+                    ).characteristics.map((item, index) => (
+                      <div 
+                        key={index} 
+                        className={styles.characteristicItem}
+                        style={{ 
+                          borderLeft: `3px solid ${measurementColors[selectedMeasurement]}`,
+                          backgroundColor: `${measurementColors[selectedMeasurement]}08`
+                        }}
+                      >
+                        <span 
+                          className={styles.characteristicNumber}
+                          style={{ backgroundColor: measurementColors[selectedMeasurement] }}
+                        >
+                          {index + 1}
+                        </span>
+                        <p>{item}</p>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+                <div className={styles.detailSection}>
+                  <h4>개선 방안</h4>
+                  <div className={styles.solutionsList}>
+                    {getAnalysisContent(
+                      selectedMeasurement,
+                      Number(checklist?.[selectedMeasurement as keyof CheckListResponse]) || 0
+                    ).solutions.map((item, index) => (
+                      <div 
+                        key={index} 
+                        className={styles.solutionItem}
+                      >
+                        <span className={styles.solutionNumber}>{index + 1}</span>
+                        <p>{item}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </section>
         </div>
 
         <section className={styles.section}>
-          <h2>피부 타입 분석</h2>
+          <h2>종합 피부 분석</h2>
           <div className={styles.skinTypeAnalysis}>
             <div className={styles.skinTypeHeader}>
-              <h3>{skinTypeAnalysis[skinType].name} 피부</h3>
+              <h3>{mbtiList[mbti as keyof typeof mbtiList]?.type || '일반'} 피부에 대해서</h3>
               <p className={styles.skinTypeDescription}>
-                측정된 수분, 유분, 민감도를 종합적으로 분석한 결과입니다.
+                {mbtiList[mbti as keyof typeof mbtiList]?.description || '피부 상태를 분석해주세요.'}
               </p>
             </div>
             <div className={styles.skinTypeContent}>
@@ -1161,42 +1343,162 @@ export default function ReportPage() {
                 <ul>
                   {skinType === 'dry' && (
                     <>
-                      <li>세라마이드 (보습력 강화)</li>
-                      <li>히알루론산 (수분 공급)</li>
-                      <li>스쿠알란 (보습 유지)</li>
-                      <li>판테놀 (진정 효과)</li>
+                      <li>
+                        <span>세라마이드</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 장벽을 강화하고 수분 손실을 방지하는 필수 지질 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        <span>히알루론산</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부에 수분을 공급하고 보습력을 높이는 천연 보습 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        <span>스쿠알란</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부에 수분을 공급하고 보습력을 높이는 천연 보습 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        <span>판테놀</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 진정과 재생을 돕는 비타민 B5 유도체</span>
+                        </div>
+                      </li>
                     </>
                   )}
                   {skinType === 'oily' && (
                     <>
-                      <li>살리실산 (각질 관리)</li>
-                      <li>나이아신아마이드 (피지 조절)</li>
-                      <li>징크 (진정 효과)</li>
-                      <li>티트리 (트러블 케어)</li>
+                      <li>
+                        <span>살리실산</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>각질을 제거하고 모공을 깨끗하게 하는 BHA 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        <span>나이아신아마이드</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피지 분비를 조절하고 모공을 개선하는 비타민 B3 유도체</span>
+                        </div>
+                      </li>
+                      <li>
+                        <span>징크</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 진정과 트러블 개선에 도움을 주는 미네랄</span>
+                        </div>
+                      </li>
+                      <li>
+                        <span>티트리</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>항균 효과로 트러블을 예방하고 진정시키는 천연 성분</span>
+                        </div>
+                      </li>
                     </>
                   )}
                   {skinType === 'combination' && (
                     <>
-                      <li>판테놀 (진정 효과)</li>
-                      <li>알로에베라 (수분 공급)</li>
-                      <li>티트리 (트러블 케어)</li>
-                      <li>히알루론산 (보습 균형)</li>
+                      <li>
+                        <span>판테놀</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 진정과 재생을 돕는 비타민 B5 유도체</span>
+                        </div>
+                      </li>
+                      <li>
+                        <span>알로에베라</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>수분 공급과 진정 효과가 있는 천연 보습 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        <span>티트리</span>
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>항균 효과로 트러블을 예방하고 진정시키는 천연 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        히알루론산
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부에 수분을 공급하고 보습력을 높이는 천연 보습 성분</span>
+                        </div>
+                      </li>
                     </>
                   )}
                   {skinType === 'dehydrated' && (
                     <>
-                      <li>히알루론산 (수분 공급)</li>
-                      <li>판테놀 (진정 효과)</li>
-                      <li>베타인 (보습 강화)</li>
-                      <li>세라마이드 (장벽 강화)</li>
+                      <li>
+                        히알루론산
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부에 수분을 공급하고 보습력을 높이는 천연 보습 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        판테놀
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 진정과 재생을 돕는 비타민 B5 유도체</span>
+                        </div>
+                      </li>
+                      <li>
+                        베타인
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 보습력을 강화하고 수분 손실을 방지하는 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        세라마이드
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 장벽을 강화하고 수분 손실을 방지하는 필수 지질 성분</span>
+                        </div>
+                      </li>
                     </>
                   )}
                   {skinType === 'sensitive' && (
                     <>
-                      <li>마데카소사이드 (진정)</li>
-                      <li>판테놀 (진정 효과)</li>
-                      <li>알란토인 (피부 재생)</li>
-                      <li>세라마이드 (장벽 강화)</li>
+                      <li>
+                        마데카소사이드
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 진정과 재생을 촉진하는 천연 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        판테놀
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 진정과 재생을 돕는 비타민 B5 유도체</span>
+                        </div>
+                      </li>
+                      <li>
+                        알란토인
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 재생과 진정 효과가 있는 천연 성분</span>
+                        </div>
+                      </li>
+                      <li>
+                        세라마이드
+                        <div className={styles.ingredientInfo}>
+                          <Info size={16} />
+                          <span>피부 장벽을 강화하고 수분 손실을 방지하는 필수 지질 성분</span>
+                        </div>
+                      </li>
                     </>
                   )}
                 </ul>
@@ -1206,7 +1508,7 @@ export default function ReportPage() {
         </section>
 
         <section className={styles.section}>
-          <h2>맞춤 관리법</h2>
+          <h2>종합 맞춤 관리법</h2>
           <div className={styles.careGuide}>
             <div className={styles.careSection}>
               <h3>일상 관리</h3>
@@ -1215,14 +1517,18 @@ export default function ReportPage() {
                   <>
                     <li>미온수로 부드럽게 세안하기</li>
                     <li>보습 제품 덧바르기</li>
-                    <li>실내 습도 50% 이상 유지</li>
+                    <li>수분감 있는 제품 사용</li>
+                    <li>주 1회 수분팩</li>
+                    <li>수분 섭취 (하루1.5L~2L)</li>
                     <li>자극적인 성분 피하기</li>
+                    <li>아침 물세안 추천</li>
                   </>
                 )}
                 {skinType === 'oily' && (
                   <>
-                    <li>미지근한 물로 꼼꼼히 세안</li>
-                    <li>과도한 유분 제거</li>
+                    <li>미지근한 물로 매일 2회 규칙적인 세안</li>
+                    <li>과도한 유분 제거 지양</li>
+                    <li>주 1회 ~2회 각질 관리</li>
                     <li>모공 관리 주기적으로 하기</li>
                     <li>가벼운 수분 크림 사용</li>
                   </>
@@ -1232,7 +1538,7 @@ export default function ReportPage() {
                     <li>부위별 맞춤 세안법 적용</li>
                     <li>T존/U존 다른 제품 사용</li>
                     <li>수분 공급 꾸준히 하기</li>
-                    <li>부위별 맞춤 마스크팩</li>
+                    <li>1주일에 1번씩 팩하기</li>
                   </>
                 )}
                 {skinType === 'dehydrated' && (
@@ -1245,10 +1551,12 @@ export default function ReportPage() {
                 )}
                 {skinType === 'sensitive' && (
                   <>
-                    <li>자극없는 순한 세안</li>
+                    <li>세안 시 살살하기</li>
                     <li>진정 케어 집중하기</li>
                     <li>자외선 차단 꼼꼼히</li>
-                    <li>저자극 제품 사용</li>
+                    <li>순한 클렌징 사용</li>
+                    <li>각질 제거 지양</li>
+                    <li>미온수 필수</li>
                   </>
                 )}
               </ul>
