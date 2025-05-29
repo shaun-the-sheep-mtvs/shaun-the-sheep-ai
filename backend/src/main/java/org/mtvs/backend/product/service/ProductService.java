@@ -110,7 +110,6 @@ public class ProductService {
     }
 
     public void saveProduct(JsonNode jsonNode, String userId, String formulation) {
-
         // ObjectNode 로 캐스팅
         ObjectNode objectNode = (ObjectNode) jsonNode;
 
@@ -151,7 +150,8 @@ public class ProductService {
 
         // Product 엔티티로 변환 및 저장
         Product product = dto.toEntity(user);
-        productRepository.save(product);
+        if(!productRepository.existsProductByProductName(product.getProductName())){
+            productRepository.save(product);
+        }
     }
-
 }

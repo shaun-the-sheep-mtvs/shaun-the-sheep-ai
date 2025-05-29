@@ -17,7 +17,7 @@ public class NaverApiService {
     }
     public void addImage(ImageDTO imageDTO) {
         String productName = imageDTO.getProductName();
-        NaverImage naverImage = new NaverImage(imageDTO.getImageUrl(),productName );
+        NaverImage naverImage = new NaverImage(imageDTO.getImageUrl(),productName);
         if(!naverImageAPIRepository.existsNaverImageByProductName(productName)){
             naverImageAPIRepository.save(naverImage);
         }

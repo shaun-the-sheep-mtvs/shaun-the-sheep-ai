@@ -631,6 +631,10 @@ export default function RoutineManagePage() {
                                 <option value="스킨">스킨</option>
                                 <option value="세럼">세럼</option>
                                 <option value="로션">로션</option>
+                                <option value="팩">팩</option>
+                                <option value="패드">패드</option>
+                                <option value="스킨">스킨</option>
+  
                               </select>
                               <button
                                 className={styles['remove-btn']}
