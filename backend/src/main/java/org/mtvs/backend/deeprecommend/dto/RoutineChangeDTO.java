@@ -13,6 +13,7 @@ import org.mtvs.backend.routine.entity.enums.Time;
 @NoArgsConstructor
 public class RoutineChangeDTO {
 
+    private Long routineChangeId;
     private String routineName;
     private Kinds routineKind;
     private Time routineTime;

@@ -33,10 +33,6 @@ public class DeepRecommend {
 
     private Long routineGroupId;
 
-    @ManyToOne
-    @JoinColumn(name = "routine_change_id")
-    private RoutineChange routineChange;
-
     public DeepRecommend(Action action, Kinds kind, String suggest_product, String reason, Long routineGroupId) {
         this.action = action;
         this.kind = kind;

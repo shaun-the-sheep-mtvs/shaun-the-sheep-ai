@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import styles from './step2.module.css';
+import styles from './page.module.css';
 import '../globals.css';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
@@ -52,6 +52,8 @@ interface ApiRecommendedRoutineItem {
 
 interface DisplayRoutineItem {
     title: string; // 이전 title 역할 (name)
+    kind: string;
+    method: string;
     desc: string;  // 이전 desc 역할 (kind + method)
     time: 'morning' | 'night'; // 소문자로 통일
     orders: number;
@@ -91,7 +93,7 @@ export default function Step2() {
     const [userData, setUserData] = useState<User | null>(null); // 사용자 정보 상태 추가
     const router = useRouter();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false); // 초기값 false 유지
     const pathname = usePathname();
     
     // 제품 변경 및 추가 추천 상태
@@ -104,11 +106,14 @@ export default function Step2() {
         const token = localStorage.getItem('accessToken');
         if (!token) {
            setError('로그인이 필요합니다.');
+           setIsLoggedIn(false); // 토큰 없으면 로그아웃 상태
            return;
         }
 
+
         const fetchUserData = axios.get<User>(apiConfig.endpoints.auth.me, { // 타입 User로 수점
-            headers: { Authorization: `Bearer ${token}` },
+
+          headers: { Authorization: `Bearer ${token}` },
             withCredentials: true,
         });
 
@@ -136,13 +141,22 @@ export default function Step2() {
         Promise.all([fetchSkinData, fetchExistingRoutines, fetchRecommendedRoutines, fetchDeepRecommendations, fetchUserData])
             .then(([skinDataResponse, existingRoutinesResponse, recommendedRoutinesResponse, deepRecommendationsResponse, userDataResponse]) => {
                 setUserSkinData(skinDataResponse.data);
-                console.log('User Data Response:', userDataResponse.data); // 사용자 데이터 응답 확인
-                setUserData(userDataResponse.data); // 사용자 정보 상태 설정
+                console.log('User Data Response:', userDataResponse.data); 
+                
+                if (userDataResponse.data) {
+                    setUserData(userDataResponse.data); 
+                    setIsLoggedIn(true); // 사용자 데이터 성공적으로 불러오면 로그인 상태로 변경
+                } else {
+                    setIsLoggedIn(false); // 사용자 데이터가 없으면 로그아웃 상태
+                    setError('사용자 정보를 불러올 수 없습니다.');
+                }
 
                 // 기존 루틴
                 const existingRoutinesFromApi = existingRoutinesResponse.data;
                 const transformedExistingRoutines: DisplayRoutineItem[] = existingRoutinesFromApi.map(apiItem => ({
                     title: apiItem.name,
+                    kind: apiItem.kind,
+                    method: apiItem.method,
                     desc: `${apiItem.kind} (${apiItem.method})`,
                     time: apiItem.time.toLowerCase() as 'morning' | 'night',
                     orders: apiItem.orders,
@@ -155,6 +169,8 @@ export default function Step2() {
                 const recommendedRoutinesFromApi = recommendedRoutinesResponse.data;
                 const transformedRecommendedRoutines: DisplayRoutineItem[] = recommendedRoutinesFromApi.map(apiItem => ({
                     title: apiItem.routineName,
+                    kind: apiItem.routineKind,
+                    method: apiItem.changeMethod,
                     desc: `${apiItem.routineKind} (${apiItem.changeMethod})`,
                     time: apiItem.routineTime.toLowerCase() as 'morning' | 'night',
                     orders: apiItem.routineOrders,
@@ -191,6 +207,7 @@ export default function Step2() {
                 const msg =
                     err.response?.data?.message || err.message || '데이터를 불러오는데 실패했습니다.';
                 setError(msg);
+                setIsLoggedIn(false); // 에러 발생 시 로그아웃 상태로 간주
             });
     }, []);
 
@@ -301,30 +318,14 @@ export default function Step2() {
       </aside>
             {/* 메인 컨텐츠 */}
             <main className={styles['step2-main-content']}>
-                {/* 상단 헤더 */}
-                <div className={styles['step2-header']}>
-                    <div className={styles['step2-header-profile']}>
-                        <span className={styles['step2-header-profile-icon']}>👤</span>
-                        <span className={styles['step2-header-profile-name']}>
-                            <span style={{color:'#ff7eb3'}}>
-                                {userData === null ? 'Loading...' : userData ? userData.username : '고객'}
-                            </span>
-
-                            님 안녕하세요
-                        </span>
-                    </div>
-                    <div className={styles['step2-header-alarm']}>
-                        <span className={styles['step2-header-alarm-icon']}>🔔</span>
-                    </div>
-                </div>
                 {/* STEP 표시 */}
                 <div className={styles['step2-step-bar']}>
                     <span className={styles['step2-step-inactive']}>STEP 1</span>
                     <span className={styles['step2-step-active']}>STEP 2</span>
                 </div>
-                {/* 맞춤 루틴 추천 */}
-                <div className={styles['step2-recommend-title']}>맞춤 루틴 추천</div>
-                <div className={styles['step2-recommend-desc']}>AI가 분석한 당신의 피부 타입에 맞는 루틴과 제품을 추천해 드립니다</div>
+                {/* 제품 사용법 추천 */}
+                <div className={styles['step2-recommend-title']}>루틴 분석 추천</div>
+                <div className={styles['step2-recommend-desc']}>AI가 분석한 당신의 피부 타입에 맞는 루틴과 제품을 추천해 드립니다.</div>
                 {/* 피부 타입 박스 */}
                 <div className={styles['step2-skin-type-box']}>
                     {userSkinData ? (
@@ -369,7 +370,9 @@ export default function Step2() {
                                 <div className={styles['step2-routine-num']}>{item.orders}</div>
                                 <div className={styles['step2-routine-info']}>
                                     <div className={styles['step2-routine-title']}>{item.title}</div>
-                                    <div className={styles['step2-routine-desc']}>{item.desc}</div>
+                                    <div className={styles['step2-routine-desc']}>
+                                        {item.desc}
+                                    </div>
                                 </div>
                                 <button onClick={() => handleBuyButtonClick(item.title)} className={styles['buy-btn']} >
                                     구매하기
@@ -379,7 +382,7 @@ export default function Step2() {
                     </ol>
                 </div>
                 {/* 맞춤 루틴 추천 */}
-                <div className={styles['step2-section-title']}>맞춤 루틴 추천</div>
+                <div className={styles['step2-section-title']}>제품 사용법 추천</div>
                 <div className={styles['step2-tabs']}>
                     <div
                         className={`${styles['step2-tab']} ${routineTab === 'morning' ? styles['step2-tab-active'] : ''}`}
@@ -405,7 +408,12 @@ export default function Step2() {
                                 <div className={styles['step2-routine-num']}>{item.orders}</div>
                                 <div className={styles['step2-routine-info']}>
                                     <div className={styles['step2-routine-title']}>{item.title}</div>
-                                    <div className={styles['step2-routine-desc']}>{item.desc}</div>
+                                    <div className={styles['step2-routine-desc']}>
+                                        {item.kind}
+                                        {item.method.split('\n').map((line, index) => (
+                                            <div key={index}>{`${index + 1}. ${line}`}</div>
+                                        ))}
+                                    </div>
                                 </div>
                                 <button onClick={() => handleBuyButtonClick(item.title)} className={styles['buy-btn']}>구매하기</button>
                             </li>
