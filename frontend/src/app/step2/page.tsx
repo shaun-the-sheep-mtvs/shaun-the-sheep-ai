@@ -324,7 +324,7 @@ export default function Step2() {
                     <span className={styles['step2-step-active']}>STEP 2</span>
                 </div>
                 {/* 제품 사용법 추천 */}
-                <div className={styles['step2-recommend-title']}>제품 사용법 추천</div>
+                <div className={styles['step2-recommend-title']}>루틴 분석 추천</div>
                 <div className={styles['step2-recommend-desc']}>AI가 분석한 당신의 피부 타입에 맞는 루틴과 제품을 추천해 드립니다.</div>
                 {/* 피부 타입 박스 */}
                 <div className={styles['step2-skin-type-box']}>

@@ -1,13 +1,10 @@
 package org.mtvs.backend.deeprecommend.service;
-import com.fasterxml.jackson.core.type.TypeReference;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.mtvs.backend.routine.entity.RoutineGroup;
-import org.mtvs.backend.user.dto.ProblemDto;
-import org.mtvs.backend.user.entity.User;
-import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.deeprecommend.config.OpenConfig;
 import org.mtvs.backend.deeprecommend.dto.RecommendResponseDTO;
 import org.mtvs.backend.deeprecommend.dto.RequestDTO;
@@ -19,9 +16,12 @@ import org.mtvs.backend.deeprecommend.repository.DeepRecommendRepository;
 import org.mtvs.backend.deeprecommend.repository.RoutineChangeRepository;
 import org.mtvs.backend.routine.dto.RoutineGroupDTO;
 import org.mtvs.backend.routine.dto.RoutinesDto;
-import org.mtvs.backend.routine.entity.enums.Kinds; // Kinds Enum import 확인
+import org.mtvs.backend.routine.entity.enums.Kinds;
 import org.mtvs.backend.routine.repository.RoutineGroupRepository;
 import org.mtvs.backend.routine.repository.RoutineRepository;
+import org.mtvs.backend.user.dto.ProblemDto;
+import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
