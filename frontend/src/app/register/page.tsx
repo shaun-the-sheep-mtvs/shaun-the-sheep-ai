@@ -2,92 +2,120 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { apiConfig } from '@/config/api';
 import styles from './page.module.css';
 
 export default function RegisterPage() {
-    const [username, setUsername] = useState('');
-    const [email,    setEmail]    = useState('');
-    const [password, setPassword] = useState('');
-    const [error,    setError]    = useState<string | null>(null);
-    const router = useRouter();
+  const [username, setUsername] = useState('');
+  const [email,    setEmail]    = useState('');
+  const [password, setPassword] = useState('');
+  const [error,    setError]    = useState<string | null>(null);
+  const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setError(null);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
 
-        try {
-            const res = await fetch('http://localhost:8080/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, email, password }),
-            });
+    try {
+      // 1) 회원가입
+      const signupRes = await fetch(apiConfig.endpoints.auth.signup, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password }),
+      });
 
-            console.log('status:', res.status);
-           const data = await res.json();
-           console.log('response data:', data);
+      if (!signupRes.ok) {
+        const text = await signupRes.text();
+        setError(text || '회원가입에 실패했습니다.');
+        return;
+      }
 
-            if (!res.ok) {
-               // 백엔드에서 { error: "메시지" } 형태로 내려온다고 가정
-              setError(data.error || data.message || '회원가입에 실패했습니다.');
-              return;
-           }
+      // 2) 바로 로그인
+      const loginRes = await fetch(apiConfig.endpoints.auth.login, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
 
-            // 가입 성공 후 체크리스트트 페이지로 이동
-            router.push('/checklist');
-        } catch {
-            setError('네트워크 오류가 발생했습니다.');
-        }
-    };
+      if (!loginRes.ok) {
+        const text = await loginRes.text();
+        setError(text || '자동 로그인에 실패했습니다.');
+        return;
+      }
 
-    return (
-  <div className={styles.page}>
-    <main className={styles.main}>
-      {/* 프레임 */}
-      <div className={styles.registerContainer}>
-        <h1>Sign Up</h1>
-        {error && <p className={styles.error}>{error}</p>}
+      const { accessToken, refreshToken } = await loginRes.json();
 
-        {/* 폼 전체에 registerForm 클래스 */}
-        <form onSubmit={handleSubmit} className={styles.registerForm}>
-          <div className={styles.formGroup}>
-            <label htmlFor="username">Username</label>
-            <input
-              id="username"
-              type="text"
-              value={username}
-              onChange={e => setUsername(e.target.value)}
-              required
-            />
-          </div>
+      // 3) 토큰 저장
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
 
-          <div className={styles.formGroup}>
-            <label htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              required
-            />
-          </div>
+      // 4) 체크리스트 페이지로 이동
+      router.push('/checklist');
 
-          <div className={styles.formGroup}>
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              required
-            />
-          </div>
+    } catch (err) {
+      console.error('Register/Login error:', err);
+      setError('네트워크 오류가 발생했습니다.');
+    }
+  };
 
-          <button type="submit" className={styles.registerButton}>
-            Create Account
-          </button>
-        </form>
-      </div>
-    </main>
-  </div>
-);
+  return (
+    <div className={styles.page}>
+      <main className={styles.main}>
+        <div className={styles.registerContainer}>
+          <h1>Shaun</h1>
+          {error && <p className={styles.error}>{error}</p>}
+
+          <form onSubmit={handleSubmit} className={styles.registerForm}>
+            <div className={styles.formGroup}>
+              <label htmlFor="username">사용자 이름</label>
+              <input
+                id="username"
+                type="text"
+                placeholder="사용자를 입력해주세요"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="email">이메일</label>
+              <input
+                id="email"
+                type="email"
+                placeholder="이메일을 입력해주세요"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                required
+              />
+            </div>
+
+            <div className={styles.formGroup}>
+              <label htmlFor="password">패스워드</label>
+              <input
+                id="password"
+                type="password"
+                placeholder="패스워드를 입력해주세요"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                required
+              />
+            </div>
+
+            <button type="submit" className={styles.registerButton}>
+              가입 하기
+            </button>
+            <div
+              className={styles.loginLink}
+              onClick={() => router.push('/login')}
+            >
+              로그인
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  );
 }
+
+

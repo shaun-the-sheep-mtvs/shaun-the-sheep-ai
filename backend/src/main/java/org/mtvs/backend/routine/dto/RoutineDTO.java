@@ -29,7 +29,7 @@ import lombok.NoArgsConstructor;
 import org.mtvs.backend.routine.entity.enums.Kinds;
 import org.mtvs.backend.routine.entity.enums.Time;
 
-
+///
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -38,4 +38,5 @@ public class RoutineDTO {
     private Kinds kind;
     private Time time;
     private String method;
+    private int orders;
 }

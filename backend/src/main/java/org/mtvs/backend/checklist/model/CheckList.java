@@ -2,9 +2,11 @@ package org.mtvs.backend.checklist.model;
 
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.mtvs.backend.auth.model.User;
+import org.mtvs.backend.user.entity.User;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "checklists")
@@ -37,6 +39,8 @@ public class CheckList {
     /** 탄력(긴장도) 값 (예: 1~5) */
     @Column(name = "tension", nullable = false)
     private Integer tension;
+
+    private List<String> troubles = new ArrayList<>();
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -92,6 +96,14 @@ public class CheckList {
 
     public void setTension(Integer tension) {
         this.tension = tension;
+    }
+
+    public List<String> getTroubles() {
+        return troubles;
+    }
+
+    public void setTroubles(List<String> troubles) {
+        this.troubles = troubles;
     }
 
     public LocalDateTime getCreatedAt() {

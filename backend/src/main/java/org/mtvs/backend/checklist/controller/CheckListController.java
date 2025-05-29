@@ -1,44 +1,64 @@
-// src/main/java/org/mtvs/backend/checklist/controller/CheckListController.java
 package org.mtvs.backend.checklist.controller;
 
+import lombok.extern.slf4j.Slf4j;
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.service.CheckListService;
-import org.springframework.http.ResponseEntity;
+import org.mtvs.backend.recommend.controller.RecommendController;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
+@Slf4j
 @RestController
-@RequestMapping("/checklist")
+@RequestMapping("/api/checklist")
 public class CheckListController {
+
     private final CheckListService service;
+    private final RecommendController recommendController;
 
-    public CheckListController(CheckListService service) {
+    public CheckListController(CheckListService service, RecommendController recommendController) {
         this.service = service;
+        this.recommendController = recommendController;
     }
 
+    /** 체크리스트 저장 */
     @PostMapping
-    public ResponseEntity<CheckListResponse> create(
-            @AuthenticationPrincipal UserDetails user,
-            @RequestBody CheckListRequest req) {
+    public CheckListResponse create(
+            @RequestBody CheckListRequest req,
+            @AuthenticationPrincipal CustomUserDetails userDetails
+    ) {
+        CheckListResponse result = service.create(req, userDetails.getUsername());
+        recommendController.diagnose(userDetails);
 
-        CheckListResponse created =
-                service.create(user.getUsername(), req);
-
-        return ResponseEntity.ok(created);
+        return result;
     }
 
+    /** 사용자의 모든 체크리스트 조회 */
     @GetMapping
-    public ResponseEntity<List<CheckListResponse>> list(
-            @AuthenticationPrincipal UserDetails user) {
+    public List<CheckListResponse> findAll(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
+        return service.findAllForCurrentUser(customUserDetail.getUser().getUsername());
+    }
 
-        List<CheckListResponse> list =
-                service.findAllForUser(user.getUsername());
+    @GetMapping("/mbti")
+    public String MBTIResponse(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
+        String email = customUserDetail.getUser().getEmail();
+        log.debug("Getting skin type for user: {}", email);
+        System.out.println(email);
+        
+        String MBTI = service.getSkinTypeByEmail(email);
+        log.debug("MBTI: {}", MBTI);
+        System.out.println(MBTI);
 
-        return ResponseEntity.ok(list);
+        return MBTI;
     }
 }
+
+
+
+
+
+
+
 

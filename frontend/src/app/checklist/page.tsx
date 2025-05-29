@@ -1,119 +1,286 @@
+// src/app/page.checklist.tsx
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QUESTIONS, Question, Category } from '@/data/questions';
+import { CONCERNS } from '@/data/concerns';
 import styles from './page.checklist.module.css';
+import apiConfig from '@/config/api';
+import {ArrowLeft } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-const MAX_SCORE_PER_CATEGORY = 2 * 3; // 문항당 최대 2점 × 3문제
+// Fisher–Yates 셔플 함수
+function shuffle<T>(arr: T[]): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 export default function ChecklistPage() {
-  const TOTAL = QUESTIONS.length;    // 12문제
-  const [qs, setQs]       = useState<Question[]>([]);
-  const [idx, setIdx]     = useState(0);
-  const [answers, setAns] = useState<{ cat: Category; score: number }[]>([]);
-  const [done, setDone]   = useState(false);
+  const [stage, setStage] = useState<'quiz'|'concerns'>('quiz');
+  const [qs, setQs]                   = useState<Question[]>([]);
+  const [idx, setIdx]                 = useState(0);
+  const [answers, setAnswers]         = useState<{ cat: Category; score: number }[]>([]);
+  const [done, setDone]               = useState(false);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [selectedConcerns, setSelectedConcerns] = useState<string[]>([]);
+  const [progress, setProgress] = useState(0);
+  const [submitting, setSubmitting] = useState(false);
+  const router = useRouter();
+  useEffect(() => {setProgress(Math.round((idx/qs.length) * 100));
+  }, [idx]);
 
+  // 페이지 로드 시: 카테고리별로 5문항 중 랜덤 3개씩 골라 총 12문제 세팅
   useEffect(() => {
-    // 순서 고정: QUESTIONS 전체 (필요하면 shuffle)
-    setQs(QUESTIONS);
+    const byCat: Record<Category, Question[]> = {
+      moisture:    [],
+      oil:         [],
+      sensitivity: [],
+      tension:     [],
+    };
+    for (const q of QUESTIONS) {
+      byCat[q.category].push(q);
+    }
+    const picked: Question[] = (Object.keys(byCat) as Category[])
+      .flatMap(cat => shuffle(byCat[cat]).slice(0, 3));
+    setQs(shuffle(picked));
   }, []);
 
-  // 로딩 상태
-  if (qs.length === 0) {
-    return <div className={styles.page}>로딩 중…</div>;
-  }
+  // 진행도 계산
+  useEffect(() => {
+    setProgress(qs.length ? Math.round((idx / qs.length) * 100) : 0);
+  }, [idx, qs.length]);
 
-  // 답변 핸들러
-  const onSelect = (score: number) => {
-    setAns([...answers, { cat: qs[idx].category, score }]);
-    if (idx + 1 >= qs.length) {
-      setDone(true);
-    } else {
-      setIdx(idx + 1);
-    }
-  };
+  // 카테고리별 총점
+  const sums = answers.reduce<Record<Category, number>>((acc, { cat, score }) => {
+    acc[cat] = (acc[cat] || 0) + score;
+    return acc;
+  }, { moisture: 0, oil: 0, sensitivity: 0, tension: 0 });
 
-  // ===========================
-  // 완료 시: 결과 화면
-  // ===========================
-  if (done) {
-    // 카테고리별 합산
-    const sum = answers.reduce<Record<Category, number>>((acc, { cat, score }) => {
-      acc[cat] = (acc[cat] || 0) + score;
-      return acc;
-    }, { moisture: 0, oil: 0, sensitivity: 0, tension: 0 });
+  // 2) 백분율 계산
+  const percent = (cat: Category) => {
+  // ① 해당 카테고리에서 실제 뽑힌 문항 수 × 2(최대 점수)
+  const maxForCat = qs.filter(q => q.category === cat).length * 2;
+  if (maxForCat === 0) return 0;
+  // ② 백분율 계산 후, 100 이하로 클램프
+  const raw = Math.round((sums[cat] / maxForCat) * 100);
+  return Math.min(raw, 100);
+};
 
-    // % 환산
-    const percent = (cat: Category) => Math.round((sum[cat] / MAX_SCORE_PER_CATEGORY) * 100);
+  // ▶ 1단계: 퀴즈
+  if (stage === 'quiz') {
+    if (!qs.length) return <div className={styles.page}>로딩 중…</div>;
+
+    const q = qs[idx];
+
+    // 뒤로가기 핸들러: idx를 한 칸 뒤로, answers 마지막 제거
+    const handleBack = () => {
+      if (idx === 0) return;
+      setIdx(i => i - 1);
+      setAnswers(a => a.slice(0, -1));
+      setSelectedOption(null);
+    };
+
+    const onSelect = (score: number, optIdx: number) => {
+      setAnswers(a => [...a, { cat: q.category, score }]);
+      setSelectedOption(optIdx);
+      setTimeout(() => {
+        setSelectedOption(null);
+        if (idx + 1 >= qs.length) {
+          setStage('concerns');
+        } else {
+          setIdx(i => i + 1);
+        }
+      }, 150);
+    };
 
     return (
       <div className={styles.page}>
         <div className={styles.container}>
-          <h1 className={styles.title}>체크리스트 결과</h1>
-          {(['moisture','oil','sensitivity','tension'] as Category[]).map(cat => (
-            <div key={cat} className={styles.optionWrapper /* 재활용: 한 줄 묶음 */}>
-              <span className={styles.optionLabel /* 재활용: 레이블 스타일 */}>
-                {{
-                  moisture: '수분',
-                  oil: '유분',
-                  sensitivity: '민감도',
-                  tension: '탄력'
-                }[cat]} {percent(cat)}%
-              </span>
-              <div className={styles.progress /* 재활용: 슬라이더 백그라운드 */}>
-                {/* 여기선 range 대신 바 형태로 */}
-                <div
-                  className={styles.selected /* 재활용: 채워진 부분 스타일 */} 
-                  style={{ width: `${percent(cat)}%`, height: '12px', borderRadius: '6px', background: '#ff8fab' }}
+          <div className={styles.navRow}>
+            {/* ← 이전 버튼 */}
+            <button
+                onClick={handleBack}
+                disabled={idx === 0}
+                className={styles.backButton}
+              >
+              <ArrowLeft className={styles.backIcon} />
+            </button>
+            <h1 className={styles.title}>
+              질문 {idx + 1} / {qs.length}: {q.text}
+            </h1>
+          </div>
+          <div
+            className={styles.resultProgress}
+            style={{
+              '--bar-color': '#ff8fab',
+              '--range-percentage': `${progress}%`,
+              backgroundSize: `${progress}% 100%`
+            } as React.CSSProperties}
+          >
+            <input type="range" min={0} max={100} value={progress} readOnly/>
+          </div>
+          {/* 선택지 */}
+          <div className={styles.options}>
+            {q.options.map((opt,i)=>(
+              <div key={i} className={styles.optionWrapper}>
+                <button
+                  className={`${styles.option} ${selectedOption===i?styles.selected:''}`}
+                  onClick={()=>onSelect(opt.score,i)}
                 />
+                <span className={styles.optionLabel}>{opt.label}</span>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
     );
   }
 
-  // ===========================
-  // 질문 UI
-  // ===========================
-  const q = qs[idx];
-  const progress = Math.round((idx / TOTAL) * 100);
+  // ▶ 2단계: 고민 선택 & 제출
+const submitAll = async (concernIds: string[]): Promise<boolean> => {
+  setSubmitting(true);
+  try {
+    const labels = concernIds
+      .map(id => CONCERNS.find(c => c.id === id)?.label)
+      .filter((l): l is string => !!l);
 
+    const body = {
+      moisture: percent('moisture'),
+      oil: percent('oil'),
+      sensitivity: percent('sensitivity'),
+      tension: percent('tension'),
+      troubles: labels,
+    };
+
+    const token = localStorage.getItem('accessToken');
+    const res = await fetch(apiConfig.endpoints.checklist.base, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      console.error('체크리스트 제출 실패:', await res.text());
+      return false;
+    }
+
+    await res.json();
+    return true;
+  } catch (err) {
+    console.error('제출 중 오류:', err);
+    return false;
+  } finally {
+    setSubmitting(false);
+  }
+};
+
+    const fetchNaverData = async () => {
+        try {
+            const token = localStorage.getItem('accessToken');
+            console.log('Current token:', token); // 토큰 확인용 로그
+
+            if (!token) {
+                console.log('No token found');
+                return;
+            }
+
+            const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            console.log('Response status:', response.status); // 응답 상태 확인용 로그
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log('Naver API response:', data);
+            return data;
+        } catch (error) {
+            console.error('Error fetching Naver data:', error);
+        }
+    };
+
+  // ▶ 2단계 렌더링
   return (
     <div className={styles.page}>
+      {submitting && (
+        <div className={styles.loadingOverlay}>
+          <div className={styles.spinner}>체크리스트 분석 중…</div>
+        </div>
+      )}
       <div className={styles.container}>
-        {/* 타이틀: 문제 번호 + 질문 텍스트 */}
-        <h1 className={styles.title}>
-          문제 {idx + 1} / {TOTAL}　{q.text}
-        </h1>
-
-        {/* 진행도 슬라이더 */}
-        <div className={styles.progress}>
-          <input type="range" min={0} max={100} value={progress} disabled />
+        <h1 className={styles.title}>피부 고민을 선택해주세요</h1>
+        <div className={styles.concernsGrid}>
+          {CONCERNS.map(c=>(
+            <button
+              key={c.id}
+              type="button"
+              className={`${styles.concernBtn} ${selectedConcerns.includes(c.id)?styles.active:''}`}
+              onClick={()=>{
+                // 토글
+                setSelectedConcerns(prev=>{
+                  return prev.includes(c.id)
+                    ? prev.filter(x=>x!==c.id)
+                    : [...prev, c.id];
+                });
+              }}
+            >
+              {c.label}
+            </button>
+          ))}
         </div>
-
-        {/* 옵션 버튼 그룹 */}
-        <div className={styles.options}>
-          {q.options.map((opt, i) => {
-            // 현재 문제에서 내가 선택한 값(없으면 undefined)
-            const isSelected = answers[idx]?.score === opt.score;
-            return (
-              <div key={i} className={styles.optionWrapper}>
-                <button
-                  type="button"
-                  className={`${styles.option} ${isSelected ? styles.selected : ''}`}
-                  onClick={() => onSelect(opt.score)}
-                />
-                <span className={styles.optionLabel}>{opt.label}</span>
-              </div>
-            );
-          })}
-        </div>
+        <div className={styles.submitWrapper}>
+         <button
+            className={styles.submitBtn}
+            disabled={!selectedConcerns.length || submitting}
+            onClick={async () => {
+          try {
+            const submitSuccess = await submitAll(selectedConcerns);
+          if (submitSuccess) {
+          await fetchNaverData();  // 네이버 연동이 필요하면
+          router.push('/');
+          } else {
+          alert('제출에 실패했습니다. 다시 시도해주세요.');
+          }
+          } catch (error) {
+          console.error('처리 중 오류 발생:', error);
+          alert('처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+        }
+  }}
+>
+  제출
+</button>
+       </div>
       </div>
     </div>
   );
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

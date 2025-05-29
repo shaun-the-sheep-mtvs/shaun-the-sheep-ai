@@ -1,0 +1,1255 @@
+/* step2.module.css */
+
+.step2-wrapper {
+  display: flex;
+  min-height: 100vh;
+  background: #fefbfc;
+  font-family: 'Pretendard', 'sans-serif';
+}
+
+.step2-sidebar {
+  width: 260px;
+  background: #fff6f8;
+  border-right: 1px solid #f3e6ef;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 40px;
+}
+.step2-logo {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 48px;
+  letter-spacing: -0.5px;
+}
+.step2-menu {
+  width: 100%;
+  list-style: none;
+  padding: 0;
+}
+.step2-menu li {
+  display: flex;
+  align-items: center;
+  font-size: 1.15rem;
+  color: #222;
+  padding: 18px 0 18px 36px;
+  cursor: pointer;
+  border-left: 4px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+.step2-menu-icon {
+  margin-right: 10px;
+  font-size: 1.2em;
+}
+.step2-menu-active {
+  background: #ffe3ef;
+  border-left: 4px solid #ff7eb3;
+  font-weight: bold;
+  color: #ff7eb3;
+}
+
+.step2-main-content {
+  flex: 1;
+  background: #fff;
+  padding: 0 0 60px 0;
+  position: relative;
+  min-width: 0;
+}
+/* .step2-greeting {
+  position: absolute;
+  top: 32px;
+  right: 60px;
+  font-size: 1.05rem;
+  color: #ff7eb3;
+  font-weight: 500;
+  opacity: 0.9;
+  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+} */
+
+.step2-step-bar {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin-top: 48px;
+  margin-bottom: 32px;
+}
+.step2-step-inactive {
+  color: #d1d5db;
+  font-weight: 700;
+  font-size: 22px;
+}
+.step2-step-active {
+  color: #222;
+  font-weight: 700;
+  font-size: 22px;
+}
+
+.step2-recommend-title {
+  text-align: center;
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #222;
+}
+.step2-recommend-desc {
+  text-align: center;
+  color: #888;
+  font-size: 15px;
+  margin-bottom: 32px;
+}
+.step2-skin-type-box {
+  background: #4fd1c5;
+  border-radius: 16px;
+  padding: 24px 0 18px 0;
+  color: #fff;
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0 auto 32px auto;
+  max-width: 480px;
+  text-align: center;
+}
+.step2-skin-type-main {
+  font-size: 1.1em;
+  margin-bottom: 10px;
+}
+.step2-skin-type-tags {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.step2-skin-type-tags span {
+  background: #38b2ac;
+  border-radius: 12px;
+  padding: 4px 16px;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.step2-section-title {
+  font-weight: 700;
+  font-size: 18px;
+  margin: 0 auto 18px auto;
+  max-width: 700px;
+  margin-top: 24px;
+  color: #222;
+}
+
+.step2-tabs {
+  display: flex;
+  max-width: 700px;
+  margin: 0 auto 0 auto;
+  background: #f7f7f9;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px 0 #ececec;
+  padding: 3px;
+  border: none;
+  margin-bottom: 18px;
+}
+.step2-tab {
+  flex: 1;
+  font-weight: 700;
+  font-size: 16px;
+  color: #888;
+  padding: 10px 0;
+  cursor: pointer;
+  background: none;
+  border: none;
+  outline: none;
+  border-radius: 6px;
+  transition: background 0.2s, color 0.2s;
+  background: transparent;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.step2-tab-active {
+  color: #222;
+  background: #fff;
+  box-shadow: 0 1px 4px 0 #ececec;
+}
+
+.step2-routine-box {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 2px 8px 0 #f3e6ef;
+  padding: 32px 24px 18px 24px;
+  max-width: 700px;
+  margin: 0 auto 0 auto;
+  margin-bottom: 24px;
+  border: 2px solid #b2e6e0;
+}
+.step2-routine-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  font-weight: 700;
+  font-size: 1.1em;
+}
+.step2-routine-total {
+  background: #b2e6e0;
+  color: #249e8b;
+  border-radius: 12px;
+  padding: 4px 16px;
+  font-size: 14px;
+  font-weight: 600;
+}
+.step2-routine-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.step2-routine-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+.step2-routine-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #eaf1fb;
+  color: #38b2ac;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  margin-right: 8px;
+}
+.step2-routine-info {
+  flex: 1;
+}
+.step2-routine-title {
+  font-weight: 700;
+  font-size: 16px;
+  color: #222;
+}
+.step2-routine-desc {
+  color: #888;
+  font-size: 14px;
+  margin-top: 2px;
+}
+.step2-buy-btn {
+  background: #4fd1c5;
+  color: #fff;
+  border: none;
+  border-radius: 20px;
+  padding: 4px 14px;
+  font-weight: bold;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s;
+  margin-top: 2px;
+  margin-left: 8px;
+  min-width: 70px;
+}
+.step2-buy-btn:hover {
+  background: #38b2ac;
+}
+
+.step2-change-box {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 1px 4px 0 #ececec;
+  padding: 32px 24px 32px 24px;
+  max-width: 700px;
+  margin: 0 auto 0 auto;
+  margin-bottom: 24px;
+  border: 1px solid #e5e7eb;
+}
+.step2-change-title {
+  font-weight: 600;
+  font-size: 17px;
+  margin-bottom: 18px;
+  color: #222;
+}
+.step2-change-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.step2-change-item {
+  display: flex;
+  align-items: center;
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 18px 18px 18px 18px;
+  margin-bottom: 8px;
+  gap: 18px;
+}
+.step2-change-current, .step2-change-recommend {
+  font-size: 15px;
+  color: #888;
+  text-align: center;
+  min-width: 120px;
+  background: none;
+  padding: 0;
+}
+.step2-change-current b, .step2-change-recommend b {
+  color: #222;
+  font-size: 16px;
+  font-weight: 600;
+}
+.step2-change-arrow {
+  font-size: 22px;
+  color: #bdbdbd;
+  margin: 0 8px;
+}
+.step2-change-desc {
+  color: #888;
+  font-size: 14px;
+  margin-left: 8px;
+  margin-bottom: 8px;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.step2-add-list {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.step2-add-item {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 18px 18px 18px 18px;
+  min-width: 220px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #e5e7eb;
+}
+.step2-add-plus {
+  color: #38b2ac;
+  font-weight: 700;
+  font-size: 22px;
+  margin-right: 8px;
+}
+.step2-add-name {
+  font-weight: 600;
+  font-size: 16px;
+  color: #222;
+}
+.step2-add-desc {
+  color: #888;
+  font-size: 14px;
+  margin-top: 2px;
+}
+
+.step2-bottom-btns {
+  /* display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin: 48px 0 0 0; */
+  max-width: 700px;
+  margin: 0 auto 24px;
+  /* padding: 32px 24px; */
+  display: flex;
+  justify-content: center;
+}
+.step2-prev-btn {
+  background: #fff;
+  color: #222;
+  border: 1.5px solid #e6e6e6;
+  border-radius: 32px;
+  padding: 14px 48px;
+  font-weight: 700;
+  font-size: 18px;
+  cursor: pointer;
+  margin-right: 8px;
+  box-shadow: 0 2px 8px 0 #f3e6ef;
+  transition: background 0.2s, color 0.2s;
+}
+.step2-prev-btn:hover {
+  background: #f8fafc;
+}
+.step2-done-btn {
+  background: #4CD3A5;
+  color: #fff;
+  border: none;
+  border-radius: 32px;
+  padding: 14px 48px;
+  font-weight: 700;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 #f3e6ef;
+  transition: background 0.2s;
+}
+.step2-done-btn:hover {
+  background: #ff4f8b;
+}
+
+.step2-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #fff;
+  /* border-radius: 24px; */
+  box-shadow: 0 2px 8px 0 #f3e6ef;
+  padding: 10px 32px 10px 20px;
+  margin: 0 0 18px 0;
+  min-height: 48px;
+  z-index: 10;
+}
+.step2-header-profile {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.step2-header-profile-icon {
+  background: linear-gradient(135deg, #ffe3ef 0%, #ffd6f5 100%);
+  color: #ff7eb3;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  margin-right: 4px;
+}
+.step2-header-profile-name {
+  font-size: 1.08rem;
+  font-weight: 500;
+  color: #222;
+  letter-spacing: -0.5px;
+}
+.step2-header-alarm {
+  display: flex;
+  align-items: center;
+}
+.step2-header-alarm-icon {
+  font-size: 1.35rem;
+  color: #bdbdbd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.step2-header-alarm-icon:hover {
+  color: #ff7eb3;
+}
+
+@media (max-width: 1100px) {
+  .step2-sidebar {
+    width: 180px;
+    padding-top: 24px;
+  }
+  .step2-main-content {
+    padding-left: 0;
+  }
+  /* .step2-greeting {
+    right: 20px;
+  } */
+}
+@media (max-width: 900px) {
+  .step2-wrapper {
+    flex-direction: column;
+  }
+  .step2-sidebar {
+    width: 100vw;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    border-right: none;
+    border-bottom: 1px solid #f3e6ef;
+    padding: 0 0 0 0;
+    min-height: 60px;
+    height: 60px;
+  }
+  .step2-logo {
+    margin: 0 24px 0 24px;
+    font-size: 1.2rem;
+  }
+  .step2-menu {
+    display: flex;
+    flex-direction: row;
+    width: auto;
+    margin-left: 12px;
+  }
+  .step2-menu li {
+    padding: 0 18px;
+    font-size: 1rem;
+    border-left: none;
+    border-bottom: 4px solid transparent;
+  }
+  .step2-menu-active {
+    border-left: none;
+    border-bottom: 4px solid #ff7eb3;
+  }
+}
+@media (max-width: 700px) {
+  .step2-main-content {
+    padding: 0 0 40px 0;
+  }
+  .step2-step-bar {
+    gap: 18px;
+    margin-top: 24px;
+    margin-bottom: 18px;
+  }
+  .step2-section-title, .step2-routine-box, .step2-change-box {
+    max-width: 98vw;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+  .step2-tabs {
+    max-width: 98vw;
+  }
+  /* .step2-greeting {
+    font-size: 0.95rem;
+    top: 12px;
+    right: 10px;
+  } */
+  .step2-bottom-btns {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .step2-prev-btn, .step2-done-btn {
+    width: 100%;
+    font-size: 16px;
+    padding: 12px 0;
+  }
+} 
+
+.container {
+    margin: 0;
+  }
+  
+.title {
+font-size: 1.25rem;
+font-weight: 700;
+margin-bottom: 1.5rem;
+}
+
+.card {
+border: 1px solid #f3f4f6;
+border-radius: 0.5rem;
+box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+.cardContent {
+padding: 1.5rem;
+}
+
+.section {
+display: flex;
+flex-direction: column;
+gap: 1.5rem;
+}
+
+.sectionTitle {
+font-size: 1.125rem;
+font-weight: 500;
+margin-bottom: 1rem;
+margin-top: 2rem;
+}
+
+.changeCard {
+background-color: #f9fafb;
+border-radius: 0.5rem;
+padding: 1rem;
+}
+
+.flexRow {
+display: flex;
+align-items: center;
+}
+
+.flexGrow {
+flex: 1;
+}
+
+.productRow {
+display: flex;
+align-items: center;
+margin-bottom: 1rem;
+}
+
+.iconBox {
+width: 3rem;
+height: 3rem;
+background-color: white;
+border-radius: 9999px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin-right: 0.75rem;
+border: 1px solid #e5e7eb;
+}
+
+.greenIconBox {
+width: 3rem;
+height: 3rem;
+background-color: rgba(76, 211, 165, 0.1);
+border-radius: 9999px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin-right: 0.75rem;
+border: 1px solid rgba(76, 211, 165, 0.3);
+}
+
+.smallGreenIconBox {
+width: 2.5rem;
+height: 2.5rem;
+background-color: rgba(76, 211, 165, 0.2);
+border-radius: 9999px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin-right: 0.75rem;
+}
+
+.grayIcon {
+color: #9ca3af;
+}
+
+.greenIcon {
+color: #4CD3A5;
+}
+
+.currentLabel {
+font-size: 0.875rem;
+color: #6b7280;
+}
+
+.recommendLabel {
+font-size: 0.875rem;
+color: #4CD3A5;
+}
+
+.productName {
+font-weight: 500;
+}
+
+.arrow {
+display: flex;
+justify-content: center;
+margin: 0.5rem 0;
+}
+
+.arrowIcon {
+color: #4CD3A5;
+}
+
+.buyButtonBox {
+margin-left: 1rem;
+}
+
+.buyButton {
+background-color: #4CD3A5;
+color: white;
+border-radius: 9999px;
+padding: 0 1rem;
+height: 2rem;
+font-size: 0.75rem;
+transition: background-color 0.3s ease;
+}
+
+.buyButton:hover {
+background-color: #3BC193;
+}
+
+.reasonBox {
+margin-top: 1rem;
+background-color: white;
+padding: 0.75rem;
+border-radius: 0.5rem;
+border: 1px solid #f3f4f6;
+}
+
+.reasonText {
+font-size: 0.875rem;
+color: #4b5563;
+}
+
+.grid {
+display: grid;
+gap: 1rem;
+}
+
+@media (min-width: 768px) {
+.grid {
+    grid-template-columns: repeat(2, 1fr);
+}
+}
+
+.addCard {
+background-color: rgba(76, 211, 165, 0.05);
+border-radius: 0.5rem;
+padding: 1rem;
+border: 1px solid rgba(76, 211, 165, 0.2);
+}
+
+.flexBetween {
+display: flex;
+justify-content: space-between;
+align-items: flex-start;
+}
+
+.change-recommend-card {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 24px 20px;
+  margin-bottom: 20px;
+  border: 1px solid #e5e7eb;
+}
+.change-product-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 12px;
+}
+.change-product-col {
+  flex: 1;
+}
+.change-product-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+}
+.change-product-icon.green {
+  background: rgba(76, 211, 165, 0.1);
+  border: 1px solid rgba(76, 211, 165, 0.3);
+}
+.change-product-label {
+  font-size: 13px;
+  color: #6b7280;
+}
+.change-product-label.green {
+  color: #4CD3A5;
+}
+.change-product-title {
+  font-weight: 500;
+  font-size: 15px;
+  color: #222;
+}
+.change-arrow {
+  display: flex;
+  justify-content: center;
+  margin: 8px 0;
+}
+.change-reason-box {
+  margin-top: 14px;
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #f3f4f6;
+}
+.change-reason-text {
+  font-size: 13px;
+  color: #4b5563;
+}
+.add-recommend-grid {
+  /* display: grid; */
+  gap: 16px;
+  margin-top: 24px;
+}
+@media (min-width: 768px) {
+  .add-recommend-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+.add-recommend-card {
+  background: rgba(76, 211, 165, 0.05);
+  border-radius: 12px;
+  padding: 18px 18px 18px 18px;
+  border: 1px solid rgba(76, 211, 165, 0.2);
+  margin-bottom: 24px;
+}
+.add-recommend-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.add-product-icon {
+  width: 40px;
+  height: 40px;
+  background: rgba(76, 211, 165, 0.2);
+  border-radius: 9999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+.add-product-title {
+  font-weight: 500;
+  font-size: 15px;
+  color: #222;
+}
+.add-reason {
+  font-size: 13px;
+  color: #4b5563;
+  margin-top: 10px;
+  /* margin-left: 52px; */
+}
+.buy-btn {
+  background: #4CD3A5;
+  color: #fff;
+  border-radius: 9999px;
+  padding: 0 16px;
+  height: 32px;
+  font-size: 13px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.buy-btn:hover {
+  background: #3BC193;
+}
+
+.empty-message-card {
+  background-color: #f9f9f9; /* 밝은 배경색 */
+  border: 1px solid #eeeeee; /* 옅은 테두리 */
+  border-radius: 8px;        /* 둥근 모서리 */
+  padding: 24px;             /* 내부 여백 */
+  text-align: center;        /* 텍스트 중앙 정렬 */
+  margin-top: 16px;          /* 위쪽 여백 */
+  margin-bottom: 16px;       /* 아래쪽 여백 */
+  color: #555555;            /* 글자색 */
+  font-size: 0.95rem;        /* 글자 크기 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 은은한 그림자 */
+}
+
+.empty-message-card p {
+  margin: 0; /* p 태그의 기본 마진 제거 */
+}
+
+.wrapper {
+  position: relative;
+  flex-direction: column;
+}
+
+.navbar {
+  width: 100%;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.875rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+  position: relative;
+  height: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 메뉴 버튼 */
+.menuButton, .mobileMenuToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-left: 0.5rem;
+  border: none;
+}
+
+/* 로고 컨테이너 */
+.logoContainer {
+  display: flex;
+  align-items: center;
+}
+
+/* Styles from page.module.css for sidebar and navbar */
+
+/* .wrapper 클래스는 step2.module.css 에 이미 존재하므로, 
+   page.module.css의 .wrapper에만 있는 고유한 속성이나 변수만 가져오거나,
+   두 스타일을 신중하게 병합해야 합니다.
+   여기서는 page.module.css의 wrapper 내용을 그대로 가져오되,
+   기존 step2-wrapper와 충돌하지 않도록 주석 처리해두거나,
+   필요한 부분만 선택적으로 가져오는 것을 권장합니다.
+   아래는 page.module.css 의 .wrapper 에 있던 내용 중 일부입니다. */
+/*
+.wrapper {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--background-light);
+  background-image: none;
+  font-family: 'Pretendard', 'sans-serif';
+  font-size: 17px;
+  color: #111827;
+  flex-direction: column;
+  max-width: 100%;
+  overflow-x: hidden;
+  position: relative;
+  letter-spacing: -0.01em;
+
+  --primary-green: #3DD598;
+  --primary-blue: #4E9BFA;
+  --primary-red: #FF6B6B;
+  --primary-orange: #FF9F43;
+  --primary-pink: #FF88A9;
+  --primary-mint: #40DDBA;
+  --light-pink: #FFD0E0;
+  --bg-mint: #E8FFF8;
+  --text-dark: #333333;
+  --text-medium: #666666;
+  --text-light: #999999;
+  --background-light: #FFFFFF;
+  --background-grey: #F8F8F8;
+  --card-border: rgba(0, 0, 0, 0.05);
+  --card-shadow: rgba(0, 0, 0, 0.05);
+}
+*/
+
+/* 네비게이션 바 스타일 - page.module.css 에서 가져옴 */
+/* .navbar 클래스는 step2.module.css 에 이미 존재할 수 있습니다.
+   충돌을 피하기 위해 이름을 변경하거나 내용을 병합하세요. */
+.navbar {
+  width: 100%;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.875rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100; /* step2-header 보다 높거나 같게 설정 */
+  position: relative; /* step2-header 와의 z-index 경쟁을 위해 relative 또는 fixed/sticky 필요*/
+  height: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* 로고 컨테이너 - page.module.css 에서 가져옴 */
+.logoContainer {
+  display: flex;
+  align-items: center;
+}
+
+/* .logo 클래스는 step2.module.css 에 이미 존재할 수 있습니다. */
+.logo {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111827;
+  background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  padding: 0;
+  margin: 0;
+}
+
+/* 네비게이션 오른쪽 컨테이너 */
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* 로그인 버튼 */
+.loginButton {
+  background-color: #fde047;
+  color: #111827;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loginButton:hover {
+  background-color: #fcd34d;
+}
+
+/* 회원가입 버튼 */
+.authButton {
+  background-color: transparent;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.authButton:hover {
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+/* 메뉴 버튼 */
+.menuButton, .mobileMenuToggle { /* .mobileMenuToggle은 step2.module.css에 이미 있을 수 있음 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-left: 0.5rem;
+  border: none;
+}
+
+.menuButton:hover, .mobileMenuToggle:hover {
+  background-color: #f3f4f6;
+}
+
+.menuIcon, .menuToggleIcon { /* .menuToggleIcon은 step2.module.css에 이미 있을 수 있음 */
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #4b5563;
+}
+
+/* 사이드바 스타일 */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px; /* 닫힌 상태에서는 화면 밖으로 */
+  width: 280px;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 200; /* navbar 보다 높게 설정 */
+  transition: left 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+
+.sidebarOpen {
+  left: 0; /* 열린 상태에서는 화면에 표시 */
+}
+
+/* 사이드바 헤더 */
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.sidebarLogo { /* .logo와 유사할 수 있음 */
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: #f3f4f6;
+}
+
+.closeIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #4b5563;
+}
+
+/* 사이드바 메뉴 */
+.sidebarMenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebarMenu li {
+  padding: 0;
+  font-size: 1rem;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.sidebarMenu .menuLink { /* .menuLink 는 step2.module.css에 이미 있을 수 있음 */
+  display: flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+  padding: 0.875rem 1rem;
+  width: 100%;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.sidebarMenu li:hover .menuLink {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.sidebarMenu .menuIcon { /* .menuIcon은 step2.module.css에 이미 있을 수 있음 */
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
+  opacity: 0.85;
+}
+
+.sidebarMenu li:hover .menuIcon {
+  opacity: 1;
+}
+
+/* .menuActive는 step2.module.css에 이미 있을 수 있음 */
+.menuActive { 
+  /* page.module.css의 .menuActive 스타일을 여기에 적용하거나,
+     기존 .step2-menu-active 스타일과 병합 또는 선택해야 합니다.
+     일단 page.module.css의 스타일을 우선으로 가져옵니다. */
+  background-color: #f3f4f6; /* 기존 step2-menu-active 와 다름 */
+  color: #6366f1 !important; /* 기존 step2-menu-active 와 다름 */
+  background: linear-gradient(90deg, rgba(236, 72, 153, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  font-weight: 700;
+  position: relative;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+}
+
+/* menuActive 내부의 menuLink에 대한 스타일 */
+.sidebarMenu .menuActive .menuLink {
+  font-weight: 700; /* page.module.css 스타일 */
+   /* color: #ff7eb3; /* 기존 step2.module.css 스타일과 충돌 가능성 */
+}
+
+/* menuActive 내부의 menuIcon에 대한 스타일 */
+.sidebarMenu .menuActive .menuIcon {
+  opacity: 1;
+  color: var(--primary-pink); /* page.module.css 의 CSS 변수 필요 */
+}
+
+/* page.module.css의 .menuActive::before 스타일 */
+.menuActive::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0; /* step2.module.css의 border-left/bottom 과 다름 */
+  height: 4px; /* step2.module.css의 border-left/bottom 과 다름 */
+  width: 100%;
+  background: linear-gradient(to right, var(--primary-pink), var(--primary-mint)); /* CSS 변수 필요 */
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.25);
+}
+
+
+/* 메뉴 오버레이 */
+.menuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 150; /* sidebar 보다 낮고, navbar 보다 높게 */
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.menuOverlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.logoutButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #D8B4FE; 
+  color: white;            
+  padding: 0.5rem 1.5rem;    
+  border: none;
+  border-radius: 9999px;     
+  font-size: 1rem;
+  font-weight: 600;
+  /* text-transform: uppercase; */ /* step2 페이지에서는 소문자로 표시될 수 있으므로 주석 처리 */
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+.logoutButton:hover {
+  background-color: #C084FC;
+  transform: translateY(-1px);
+}
+
+/* 반응형 스타일 - page.module.css에서 가져온 부분 */
+@media (max-width: 1024px) {
+  /* .mobileMenuToggle { display: flex; } // page.module.css 에는 있었으나 step2에서는 다른 방식으로 처리될 수 있음 */
+  
+  /* step2.module.css 에는 .sidebar가 이미 다양한 반응형 처리를 하고 있으므로,
+     page.module.css의 .sidebar @media 규칙은 신중히 병합해야 합니다. */
+}
+
+@media (max-width: 768px) {
+  /* .navbar { padding: 0.75rem 1rem; } // step2.module.css 에 이미 유사한 처리 있음 */
+  
+  /* .logo { font-size: 1.5rem; } // step2.module.css 에 이미 유사한 처리 있음 */
+  
+  .authButton { /* 회원가입 버튼은 step2 페이지에 없을 수 있지만, 일단 가져옴 */
+    display: none; 
+  }
+  
+  .loginButton { /* 로그인 버튼은 step2 페이지에 없을 수 있지만, 일단 가져옴 */
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+
+  /* step2.module.css의 .sidebar 및 .mobileMenuToggle 관련 @media 규칙과 충돌 가능성 높음.
+     병합 또는 선택 필요. 아래는 page.module.css 의 내용입니다. */
+  .sidebar {
+    /* position: fixed; */ /* step2에서는 fixed일 수도, 아닐 수도 있음 */
+    right: -280px; 
+    width: 280px; 
+    height: 100vh; 
+    overflow-y: auto; 
+    transition: right 0.3s ease-in-out; 
+  }
+  
+  .sidebarOpen {
+    right: 0;
+  }
+  
+  .mobileMenuToggle { /* step2의 기존 toggle과 병합 필요 */
+    /* display: flex; */
+  }
+}
