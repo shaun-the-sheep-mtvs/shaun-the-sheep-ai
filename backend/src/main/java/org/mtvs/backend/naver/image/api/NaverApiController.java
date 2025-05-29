@@ -39,17 +39,18 @@ public class NaverApiController {
     public ResponseEntity<?> saveImage(@AuthenticationPrincipal CustomUserDetails user) {
         //dto's productName=> Texts
        List<ProductDTO> dtos =productService.getProducts(user.getUser().getId());
-        System.out.println("dtosSize = " + dtos.size());
+
         List<String> texts= new ArrayList<>();
         for(ProductDTO dto : dtos) {
             texts.add(dto.getProductName());
         }
-        System.out.println(texts.size());
-        //recommend 응답 한번에 몇개오나 분석.
+
         List<String> responses = new ArrayList<>();
         for(int i=0; i<texts.size(); i++){
             if(!naverApiService.isExistImage(texts.get(i))){
+                //이미지가 존재하지 않을때만 get요청 전송후 응답리스트에 추가
                 responses.add(apiSearchImage.get(apiSearchImage.urlEncode(texts.get(i))));
+                System.out.println(responses);
                 //json 파싱
                 //i++
             }
