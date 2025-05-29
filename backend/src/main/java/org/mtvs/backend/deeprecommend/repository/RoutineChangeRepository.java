@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface RoutineChangeRepository extends JpaRepository<RoutineChange, Long> {
 
-    @Query("SELECT new org.mtvs.backend.deeprecommend.dto.RoutineChangeDTO(r.routineName, r.routineKind, r.routineTime, r.routineOrders, r.changeMethod, r.routineGroupId) " +
+    @Query("SELECT new org.mtvs.backend.deeprecommend.dto.RoutineChangeDTO(r.routineChangeId, r.routineName, r.routineKind, r.routineTime, r.routineOrders, r.changeMethod, r.routineGroupId) " +
             "FROM RoutineChange r " +
             "WHERE r.routineGroupId = (" +
             "   SELECT MAX(r2.id) " +
