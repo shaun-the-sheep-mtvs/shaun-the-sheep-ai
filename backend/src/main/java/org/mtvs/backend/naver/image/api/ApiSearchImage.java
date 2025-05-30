@@ -31,9 +31,7 @@ public class ApiSearchImage {
 
     public String get(String text){
         String URL = this.apiURL+"?query="+text+"&display="+1+"&sort=sim";
-        System.out.println("=====SendGet=======");
-        requestHeaders.put("X-Naver-Client-Id", clientId);
-        requestHeaders.put("X-Naver-Client-Secret", clientSecret);
+
         HttpURLConnection con = connect(URL);
         try {
             con.setRequestMethod("GET");
