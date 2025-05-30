@@ -2,7 +2,11 @@ package org.mtvs.backend.checklist.dto;
 
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class CheckListRequest {
     private String userId;
     private Integer moisture;
@@ -12,59 +16,15 @@ public class CheckListRequest {
     private List<String> troubles = new ArrayList<>();
     private String username;
 
-    public String getUserId() {
-        return userId;
-    }
+    public CheckListRequest() {}
 
-    public void setUserId(String userId) {
+    public CheckListRequest(String userId, Integer moisture, Integer oil, Integer sensitivity, Integer tension, List<String> troubles, String username) {
         this.userId = userId;
-    }
-
-    public Integer getMoisture() {
-        return moisture;
-    }
-
-    public void setMoisture(Integer moisture) {
         this.moisture = moisture;
-    }
-
-    public Integer getOil() {
-        return oil;
-    }
-
-    public void setOil(Integer oil) {
         this.oil = oil;
-    }
-
-    public Integer getSensitivity() {
-        return sensitivity;
-    }
-
-    public void setSensitivity(Integer sensitivity) {
         this.sensitivity = sensitivity;
-    }
-
-    public Integer getTension() {
-        return tension;
-    }
-
-    public void setTension(Integer tension) {
         this.tension = tension;
-    }
-
-    public List<String> getTroubles() {
-        return troubles;
-    }
-
-    public void setTroubles(List<String> troubles) {
         this.troubles = troubles;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public void setUsername(String username) {
         this.username = username;
     }
 }
