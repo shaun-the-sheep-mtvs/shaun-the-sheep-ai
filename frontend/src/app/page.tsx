@@ -148,13 +148,6 @@ export default function Home() {
   }, []);
   
 
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      router.push('/login');
-    }
-  }, [isLoggedIn]);
-
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     window.location.reload();
