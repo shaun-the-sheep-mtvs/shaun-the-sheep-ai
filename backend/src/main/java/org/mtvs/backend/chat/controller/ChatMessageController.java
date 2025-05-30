@@ -108,6 +108,7 @@ public class ChatMessageController {
             @RequestBody List<ChatMessageDTO> historyDto
     ) throws JsonProcessingException {
         String userId = userDetails.getUserId();
+
         // 1) DTO → Entity 변환
         List<ChatMessage> history = historyDto.stream()
                 .map(dto -> {
@@ -127,12 +128,24 @@ public class ChatMessageController {
                 .reduce((first, second) -> second)
                 .orElse("");
 
-        // 3) AI 호출 (templateKey 함께 전달)
-        ChatMessage aiMsg = chatMessageService.askAI_Single(userId, history, userQuestion, templateKey);
+        // 3) AI 호출 (DB 저장 없이 메시지 생성만)
+        ChatMessage aiMsg = chatMessageService.askAI_Single(
+                userId, history, userQuestion, templateKey
+        );
 
-        // 4) Entity → DTO 변환
+        String text = aiMsg.getContent();
+        // 줄바꿈 기준으로 5줄짜리 요약인 경우에만 저장
+        long lines = text.lines().count();
+        boolean isSummary = lines == 5 && text.startsWith("1) 피부 타입:");
+
+        // 4) “summary” 키일 때만 저장
+        if (isSummary) {
+            aiMsg = chatMessageService.save(aiMsg);
+        }
+
+        // 5) Entity → DTO 변환
         ChatMessageDTO responseDto = new ChatMessageDTO();
-        responseDto.setUserId(aiMsg.getUserId());      // userId 채워줌
+        responseDto.setUserId(aiMsg.getUserId());
         responseDto.setId(aiMsg.getId());
         responseDto.setRole(aiMsg.getRole());
         responseDto.setContent(aiMsg.getContent());

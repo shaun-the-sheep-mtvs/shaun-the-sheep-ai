@@ -30,13 +30,14 @@ public class ChatMessageService {
     5. 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(`\\n`)로만** 구분된 **5줄**로 출력하세요.
        - 각 줄 앞뒤에 공백을 추가하거나, 다른 구두점·문자를 붙이지 마세요.
             
-    예시(형식만):
-            
-    4) 타입 설명과 케어팁은 스스로 생성하여 답변
-    당신의 피부 타입: 수분부족지성 
-    피부 고민: 탄력 저하 
-    타입 설명: 유분은 충분하지만 수분·탄력 모두 부족해 피부가 당기고 처짐이 느껴져요.
-    케어 팁: 고보습 세럼과 탄력 강화 오일을 함께 사용하세요.
+    ———
+    마지막 단계에만, 다음과 같은 5줄 요약 형식으로만 답해주세요:
+    1) 피부 타입: …
+    2) 고민 키워드: …
+    3) 설명: …
+    4) 케어 팁: …
+    5) 권장 루틴: …
+    ———
             
     concern 값은 반드시 다음 중 하나입니다
     건조함
@@ -157,6 +158,6 @@ public class ChatMessageService {
         aiMsg.setRole("ai");
         aiMsg.setContent(aiText);
         aiMsg.setTimestamp(LocalDateTime.now());
-        return chatMessageRepository.save(aiMsg);
+        return aiMsg;    // → 여기서는 save() 하지 않음
     }
 }
