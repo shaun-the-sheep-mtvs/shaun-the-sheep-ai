@@ -1,0 +1,389 @@
+/* 색상 변수 정의 */
+.navbar {
+  --primary-green: #3DD598;
+  --primary-blue: #4E9BFA;
+  --primary-red: #FF6B6B;
+  --primary-orange: #FF9F43;
+  --primary-pink: #FF88A9;
+  --primary-mint: #40DDBA;
+  --light-pink: #FFD0E0;
+  --bg-mint: #E8FFF8;
+  --text-dark: #333333;
+  --text-medium: #666666;
+  --text-light: #999999;
+  --background-light: #FFFFFF;
+  --background-grey: #F8F8F8;
+  --card-border: rgba(0, 0, 0, 0.05);
+  --card-shadow: rgba(0, 0, 0, 0.05);
+}
+
+/* 네비게이션 바 스타일 */
+.navbar {
+  width: 100%;
+  background: white;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding: 0.875rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  z-index: 100;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 로고 컨테이너 */
+.logoContainer {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  width: calc(100% - 3rem);
+  justify-content: center;
+  z-index: -1;
+}
+
+.logo {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #111827;
+  background: linear-gradient(90deg, #34d399 0%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  padding: 0;
+  margin: 0;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* 네비게이션 오른쪽 컨테이너 */
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* 로그인 버튼 */
+.loginButton {
+  background-color: #6ee7b7;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.loginButton:hover {
+  background-color: #34d399;
+}
+
+/* 회원가입 버튼 */
+.authButton {
+  background-color: transparent;
+  color: #4b5563;
+  border: 1px solid #e5e7eb;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.authButton:hover {
+  background-color: #f9fafb;
+  color: #111827;
+}
+
+/* 메뉴 버튼 */
+.menuButton, .mobileMenuToggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 50%;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  margin-left: 0.5rem;
+  border: none;
+}
+
+.menuButton:hover, .mobileMenuToggle:hover {
+  background-color: #f3f4f6;
+}
+
+.menuIcon, .menuToggleIcon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: #4b5563;
+}
+
+/* 사이드바 스타일 */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -280px; /* 닫힌 상태에서는 화면 밖으로 */
+  width: 280px;
+  height: 100vh;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 200;
+  transition: left 0.3s ease-in-out; /* 부드러운 애니메이션 */
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 1.5rem;
+  transform: none; /* 기존 transform 속성 제거 */
+}
+
+.sidebarOpen {
+  left: 0; /* 열린 상태에서는 화면에 표시 */
+  transform: none; /* 기존 transform 속성 제거 */
+}
+
+/* 사이드바 헤더 */
+.sidebarHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+.sidebarLogo {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #111827;
+  background: linear-gradient(90deg, #34d399 0%, #6ee7b7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -0.02em;
+  margin: 0;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: #f3f4f6;
+}
+
+.closeIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  color: #4b5563;
+}
+
+/* 사이드바 메뉴 */
+.sidebarMenu {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sidebarMenu li {
+  padding: 0;
+  font-size: 1rem;
+  color: #4b5563;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.sidebarMenu .menuLink {
+  display: flex;
+  align-items: center;
+  color: inherit;
+  text-decoration: none;
+  padding: 0.875rem 1rem;
+  width: 100%;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.sidebarMenu li:hover .menuLink {
+  background-color: #f3f4f6;
+  color: #111827;
+}
+
+.sidebarMenu .menuIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.75rem;
+  opacity: 0.85;
+}
+
+.sidebarMenu li:hover .menuIcon {
+  opacity: 1;
+}
+
+.menuActive, .sidebarMenu .menuActive {
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.1) 0%, rgba(45, 212, 191, 0.1) 100%);
+  color: #111827 !important;
+  font-weight: 700;
+  position: relative;
+  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
+}
+
+.menuActive .menuLink, .sidebarMenu .menuActive .menuLink {
+  font-weight: 700;
+}
+
+.menuActive .menuIcon, .sidebarMenu .menuActive .menuIcon {
+  opacity: 1;
+  color: #34d399;
+}
+
+.menuActive::before, .sidebarMenu .menuActive::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(to right, #34d399, #6ee7b7);
+  border-radius: 0 0 4px 4px;
+  box-shadow: 0 2px 8px rgba(52, 211, 153, 0.25);
+}
+
+/* 메뉴 오버레이 */
+.menuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 150;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.menuOverlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* 로그아웃 버튼 */
+.logoutButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: linear-gradient(135deg, #6ee7b7 0%, #34d399 100%);
+  color: white;
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: 9999px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+  transition: all 0.2s ease;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.logoutButton:hover {
+  background: linear-gradient(135deg, #34d399 0%, #2dd4bf 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+  .navbar {
+    padding: 0.75rem 1rem;
+  }
+  
+  .logo {
+    font-size: 1.5rem;
+  }
+  
+  .authButton {
+    display: none;
+  }
+  
+  .loginButton {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .mobileMenuToggle {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: flex;
+  }
+  
+  .menuToggleIcon {
+    width: 1.375rem;
+    height: 1.375rem;
+  }
+  
+  .sidebarMenu li {
+    font-size: 0.9375rem;
+  }
+  
+  .sidebarMenu .menuLink {
+    padding: 0.75rem 1.125rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mobileMenuToggle {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  .menuToggleIcon {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+  
+  .logo {
+    font-size: 1.625rem;
+  }
+}
+
+/* 모든 버튼과 텍스트에 Pretendard 폰트 적용 */
+.loginButton,
+.authButton,
+.logoutButton,
+.sidebarMenu,
+.menuLink {
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+} 

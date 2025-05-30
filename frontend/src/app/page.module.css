@@ -9,6 +9,175 @@
   }
 }
 
+/* ===== 섹션 통일 스타일 시작 ===== */
+
+/* 기본 섹션 스타일 */
+.pageSection {
+  margin: 4.5rem 0;
+  padding: 4rem 0;
+  position: relative;
+}
+
+/* 첫 번째 섹션은 상단 마진 줄이기 */
+.pageSection:first-of-type {
+  margin-top: 2rem;
+  margin-bottom: 4.5rem;
+  padding-top: 3rem;
+}
+
+/* 마지막 섹션은 하단 마진 줄이기 */
+.pageSection:last-of-type {
+  margin-top: 4.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 3rem;
+}
+
+/* 섹션 구분줄 - 각 섹션 상단에 추가 */
+.pageSection::before {
+  display: none;
+}
+
+/* 첫 번째 섹션은 구분줄 제거 */
+.pageSection:first-of-type::before {
+  display: none;
+}
+
+/* 섹션 내용 컨테이너 */
+.sectionContent {
+  position: relative;
+  z-index: 1;
+}
+
+/* 섹션 타이틀 통일 */
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  position: relative;
+}
+
+.sectionMainTitle {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 1rem;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  position: relative;
+  display: inline-block;
+}
+
+.sectionMainTitle::after {
+  content: '';
+  position: absolute;
+  bottom: -1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100px;
+  height: 3px;
+  background: var(--primary-mint);
+  border-radius: 3px;
+}
+
+.sectionSubtitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-top: 2rem;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
+  max-width: 700px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* 각 섹션별 특화 스타일 */
+
+/* 1. 피부 분석 리포트 섹션 */
+.analysisReportSection {
+  margin-bottom: 0 !important;
+  padding-bottom: 1rem !important;
+}
+
+.analysisReportSection .sectionMainTitle::after {
+  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
+}
+
+/* 2. 맞춤형 제품 추천 섹션 */
+.productRecommendSection .sectionMainTitle::after {
+  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
+}
+
+/* 3. 더 정확한 분석 섹션 */
+.moreAnalysisSection .sectionMainTitle::after {
+  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
+}
+
+/* 4. 피부 고민별 솔루션 섹션 */
+.skinSolutionsSection .sectionMainTitle::after {
+  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
+}
+
+/* 반응형 스타일 */
+@media (max-width: 768px) {
+  .pageSection {
+    margin: 3rem 0;
+    padding: 3rem 0;
+  }
+
+  .pageSection:first-of-type {
+    margin-top: 1.5rem;
+    margin-bottom: 3rem;
+    padding-top: 2rem;
+  }
+
+  .pageSection:last-of-type {
+    margin-top: 3rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 2rem;
+  }
+
+  .sectionMainTitle {
+    font-size: 1.75rem;
+  }
+  
+  .sectionSubtitle {
+    font-size: 1rem;
+  }
+
+  .sectionHeader {
+    margin-bottom: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .pageSection {
+    margin: 2.5rem 0;
+    padding: 2.5rem 0;
+  }
+
+  .pageSection:first-of-type {
+    margin-top: 1rem;
+    margin-bottom: 2.5rem;
+    padding-top: 1.5rem;
+  }
+
+  .pageSection:last-of-type {
+    margin-top: 2.5rem;
+    margin-bottom: 1rem;
+    padding-bottom: 1.5rem;
+  }
+
+  .sectionMainTitle {
+    font-size: 1.875rem;
+  }
+
+  .sectionSubtitle {
+    font-size: 1.125rem;
+  }
+}
+
+/* ===== 섹션 통일 스타일 끝 ===== */
+
 .main {
   flex: 1;
   display: flex;
@@ -223,15 +392,25 @@ a.secondary {
   position: relative;
   letter-spacing: -0.01em;
 
-  /* 색상 변수 정의 - 이미지의 색상 테마로 변경 */
+  /* 색상 변수 정의 - 더 밝고 상쾌한 민트색 테마로 변경 */
   --primary-green: #3DD598; /* 수분 차트 색상 */
   --primary-blue: #4E9BFA; /* 유분 차트 색상 */
   --primary-red: #FF6B6B;  /* 민감도 차트 색상 */
   --primary-orange: #FF9F43; /* 탄력 차트 색상 */
   --primary-pink: #FF88A9; /* 앱 상단 분홍색 */
-  --primary-mint: #40DDBA; /* 구매 버튼 색상 */
-  --light-pink: #FFD0E0; /* 하단 버튼 배경 */
-  --bg-mint: #E8FFF8; /* 민감형 배경 */
+  --primary-mint: #34d399; /* 메인 민트색 - 더 밝게 (#10b981 → #34d399) */
+  --primary-mint-light: #6ee7b7; /* 연한 민트색 - 더 밝게 (#34d399 → #6ee7b7) */
+  --primary-teal: #2dd4bf; /* 진한 청록색 - 더 밝게 (#0d9488 → #2dd4bf) */
+
+
+  /* RGB 값들 - rgba()에서 효율적으로 사용 */
+  --primary-mint-rgb: 52, 211, 153; /* #34d399 RGB */
+  --primary-mint-light-rgb: 110, 231, 183; /* #6ee7b7 RGB */
+  --primary-teal-rgb: 45, 212, 191; /* #2dd4bf RGB */
+
+
+  --light-mint: #ecfdf5; /* 하단 버튼 배경 */
+  --bg-mint: #f0fdfa; /* 민트 배경 */
   --text-dark: #333333;
   --text-medium: #666666;
   --text-light: #999999;
@@ -241,299 +420,10 @@ a.secondary {
   --card-shadow: rgba(0, 0, 0, 0.05);
 }
 
-/* 네비게이션 바 스타일 */
-.navbar {
-  width: 100%;
-  background: white;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 0.875rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 100;
-  position: relative;
-  height: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-/* 로고 컨테이너 */
-.logoContainer {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #111827;
-  background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.02em;
-  padding: 0;
-  margin: 0;
-}
-
-/* 네비게이션 오른쪽 컨테이너 */
-.navRight {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* 로그인 버튼 */
-.loginButton {
-  background-color: #fde047;
-  color: #111827;
-  border: none;
-  border-radius: 9999px;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.loginButton:hover {
-  background-color: #fcd34d;
-}
-
-/* 회원가입 버튼 */
-.authButton {
-  background-color: transparent;
-  color: #4b5563;
-  border: 1px solid #e5e7eb;
-  border-radius: 9999px;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.authButton:hover {
-  background-color: #f9fafb;
-  color: #111827;
-}
-
-/* 메뉴 버튼 */
-.menuButton, .mobileMenuToggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background-color: transparent;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-left: 0.5rem;
-  border: none;
-}
-
-.menuButton:hover, .mobileMenuToggle:hover {
-  background-color: #f3f4f6;
-}
-
-.menuIcon, .menuToggleIcon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: #4b5563;
-}
-
-/* 사이드바 스타일 */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: -280px; /* 닫힌 상태에서는 화면 밖으로 */
-  width: 280px;
-  height: 100vh;
-  background: white;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 200;
-  transition: left 0.3s ease-in-out; /* 부드러운 애니메이션 */
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 1.5rem;
-  transform: none; /* 기존 transform 속성 제거 */
-}
-
-.sidebarOpen {
-  left: 0; /* 열린 상태에서는 화면에 표시 */
-  transform: none; /* 기존 transform 속성 제거 */
-}
-
-/* 사이드바 헤더 */
-.sidebarHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-}
-
-.sidebarLogo {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #111827;
-  background: linear-gradient(90deg, #8b5cf6 0%, #6366f1 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.02em;
-  margin: 0;
-}
-
-.closeButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.closeButton:hover {
-  background-color: #f3f4f6;
-}
-
-.closeIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: #4b5563;
-}
-
-/* 사이드바 메뉴 */
-.sidebarMenu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.sidebarMenu li {
-  padding: 0;
-  font-size: 1rem;
-  color: #4b5563;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-.sidebarMenu .menuLink {
-  display: flex;
-  align-items: center;
-  color: inherit;
-  text-decoration: none;
-  padding: 0.875rem 1rem;
-  width: 100%;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.sidebarMenu li:hover .menuLink {
-  background-color: #f3f4f6;
-  color: #111827;
-}
-
-.sidebarMenu .menuIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-right: 0.75rem;
-  opacity: 0.85;
-}
-
-.sidebarMenu li:hover .menuIcon {
-  opacity: 1;
-}
-
-.menuActive, .sidebarMenu .menuActive {
-  background-color: #f3f4f6;
-  color: #6366f1 !important;
-  background: linear-gradient(90deg, rgba(236, 72, 153, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-  font-weight: 700;
-  position: relative;
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
-}
-
-.menuActive .menuLink, .sidebarMenu .menuActive .menuLink {
-  font-weight: 700;
-}
-
-.menuActive .menuIcon, .sidebarMenu .menuActive .menuIcon {
-  opacity: 1;
-  color: var(--primary-pink);
-}
-
-.menuActive::before, .sidebarMenu .menuActive::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 4px;
-  width: 100%;
-  background: linear-gradient(to right, var(--primary-pink), var(--primary-mint));
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.25);
-}
-
-/* 메뉴 오버레이 */
-.menuOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 150;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.menuOverlay.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* 반응형 스타일 */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0.75rem 1rem;
-  }
-  
-  .logo {
-    font-size: 1.5rem;
-  }
-  
-  .authButton {
-    display: none;
-  }
-  
-  .loginButton {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-  }
-}
-
 .mainContent {
   flex: 1;
   padding: 1.5rem 1.25rem;
-  padding-top: 1.5rem;
+  padding-top: calc(4rem + 1.5rem);
   background: white;
   color: #111827;
   position: relative;
@@ -552,7 +442,7 @@ a.secondary {
 @media (min-width: 768px) {
   .mainContent {
     padding: 2rem;
-    padding-top: 2rem;
+    padding-top: calc(4rem + 2rem);
   }
   
   .contentContainer {
@@ -572,7 +462,7 @@ a.secondary {
 @media (min-width: 1024px) {
   .mainContent {
     padding: 2.5rem;
-    padding-top: 2.5rem;
+    padding-top: calc(4rem + 2.5rem);
   }
   
   .contentContainer {
@@ -587,32 +477,11 @@ a.secondary {
     position: relative;
     flex-direction: column;
   }
-  
-  .sidebar {
-    position: fixed;
-    left: -280px; /* 기본적으로 숨김 상태 */
-    width: 280px;
-    height: 100vh;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    transition: left 0.3s ease-in-out;
-  }
-  
-  .sidebarOpen {
-    left: 0; /* 열린 상태에서만 보이도록 */
-  }
-  
-  .menu {
-    flex-direction: column; /* 세로 방향으로 메뉴 아이템 배치 */
-    padding: 1rem;
-  }
-  
-  .menu li {
-    width: 100%;
-  }
-  
-  .menuLink {
-    padding: 0.875rem 1.25rem;
-    width: 100%;
+
+  .goBtn {
+    font-size: 1.5rem;
+    padding: 1.375rem 2.75rem;
+    max-width: 450px;
   }
 }
 
@@ -629,7 +498,7 @@ a.secondary {
 
 .menu li {
   padding: 0;
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   color: #4b5563;
   cursor: pointer;
   transition: all 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
@@ -673,7 +542,7 @@ a.secondary {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, rgba(236, 72, 153, 0.08) 0%, rgba(139, 92, 246, 0.08) 100%);
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.08) 0%, rgba(45, 212, 191, 0.08) 100%);
   opacity: 0;
   transition: opacity 0.2s ease;
   z-index: 0;
@@ -695,7 +564,7 @@ a.secondary {
 }
 
 .menuActive {
-  background: linear-gradient(90deg, rgba(236, 72, 153, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+  background: linear-gradient(90deg, rgba(52, 211, 153, 0.1) 0%, rgba(45, 212, 191, 0.1) 100%);
   color: #111827 !important;
   font-weight: 700;
   position: relative;
@@ -708,7 +577,7 @@ a.secondary {
 
 .menuActive .menuIcon {
   opacity: 1;
-  color: var(--primary-pink);
+  color: var(--primary-mint);
 }
 
 .menuActive::before {
@@ -718,9 +587,9 @@ a.secondary {
   top: 0;
   height: 4px;
   width: 100%;
-  background: linear-gradient(to right, var(--primary-pink), var(--primary-mint));
+  background: linear-gradient(to right, var(--primary-mint), var(--primary-mint-light));
   border-radius: 0 0 4px 4px;
-  box-shadow: 0 2px 8px rgba(236, 72, 153, 0.25);
+  box-shadow: 0 2px 8px rgba(var(--primary-mint-rgb), 0.25);
 }
 
 @keyframes slideIn {
@@ -748,14 +617,14 @@ a.secondary {
   position: relative;
   margin-bottom: 3rem;
   padding: 2.25rem 1.75rem;
-  background: linear-gradient(to right, #fff1f6, #f9feff);
+  background: linear-gradient(to right, #f0fdfa, #f9feff);
   border-radius: 1.375rem;
   box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
   display: flex;
   align-items: center;
   gap: 1.5rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
-  border: 1px solid rgba(255, 136, 169, 0.1);
+  border: 1px solid rgba(var(--primary-mint-rgb), 0.1);
   overflow: hidden;
 }
 
@@ -766,7 +635,7 @@ a.secondary {
   right: 0;
   width: 150px;
   height: 150px;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.15) 0%, rgba(139, 92, 246, 0.08) 60%, transparent 80%);
+  background: radial-gradient(circle, rgba(var(--primary-mint-rgb), 0.15) 0%, rgba(var(--primary-teal-rgb), 0.08) 60%, transparent 80%);
   border-radius: 50%;
   z-index: 0;
 }
@@ -778,7 +647,7 @@ a.secondary {
   left: 30px;
   width: 80px;
   height: 80px;
-  background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.05) 60%, transparent 80%);
+  background: radial-gradient(circle, rgba(var(--primary-teal-rgb), 0.1) 0%, rgba(var(--primary-mint-rgb), 0.05) 60%, transparent 80%);
   border-radius: 50%;
   z-index: 0;
 }
@@ -792,14 +661,14 @@ a.secondary {
   width: 3.5rem;
   height: 3.5rem;
   border-radius: 1.25rem;
-  background: var(--light-pink);
+  background: var(--bg-mint);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 1.75rem;
-  color: var(--primary-pink);
+  color: var(--primary-mint);
   flex-shrink: 0;
-  box-shadow: 0 10px 15px -3px rgba(255, 136, 169, 0.2);
+  box-shadow: 0 10px 15px -3px rgba(var(--primary-mint-rgb), 0.2);
   position: relative;
   z-index: 1;
   animation: gentle-pulse 3s infinite alternate ease-in-out;
@@ -811,7 +680,7 @@ a.secondary {
 }
 
 .greetingText {
-  font-size: 1.375rem;
+  font-size: 1.125rem; /* 1.375rem에서 1.125rem으로 축소 */
   font-weight: 700;
   color: #374151;
   line-height: 1.4;
@@ -824,7 +693,7 @@ a.secondary {
 }
 
 .greetingLabel {
-  font-size: 1rem;
+  font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
   color: #6b7280;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -832,7 +701,7 @@ a.secondary {
 }
 
 .userName {
-  color: var(--primary-pink);
+  color: var(--primary-mint);
   font-weight: 800;
   position: relative;
   display: inline-block;
@@ -846,7 +715,7 @@ a.secondary {
   left: 0;
   width: 100%;
   height: 2px;
-  background: var(--primary-pink);
+  background: var(--primary-mint);
   border-radius: 1px;
 }
 
@@ -914,8 +783,8 @@ a.secondary {
 }
 
 .sectionTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   margin-bottom: 0;
   color: #111827;
   text-align: center;
@@ -933,7 +802,7 @@ a.secondary {
   top: -2.5rem;
   width: 80px;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(236, 72, 153, 0.2) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(52, 211, 153, 0.2) 50%, transparent 100%);
 }
 
 .sectionTitle::after {
@@ -956,8 +825,8 @@ a.secondary {
   -webkit-text-fill-color: var(--text-dark) !important;
   background-clip: initial !important;
   color: var(--text-dark) !important;
-  font-weight: 700 !important;
-  font-size: 2.25rem !important;
+  font-weight: 600 !important;
+  font-size: 1.75rem !important;
   letter-spacing: -0.02em !important;
   line-height: 1.3 !important;
   display: block !important;
@@ -982,7 +851,7 @@ a.secondary {
 
 /* 모든 섹션 설명 통일 */
 .sectionDesc {
-  font-size: 1.375rem;
+  font-size: 1.125rem; /* 1.375rem에서 1.125rem으로 축소 */
   font-weight: 500;
   color: var(--text-medium) !important;
   margin-top: 0.75rem;
@@ -1012,7 +881,7 @@ a.secondary {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 800;
+  font-weight: 600;
   margin-bottom: 0.25rem;
   display: inline-block;
 }
@@ -1023,8 +892,8 @@ a.secondary {
   -webkit-text-fill-color: var(--text-dark) !important;
   background-clip: initial !important;
   color: var(--text-dark) !important;
-  font-weight: 700 !important;
-  font-size: 2.25rem !important;
+  font-weight: 600 !important;
+  font-size: 1.75rem !important;
   letter-spacing: -0.02em !important;
   line-height: 1.3 !important;
   display: block !important;
@@ -1047,7 +916,7 @@ a.secondary {
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(236, 72, 153, 0.15) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(52, 211, 153, 0.15) 50%, transparent 100%);
 }
 
 /* 개선된 섹션 구분선 */
@@ -1058,7 +927,7 @@ a.secondary {
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(236, 72, 153, 0.15) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(52, 211, 153, 0.15) 50%, transparent 100%);
 }
 
 @media (min-width: 768px) {
@@ -1191,12 +1060,12 @@ a.secondary {
 
 /* 체크리스트 박스 제목 */
 .checklistBox h3, .analysisBox h3 {
-  font-size: 2rem;  /* 1.5rem에서 증가 */
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #111827;
-  margin-bottom: 1rem;  /* 0.75rem에서 증가 */
+  margin-bottom: 1rem;
   position: relative;
-  padding-bottom: 1rem;  /* 0.875rem에서 증가 */
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--card-border);
   z-index: 1;
 }
@@ -1223,9 +1092,9 @@ a.secondary {
 
 /* 바 차트 레이블 */
 .barWrap > div:nth-of-type(odd) {
-  font-size: 1.5rem;  /* 1.25rem에서 증가 */
+  font-size: 1.125rem;  /* 1.5rem에서 1.125rem으로 축소 */
   font-weight: 600;
-  padding: 0.75rem 1rem;  /* 패딩 증가 */
+  padding: 0.75rem 1rem;
 }
 
 /* 항목 레이블과 퍼센트 컨테이너 */
@@ -1234,7 +1103,7 @@ a.secondary {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.625rem;
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   color: #1f2937;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -1287,7 +1156,7 @@ a.secondary {
 .itemLabel {
   position: relative;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   flex: 1;
   text-align: left;
   padding-right: 1rem;
@@ -1300,7 +1169,7 @@ a.secondary {
   justify-content: center;
   color: white;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
   padding: 0.375rem 0.875rem;
   border-radius: 1rem;
   min-width: 4rem;
@@ -1372,10 +1241,10 @@ a.secondary {
 }
 
 .analysisType {
-  font-size: 1.5rem;  
-  font-weight: 700;
+  font-size: 1.5rem; /* 1.25rem에서 1.5rem으로 증가 */
+  font-weight: 600;
   color: var(--text-dark);
-  margin-bottom: 1.1rem;  
+  margin-bottom: 1.5rem; /* 1.1rem에서 1.5rem으로 증가 */
   display: inline-block;
   position: relative;
   z-index: 1;
@@ -1385,7 +1254,7 @@ a.secondary {
 .analysisType::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -8px; /* -4px에서 -8px로 변경하여 간격 증가 */
   left: 0;
   width: 100px;
   height: 2px;
@@ -1410,15 +1279,15 @@ a.secondary {
   font-size: 1.25rem;  
   font-weight: 700;
   color: var(--primary-mint);
-  margin-bottom: 0.3rem;  
-  padding-bottom: 1rem;  
-  border-bottom: 1px solid rgba(61, 213, 152, 0.2);
+  margin-bottom: 0.5rem; /* 0.3rem에서 0.5rem으로 증가 */
+  padding-bottom: 1.25rem; /* 1rem에서 1.25rem으로 증가 */
+  border-bottom: 1px solid rgba(52, 211, 153, 0.2);
 }
 
 .analysisAdvice {
-  background: rgba(61, 213, 152, 0.08);
+  background: rgba(52, 211, 153, 0.08);
   border-radius: 1rem;
-  padding: 1.2rem;
+  padding: 1.5rem; /* 1.2rem에서 1.5rem으로 증가 */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1429,23 +1298,24 @@ a.secondary {
   line-height: 1.6;
   color: #374151;
   font-weight: 500;
+  margin-top: 0.5rem; /* 새로 추가하여 위쪽 간격 확보 */
 }
 
 @media (max-width: 768px) {
   .adviceLabel {
-    font-size: 1.25rem;  /* 1rem에서 증가 */
+    font-size: 1rem;  /* 1.25rem에서 1rem으로 축소 */
     margin-bottom: 0.75rem;
     padding-bottom: 0.5rem;
   }
   
   .adviceContent {
-    font-size: 1.25rem;  /* 1rem에서 증가 */
+    font-size: 1rem;  /* 1.25rem에서 1rem으로 축소 */
   }
 }
 
 .analysisAdvice:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(61, 213, 152, 0.15);
+  box-shadow: 0 4px 8px rgba(52, 211, 153, 0.15);
 }
 
 @media (max-width: 768px) {
@@ -1454,7 +1324,7 @@ a.secondary {
   }
   
   .checklistBox h3, .analysisBox h3 {
-    font-size: 1.375rem;
+    font-size: 1.125rem; /* 1.375rem에서 1.125rem으로 축소 */
     margin-bottom: 0.625rem;
     padding-bottom: 0.75rem;
   }
@@ -1477,15 +1347,15 @@ a.secondary {
   }
   
   .analysisType {
-    font-size: 1.5rem;
+    font-size: 1.25rem; /* 1.5rem에서 1.25rem으로 축소 */
   }
   
   .analysisDesc {
-    font-size: 1rem;
+    font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
   }
   
   .analysisAdvice {
-    font-size: 1rem;
+    font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
     padding: 0.875rem 1rem;
   }
 }
@@ -1499,8 +1369,8 @@ a.secondary {
 }
 
 .productSection h4 {
-  font-size: 1.875rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   text-align: center;
   position: relative;
@@ -1516,7 +1386,7 @@ a.secondary {
   bottom: -0.5rem;
   width: 60px;
   height: 2px;
-  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
   border-radius: 2px;
 }
 
@@ -1526,8 +1396,8 @@ a.secondary {
   -webkit-text-fill-color: var(--text-dark) !important;
   background-clip: initial !important;
   color: var(--text-dark) !important;
-  font-weight: 700 !important;
-  font-size: 2.25rem !important;
+  font-weight: 600 !important;
+  font-size: 1.75rem !important;
   letter-spacing: -0.02em !important;
   line-height: 1.3 !important;
   display: block !important;
@@ -1535,7 +1405,7 @@ a.secondary {
 }
 
 .productSectionDesc {
-  font-size: 1.125rem;
+  font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
   font-weight: 500;
   color: #4b5563;
   margin-top: 1.25rem;
@@ -1582,7 +1452,7 @@ a.secondary {
   right: -20px;
   width: 100px;
   height: 100px;
-  background: radial-gradient(circle, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.08) 0%, transparent 70%);
   border-radius: 50%;
 }
 
@@ -1597,18 +1467,71 @@ a.secondary {
   justify-content: center;
 }
 
-.productImg::after {
-  content: '';
-  position: absolute;
-  bottom: 0;
-  left: 0;
+.productImg img {
   width: 100%;
-  height: 30%;
-  background: linear-gradient(to top, rgba(255, 255, 255, 0.4), transparent);
+  height: 100%;
+  object-fit: cover;
+  border-radius: 0;
+}
+
+.placeholderImage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  color: #6366f1;
+  text-align: center;
+}
+
+.placeholderIcon {
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.placeholderText {
+  font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.productImg.noImage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+  color: #6366f1;
+  text-align: center;
+}
+
+.productImg.noImage::before {
+  content: '📦';
+  font-size: 3rem;
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.productImg.noImage::after {
+  content: '이미지 로드 실패';
+  font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
+  font-weight: 600;
+  opacity: 0.9;
+}
+
+.productImg::before {
+  display: none;
+}
+
+.productImg img:not([src*="default-product"]) + ::before {
+  display: none;
 }
 
 .productName {
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   font-weight: 700;
   color: #1f2937;
   padding: 0 1.5rem;
@@ -1618,7 +1541,7 @@ a.secondary {
 }
 
 .productDesc {
-  font-size: 1rem;
+  font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
   color: #4b5563;
   padding: 0 1.5rem;
   margin-bottom: 1.5rem;
@@ -1627,28 +1550,29 @@ a.secondary {
 }
 
 .buyBtn {
-  background: var(--primary-mint);
-  color: white;
-  border: none;
-  padding: 0.875rem 1.25rem;
-  border-radius: 0.75rem;
-  font-size: 1rem;
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(52, 211, 153, 0.1) 0%, rgba(110, 231, 183, 0.15) 100%);
+  color: var(--primary-mint);
+  border: 2px solid var(--primary-mint);
+  padding: 1rem 1.5rem;
+  border-radius: 0.875rem;
+  font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.625rem;
   cursor: pointer;
   margin: 0 1.5rem;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 6px rgba(61, 213, 152, 0.2);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  text-shadow: none;
+  box-shadow: 0 4px 15px rgba(52, 211, 153, 0.15);
 }
 
 .buyBtn:hover {
-  background: #36c48a;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 10px rgba(61, 213, 152, 0.25);
+  background: linear-gradient(135deg, var(--primary-mint) 0%, var(--primary-teal) 100%);
+  color: white;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(52, 211, 153, 0.3);
 }
 
 /* 추천 섹션 스타일 */
@@ -1660,8 +1584,8 @@ a.secondary {
 }
 
 .recommendTitle, .concernTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   text-align: center;
   position: relative;
@@ -1677,7 +1601,7 @@ a.secondary {
   bottom: -0.5rem;
   width: 60px;
   height: 2px;
-  background: linear-gradient(90deg, var(--primary-gradient-start) 0%, var(--primary-gradient-end) 100%);
+  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
   border-radius: 2px;
 }
 
@@ -1687,12 +1611,12 @@ a.secondary {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 800;
+  font-weight: 600;
   display: inline-block;
 }
 
 .recommendDesc, .concernDesc {
-  font-size: 1.125rem;
+  font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
   font-weight: 500;
   color: #4b5563;
   margin-top: 1.25rem;
@@ -1746,13 +1670,13 @@ a.secondary {
   right: -20px;
   width: 80px;
   height: 80px;
-  background: radial-gradient(circle, rgba(236, 72, 153, 0.08) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(52, 211, 153, 0.08) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 0;
 }
 
 .concernIcon {
-  font-size: 2.5rem;
+  font-size: 2rem; /* 2.5rem에서 2rem으로 축소 */
   color: var(--primary-mint);
   position: relative;
   z-index: 1;
@@ -1768,7 +1692,7 @@ a.secondary {
 }
 
 .concernLabel {
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   font-weight: 600;
   color: #1f2937;
   position: relative;
@@ -1778,32 +1702,34 @@ a.secondary {
 }
 
 .goBtn {
-  background: var(--light-pink);
-  color: var(--primary-pink);
-  border: none;
-  padding: 1rem 1.75rem;
-  border-radius: 0.875rem;
-  font-size: 1.125rem;
-  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
+  background: linear-gradient(135deg, var(--primary-mint) 0%, var(--primary-teal) 100%);
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  font-weight: 700;
   cursor: pointer;
-  margin: 2.5rem auto 4rem;
   transition: all 0.3s ease;
-  width: fit-content;
-  box-shadow: 0 4px 15px rgba(255, 136, 169, 0.2);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   position: relative;
-  z-index: 1;
   letter-spacing: -0.01em;
+  padding: 1.25rem 2.5rem;
+  font-size: 1.375rem;
+  width: fit-content;
+  max-width: 400px;
+  min-width: 280px;
+  margin: 3rem auto 4rem;
 }
 
 .goBtn:hover {
-  background: #ffc0d5;
+  background: linear-gradient(135deg, var(--primary-teal) 0%, #0f766e 100%);
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(255, 136, 169, 0.3);
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
 }
 
 /* 피부 고민별 솔루션 제목 위에 구분선 추가 */
@@ -1822,7 +1748,7 @@ a.secondary {
   width: 85%;
   max-width: 700px;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(236, 72, 153, 0.2) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(52, 211, 153, 0.2) 50%, transparent 100%);
 }
 
 /* 추가 - 섹션 구분을 위한 공간 확보 */
@@ -1871,7 +1797,7 @@ a.secondary {
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(236, 72, 153, 0.15) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.15) 50%, transparent 100%);
 }
 
 /* 배경 패턴 */
@@ -1882,7 +1808,7 @@ a.secondary {
   left: -10%;
   width: 250px;
   height: 250px;
-  background: radial-gradient(circle at center, rgba(236, 72, 153, 0.03) 0%, transparent 70%);
+  background: radial-gradient(circle at center, rgba(16, 185, 129, 0.03) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 0;
 }
@@ -1900,7 +1826,7 @@ a.secondary {
   left: 0;
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(236, 72, 153, 0.15) 50%, transparent 100%);
+  background: linear-gradient(90deg, transparent 0%, rgba(16, 185, 129, 0.15) 50%, transparent 100%);
 }
 
 /* 피부 고민별 솔루션 제목 스타일 개선 */
@@ -1974,7 +1900,7 @@ a.secondary {
 }
 
 .productSection h4::after {
-  background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%);
+  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
 }
 
 /* 다른 섹션의 제목-설명 간격 통일 */
@@ -2055,7 +1981,7 @@ a.secondary {
 }
 
 .moreProductsBtn {
-  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
   color: white;
   border: none;
   padding: 1rem 1.75rem;
@@ -2069,7 +1995,7 @@ a.secondary {
   cursor: pointer;
   transition: all 0.3s ease;
   width: fit-content;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
   text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 1;
@@ -2078,9 +2004,9 @@ a.secondary {
 }
 
 .moreProductsBtn:hover {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
 }
 
 /* 반응형 스타일 */
@@ -2091,7 +2017,7 @@ a.secondary {
   
   .moreProductsBtn {
     padding: 0.875rem 1.5rem;
-    font-size: 1rem;
+    font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
     font-weight: 700;
     width: 100%;
     max-width: 300px;
@@ -2101,7 +2027,7 @@ a.secondary {
 @media (max-width: 480px) {
   .moreProductsBtn {
     padding: 0.75rem 1.25rem;
-    font-size: 0.9375rem;
+    font-size: 0.8125rem; /* 0.9375rem에서 0.8125rem으로 축소 */
   }
 }
 
@@ -2123,7 +2049,7 @@ a.secondary {
   }
   
   .menu li {
-    font-size: 0.9375rem;
+    font-size: 0.8125rem; /* 0.9375rem에서 0.8125rem으로 축소 */
   }
   
   .menuLink {
@@ -2177,7 +2103,7 @@ a.secondary {
   }
   
   .menu li {
-    font-size: 1.125rem;
+    font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
   }
   
   .menuLink {
@@ -2217,35 +2143,38 @@ a.secondary {
   align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  width: 100%;
-  max-width: 300px;
-  margin: 2rem auto 0;
-  padding: 1rem 1.75rem;
-  background: linear-gradient(135deg, #60a5fa, #3b82f6);
+  background: linear-gradient(135deg, var(--primary-mint) 0%, var(--primary-teal) 100%);
   color: white;
   border: none;
-  border-radius: 0.875rem;
-  font-size: 1.125rem;
-  font-weight: 600;
+  border-radius: 1rem;
+  font-weight: 700;
   cursor: pointer;
   transition: all 0.3s ease;
   text-decoration: none;
-  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
-  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
   position: relative;
-  z-index: 1;
   letter-spacing: -0.01em;
+  padding: 1.25rem 2.5rem;
+  font-size: 1.125rem; /* 1.375rem에서 1.125rem으로 축소 */
+  width: fit-content;
+  max-width: 400px;
+  min-width: 280px;
+  margin: 2rem auto 0;
+}
+
+.viewMoreBtn::before {
+  display: none;
+}
+
+.viewMoreBtn:hover::before {
+  display: none;
 }
 
 .viewMoreBtn:hover {
-  background: linear-gradient(135deg, #3b82f6, #2563eb);
+  background: linear-gradient(135deg, var(--primary-teal) 0%, #0f766e 100%);
   transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
-}
-
-.viewMoreBtn .buttonIcon {
-  width: 1.25rem;
-  height: 1.25rem;
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
 }
 
 .mbtiResult {
@@ -2254,14 +2183,14 @@ a.secondary {
   padding: 1.5rem;
   margin: 1rem 0;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(236, 72, 153, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.1);
 }
 
 .mbtiTitle {
-  font-size: 1.75rem;  /* 1.25rem에서 증가 */
-  font-weight: 700;
+  font-size: 1.375rem;
+  font-weight: 600;
   color: var(--text-dark);
-  margin-bottom: 1.5rem;  /* 1rem에서 증가 */
+  margin-bottom: 1.5rem;
   text-align: center;
   letter-spacing: -0.01em;
 }
@@ -2332,7 +2261,7 @@ a.secondary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;                /* 아이콘과 텍스트 사이 간격 */
-  background-color: #D8B4FE;  /* 연보라 계열 배경 */
+  background: linear-gradient(135deg, var(--primary-mint-light) 0%, var(--primary-mint) 100%);
   color: white;               /* 텍스트 흰색 */
   padding: 0.5rem 1.5rem;     /* 상하 0.5rem, 좌우 1.5rem */
   border: none;
@@ -2341,13 +2270,14 @@ a.secondary {
   font-weight: 600;
   text-transform: uppercase;  /* "LOG OUT" 처럼 전부 대문자 */
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  transition: background-color 0.2s, transform 0.1s;
+  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.2);
+  transition: all 0.2s ease;
 }
 
 .logoutButton:hover {
-  background-color: #C084FC;
-  transform: translateY(-1px);
+  background: linear-gradient(135deg, var(--primary-mint) 0%, var(--primary-teal) 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
 }
 
 
@@ -2377,24 +2307,97 @@ a.secondary {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-  padding: 1rem;
-  background: linear-gradient(to right, var(--primary-gradient-start), var(--primary-gradient-end));
-  color: black;
-  border-radius: 0.75rem;
-  font-weight: 600;
+  gap: 0.75rem;
+  background: linear-gradient(135deg, var(--primary-mint) 0%, var(--primary-teal) 100%);
+  color: white;
+  border: none;
+  border-radius: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  position: relative;
+  letter-spacing: -0.01em;
+  padding: 1rem 1.5rem;
   font-size: 1.125rem;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  text-align: center;
+  width: 100%;
+  max-width: 100%;
 }
 
 .reportButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background: linear-gradient(135deg, var(--primary-teal) 0%, #0f766e 100%);
+  transform: translateY(-4px);
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.4);
 }
 
 .buttonIcon {
   width: 1.25rem;
   height: 1.25rem;
+}
+
+/* 모바일 반응형 스타일 추가 */
+@media (max-width: 768px) {
+  .mainContent {
+    padding: 1.5rem 1.25rem;
+    padding-top: calc(3.5rem + 1.5rem);
+  }
+
+  .goBtn {
+    font-size: 1.25rem;
+    padding: 1.125rem 2rem;
+    margin: 2.5rem auto 3rem;
+    min-width: 250px;
+    max-width: 350px;
+  }
+
+  .viewMoreBtn {
+    font-size: 1.25rem;
+    padding: 1.125rem 2rem;
+    min-width: 250px;
+    max-width: 350px;
+  }
+
+  .buyBtn {
+    font-size: 1rem;
+    padding: 0.875rem 1.25rem;
+  }
+
+  .reportButton {
+    font-size: 1rem;
+    padding: 0.875rem 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .mainContent {
+    padding: 1.25rem 1rem;
+    padding-top: calc(3.5rem + 1.25rem);
+  }
+
+  .goBtn {
+    font-size: 1.125rem;
+    padding: 1rem 1.75rem;
+    margin: 2rem auto 2.5rem;
+    min-width: 220px;
+    max-width: 300px;
+  }
+
+  .viewMoreBtn {
+    font-size: 1.125rem;
+    padding: 1rem 1.75rem;
+    min-width: 220px;
+    max-width: 300px;
+  }
+
+  .buyBtn {
+    font-size: 0.9375rem;
+    padding: 0.75rem 1rem;
+  }
+
+  .reportButton {
+    font-size: 0.9375rem;
+    padding: 0.75rem 1rem;
+  }
 }

@@ -6,6 +6,7 @@ import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.service.CheckListService;
 import org.mtvs.backend.recommend.controller.RecommendController;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -52,6 +53,13 @@ public class CheckListController {
         System.out.println(MBTI);
 
         return MBTI;
+    }
+
+    @GetMapping("/latest")
+    public ResponseEntity<CheckListResponse> getLatest(@AuthenticationPrincipal CustomUserDetails me) {
+        return service.findLatestForUser(me.getUsername())
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.ok(new CheckListResponse()));  // 빈 DTO( troubles = null or empty )
     }
 }
 
