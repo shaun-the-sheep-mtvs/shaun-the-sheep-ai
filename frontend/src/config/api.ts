@@ -46,6 +46,12 @@ export const apiConfig = {
       get: `${API_BASE_URL}/api/guest/get`,
       update: `${API_BASE_URL}/api/guest/update`,
       delete: `${API_BASE_URL}/api/guest/delete`,
+    },
+    guest: {
+      create: `${API_BASE_URL}/api/guest/create`,
+      get: `${API_BASE_URL}/api/guest/get`,
+      update: `${API_BASE_URL}/api/guest/update`,
+      delete: `${API_BASE_URL}/api/guest/delete`,
     }
   }
 };
