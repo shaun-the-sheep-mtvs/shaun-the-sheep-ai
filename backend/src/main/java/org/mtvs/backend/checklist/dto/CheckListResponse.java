@@ -1,4 +1,3 @@
-// src/main/java/org/mtvs/backend/checklist/dto/CheckListResponse.java
 package org.mtvs.backend.checklist.dto;
 
 import lombok.AllArgsConstructor;
