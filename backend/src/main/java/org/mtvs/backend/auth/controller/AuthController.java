@@ -8,6 +8,7 @@ import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.service.AuthService;
 import org.mtvs.backend.user.dto.ProblemDto;
+import org.mtvs.backend.session.GuestData;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
