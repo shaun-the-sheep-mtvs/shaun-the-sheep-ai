@@ -1,6 +1,7 @@
 package org.mtvs.backend.naver.image.api;
 
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
@@ -16,8 +17,10 @@ import java.util.Map;
 
 @Component
 public class ApiSearchImage {
-    private String clientId = "TnNIUjJuo8gN5SXbqifW"; //애플리케이션 클라이언트 아이디값";
-    private String clientSecret = "18oUg19Ntx"; //애플리케이션 클라이언트 시크릿값";
+    @Value("${naver.api.id}")
+    private String clientId ;
+    @Value("${naver.api.secret}")
+    private String clientSecret ; //애플리케이션 클라이언트 시크릿값";
     private  Map<String , String> requestHeaders = new HashMap<>();
     String apiURL = "https://openapi.naver.com/v1/search/shop.json" ;
 
