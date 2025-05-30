@@ -7,9 +7,11 @@ import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.util.JwtUtil;
-import org.mtvs.backend.user.dto.ProblemDto;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
+import org.mtvs.backend.checklist.model.CheckList;
+import org.mtvs.backend.checklist.repository.CheckListRepository;
+import org.mtvs.backend.session.GuestData;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,13 +25,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CheckListRepository checkListRepository;
 
     /**
      * 회원가입
      *
      * @return
      */
-    public User signup(SignupRequest dto) {
+    public User signup(SignupRequest dto, GuestData guestData) {
         log.info("[회원 가입] 서비스 호출 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
 
         // 이메일 존재 여부 확인
@@ -44,6 +47,19 @@ public class AuthService {
                 dto.getUsername()
         );
         userRepository.save(user);
+
+        // If guestData is present, migrate checklist data
+        if (guestData != null) {
+            CheckList checkList = new CheckList();
+            checkList.setUser(user);
+            checkList.setMoisture(guestData.getMoisture());
+            checkList.setOil(guestData.getOil());
+            checkList.setSensitivity(guestData.getSensitivity());
+            checkList.setTension(guestData.getTension());
+            checkList.setTroubles(guestData.getTroubles());
+            checkListRepository.save(checkList);
+        }
+
         log.info("[회원 가입] 완료 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
         return user;
     }
