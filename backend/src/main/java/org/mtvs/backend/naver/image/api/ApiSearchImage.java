@@ -20,19 +20,22 @@ public class ApiSearchImage {
     @Value("${naver.api.id}")
     private String clientId ;
     @Value("${naver.api.secret}")
-    private String clientSecret ; //애플리케이션 클라이언트 시크릿값";
+    private String clientSecret ;
     private  Map<String , String> requestHeaders = new HashMap<>();
     String apiURL = "https://openapi.naver.com/v1/search/shop.json" ;
 
     public ApiSearchImage() {
-        requestHeaders.put("X-Naver-Client-Id", clientId);
-        requestHeaders.put("X-Naver-Client-Secret", clientSecret);
+
     }
 
 
     public String get(String text){
         String URL = this.apiURL+"?query="+text+"&display="+1+"&sort=sim";
-
+        System.out.println("=====Api Search Image=======");
+        System.out.println("clientId: " + clientId);
+        System.out.println("clientSecret: " + clientSecret);
+        requestHeaders.put("X-Naver-Client-Id", clientId);
+        requestHeaders.put("X-Naver-Client-Secret", clientSecret);
         HttpURLConnection con = connect(URL);
         try {
             con.setRequestMethod("GET");

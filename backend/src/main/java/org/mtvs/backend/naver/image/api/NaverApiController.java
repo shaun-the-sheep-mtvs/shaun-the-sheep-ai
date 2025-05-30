@@ -39,7 +39,7 @@ public class NaverApiController {
     public ResponseEntity<?> saveImage(@AuthenticationPrincipal CustomUserDetails user) {
         //dto's productName=> Texts
        List<ProductDTO> dtos =productService.getProducts(user.getUser().getId());
-
+        System.out.println(dtos.toString());
         List<String> texts= new ArrayList<>();
         for(ProductDTO dto : dtos) {
             texts.add(dto.getProductName());
@@ -59,7 +59,9 @@ public class NaverApiController {
         for(int j=0; j<responses.size(); j++){
             try {
                 JsonNode rootNode = objectMapper.readTree(responses.get(j));
+                System.out.println(rootNode.toString());
                 JsonNode imageNode = rootNode.findValue("image");
+                System.out.println(j);
                 naverApiService.addImage(new ImageDTO(imageNode.toString().replaceAll("\"",""),texts.get(j)));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);

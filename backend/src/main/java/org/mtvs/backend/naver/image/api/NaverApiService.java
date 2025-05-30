@@ -17,11 +17,12 @@ public class NaverApiService {
     }
     public void addImage(ImageDTO imageDTO) {
         String productName = imageDTO.getProductName();
-        NaverImage naverImage = new NaverImage(imageDTO.getImageUrl(),productName);
+
         if(!naverImageAPIRepository.existsNaverImageByProductName(productName)){
+            NaverImage naverImage = new NaverImage(imageDTO.getImageUrl(),productName);
             naverImageAPIRepository.save(naverImage);
+            System.out.println(naverImage);
         }
-        System.out.println(naverImage);
 
     }
 
