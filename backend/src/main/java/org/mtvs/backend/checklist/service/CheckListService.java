@@ -74,6 +74,7 @@ public class CheckListService {
         dto.setOil(e.getOil());
         dto.setSensitivity(e.getSensitivity());
         dto.setTension(e.getTension());
+        dto.setTroubles(e.getTroubles());        // ← 추가
         dto.setCreatedAt(e.getCreatedAt());
         return dto;
     }
@@ -108,6 +109,24 @@ public class CheckListService {
                           ratings.get("sensitivity") + ratings.get("tension");
         System.out.println(skinType);
         return skinType;
+    }
+    @Transactional
+    public Optional<CheckListResponse> findLatestForUser(String username) {
+        User user = userRepo.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException(username));
+
+        // 최신 체크리스트 가져오기
+        Optional<CheckListResponse> maybeDto = checkListRepo
+                .findFirstByUser_IdOrderByCreatedAtDesc(user.getId())
+                .map(this::toDto);
+
+        // 체크리스트가 있든 없든, user.getTroubles() 로 덮어씌운 DTO 리턴
+        return Optional.of(
+                maybeDto.orElseGet(CheckListResponse::new)  // 빈 DTO 또는 실제 DTO
+        ).map(dto -> {
+            dto.setTroubles(user.getTroubles());       // ← User 엔티티의 troubles
+            return dto;
+        });
     }
 }
 

@@ -65,7 +65,10 @@ public class ChatMessageController {
     ) {
         // userId 주입 후 저장
         return dtos.stream()
+                .filter(dto -> "user".equals(dto.getRole()))
+                // userId 주입
                 .peek(dto -> dto.setUserId(userDetails.getUserId()))
+                // DTO → Entity → 저장 → DTO 변환
                 .map(this::toEntity)
                 .map(chatMessageService::save)
                 .map(this::toDTO)
