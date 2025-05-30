@@ -15,6 +15,7 @@ public class NaverApiService {
     public boolean isExistImage(String productName) {
         return naverImageAPIRepository.existsNaverImageByProductName(productName);
     }
+
     public void addImage(ImageDTO imageDTO) {
         String productName = imageDTO.getProductName();
 
