@@ -56,8 +56,8 @@
 }
 
 .sectionMainTitle {
-  font-size: 2.75rem;
-  font-weight: 800;
+  font-size: 2rem;
+  font-weight: 700;
   color: #111827;
   margin-bottom: 1rem;
   letter-spacing: -0.02em;
@@ -79,7 +79,7 @@
 }
 
 .sectionSubtitle {
-  font-size: 1.375rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #6b7280;
   margin-top: 2rem;
@@ -137,11 +137,11 @@
   }
 
   .sectionMainTitle {
-    font-size: 2.25rem;
+    font-size: 1.75rem;
   }
   
   .sectionSubtitle {
-    font-size: 1.25rem;
+    font-size: 1rem;
   }
 
   .sectionHeader {
@@ -420,297 +420,6 @@ a.secondary {
   --card-shadow: rgba(0, 0, 0, 0.05);
 }
 
-/* 네비게이션 바 스타일 */
-.navbar {
-  width: 100%;
-  background: white;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-  padding: 0.875rem 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  z-index: 100;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: auto;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-}
-
-/* 로고 컨테이너 */
-.logoContainer {
-  display: flex;
-  align-items: center;
-}
-
-.logo {
-  font-size: 1.75rem;
-  font-weight: 800;
-  color: #111827;
-  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.02em;
-  padding: 0;
-  margin: 0;
-}
-
-/* 네비게이션 오른쪽 컨테이너 */
-.navRight {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-/* 로그인 버튼 */
-.loginButton {
-  background-color: var(--primary-mint-light);
-  color: white;
-  border: none;
-  border-radius: 9999px;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.loginButton:hover {
-  background-color: var(--primary-mint);
-}
-
-/* 회원가입 버튼 */
-.authButton {
-  background-color: transparent;
-  color: #4b5563;
-  border: 1px solid #e5e7eb;
-  border-radius: 9999px;
-  padding: 0.5rem 1.25rem;
-  font-size: 0.9375rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.authButton:hover {
-  background-color: #f9fafb;
-  color: #111827;
-}
-
-/* 메뉴 버튼 */
-.menuButton, .mobileMenuToggle {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  background-color: transparent;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-  margin-left: 0.5rem;
-  border: none;
-}
-
-.menuButton:hover, .mobileMenuToggle:hover {
-  background-color: #f3f4f6;
-}
-
-.menuIcon, .menuToggleIcon {
-  width: 1.5rem;
-  height: 1.5rem;
-  color: #4b5563;
-}
-
-/* 사이드바 스타일 */
-.sidebar {
-  position: fixed;
-  top: 0;
-  left: -280px; /* 닫힌 상태에서는 화면 밖으로 */
-  width: 280px;
-  height: 100vh;
-  background: white;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 200;
-  transition: left 0.3s ease-in-out; /* 부드러운 애니메이션 */
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  padding: 1.5rem;
-  transform: none; /* 기존 transform 속성 제거 */
-}
-
-.sidebarOpen {
-  left: 0; /* 열린 상태에서는 화면에 표시 */
-  transform: none; /* 기존 transform 속성 제거 */
-}
-
-/* 사이드바 헤더 */
-.sidebarHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 2rem;
-}
-
-.sidebarLogo {
-  font-size: 1.5rem;
-  font-weight: 800;
-  color: #111827;
-  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.02em;
-  margin: 0;
-}
-
-.closeButton {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 2rem;
-  height: 2rem;
-  border-radius: 50%;
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.closeButton:hover {
-  background-color: #f3f4f6;
-}
-
-.closeIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-  color: #4b5563;
-}
-
-/* 사이드바 메뉴 */
-.sidebarMenu {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.sidebarMenu li {
-  padding: 0;
-  font-size: 1rem;
-  color: #4b5563;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border-radius: 0.5rem;
-  overflow: hidden;
-}
-
-.sidebarMenu .menuLink {
-  display: flex;
-  align-items: center;
-  color: inherit;
-  text-decoration: none;
-  padding: 0.875rem 1rem;
-  width: 100%;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.sidebarMenu li:hover .menuLink {
-  background-color: #f3f4f6;
-  color: #111827;
-}
-
-.sidebarMenu .menuIcon {
-  width: 1.25rem;
-  height: 1.25rem;
-  margin-right: 0.75rem;
-  opacity: 0.85;
-}
-
-.sidebarMenu li:hover .menuIcon {
-  opacity: 1;
-}
-
-.menuActive, .sidebarMenu .menuActive {
-  background: linear-gradient(90deg, rgba(var(--primary-mint-rgb), 0.1) 0%, rgba(var(--primary-teal-rgb), 0.1) 100%);
-  color: #111827 !important;
-  font-weight: 700;
-  position: relative;
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.08);
-}
-
-.menuActive .menuLink, .sidebarMenu .menuActive .menuLink {
-  font-weight: 700;
-}
-
-.menuActive .menuIcon, .sidebarMenu .menuActive .menuIcon {
-  opacity: 1;
-  color: var(--primary-mint);
-}
-
-.menuActive::before, .sidebarMenu .menuActive::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 4px;
-  width: 100%;
-  background: linear-gradient(to right, var(--primary-mint), var(--primary-mint-light));
-  border-radius: 0 0 4px 4px;
-  box-shadow: 0 2px 8px rgba(var(--primary-mint-rgb), 0.25);
-}
-
-/* 메뉴 오버레이 */
-.menuOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 150;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.menuOverlay.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-/* 반응형 스타일 */
-@media (max-width: 768px) {
-  .navbar {
-    padding: 0.75rem 1rem;
-  }
-  
-  .logo {
-    font-size: 1.5rem;
-  }
-  
-  .authButton {
-    display: none;
-  }
-  
-  .loginButton {
-    padding: 0.5rem 1rem;
-    font-size: 0.875rem;
-  }
-}
-
 .mainContent {
   flex: 1;
   padding: 1.5rem 1.25rem;
@@ -768,34 +477,6 @@ a.secondary {
     position: relative;
     flex-direction: column;
   }
-  
-  .sidebar {
-    position: fixed;
-    left: -280px; /* 기본적으로 숨김 상태 */
-    width: 280px;
-    height: 100vh;
-    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-    transition: left 0.3s ease-in-out;
-  }
-  
-  .sidebarOpen {
-    left: 0; /* 열린 상태에서만 보이도록 */
-  }
-  
-  .menu {
-    flex-direction: column; /* 세로 방향으로 메뉴 아이템 배치 */
-    padding: 1rem;
-  }
-  
-  .menu li {
-    width: 100%;
-  }
-  
-  .menuLink {
-    padding: 0.875rem 1.25rem;
-    width: 100%;
-  }
-
 
   .goBtn {
     font-size: 1.5rem;
@@ -817,7 +498,7 @@ a.secondary {
 
 .menu li {
   padding: 0;
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   color: #4b5563;
   cursor: pointer;
   transition: all 0.2s ease, transform 0.2s ease, opacity 0.2s ease;
@@ -999,7 +680,7 @@ a.secondary {
 }
 
 .greetingText {
-  font-size: 1.375rem;
+  font-size: 1.125rem; /* 1.375rem에서 1.125rem으로 축소 */
   font-weight: 700;
   color: #374151;
   line-height: 1.4;
@@ -1012,7 +693,7 @@ a.secondary {
 }
 
 .greetingLabel {
-  font-size: 1rem;
+  font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
   color: #6b7280;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -1102,8 +783,8 @@ a.secondary {
 }
 
 .sectionTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   margin-bottom: 0;
   color: #111827;
   text-align: center;
@@ -1144,8 +825,8 @@ a.secondary {
   -webkit-text-fill-color: var(--text-dark) !important;
   background-clip: initial !important;
   color: var(--text-dark) !important;
-  font-weight: 700 !important;
-  font-size: 2.25rem !important;
+  font-weight: 600 !important;
+  font-size: 1.75rem !important;
   letter-spacing: -0.02em !important;
   line-height: 1.3 !important;
   display: block !important;
@@ -1170,7 +851,7 @@ a.secondary {
 
 /* 모든 섹션 설명 통일 */
 .sectionDesc {
-  font-size: 1.375rem;
+  font-size: 1.125rem; /* 1.375rem에서 1.125rem으로 축소 */
   font-weight: 500;
   color: var(--text-medium) !important;
   margin-top: 0.75rem;
@@ -1200,7 +881,7 @@ a.secondary {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 800;
+  font-weight: 600;
   margin-bottom: 0.25rem;
   display: inline-block;
 }
@@ -1211,8 +892,8 @@ a.secondary {
   -webkit-text-fill-color: var(--text-dark) !important;
   background-clip: initial !important;
   color: var(--text-dark) !important;
-  font-weight: 700 !important;
-  font-size: 2.25rem !important;
+  font-weight: 600 !important;
+  font-size: 1.75rem !important;
   letter-spacing: -0.02em !important;
   line-height: 1.3 !important;
   display: block !important;
@@ -1379,12 +1060,12 @@ a.secondary {
 
 /* 체크리스트 박스 제목 */
 .checklistBox h3, .analysisBox h3 {
-  font-size: 2rem;  /* 1.5rem에서 증가 */
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   color: #111827;
-  margin-bottom: 1rem;  /* 0.75rem에서 증가 */
+  margin-bottom: 1rem;
   position: relative;
-  padding-bottom: 1rem;  /* 0.875rem에서 증가 */
+  padding-bottom: 1rem;
   border-bottom: 1px solid var(--card-border);
   z-index: 1;
 }
@@ -1411,9 +1092,9 @@ a.secondary {
 
 /* 바 차트 레이블 */
 .barWrap > div:nth-of-type(odd) {
-  font-size: 1.5rem;  /* 1.25rem에서 증가 */
+  font-size: 1.125rem;  /* 1.5rem에서 1.125rem으로 축소 */
   font-weight: 600;
-  padding: 0.75rem 1rem;  /* 패딩 증가 */
+  padding: 0.75rem 1rem;
 }
 
 /* 항목 레이블과 퍼센트 컨테이너 */
@@ -1422,7 +1103,7 @@ a.secondary {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 0.625rem;
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   color: #1f2937;
   font-weight: 600;
   letter-spacing: -0.01em;
@@ -1475,7 +1156,7 @@ a.secondary {
 .itemLabel {
   position: relative;
   font-weight: 700;
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   flex: 1;
   text-align: left;
   padding-right: 1rem;
@@ -1488,7 +1169,7 @@ a.secondary {
   justify-content: center;
   color: white;
   font-weight: 700;
-  font-size: 1.125rem;
+  font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
   padding: 0.375rem 0.875rem;
   border-radius: 1rem;
   min-width: 4rem;
@@ -1560,10 +1241,10 @@ a.secondary {
 }
 
 .analysisType {
-  font-size: 1.5rem;  
-  font-weight: 700;
+  font-size: 1.5rem; /* 1.25rem에서 1.5rem으로 증가 */
+  font-weight: 600;
   color: var(--text-dark);
-  margin-bottom: 1.1rem;  
+  margin-bottom: 1.5rem; /* 1.1rem에서 1.5rem으로 증가 */
   display: inline-block;
   position: relative;
   z-index: 1;
@@ -1573,7 +1254,7 @@ a.secondary {
 .analysisType::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -8px; /* -4px에서 -8px로 변경하여 간격 증가 */
   left: 0;
   width: 100px;
   height: 2px;
@@ -1598,15 +1279,15 @@ a.secondary {
   font-size: 1.25rem;  
   font-weight: 700;
   color: var(--primary-mint);
-  margin-bottom: 0.3rem;  
-  padding-bottom: 1rem;  
+  margin-bottom: 0.5rem; /* 0.3rem에서 0.5rem으로 증가 */
+  padding-bottom: 1.25rem; /* 1rem에서 1.25rem으로 증가 */
   border-bottom: 1px solid rgba(52, 211, 153, 0.2);
 }
 
 .analysisAdvice {
   background: rgba(52, 211, 153, 0.08);
   border-radius: 1rem;
-  padding: 1.2rem;
+  padding: 1.5rem; /* 1.2rem에서 1.5rem으로 증가 */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -1617,17 +1298,18 @@ a.secondary {
   line-height: 1.6;
   color: #374151;
   font-weight: 500;
+  margin-top: 0.5rem; /* 새로 추가하여 위쪽 간격 확보 */
 }
 
 @media (max-width: 768px) {
   .adviceLabel {
-    font-size: 1.25rem;  /* 1rem에서 증가 */
+    font-size: 1rem;  /* 1.25rem에서 1rem으로 축소 */
     margin-bottom: 0.75rem;
     padding-bottom: 0.5rem;
   }
   
   .adviceContent {
-    font-size: 1.25rem;  /* 1rem에서 증가 */
+    font-size: 1rem;  /* 1.25rem에서 1rem으로 축소 */
   }
 }
 
@@ -1642,7 +1324,7 @@ a.secondary {
   }
   
   .checklistBox h3, .analysisBox h3 {
-    font-size: 1.375rem;
+    font-size: 1.125rem; /* 1.375rem에서 1.125rem으로 축소 */
     margin-bottom: 0.625rem;
     padding-bottom: 0.75rem;
   }
@@ -1665,15 +1347,15 @@ a.secondary {
   }
   
   .analysisType {
-    font-size: 1.5rem;
+    font-size: 1.25rem; /* 1.5rem에서 1.25rem으로 축소 */
   }
   
   .analysisDesc {
-    font-size: 1rem;
+    font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
   }
   
   .analysisAdvice {
-    font-size: 1rem;
+    font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
     padding: 0.875rem 1rem;
   }
 }
@@ -1687,8 +1369,8 @@ a.secondary {
 }
 
 .productSection h4 {
-  font-size: 1.875rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   text-align: center;
   position: relative;
@@ -1714,8 +1396,8 @@ a.secondary {
   -webkit-text-fill-color: var(--text-dark) !important;
   background-clip: initial !important;
   color: var(--text-dark) !important;
-  font-weight: 700 !important;
-  font-size: 2.25rem !important;
+  font-weight: 600 !important;
+  font-size: 1.75rem !important;
   letter-spacing: -0.02em !important;
   line-height: 1.3 !important;
   display: block !important;
@@ -1723,7 +1405,7 @@ a.secondary {
 }
 
 .productSectionDesc {
-  font-size: 1.125rem;
+  font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
   font-weight: 500;
   color: #4b5563;
   margin-top: 1.25rem;
@@ -1811,7 +1493,7 @@ a.secondary {
 }
 
 .placeholderText {
-  font-size: 1rem;
+  font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
   font-weight: 600;
   opacity: 0.9;
 }
@@ -1835,7 +1517,7 @@ a.secondary {
 
 .productImg.noImage::after {
   content: '이미지 로드 실패';
-  font-size: 1rem;
+  font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
   font-weight: 600;
   opacity: 0.9;
 }
@@ -1849,7 +1531,7 @@ a.secondary {
 }
 
 .productName {
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   font-weight: 700;
   color: #1f2937;
   padding: 0 1.5rem;
@@ -1859,7 +1541,7 @@ a.secondary {
 }
 
 .productDesc {
-  font-size: 1rem;
+  font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
   color: #4b5563;
   padding: 0 1.5rem;
   margin-bottom: 1.5rem;
@@ -1873,7 +1555,7 @@ a.secondary {
   border: 2px solid var(--primary-mint);
   padding: 1rem 1.5rem;
   border-radius: 0.875rem;
-  font-size: 1.125rem;
+  font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
   font-weight: 700;
   display: flex;
   align-items: center;
@@ -1902,8 +1584,8 @@ a.secondary {
 }
 
 .recommendTitle, .concernTitle {
-  font-size: 1.875rem;
-  font-weight: 700;
+  font-size: 1.5rem;
+  font-weight: 600;
   margin-bottom: 0.5rem;
   text-align: center;
   position: relative;
@@ -1929,12 +1611,12 @@ a.secondary {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  font-weight: 800;
+  font-weight: 600;
   display: inline-block;
 }
 
 .recommendDesc, .concernDesc {
-  font-size: 1.125rem;
+  font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
   font-weight: 500;
   color: #4b5563;
   margin-top: 1.25rem;
@@ -1994,7 +1676,7 @@ a.secondary {
 }
 
 .concernIcon {
-  font-size: 2.5rem;
+  font-size: 2rem; /* 2.5rem에서 2rem으로 축소 */
   color: var(--primary-mint);
   position: relative;
   z-index: 1;
@@ -2010,7 +1692,7 @@ a.secondary {
 }
 
 .concernLabel {
-  font-size: 1.25rem;
+  font-size: 1rem; /* 1.25rem에서 1rem으로 축소 */
   font-weight: 600;
   color: #1f2937;
   position: relative;
@@ -2335,7 +2017,7 @@ a.secondary {
   
   .moreProductsBtn {
     padding: 0.875rem 1.5rem;
-    font-size: 1rem;
+    font-size: 0.875rem; /* 1rem에서 0.875rem으로 축소 */
     font-weight: 700;
     width: 100%;
     max-width: 300px;
@@ -2345,7 +2027,7 @@ a.secondary {
 @media (max-width: 480px) {
   .moreProductsBtn {
     padding: 0.75rem 1.25rem;
-    font-size: 0.9375rem;
+    font-size: 0.8125rem; /* 0.9375rem에서 0.8125rem으로 축소 */
   }
 }
 
@@ -2367,7 +2049,7 @@ a.secondary {
   }
   
   .menu li {
-    font-size: 0.9375rem;
+    font-size: 0.8125rem; /* 0.9375rem에서 0.8125rem으로 축소 */
   }
   
   .menuLink {
@@ -2421,7 +2103,7 @@ a.secondary {
   }
   
   .menu li {
-    font-size: 1.125rem;
+    font-size: 0.9375rem; /* 1.125rem에서 0.9375rem으로 축소 */
   }
   
   .menuLink {
@@ -2474,7 +2156,7 @@ a.secondary {
   position: relative;
   letter-spacing: -0.01em;
   padding: 1.25rem 2.5rem;
-  font-size: 1.375rem;
+  font-size: 1.125rem; /* 1.375rem에서 1.125rem으로 축소 */
   width: fit-content;
   max-width: 400px;
   min-width: 280px;
@@ -2505,10 +2187,10 @@ a.secondary {
 }
 
 .mbtiTitle {
-  font-size: 1.75rem;  /* 1.25rem에서 증가 */
-  font-weight: 700;
+  font-size: 1.375rem;
+  font-weight: 600;
   color: var(--text-dark);
-  margin-bottom: 1.5rem;  /* 1rem에서 증가 */
+  margin-bottom: 1.5rem;
   text-align: center;
   letter-spacing: -0.01em;
 }

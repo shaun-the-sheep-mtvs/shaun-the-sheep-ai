@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import Link from 'next/link';
+import Navbar from "@/components/Navbar";
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles, FileText } from "lucide-react";
 import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/data/useCurrentUser';
@@ -115,26 +116,9 @@ const mbtiList = {
 
 
 export default function Home() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
   const { user, loading } = useCurrentUser();
-
-  // 사이드바 상태가 변경될 때 body 스크롤 제어
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.body.style.overflow = isSidebarOpen ? 'hidden' : '';
-    }
-  }, [isSidebarOpen]);
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  // 사이드바 외부 클릭시 닫기
-  const handleOverlayClick = () => {
-    setIsSidebarOpen(false);
-  };
 
   const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -255,85 +239,10 @@ export default function Home() {
 
   return (
     <div className={styles.wrapper}>
-      {/* 네비게이션 바 */}
-      <nav className={styles.navbar}>
-        <button className={styles.mobileMenuToggle} onClick={toggleSidebar}>
-          {isSidebarOpen ? <X className={styles.menuToggleIcon} /> : <Menu className={styles.menuToggleIcon} />}
-        </button>
-        <div className={styles.logoContainer}>
-          <h1 className={styles.logo}>Shaun</h1>
-        </div>
-
-        <div className={styles.navRight}>
-          {!isLoggedIn ? (
-            <>
-              <button 
-                className={styles.authButton}
-                onClick={() => router.push('/register')}
-              >
-                회원가입
-              </button>
-              <button 
-                className={styles.loginButton}
-                onClick={() => router.push('/login')}
-              >
-                로그인
-              </button>
-            </>
-          ):(
-            <button 
-              className={styles.logoutButton}
-              onClick={handleLogout}
-            >
-              로그아웃
-            </button>
-          )}
-        </div>
-      </nav>
-
-      {/* 메뉴 오버레이 */}
-      <div
-        className={`${styles.menuOverlay} ${isSidebarOpen ? styles.show : ''}`}
-        onClick={handleOverlayClick}
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
       />
-
-      {/* 사이드바 */}
-      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
-        <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarLogo}>Shaun</h2>
-          <button className={styles.closeButton} onClick={() => setIsSidebarOpen(false)}>
-            <X className={styles.closeIcon} />
-          </button>
-        </div>
-
-        <ul className={styles.sidebarMenu}>
-          <li className={pathname === '/' ? styles.menuActive : ''}>
-            <Link href="/" className={styles.menuLink}>
-              <HomeIcon className={styles.menuIcon} />
-              홈화면
-            </Link>
-          </li>
-          <li className={pathname === '/checklist' ? styles.menuActive : ''}>
-            <Link href="/checklist" className={styles.menuLink}>
-              <ClipboardCheck className={styles.menuIcon} />
-              검사하기
-            </Link>
-          </li>
-          <li className={pathname === '/ai-chat' ? styles.menuActive : ''}>
-            <Link href="/" className={styles.menuLink}>
-              <MessageCircle className={styles.menuIcon} />
-              AI 채팅
-            </Link>
-          </li>
-          <li className={pathname === '/profile' ? styles.menuActive : ''}>
-            <Link href="/" className={styles.menuLink}>
-              <User className={styles.menuIcon} />
-              회원정보
-            </Link>
-          </li>
-        </ul>
-      </aside>
-
 
       {/* 메인 */}
       <main className={styles.mainContent}>
