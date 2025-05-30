@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { Bell, Home, ShoppingBag, Info, Heart, Sparkles, ClipboardList, Droplet, Loader } from "lucide-react"
 import Image from "next/image"
+import Navbar from "@/components/Navbar"
 import styles from "./recommend.module.css"
 import { useState, useEffect } from "react"
 import axios from "axios"
@@ -80,8 +81,20 @@ export default function RecommendPage() {
   const [recommendData, setRecommendData] = useState<RecommendData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { user, loading: userLoading } = useCurrentUser();
 
+  // 로그인 상태 확인
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    setIsLoggedIn(!!token);
+  }, []);
+
+  // 로그아웃 함수
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken');
+    window.location.reload();
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -149,19 +162,27 @@ export default function RecommendPage() {
     console.log('Image URL:', product.imageUrl);
     return product.imageUrl;
   };
+  
+  // 이미지 에러 핸들러
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+    const target = e.target as HTMLImageElement;
+    target.style.display = 'none';
+    const parent = target.parentElement;
+    if (parent) {
+      parent.classList.add(styles.noImage);
+    }
+  };
+  
   const handleBuyButtonClick = (product: Product) => {
     window.open(`https://www.coupang.com/np/search?component=&q=${product.productName}`, '_blank ');
   }
 
   if (loading) return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.homeLink}>
-          <Home className={styles.homeIcon} />
-        </Link>
-        <h1 className={styles.headerTitle}>스킨케어 추천</h1>
-        <Bell className={styles.bellIcon} />
-      </header>
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
+      />
       
       <div className={`${styles["content-wrapper"]} ${styles.centerContent}`}>
         <div className={styles.loadingContainer}>
@@ -179,13 +200,10 @@ export default function RecommendPage() {
   
   if (error) return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.homeLink}>
-          <Home className={styles.homeIcon} />
-        </Link>
-        <h1 className={styles.headerTitle}>스킨케어 추천</h1>
-        <Bell className={styles.bellIcon} />
-      </header>
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
+      />
       
       <div className={`${styles["content-wrapper"]} ${styles.centerContent}`}>
         <div className={styles.errorContainer}>
@@ -209,13 +227,10 @@ export default function RecommendPage() {
   
   if (!recommendData) return (
     <div className={styles.container}>
-      <header className={styles.header}>
-        <Link href="/" className={styles.homeLink}>
-          <Home className={styles.homeIcon} />
-        </Link>
-        <h1 className={styles.headerTitle}>스킨케어 추천</h1>
-        <Bell className={styles.bellIcon} />
-      </header>
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
+      />
       
       <div className={`${styles["content-wrapper"]} ${styles.centerContent}`}>
         <div className={styles.errorContainer}>
@@ -232,14 +247,25 @@ export default function RecommendPage() {
 
   return (
     <div className={styles.container}>
-      {/* Header */}
-      <header className={styles.header}>
-        <Link href="/" className={styles.homeLink}>
-          <Home className={styles.homeIcon} />
-        </Link>
-        <h1 className={styles.headerTitle}>맞춤형 스킨케어 추천</h1>
-        <Bell className={styles.bellIcon} />
-      </header>
+      <Navbar
+        isLoggedIn={isLoggedIn}
+        onLogout={handleLogout}
+      />
+      <div className={styles["main-title-container-wrapper"]}>
+
+      <div className={styles["main-title-container"]}>
+      <div className={styles["title-background"]}></div>
+      <h2 className={styles["main-title"]}>
+        <Sparkles className={styles["title-icon-svg"]} />
+        맞춤형 추천 제품
+      </h2>
+      <p className={styles["main-subtitle"]}>
+        <strong>{recommendData.skinType}</strong> 피부를 위해 엄선된 완벽한 스킨케어 루틴으로 <br />
+        {recommendData.concerns.length > 0 && 
+          <span className={styles["highlight"]}> {recommendData.concerns.join(', ')}</span>} 고민을 해결해보세요! <br /> <br />
+      </p>
+      <div className={styles["title-divider"]}></div>
+    </div>
 
       {/* 콘텐츠 래퍼 추가 - 데스크탑에서 사이드바와 메인 콘텐츠 구분 */}
       <div className={styles["content-wrapper"]}>
@@ -287,19 +313,7 @@ export default function RecommendPage() {
         {/* 메인 콘텐츠 영역 */}
         <div className={styles["main-content"]}>
           {/* 카테고리 제목 개선 */}
-          <div className={styles["main-title-container"]}>
-            <div className={styles["title-background"]}></div>
-            <h2 className={styles["main-title"]}>
-              <Sparkles className={styles["title-icon-svg"]} />
-              맞춤형 추천 제품
-            </h2>
-            <p className={styles["main-subtitle"]}>
-              <strong>{recommendData.skinType}</strong> 피부를 위해 엄선된 완벽한 스킨케어 루틴으로 <br />
-              {recommendData.concerns.length > 0 && 
-                <span className={styles["highlight"]}> {recommendData.concerns.join(', ')}</span>} 고민을 해결해보세요! <br /> <br />
-            </p>
-            <div className={styles["title-divider"]}></div>
-          </div>
+          
 
           {/* Toner Section */}
           <section className={`${styles["product-section"]} ${styles["toner-section"]}`}>
@@ -312,18 +326,30 @@ export default function RecommendPage() {
               {recommendData.recommendations.토너.map((product, index) => (
                 <div key={`toner-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                  <img 
-                    src={getImgUrl(product)} 
-                    alt={getProductName(product)} 
-                    width={120} 
-                    height={160} 
-                    className={styles["product-image"]}
-                  />
+                  {getImgUrl(product) ? (
+                    <img 
+                      src={getImgUrl(product)} 
+                      alt={getProductName(product)} 
+                      width={80}
+                      height={110}
+                      className={styles["product-image"]}
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <div className={styles["placeholder-image"]}>
+                      <div className={styles["placeholder-icon"]}>📦</div>
+                      <div className={styles["placeholder-text"]}>제품 이미지</div>
+                    </div>
+                  )}
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
                     <div className={styles["product-details"]}>
-                      <p className={styles["product-title"]}>{getProductName(product)}</p>
+                      <p className={styles["product-title"]}>
+                        <span className={styles["product-title-text"]}>
+                          {getProductName(product)}
+                        </span>
+                      </p>
                       <div className={styles["tooltip"]}>
                         <p className={`${styles["product-attribute"]} ${styles["toner-attribute"]}`}>{getRecommendedType(product) || "피부 진정"}</p>
                       </div>
@@ -336,7 +362,7 @@ export default function RecommendPage() {
                           {getIngredients(product).length > 0 
                             ? getIngredients(product).map((ingredient: string, idx: number) => (
                                 <span key={idx} className={styles["ingredient-item"]}>
-                                  {ingredient}{idx < getIngredients(product).length - 1 ? ', ' : ''}
+                                  {ingredient}
                                 </span>
                               ))
                             : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
@@ -366,18 +392,30 @@ export default function RecommendPage() {
               {recommendData.recommendations.세럼.map((product, index) => (
                 <div key={`serum-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                  <img 
-                    src={getImgUrl(product)} 
-                    alt={getProductName(product)} 
-                    width={120} 
-                    height={160} 
-                    className={styles["product-image"]}
-                  />
+                  {getImgUrl(product) ? (
+                    <img 
+                      src={getImgUrl(product)} 
+                      alt={getProductName(product)} 
+                      width={80}
+                      height={110}
+                      className={styles["product-image"]}
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <div className={styles["placeholder-image"]}>
+                      <div className={styles["placeholder-icon"]}>📦</div>
+                      <div className={styles["placeholder-text"]}>제품 이미지</div>
+                    </div>
+                  )}
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
                     <div className={styles["product-details"]}>
-                      <p className={styles["product-title"]}>{getProductName(product)}</p>
+                      <p className={styles["product-title"]}>
+                        <span className={styles["product-title-text"]}>
+                          {getProductName(product)}
+                        </span>
+                      </p>
                       <div className={styles["tooltip"]}>
                         <p className={`${styles["product-attribute"]} ${styles["serum-attribute"]}`}>{getRecommendedType(product) || "수분 공급"}</p>
                       </div>
@@ -390,7 +428,7 @@ export default function RecommendPage() {
                           {getIngredients(product).length > 0 
                             ? getIngredients(product).map((ingredient: string, idx: number) => (
                                 <span key={idx} className={styles["ingredient-item"]}>
-                                  {ingredient}{idx < getIngredients(product).length - 1 ? ', ' : ''}
+                                  {ingredient}
                                 </span>
                               ))
                             : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
@@ -420,18 +458,30 @@ export default function RecommendPage() {
               {recommendData.recommendations.로션.map((product, index) => (
                 <div key={`lotion-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                  <img 
-                    src={getImgUrl(product)} 
-                    alt={getProductName(product)} 
-                    width={120} 
-                    height={160} 
-                    className={styles["product-image"]}
-                  />
+                  {getImgUrl(product) ? (
+                    <img 
+                      src={getImgUrl(product)} 
+                      alt={getProductName(product)} 
+                      width={80}
+                      height={110}
+                      className={styles["product-image"]}
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <div className={styles["placeholder-image"]}>
+                      <div className={styles["placeholder-icon"]}>📦</div>
+                      <div className={styles["placeholder-text"]}>제품 이미지</div>
+                    </div>
+                  )}
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
                     <div className={styles["product-details"]}>
-                      <p className={styles["product-title"]}>{getProductName(product)}</p>
+                      <p className={styles["product-title"]}>
+                        <span className={styles["product-title-text"]}>
+                          {getProductName(product)}
+                        </span>
+                      </p>
                       <div className={styles["tooltip"]}>
                         <p className={`${styles["product-attribute"]} ${styles["lotion-attribute"]}`}>{getRecommendedType(product) || "보습 강화"}</p>
                       </div>
@@ -444,7 +494,7 @@ export default function RecommendPage() {
                           {getIngredients(product).length > 0 
                             ? getIngredients(product).map((ingredient: string, idx: number) => (
                                 <span key={idx} className={styles["ingredient-item"]}>
-                                  {ingredient}{idx < getIngredients(product).length - 1 ? ', ' : ''}
+                                  {ingredient}
                                 </span>
                               ))
                             : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
@@ -474,18 +524,30 @@ export default function RecommendPage() {
               {recommendData.recommendations.크림.map((product, index) => (
                 <div key={`cream-${index}`} className={styles["product-card"]}>
                   <div className={styles["product-image-container"]}>
-                  <img 
-                    src={getImgUrl(product)} 
-                    alt={getProductName(product)} 
-                    width={120} 
-                    height={160} 
-                    className={styles["product-image"]}
-                  />
+                  {getImgUrl(product) ? (
+                    <img 
+                      src={getImgUrl(product)} 
+                      alt={getProductName(product)} 
+                      width={80}
+                      height={110}
+                      className={styles["product-image"]}
+                      onError={handleImageError}
+                    />
+                  ) : (
+                    <div className={styles["placeholder-image"]}>
+                      <div className={styles["placeholder-icon"]}>📦</div>
+                      <div className={styles["placeholder-text"]}>제품 이미지</div>
+                    </div>
+                  )}
                     <div className={styles["product-badge"]}>추천</div>
                   </div>
                   <div className={styles["product-info"]}>
                     <div className={styles["product-details"]}>
-                      <p className={styles["product-title"]}>{getProductName(product)}</p>
+                      <p className={styles["product-title"]}>
+                        <span className={styles["product-title-text"]}>
+                          {getProductName(product)}
+                        </span>
+                      </p>
                       <div className={styles["tooltip"]}>
                         <p className={`${styles["product-attribute"]} ${styles["cream-attribute"]}`}>{getRecommendedType(product) || "보습 케어"}</p>
                       </div>
@@ -498,7 +560,7 @@ export default function RecommendPage() {
                           {getIngredients(product).length > 0 
                             ? getIngredients(product).map((ingredient: string, idx: number) => (
                                 <span key={idx} className={styles["ingredient-item"]}>
-                                  {ingredient}{idx < getIngredients(product).length - 1 ? ', ' : ''}
+                                  {ingredient}
                                 </span>
                               ))
                             : <span className={styles["no-ingredients"]}>성분 정보가 없습니다</span>
@@ -517,6 +579,8 @@ export default function RecommendPage() {
             </div>
           </section>
         </div>
+      </div>
+
       </div>
     </div>
   )

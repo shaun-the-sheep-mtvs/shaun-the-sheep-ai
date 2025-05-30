@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import styles from './page.module.css';
 import { useRouter, usePathname } from 'next/navigation';
 import Link from 'next/link';
+import Navbar from '../../components/Navbar';
 
 import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Copy, Trash2, LightbulbIcon } from "lucide-react";
 import apiConfig from '../../config/api';
@@ -37,28 +38,19 @@ interface MeasurementDescription {
 }
 
 export default function RoutineManagePage() {
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
   const [selectedTime, setSelectedTime] = useState<'MORNING' | 'NIGHT' | null>(null);
   const [currentStep, setCurrentStep] = useState<'guide' | 'time' | 'product'>('guide');
   const [products, setProducts] = useState<Product[]>([
-    { name: '', kind: '', method: '', orders: 1 },
-    { name: '', kind: '', method: '', orders: 2 },
+    { name: '', kind: '', method: '', orders: 1, isCustomMethod: false },
+    { name: '', kind: '', method: '', orders: 2, isCustomMethod: false },
   ]);
   const [previewGroups, setPreviewGroups] = useState<PreviewProductGroup[]>([]);
   const [registeredRoutines, setRegisteredRoutines] = useState<any[]>([]);
   const [selectedMeasurement, setSelectedMeasurement] = useState<MeasurementType | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState<boolean>(false);
 
-
-  const toggleSidebar = () => {
-    setIsSidebarOpen(!isSidebarOpen);
-  };
-
-  // 사이드바 외부 클릭시 닫기
-  const handleOverlayClick = () => {
-    setIsSidebarOpen(false);
-  };
+  const pathname = usePathname();
+  const router = useRouter();
 
   const handleAddToPreview = () => {
     if (!selectedTime) {
@@ -84,8 +76,8 @@ export default function RoutineManagePage() {
     
     // 입력창 초기화
     setProducts([
-      { name: '', kind: '', method: '', orders: 1 },
-      { name: '', kind: '', method: '', orders: 2 },
+      { name: '', kind: '', method: '', orders: 1, isCustomMethod: false },
+      { name: '', kind: '', method: '', orders: 2, isCustomMethod: false },
     ]);
 
     // 시간 선택 단계로 돌아가기
@@ -104,6 +96,9 @@ export default function RoutineManagePage() {
       alert('로그인이 필요합니다.');
       return;
     }
+
+    // 로딩 상태 시작
+    setIsAnalyzing(true);
 
     try {
       // 1. 첫 번째 API 호출: 루틴 생성 (사용자가 입력한 루틴 정보 저장)
@@ -171,6 +166,9 @@ export default function RoutineManagePage() {
     } catch (error) { // 주로 첫 번째 API 호출의 에러를 처리
       console.error('Error in handleComplete:', error);
       alert('요청 중 오류가 발생했습니다.');
+    } finally {
+      // 로딩 상태 종료
+      setIsAnalyzing(false);
     }
   };
 
@@ -194,7 +192,8 @@ export default function RoutineManagePage() {
       name: '', 
       kind: '', 
       method: '', 
-      orders: prev.length + 1 
+      orders: prev.length + 1,
+      isCustomMethod: false
     }]);
   };
 
@@ -292,10 +291,14 @@ export default function RoutineManagePage() {
 
   const handleMethodChange = (idx: number, value: string) => {
     if (value === 'CUSTOM') {
-      // 직접 입력을 선택한 경우 method를 빈 문자열로 설정
-      handleProductChange(idx, 'method', '');
+      // 직접 입력을 선택한 경우
+      setProducts(prev => prev.map((p, i) => 
+        i === idx ? { ...p, method: '', isCustomMethod: true } : p
+      ));
     } else {
-      handleProductChange(idx, 'method', value);
+      setProducts(prev => prev.map((p, i) => 
+        i === idx ? { ...p, method: value, isCustomMethod: false } : p
+      ));
     }
   };
 
@@ -307,13 +310,20 @@ export default function RoutineManagePage() {
   // 버튼 클래스를 결정하는 함수
   const getButtonClass = (routineTime: string, selected: string | null) => {
     let base = styles['routine-btn'];
+    
     if (isTimeSlotUsed(routineTime as 'MORNING' | 'NIGHT')) {
       return `${base} ${styles.disabled}`;
     }
+    
     if (routineTime === selected) {
       if (routineTime === 'MORNING') return `${base} ${styles['selected-morning']}`;
       if (routineTime === 'NIGHT') return `${base} ${styles['selected-evening']}`;
     }
+    
+    // 선택되지 않은 상태에서도 시간대별 색상 적용
+    if (routineTime === 'MORNING') return `${base} ${styles['morning-btn']}`;
+    if (routineTime === 'NIGHT') return `${base} ${styles['evening-btn']}`;
+    
     return base;
   };
 
@@ -324,19 +334,13 @@ export default function RoutineManagePage() {
     return base;
   };
 
-  const getCompleteButtonClass = (selectedTime: string) => {
-    let base = styles['complete-btn'];
-    if (selectedTime === 'MORNING') return base + ' ' + styles['morning'];
-    if (selectedTime === 'NIGHT') return base + ' ' + styles['evening'];
-    return base;
-  };
-
   // 제품 객체 타입 정의
   interface Product {
     name: string;
     kind: string;
     method: string;
     orders: number;
+    isCustomMethod: boolean;
   }
 
   // 미리보기 제품 그룹 타입 정의
@@ -421,352 +425,296 @@ export default function RoutineManagePage() {
 
   return (
     <div className={styles.wrapper}>
-      {/* 네비게이션 바 */}
-      <nav className={styles.navbar}>
-        <button className={styles.mobileMenuToggle} onClick={toggleSidebar}>
-          {isSidebarOpen ? <X className={styles.menuToggleIcon} /> : <Menu className={styles.menuToggleIcon} />}
-        </button>
-        <div className={styles.logoContainer}>
-          <h1 className={styles.logo}>Shaun</h1>
-        </div>
-      </nav>
-
-      {/* 메뉴 오버레이 */}
-      <div
-        className={`${styles.menuOverlay} ${isSidebarOpen ? styles.show : ''}`}
-        onClick={handleOverlayClick}
-      />
-
-      {/* 사이드바 */}
-      <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
-        <div className={styles.sidebarHeader}>
-          <h2 className={styles.sidebarLogo}>Shaun</h2>
-          <button className={styles.closeButton} onClick={() => setIsSidebarOpen(false)}>
-            <X className={styles.closeIcon} />
-          </button>
-        </div>
-
-        <ul className={styles.sidebarMenu}>
-          <li className={pathname === '/' ? styles.menuActive : ''}>
-            <Link href="/" className={styles.menuLink}>
-              <HomeIcon className={styles.menuIcon} />
-              홈화면
-            </Link>
-          </li>
-          <li className={pathname === '/checklist' ? styles.menuActive : ''}>
-            <Link href="/checklist" className={styles.menuLink}>
-              <ClipboardCheck className={styles.menuIcon} />
-              검사하기
-            </Link>
-          </li>
-          <li className={pathname === '/chat' ? styles.menuActive : ''}>
-            <Link href="/chat" className={styles.menuLink}>
-              <MessageCircle className={styles.menuIcon} />
-              AI 채팅
-            </Link>
-          </li>
-          <li className={pathname === '/profile' ? styles.menuActive : ''}>
-            <Link href="/profile" className={styles.menuLink}>
-              <User className={styles.menuIcon} />
-              회원정보
-            </Link>
-          </li>
-        </ul>
-      </aside>
+      <Navbar />
       
-      <div className={styles['page-layout']}>
-        {/* 왼쪽: 루틴 등록 폼 */}
-        <div className={styles['form-section']}>
-          <div className={styles.card}>
-            {/* 상단 네비게이션 */}
-            <div className={styles.topnav}>
-              <span className={styles['topnav-title']}>루틴 분석</span>
-            </div>
-
-            {currentStep === 'guide' ? (
-              <div className={styles['guide-section']}>
-                <div className={styles['guide-title']}>
-                  나만의 스킨케어 루틴을 만들어보세요
-                </div>
-                <div className={styles['guide-content']}>
-                  <div className={styles['guide-item']}>
-                    <div className={styles['guide-icon']}>1</div>
-                    <div className={styles['guide-text']}>
-                      <div className={styles['guide-subtitle']}>루틴 시간 선택</div>
-                      <div className={styles['guide-description']}>
-                        아침과 저녁 중 스킨케어를 하는 시간대를 선택해주세요
+      <main className={styles.mainContent}>
+        <div className={styles.contentContainer}>
+          {/* 루틴 등록 폼 */}
+          <div className={styles['form-section']}>
+            <div className={styles.card}>
+              {currentStep === 'guide' ? (
+                <div className={styles['guide-section']}>
+                  <div className={styles['guide-title']}>
+                    나만의 스킨케어 루틴을 만들어보세요!
+                  </div>
+                  <div className={styles['guide-content']}>
+                    <div className={styles['guide-item']}>
+                      <div className={styles['guide-icon']}>1</div>
+                      <div className={styles['guide-text']}>
+                        <div className={styles['guide-subtitle']}>루틴 시간 선택</div>
+                        <div className={styles['guide-description']}>
+                          아침과 저녁 중 스킨케어를 하는 시간대를 선택해주세요
+                        </div>
+                      </div>
+                    </div>
+                    <div className={styles['guide-item']}>
+                      <div className={styles['guide-icon']}>2</div>
+                      <div className={styles['guide-text']}>
+                        <div className={styles['guide-subtitle']}>제품 정보 입력</div>
+                        <div className={styles['guide-description']}>
+                          사용하는 제품의 이름, 종류, 사용 방법을 순서대로 입력해주세요
+                        </div>
+                      </div>
+                    </div>
+                    <div className={styles['guide-item']}>
+                      <div className={styles['guide-icon']}>3</div>
+                      <div className={styles['guide-text']}>
+                        <div className={styles['guide-subtitle']}>AI 분석 시작</div>
+                        <div className={styles['guide-description']}>
+                          입력한 루틴을 바탕으로 AI가 맞춤형 피부 관리 방법 및 제품을 제안해드립니다
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div className={styles['guide-item']}>
-                    <div className={styles['guide-icon']}>2</div>
-                    <div className={styles['guide-text']}>
-                      <div className={styles['guide-subtitle']}>제품 정보 입력</div>
-                      <div className={styles['guide-description']}>
-                        사용하는 제품의 이름, 종류, 사용 방법을 순서대로 입력해주세요
+                  <button
+                    className={styles['start-btn']}
+                    onClick={() => setCurrentStep('time')}
+                    type="button"
+                  >
+                    시작하기
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {currentStep === 'time' ? (
+                    <div style={{ marginBottom: 32 }}>
+                      <div className={styles['section-title']}>Step 1. 루틴 시간을 선택해주세요.</div>
+                      <div className={styles['section-subtitle']}>
+                        하루 중 스킨케어 제품을 사용하는 시간대를 선택해주세요
+                      </div>
+                      <div className={styles['routine-times']}>
+                        {ROUTINE_TIMES.map((t) => (
+                          <button
+                            key={t.value}
+                            className={getButtonClass(t.value, selectedTime)}
+                            onClick={() => handleTimeSelect(t.value as 'MORNING' | 'NIGHT')}
+                            type="button"
+                            disabled={isTimeSlotUsed(t.value as 'MORNING' | 'NIGHT')}
+                          >
+                            {t.label}
+                          </button>
+                        ))}
                       </div>
                     </div>
-                  </div>
-                  <div className={styles['guide-item']}>
-                    <div className={styles['guide-icon']}>3</div>
-                    <div className={styles['guide-text']}>
-                      <div className={styles['guide-subtitle']}>AI 분석 시작</div>
-                      <div className={styles['guide-description']}>
-                        입력한 루틴을 바탕으로 AI가 맞춤형 피부 관리 방법을 제안해드립니다
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <button
-                  className={styles['start-btn']}
-                  onClick={() => setCurrentStep('time')}
-                  type="button"
-                >
-                  시작하기
-                </button>
-              </div>
-            ) : (
-              <>
-                {/* STEP 1, STEP 2 */}
-                <div className={styles.steps}>
-                  <div className={styles.step}>
-                    {currentStep === 'time' ? ' STEP 1' : 'STEP 2'}
-                  </div>
-                  <div className={styles['step-divider']} />
-                </div>
-
-                {currentStep === 'time' ? (
-                  <div style={{ marginBottom: 32 }}>
-                    <div className={styles['section-title']}>1. 루틴 시간을 선택해주세요.</div>
-                    <div className={styles['section-subtitle']}>
-                      하루 중 스킨케어 제품을 사용하는 시간대를 선택해주세요
-                    </div>
-                    <div className={styles['routine-times']}>
-                      {ROUTINE_TIMES.map((t) => (
+                  ) : (
+                    <>
+                      {/* 이전 버튼과 선택된 시간을 한 줄에 배치 */}
+                      <div className={styles['step-navigation']}>
                         <button
-                          key={t.value}
-                          className={getButtonClass(t.value, selectedTime)}
-                          onClick={() => handleTimeSelect(t.value as 'MORNING' | 'NIGHT')}
+                          className={styles['back-button']}
+                          onClick={handleBack}
                           type="button"
-                          disabled={isTimeSlotUsed(t.value as 'MORNING' | 'NIGHT')}
                         >
-                          {t.label}
+                          ← 이전
                         </button>
+                        <span className={`${styles.selectedTime} ${selectedTime === 'MORNING' ? styles['selected-morning-time'] : styles['selected-evening-time']}`}>
+                          선택된 시간: {selectedTime === 'MORNING' ? '아침' : selectedTime === 'NIGHT' ? '저녁' : '선택 안됨'}
+                        </span>
+                      </div>
+                      
+                      <div style={{ marginBottom: 48 }}>
+                        <div className={styles['section-title']}>Step 2. 제품을 바르는 순서대로 입력해주세요.</div>
+                        {selectedTime === 'NIGHT' && getMorningRoutine() && (
+                          <button
+                            className={`${styles['copy-routine-btn']} ${styles['copy-routine-evening']}`}
+                            onClick={copyMorningRoutine}
+                            type="button"
+                            style={{ marginTop: 16, marginBottom: 24 }}
+                          >
+                            <Copy size={16} />
+                            아침 루틴과 동일하게 설정
+                          </button>
+                        )}
+                        <div className={`${styles['input-guidance']} ${selectedTime === 'MORNING' ? styles['guidance-morning'] : styles['guidance-evening']}`}>
+                          <LightbulbIcon className={`${styles['guidance-icon']} ${selectedTime === 'MORNING' ? styles['guidance-icon-morning'] : styles['guidance-icon-evening']}`} size={18} />
+                          <div className={styles['guidance-content']}>
+                            <div className={`${styles['guidance-title']} ${selectedTime === 'MORNING' ? styles['guidance-title-morning'] : styles['guidance-title-evening']}`}>
+                              꿀팁
+                            </div>
+                            <div className={styles['guidance-description']}>
+                              자세한 사용 방법을 입력할수록 더 정확한 분석이 가능해요
+                            </div>
+                            <div className={styles['guidance-example']}>
+                              예시) 토너를 화장솜에 듬뿍 묻혀 3번 정도 두드리며 흡수시켜요
+                            </div>
+                          </div>
+                        </div>
+                        <div className={styles.inputs} style={{ marginTop: 32 }}>
+                          {products.map((product, idx) => (
+                            <div
+                              key={idx}
+                              className={getInputRowClass(selectedTime as string)}
+                              draggable
+                              onDragStart={(e) => handleDragStart(e, idx)}
+                              onDragEnd={handleDragEnd}
+                              onDragOver={(e) => handleDragOver(e, idx)}
+                              onDrop={(e) => handleDrop(e, idx)}
+                              style={{ marginBottom: 24 }}
+                            >
+                              <div className={styles['drag-handle']} />
+                              <div className={styles['input-top']}>
+                                <div className={`${styles['order-number']} ${selectedTime === 'MORNING' ? styles['order-number-morning'] : styles['order-number-evening']}`}>{idx + 1}</div>
+                                <input
+                                  className={`${styles.input} ${selectedTime === 'MORNING' ? styles['input-morning'] : styles['input-evening']}`}
+                                  placeholder="제품명을 입력하세요"
+                                  value={product.name}
+                                  onChange={(e) => handleProductChange(idx, 'name', e.target.value)}
+                                />
+                                <select
+                                  className={`${styles['input-select']} ${selectedTime === 'MORNING' ? styles['input-select-morning'] : styles['input-select-evening']}`}
+                                  value={product.kind}
+                                  onChange={(e) => handleProductChange(idx, 'kind', e.target.value)}
+                                >
+                                  <option value="">종류 선택</option>
+                                  <option value="토너">토너</option>
+                                  <option value="앰플">앰플</option>
+                                  <option value="크림">크림</option>
+                                  <option value="스킨">스킨</option>
+                                  <option value="세럼">세럼</option>
+                                  <option value="로션">로션</option>
+                                </select>
+                                <button
+                                  className={styles['remove-btn']}
+                                  onClick={() => handleRemoveProduct(idx)}
+                                  type="button"
+                                  aria-label="삭제"
+                                >
+                                  <Trash2 size={18} />
+                                </button>
+                              </div>
+                              <div className={styles['method-container']}>
+                                <select
+                                  className={`${styles['input-select']} ${selectedTime === 'MORNING' ? styles['input-select-morning'] : styles['input-select-evening']}`}
+                                  value={product.isCustomMethod ? 'CUSTOM' : product.method}
+                                  onChange={(e) => handleMethodChange(idx, e.target.value)}
+                                >
+                                  {METHOD_OPTIONS.map((method, methodIdx) => (
+                                    <option key={methodIdx} value={method.value}>
+                                      {method.label}
+                                    </option>
+                                  ))}
+                                </select>
+                                {product.isCustomMethod && (
+                                  <input
+                                    className={`${styles['input-method']} ${selectedTime === 'MORNING' ? styles['input-method-morning'] : styles['input-method-evening']}`}
+                                    placeholder="사용 방법을 입력해주세요"
+                                    value={product.method}
+                                    onChange={(e) => handleProductChange(idx, 'method', e.target.value)}
+                                  />
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        <div className={styles['add-btn-row']} style={{ marginTop: 32 }}>
+                          <button
+                            className={`${styles['add-btn']} ${selectedTime === 'MORNING' ? styles['add-btn-morning'] : styles['add-btn-evening']}`}
+                            onClick={handleAddProduct}
+                            type="button"
+                            aria-label="추가"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </div>
+                      <div className={styles['button-group']} style={{ marginTop: 48 }}>
+                        <button
+                          className={`${styles['complete-btn']} ${selectedTime === 'MORNING' ? styles['complete-btn-morning'] : styles['complete-btn-evening']}`}
+                          onClick={handleAddToPreview}
+                          type="button"
+                        >
+                          다음 단계
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* 미리보기 섹션 */}
+          {previewGroups.length > 0 && (
+            <div className={styles['preview-section']}>
+              <div className={styles.card}>
+                <div className={styles['preview-header']}>
+                  <h3>등록 예정 루틴</h3>
+                </div>
+                {previewGroups.map((group, groupIndex) => (
+                  <div key={groupIndex} className={styles['preview-group']}>
+                    <div className={styles['preview-header']}>
+                      <div className={styles['preview-time']}>
+                        {group.time === 'MORNING' ? '아침' : '저녁'} 루틴
+                      </div>
+                      <button
+                        className={styles['remove-preview-btn']}
+                        onClick={() => handleRemovePreviewGroup(groupIndex)}
+                        type="button"
+                        aria-label="삭제"
+                      >
+                        ×
+                      </button>
+                    </div>
+                    <div className={styles['preview-list']}>
+                      {group.products.map((product, idx) => (
+                        <div key={idx} className={styles['preview-item']}>
+                          <div className={styles['preview-order']}>{idx + 1}</div>
+                          <div className={styles['preview-content']}>
+                            <div className={styles['preview-name']}>
+                              {product.name}
+                            </div>
+                            <div className={styles['preview-kind']}>
+                              {product.kind}
+                            </div>
+                            <div className={styles['preview-method']}>
+                              {product.method}
+                            </div>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
-                ) : (
-                  <>
-                    <div style={{ marginBottom: 48 }}>
-                      <div className={styles['section-title']}>
-                        <div className={styles['time-selection-header']}>
-                          <button
-                            className={styles['back-button']}
-                            onClick={handleBack}
-                            type="button"
-                          >
-                            ← 이전
-                          </button>
-                          <span className={styles.selectedTime}>선택된 시간: {
-                            selectedTime === 'MORNING' ? '아침' : selectedTime === 'NIGHT' ? '저녁' : '선택 안됨'
-                          }</span>
-                        </div>
-                      </div>
-                      <div className={styles['section-title']} style={{ marginTop: 32 }}>2. 제품을 바르는 순서대로 입력해주세요.</div>
-                      {selectedTime === 'NIGHT' && getMorningRoutine() && (
-                        <button
-                          className={styles['copy-routine-btn']}
-                          onClick={copyMorningRoutine}
-                          type="button"
-                          style={{ marginTop: 16, marginBottom: 24 }}
-                        >
-                          <Copy size={16} />
-                          아침 루틴과 동일하게 설정
-                        </button>
+                ))}
+                {/* 안내 메시지 추가 */}
+                {previewGroups.length === 1 && (
+                  <div className={styles['preview-guide']}>
+                    <div className={styles['guide-message']}>
+                      {previewGroups[0].time === 'MORNING' ? (
+                        <>
+                          <span>💡 저녁 루틴도 입력해 주시면</span>
+                          <span>더 정확한 분석이 가능합니다.</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>💡 아침 루틴도 입력해 주시면</span>
+                          <span>더 정확한 분석이 가능합니다.</span>
+                        </>
                       )}
-                      <div className={styles['input-guidance']}>
-                        <LightbulbIcon className={styles['guidance-icon']} size={18} />
-                        <div className={styles['guidance-content']}>
-                          <div className={styles['guidance-title']}>
-                            꿀팁
-                          </div>
-                          <div className={styles['guidance-description']}>
-                            자세한 사용 방법을 입력할수록 더 정확한 분석이 가능해요
-                          </div>
-                          <div className={styles['guidance-example']}>
-                            예시) 토너를 화장솜에 듬뿍 묻혀 3번 정도 두드리며 흡수시켜요
-                          </div>
-                        </div>
-                      </div>
-                      <div className={styles.inputs} style={{ marginTop: 32 }}>
-                        {products.map((product, idx) => (
-                          <div
-                            key={idx}
-                            className={getInputRowClass(selectedTime as string)}
-                            draggable
-                            onDragStart={(e) => handleDragStart(e, idx)}
-                            onDragEnd={handleDragEnd}
-                            onDragOver={(e) => handleDragOver(e, idx)}
-                            onDrop={(e) => handleDrop(e, idx)}
-                            style={{ marginBottom: 24 }}
-                          >
-                            <div className={styles['drag-handle']} />
-                            <div className={styles['input-top']}>
-                              <div className={styles['order-number']}>{idx + 1}</div>
-                              <input
-                                className={styles.input}
-                                placeholder="제품명을 입력하세요"
-                                value={product.name}
-                                onChange={(e) => handleProductChange(idx, 'name', e.target.value)}
-                              />
-                              <select
-                                className={styles['input-select']}
-                                value={product.kind}
-                                onChange={(e) => handleProductChange(idx, 'kind', e.target.value)}
-                              >
-                                <option value="">종류 선택</option>
-                                <option value="토너">토너</option>
-                                <option value="앰플">앰플</option>
-                                <option value="크림">크림</option>
-                                <option value="스킨">스킨</option>
-                                <option value="세럼">세럼</option>
-                                <option value="로션">로션</option>
-                              </select>
-                              <button
-                                className={styles['remove-btn']}
-                                onClick={() => handleRemoveProduct(idx)}
-                                type="button"
-                                aria-label="삭제"
-                              >
-                                <Trash2 size={18} />
-                              </button>
-                            </div>
-                            <div className={styles['method-container']}>
-                              <select
-                                className={styles['input-select']}
-                                value={product.method === '' ? 'CUSTOM' : product.method}
-                                onChange={(e) => handleMethodChange(idx, e.target.value)}
-                              >
-                                {METHOD_OPTIONS.map((method, methodIdx) => (
-                                  <option key={methodIdx} value={method.value}>
-                                    {method.label}
-                                  </option>
-                                ))}
-                              </select>
-                              {product.method === '' && (
-                                <input
-                                  className={styles['input-method']}
-                                  placeholder="사용 방법을 입력해주세요"
-                                  value={product.method}
-                                  onChange={(e) => handleProductChange(idx, 'method', e.target.value)}
-                                />
-                              )}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                      <div className={styles['add-btn-row']} style={{ marginTop: 32 }}>
-                        <button
-                          className={styles['add-btn']}
-                          onClick={handleAddProduct}
-                          type="button"
-                          aria-label="추가"
-                        >
-                          +
-                        </button>
-                      </div>
                     </div>
-                    <div className={styles['button-group']} style={{ marginTop: 48 }}>
-                      <button
-                        className={getCompleteButtonClass(selectedTime as string)}
-                        onClick={handleAddToPreview}
-                        type="button"
-                      >
-                        저장
-                      </button>
-                    </div>
-                  </>
+                  </div>
                 )}
-              </>
-            )}
-          </div>
-        </div>
-
-        {/* 오른쪽: 미리보기 섹션 */}
-        {previewGroups.length > 0 && (
-          <div className={styles['preview-section']}>
-            <div className={styles.card}>
-              <div className={styles['preview-header']}>
-                <h3>등록 예정 루틴</h3>
-              </div>
-              {previewGroups.map((group, groupIndex) => (
-                <div key={groupIndex} className={styles['preview-group']}>
-                  <div className={styles['preview-header']}>
-                    <div className={styles['preview-time']}>
-                      {group.time === 'MORNING' ? '아침' : '저녁'} 루틴
-                    </div>
-                    <button
-                      className={styles['remove-preview-btn']}
-                      onClick={() => handleRemovePreviewGroup(groupIndex)}
-                      type="button"
-                      aria-label="삭제"
-                    >
-                      ×
-                    </button>
-                  </div>
-                  <div className={styles['preview-list']}>
-                    {group.products.map((product, idx) => (
-                      <div key={idx} className={styles['preview-item']}>
-                        <div className={styles['preview-order']}>{idx + 1}</div>
-                        <div className={styles['preview-content']}>
-                          <div className={styles['preview-name']}>
-                            {product.name}
-                          </div>
-                          <div className={styles['preview-kind']}>
-                            {product.kind}
-                          </div>
-                          <div className={styles['preview-method']}>
-                            {product.method}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              ))}
-              {/* 안내 메시지 추가 */}
-              {previewGroups.length === 1 && (
-                <div className={styles['preview-guide']}>
-                  <div className={styles['guide-message']}>
-                    {previewGroups[0].time === 'MORNING' ? (
-                      <>
-                        <span>💡 저녁 루틴도 입력해 주시면</span>
-                        <span>더 정확한 분석이 가능합니다.</span>
-                      </>
+                <div className={styles['preview-actions']}>
+                  <button
+                    className={`${styles['complete-btn']} ${styles['analyze-btn']} ${isAnalyzing ? styles['analyzing'] : ''}`}
+                    onClick={handleComplete}
+                    type="button"
+                    disabled={isAnalyzing}
+                  >
+                    {isAnalyzing ? (
+                      <span className={styles['loading-content']}>
+                        <span className={styles['spinner']}></span>
+                        분석 하는 중...
+                      </span>
                     ) : (
-                      <>
-                        <span>💡 아침 루틴도 입력해 주시면</span>
-                        <span>더 정확한 분석이 가능합니다.</span>
-                      </>
+                      '분석 시작'
                     )}
-                  </div>
+                  </button>
                 </div>
-              )}
-              <div className={styles['preview-actions']}>
-                <button
-                  className={styles['complete-btn']}
-                  onClick={handleComplete}
-                  type="button"
-                >
-                  분석 시작
-                </button>
               </div>
             </div>
-          </div>
-        )}
-      </div>
-
+          )}
+        </div>
+      </main>
     </div>
-
   );
 } 
