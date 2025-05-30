@@ -85,14 +85,14 @@ export default function AIDoctorChatPage() {
       setMessages(prev => [...prev, aiDto])
 
       // 대화 기록 저장
-      await fetch(`${apiConfig.endpoints.chat.base}/bulk`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
-        },
-        body: JSON.stringify([userMessage, aiDto]),
-      })
+      // await fetch(`${apiConfig.endpoints.chat.base}/bulk`, {
+      //   method: "POST",
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //     "Authorization": `Bearer ${token}`,
+      //   },
+      //   body: JSON.stringify([userMessage, aiDto]),
+      // })
     } catch (err) {
       console.error(err)
       setMessages(prev => [...prev, {
