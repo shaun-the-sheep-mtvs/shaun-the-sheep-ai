@@ -15,7 +15,7 @@ public class RecommendResponseDTO {
 
     private Action action;
     private Kinds kind;
-    private String routineName;
+    private String name;
     private String suggestProduct;
     private String reason;
     private Long routineGroupId;

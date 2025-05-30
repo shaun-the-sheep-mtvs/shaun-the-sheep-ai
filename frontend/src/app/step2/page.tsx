@@ -345,9 +345,10 @@ export default function Step2() {
                                                     <div className={styles['step2-routine-title']}>{item.title}</div>
                                                     <div className={styles['step2-routine-desc']}>
                                                         {item.kind}
-                                                        {item.method.split('\n').map((line, index) => (
-                                                            <div key={index}>{`${index + 1}. ${line}`}</div>
-                                                        ))}
+                                                        {typeof item?.method === 'string' &&
+                                                        item.method.split('\n').map((line, index) => (
+                                                          <div key={index}>{`${index + 1}. ${line}`}</div>
+                                                      ))}
                                                     </div>
                                                 </div>
                                             </li>
