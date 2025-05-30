@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -16,6 +17,7 @@ public class CheckListResponse {
     private Integer oil;
     private Integer sensitivity;
     private Integer tension;
+    private List<String> troubles;
     private LocalDateTime createdAt;
 }
 

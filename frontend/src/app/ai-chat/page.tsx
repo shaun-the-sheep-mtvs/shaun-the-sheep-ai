@@ -14,19 +14,7 @@ export default function AIDoctorChatPage() {
   const { user, loading } = useCurrentUser()
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
   const [activeNav, setActiveNav] = useState("ai-chat")
-
-  // 로그아웃 처리: 토큰 제거 후 /login으로 이동
-  const handleLogout = () => {
-    localStorage.removeItem('accessToken')
-    router.push('/login')
-  }
-
-  // 마운트 시 로그인 상태 체크
-  useEffect(() => {
-    if (!localStorage.getItem('accessToken')) {
-      router.push('/login')
-    }
-  }, [router])
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const [messages, setMessages] = useState<ChatMessageDTO[]>([
     {
@@ -39,6 +27,20 @@ export default function AIDoctorChatPage() {
   const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
+  // 로그인 체크
+  useEffect(() => {
+    if (!localStorage.getItem('accessToken')) {
+      router.push('/login')
+    }
+  }, [router])
+
+  // AI 호출이 끝나면 자동으로 입력창에 포커스
+  useEffect(() => {
+    if (!isLoading) {
+      inputRef.current?.focus()
+    }
+  }, [isLoading])
+
   // 새 메시지가 추가될 때마다 스크롤 맨 아래로
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -48,59 +50,56 @@ export default function AIDoctorChatPage() {
     setIsSidebarOpen(prev => !prev)
   }
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    if (!input.trim()) return
-    
+  const handleLogout = () => {
+    localStorage.removeItem('accessToken')
+    router.push('/login')
+  }
+
+  const handleSubmit = async () => {
+    if (!input.trim() || isLoading) return
+
     const token = localStorage.getItem('accessToken')
     const userMessage: ChatMessageDTO = {
       role: "user",
       content: input,
       timestamp: new Date().toISOString(),
     }
-    const newMessages = [...messages, userMessage]
-    setMessages(newMessages)
+
+    setMessages(prev => [...prev, userMessage])
     setInput("")
     setIsLoading(true)
 
-     try {
-      // 1) AI 호출
-      const res = await fetch(apiConfig.endpoints.chat.base + "/ask?templateKey=…", {
+    try {
+      // AI 호출
+      const res = await fetch(`${apiConfig.endpoints.chat.base}/ask?templateKey=…`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,        // ← 여기에 넣어주세요
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify(newMessages),
+        body: JSON.stringify([...messages, userMessage]),
       })
-      if (!res.ok) throw new Error(`AI 호출 실패: ${await res.text()}`)
+      if (!res.ok) throw new Error(await res.text())
 
-      const aiDto: ChatMessageDTO = await res.json()
-      const aiMessage: ChatMessageDTO = {
-        role: aiDto.role,
-        content: aiDto.content,
-        timestamp: aiDto.timestamp,
-      }
-      setMessages([...newMessages, aiMessage])
+      const aiDto = await res.json() as ChatMessageDTO
+      setMessages(prev => [...prev, aiDto])
 
-      // 대화 기록 백엔드에 저장
-      await fetch(apiConfig.endpoints.chat.base + "/bulk", {
+      // 대화 기록 저장
+      await fetch(`${apiConfig.endpoints.chat.base}/bulk`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,        // ← 여기에 넣어주세요
+          "Authorization": `Bearer ${token}`,
         },
-        body: JSON.stringify([userMessage, aiMessage]),
+        body: JSON.stringify([userMessage, aiDto]),
       })
     } catch (err) {
       console.error(err)
-      // 오류 메시지 표시
-      const errorMessage: ChatMessageDTO = {
+      setMessages(prev => [...prev, {
         role: "ai",
         content: "죄송합니다. 일시적인 오류가 발생했습니다. 다시 시도해 주세요.",
         timestamp: new Date().toISOString(),
-      }
-      setMessages(prev => [...prev, errorMessage])
+      }])
     } finally {
       setIsLoading(false)
     }
@@ -112,7 +111,6 @@ export default function AIDoctorChatPage() {
 
   return (
     <div className={styles.page}>
-      {/* 사이드바 */}
       <Sidebar
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
@@ -120,7 +118,6 @@ export default function AIDoctorChatPage() {
         onNavClick={handleNavClick}
       />
 
-      {/* 헤더 */}
       <header className={styles.header}>
         <button className={styles.iconButton} onClick={toggleSidebar}>
           <Menu size={24} />
@@ -133,9 +130,7 @@ export default function AIDoctorChatPage() {
         </button>
       </header>
 
-      {/* 메인 콘텐츠 */}
       <main className={styles.main}>
-        {/* 환영 배너 */}
         <div className={styles.welcomeBanner}>
           <p className={styles.welcomeText}>
             <span className={styles.wave}>👋</span> 환영합니다!
@@ -148,7 +143,6 @@ export default function AIDoctorChatPage() {
           </h2>
         </div>
 
-        {/* 채팅 영역 */}
         <section className={styles.chatSection}>
           <div className={styles.chatHeader}>
             <h3>AI 상담</h3>
@@ -188,12 +182,19 @@ export default function AIDoctorChatPage() {
             <div ref={messagesEndRef} />
           </div>
 
-          <form onSubmit={handleSubmit} className={styles.inputForm}>
+          <form onSubmit={e => { e.preventDefault(); handleSubmit() }} className={styles.inputForm}>
             <input
+              ref={inputRef}
               type="text"
               placeholder="궁금하신 피부 관련 질문을 입력해주세요..."
               value={input}
               onChange={e => setInput(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && !isLoading && input.trim()) {
+                  e.preventDefault()
+                  handleSubmit()
+                }
+              }}
               disabled={isLoading}
               className={styles.input}
             />
@@ -206,3 +207,4 @@ export default function AIDoctorChatPage() {
     </div>
   )
 }
+
