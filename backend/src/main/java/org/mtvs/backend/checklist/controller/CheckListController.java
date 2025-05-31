@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
+import org.mtvs.backend.session.GuestData;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -60,6 +62,20 @@ public class CheckListController {
         return service.findLatestForUser(me.getUsername())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.ok(new CheckListResponse()));  // 빈 DTO( troubles = null or empty )
+    }
+
+    /** 게스트 체크리스트 제출 */
+    @PostMapping("/guest")
+    public ResponseEntity<?> guestChecklist(@RequestBody GuestData guestData) {
+        // 1. MBTI 코드 계산
+        String mbtiCode = service.calculateMbtiForGuest(guestData);
+        // 2. SkinType 조회 (한글명 반환)
+        String skinType = service.getSkinTypeForMbti(mbtiCode);
+        // 3. 결과 반환 (필요시 advice 등 추가 가능)
+        return ResponseEntity.ok(Map.of(
+            "mbti", mbtiCode,
+            "skinType", skinType
+        ));
     }
 }
 
