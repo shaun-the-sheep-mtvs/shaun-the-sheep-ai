@@ -19,11 +19,13 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 
-@RestController("api/profile")
+@RestController
+@RequestMapping("/api/profile")  // RequestMapping 추가
 public class ProfileController {
     ProfileService profileService;
     AuthService authService;
     RoutineManageService routineManageService;
+
     @Autowired
     public ProfileController(ProfileService profileService, AuthService authService, RoutineManageService routineManageService) {
         this.authService = authService;
@@ -54,7 +56,7 @@ public class ProfileController {
 
     @DeleteMapping("/routines/update")
     public ResponseEntity<?> updateRoutines(@RequestBody RoutinesDto routinesDTO,@AuthenticationPrincipal CustomUserDetails user){
-        routineManageService.updateRoutine(routinesDTO.getRoutineGroupId(),user);
+//        routineManageService.updateRoutine(routinesDTO.getRoutineGroupId(),user);
         return ResponseEntity.ok("success");
     }
 

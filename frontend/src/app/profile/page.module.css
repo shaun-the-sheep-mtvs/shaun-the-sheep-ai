@@ -1,0 +1,134 @@
+.profilePage {
+  min-height: 100vh;
+  background-color: #FFF5F7;
+  padding: 2rem;
+}
+
+.profileContainer {
+  max-width: 800px;
+  margin: 0 auto;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+}
+
+.profileHeader {
+  background: linear-gradient(135deg, #FFB6C1 0%, #FFC0CB 100%);
+  padding: 2rem;
+  color: white;
+  position: relative;
+}
+
+.profileHeader h1 {
+  margin: 0;
+  font-size: 1.8rem;
+  text-align: center;
+}
+
+.homeButton {
+  position: absolute;
+  left: 2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.homeButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.profileContent {
+  padding: 2rem;
+}
+
+.profileSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.profileItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #FFF5F7;
+  border-radius: 12px;
+  transition: transform 0.2s;
+}
+
+.profileItem:hover {
+  transform: translateY(-2px);
+}
+
+.profileIcon {
+  background: white;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #FFB6C1;
+  box-shadow: 0 2px 8px rgba(255, 182, 193, 0.2);
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileInfo h3 {
+  margin: 0 0 0.5rem 0;
+  color: #666;
+  font-size: 1rem;
+}
+
+.profileInfo p {
+  margin: 0;
+  color: #333;
+  font-size: 1.1rem;
+}
+
+.concernsList, .routineList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.concernsList li, .routineList li {
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: #666;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.errorContainer {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFF5F7;
+}
+
+.errorMessage {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  color: #666;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+} 
