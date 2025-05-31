@@ -116,11 +116,15 @@ const percent = (cat: Category) => {
       };
 
       const token = localStorage.getItem('accessToken');
-      const res = await fetch(apiConfig.endpoints.checklist.base, {
+      const url = token
+      ? apiConfig.endpoints.checklist.base
+      : apiConfig.endpoints.checklist.base + '/guest';
+
+      const res = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
         },
         body: JSON.stringify(body),
       });
