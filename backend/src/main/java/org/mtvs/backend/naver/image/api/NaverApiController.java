@@ -20,6 +20,7 @@ import java.io.File;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 @RestController
 @RequestMapping("/api/naver")
@@ -36,30 +37,58 @@ public class NaverApiController {
 
     //front에서 보낼것.
     @GetMapping
-    public ResponseEntity<?> saveImage(@AuthenticationPrincipal CustomUserDetails user) {
+    public ResponseEntity<?> saveImageFromProductDB(@AuthenticationPrincipal CustomUserDetails user) {
         //dto's productName=> Texts
        List<ProductDTO> dtos =productService.getProducts(user.getUser().getId());
-        System.out.println("dtosSize = " + dtos.size());
+        System.out.println(dtos.toString());
         List<String> texts= new ArrayList<>();
+        List<String> notAlreadyUploads= new ArrayList<>();
         for(ProductDTO dto : dtos) {
             texts.add(dto.getProductName());
         }
-        System.out.println(texts.size());
-        //recommend 응답 한번에 몇개오나 분석.
         List<String> responses = new ArrayList<>();
+
+        int count = 0;
+        int sum=0;
         for(int i=0; i<texts.size(); i++){
             if(!naverApiService.isExistImage(texts.get(i))){
+                //이미지가 존재하지 않을때만 get요청 전송후 응답리스트에 추가
+                notAlreadyUploads.add(texts.get(i));
                 responses.add(apiSearchImage.get(apiSearchImage.urlEncode(texts.get(i))));
+                count++;
+                sum++;
+                System.out.println(count);
+                if(count == 10){
+                    try{
+                        Thread.sleep(1010);
+                        sum+=count;
+                        count=0;
+
+                    } catch (InterruptedException e){
+                        e.printStackTrace();
+                    }
+                }
                 //json 파싱
                 //i++
             }
         }
+
+        System.out.println(responses.toString());
         ObjectMapper objectMapper = new ObjectMapper();
         for(int j=0; j<responses.size(); j++){
             try {
                 JsonNode rootNode = objectMapper.readTree(responses.get(j));
+                System.out.println(rootNode.toString());
+
                 JsonNode imageNode = rootNode.findValue("image");
-                naverApiService.addImage(new ImageDTO(imageNode.toString().replaceAll("\"",""),texts.get(j)));
+                System.out.println("value j= "+j);
+                System.out.println(texts.get(j));
+                if(imageNode == null){
+                    naverApiService.addImage(new ImageDTO("x", notAlreadyUploads.get(j)));
+                }
+                if(imageNode != null){
+                    naverApiService.addImage(new ImageDTO(imageNode.toString().replaceAll("\"",""),notAlreadyUploads.get(j)));
+                }
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

@@ -98,7 +98,7 @@ public class DeepRecommendService {
                             "    {\n" +
                             "      \"routineChangeId\": 123, \n" + // AI가 기존 루틴의 ID를 알 수 있도록 포함
                             "      \"routineName\": \"세안\",\n" +
-                            "      \"routineKind\": \"[토너, 앰플, 크림, 로션, 세럼] 중\",\n" +
+                            "      \"routineKind\": \"[토너, 앰플, 크림, 로션, 세럼 ,팩 ,패드 ,스킨] 중\",\n" +
                             "      \"routineTime\": \"MORNING\",\n" +
                             "      \"routineOrders\": 1,\n" +
                             "      \"changeMethod\": \"수분크림을 바르기 전, 피부 타입에 맞는 앰플이나 세럼을 추가하여 보습력을 높임\"\n" +
