@@ -9,6 +9,11 @@ import { Home, User, Mail, AlertCircle } from 'lucide-react';
 interface RoutinesDto {
   id: number;
   name: string;
+  kind: string;
+  method: string;
+  orders: number;
+  time: 'MORNING' | 'NIGHT';
+  routineGroupId: number;
 }
 
 interface ResponseProfileDTO {
@@ -23,6 +28,8 @@ export default function ProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<ResponseProfileDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [showPwEdit, setShowPwEdit] = useState(false);
+  const [pwForm, setPwForm] = useState({ current: '', new: '', confirm: '' });
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -61,8 +68,40 @@ export default function ProfilePage() {
     );
   }
 
+  // 루틴 구분
+  const morningRoutines = profile?.routines?.filter(r => r.time === 'MORNING') || [];
+  const nightRoutines = profile?.routines?.filter(r => r.time === 'NIGHT') || [];
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('accessToken');
+    if (!token) return;
+    try {
+      const res = await fetch(`${apiConfig.baseURL}/api/profile/password`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          currentPassword: pwForm.current,
+          newPassword: pwForm.new,
+          confirmPassword: pwForm.confirm
+        })
+      });
+      if (!res.ok) throw new Error('비밀번호 변경 실패');
+      // 성공 시 처리 (예: 알림, 폼 닫기 등)
+      alert('비밀번호가 성공적으로 변경되었습니다.');
+      setShowPwEdit(false);
+      setPwForm({ current: '', new: '', confirm: '' });
+    } catch (err) {
+      alert('비밀번호 변경에 실패했습니다.');
+    }
+  };
+
   return (
-    <div className={styles.profilePage}>
+    <div className={showPwEdit ? `${styles.profilePage} ${styles.pwEditOpen}` : styles.profilePage}>
       <div className={styles.profileContainer}>
         <div className={styles.profileHeader}>
           <button 
@@ -115,21 +154,45 @@ export default function ProfilePage() {
               </div>
             </div>
 
+            {/* 루틴 아침/저녁 구분 */}
             <div className={styles.profileItem}>
               <div className={styles.profileIcon}>
                 <User size={24} />
               </div>
               <div className={styles.profileInfo}>
                 <h3>루틴</h3>
-                {profile?.routines && profile.routines.length > 0 ? (
-                  <ul className={styles.routineList}>
-                    {profile.routines.map((routine) => (
-                      <li key={routine.id}>{routine.name}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>등록된 루틴이 없습니다.</p>
-                )}
+                <div className={styles.routineSplit}>
+                  <div>
+                    <b>아침</b>
+                    {morningRoutines.length > 0 ? (
+                      <ul className={styles.routineList}>
+                        {morningRoutines.map((routine) => (
+                          <li key={routine.id}>
+                            <div><b>{routine.orders}. {routine.name}</b></div>
+                         
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className={styles.routineEmpty}>등록된 아침 루틴이 없습니다.</p>
+                    )}
+                  </div>
+                  <div>
+                    <b>저녁</b>
+                    {nightRoutines.length > 0 ? (
+                      <ul className={styles.routineList}>
+                        {nightRoutines.map((routine) => (
+                          <li key={routine.id}>
+                            <div><b>{routine.orders}. {routine.name}</b></div>
+                         
+                          </li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className={styles.routineEmpty}>등록된 저녁 루틴이 없습니다.</p>
+                    )}
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -142,9 +205,55 @@ export default function ProfilePage() {
                 <p>{profile?.createdAt ? new Date(profile.createdAt).toLocaleDateString() : '로딩 중...'}</p>
               </div>
             </div>
+
+            {/* 비밀번호 수정 버튼 */}
+            <div className={styles.profileItem}>
+              <button
+                className={styles.pwEditBtn}
+                onClick={() => setShowPwEdit((v) => !v)}
+              >
+                비밀번호 수정
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* 비밀번호 변경 폼 (오른쪽에 띄움) */}
+      {showPwEdit && (
+        <div className={styles.pwEditPanel}>
+          <h3>비밀번호 변경</h3>
+          <form className={styles.pwEditForm} onSubmit={handlePasswordChange}>
+            <label>
+              기존 비밀번호
+              <input
+                type="password"
+                value={pwForm.current}
+                onChange={e => setPwForm(f => ({ ...f, current: e.target.value }))}
+              />
+            </label>
+            <label>
+              신규 비밀번호
+              <input
+                type="password"
+                value={pwForm.new}
+                onChange={e => setPwForm(f => ({ ...f, new: e.target.value }))}
+              />
+            </label>
+            <label>
+              비밀번호 재확인
+              <input
+                type="password"
+                value={pwForm.confirm}
+                onChange={e => setPwForm(f => ({ ...f, confirm: e.target.value }))}
+              />
+            </label>
+            <button type="submit" className={styles.pwEditSubmitBtn}>
+              변경
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 } 
