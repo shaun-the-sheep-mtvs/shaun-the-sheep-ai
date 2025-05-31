@@ -30,11 +30,14 @@ public class ApiSearchImage {
 
 
     public String get(String text){
+        System.out.println("GET SEND "+text);
         String URL = this.apiURL+"?query="+text+"&display="+1+"&sort=sim";
-
+        requestHeaders.put("X-Naver-Client-Id", clientId);
+        requestHeaders.put("X-Naver-Client-Secret", clientSecret);
         HttpURLConnection con = connect(URL);
         try {
             con.setRequestMethod("GET");
+
             for(Map.Entry<String, String> header :requestHeaders.entrySet()) {
                 con.setRequestProperty(header.getKey(), header.getValue());
             }

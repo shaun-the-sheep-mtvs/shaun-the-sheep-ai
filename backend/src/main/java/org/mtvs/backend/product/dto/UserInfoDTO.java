@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Setter
-class UserInfoDTO {
+public class UserInfoDTO {
     private String skinType;
     private List<String> troubles;
 
@@ -23,4 +23,5 @@ class UserInfoDTO {
                 user.getTroubles()
         );
     }
+
 }

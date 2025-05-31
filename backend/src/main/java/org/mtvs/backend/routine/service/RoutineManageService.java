@@ -2,6 +2,7 @@ package org.mtvs.backend.routine.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.routine.dto.*;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
@@ -9,6 +10,7 @@ import org.mtvs.backend.routine.entity.Routine;
 import org.mtvs.backend.routine.entity.RoutineGroup;
 import org.mtvs.backend.routine.repository.RoutineGroupRepository;
 import org.mtvs.backend.routine.repository.RoutineRepository;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -48,6 +50,7 @@ public class RoutineManageService {
     }
 
     // 사용자의 모든 루틴을 조회하는 메소드
+    @Transactional
     public List<RequestRoutineAllDTO> getAllRoutines(String username) {
         User user = userRepository.findByUsername(username).orElseThrow();
         List<RequestRoutineAllDTO> dtos = new ArrayList<>();
@@ -62,8 +65,12 @@ public class RoutineManageService {
         return routineRepository.findRoutinesByUserId(userId);
     }
 
-    public void deleteRoutine(long groupId) {
-        routineRepository.deleteAll(routineRepository.findRoutinesByRoutineGroupId(groupId));
+    public void deleteRoutine(long groupId, CustomUserDetails userDetails) {
+        routineRepository.deleteAll(routineRepository.findRoutinesByRoutineGroupIdAndUser(groupId,userDetails.getUser())
+        );
     }
 
+    public void updateRoutine(Long routineGroupId) {
+
+    }
 }

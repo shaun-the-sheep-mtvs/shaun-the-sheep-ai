@@ -72,6 +72,8 @@ public class NaverApiController {
                 //i++
             }
         }
+
+        System.out.println(responses.toString());
         ObjectMapper objectMapper = new ObjectMapper();
         for(int j=0; j<responses.size(); j++){
             try {

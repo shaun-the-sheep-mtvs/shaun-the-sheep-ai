@@ -39,6 +39,33 @@ export default function Home() {
   const [mbti, setMbti] = useState<string>("default");
   const [mbtiError, setMbtiError] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
+  const fetchNaverData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
+
+      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Naver API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching Naver data:', error);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -222,16 +249,16 @@ export default function Home() {
                         <div>Tension</div>
                       </div>
                     </div>
-                    <div className={styles.analysisType}>{mbtiList[mbti as keyof typeof mbtiList]?.type}</div>
+                    <div className={styles.analysisType}>{mbtiList[mbti as keyof typeof mbtiList]?.type || '일반'}</div>
                     <div className={styles.analysisDesc}>
-                      {mbtiList[mbti as keyof typeof mbtiList]?.description}
+                      {mbtiList[mbti as keyof typeof mbtiList]?.description || '피부 상태를 분석해주세요.'}
                     </div>
                     <div className={styles.analysisAdvice}>
                       <div className={styles.adviceLabel}>
                         💡 추천 관리법
                       </div>
                       <div className={styles.adviceContent}>
-                        {mbtiList[mbti as keyof typeof mbtiList].advice}
+                        {mbtiList[mbti as keyof typeof mbtiList]?.advice || '기본적인 스킨케어 루틴을 유지해주세요.'}
                       </div>
                     </div>
 
@@ -261,12 +288,12 @@ export default function Home() {
                     <div key={i} className={styles.productCard}>
                       <div className={styles.productImg}>
                         {p.imageUrl ? (
-
                           <img
                             src={p.imageUrl} 
                             alt={p.name}
-                            onError={(e) => {
+                            onError={async (e) => {
                               const target = e.target as HTMLImageElement;
+                              await fetchNaverData();
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {

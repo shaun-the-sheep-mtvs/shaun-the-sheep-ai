@@ -35,4 +35,6 @@ public interface RoutineRepository extends JpaRepository<Routine, Integer> {
             "   WHERE r2.user.id = :userId" +
             ")")
     List<RoutinesDto> findRoutinesByUserId(@Param("userId") String userId);
+
+    Iterable<? extends Routine> findRoutinesByRoutineGroupIdAndUser(long groupId, User user);
 }
