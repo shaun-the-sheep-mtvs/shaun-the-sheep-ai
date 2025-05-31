@@ -19,7 +19,7 @@ public class MBTIMapping {
     @Column(name = "skin_type", nullable = false)
     private User.SkinType skinType;
 
-    protected MBTIMapping() {}
+    public MBTIMapping() {}
 
     public MBTIMapping(String code, User.SkinType skinType) {
         this.code = code;
