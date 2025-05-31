@@ -51,8 +51,6 @@ public class CheckList {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // --- 생성자, getter/setter ---
-
     public CheckList() { }
 
     public CheckList createCheckListFromGuestData(GuestData guestData, User user) {
@@ -63,7 +61,6 @@ public class CheckList {
         checkList.setSensitivity(guestData.getSensitivity());
         checkList.setTension(guestData.getTension());
         checkList.setTroubles(guestData.getTroubles());
-        // createdAt will be set automatically
         return checkList;
     }
 }
