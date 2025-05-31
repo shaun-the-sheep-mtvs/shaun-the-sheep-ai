@@ -7,7 +7,6 @@ import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
-import org.mtvs.backend.checklist.repository.MBTIMappingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -17,6 +16,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 
 @Service
@@ -26,10 +26,26 @@ public class CheckListService {
     private UserRepository userRepo;
     @Autowired
     private CheckListRepository checkListRepo;
-    @Autowired
-    private MBTIMappingRepository mbtiMappingRepo;
 
-    // 기존 repo, userRepo 주입 생략
+    // Static MBTI code to SkinType mapping
+    private static final Map<String, User.SkinType> MBTI_TO_SKIN_TYPE = Map.ofEntries(
+        Map.entry("DBIL", User.SkinType.건성),
+        Map.entry("DBIT", User.SkinType.건성),
+        Map.entry("DBSL", User.SkinType.건성),
+        Map.entry("DBST", User.SkinType.건성),
+        Map.entry("DOIL", User.SkinType.수분부족지성),
+        Map.entry("DOIT", User.SkinType.수분부족지성),
+        Map.entry("DOSL", User.SkinType.수분부족지성),
+        Map.entry("DOST", User.SkinType.수분부족지성),
+        Map.entry("MBIL", User.SkinType.복합성),
+        Map.entry("MBIT", User.SkinType.복합성),
+        Map.entry("MBSL", User.SkinType.민감성),
+        Map.entry("MBST", User.SkinType.민감성),
+        Map.entry("MOIL", User.SkinType.지성),
+        Map.entry("MOIT", User.SkinType.지성),
+        Map.entry("MOSL", User.SkinType.민감성),
+        Map.entry("MOST", User.SkinType.민감성)
+    );
 
     @Transactional
     public CheckListResponse create(CheckListRequest req, String username) {
@@ -46,14 +62,8 @@ public class CheckListService {
 
         String mbtiCode = getSkinTypeByEmail(user.getEmail());
 
-        // 4) 매핑 테이블에서 한글 SkinType(enum) 조회
-        User.SkinType newSkinType = mbtiMappingRepo.findById(mbtiCode)
-                .orElseThrow(() ->
-                        new IllegalStateException("Unknown MBTI code: " + mbtiCode))
-                .getSkinType();
-
         // 5) 유저 엔티티에 세팅 후 저장
-        user.setSkinType(newSkinType);
+        user.setSkinType(MBTI_TO_SKIN_TYPE.get(mbtiCode));
         user.setTroubles(req.getTroubles());
         userRepo.save(user);
 
@@ -144,9 +154,8 @@ public class CheckListService {
 
     // MBTI 코드로 한글 SkinType 반환
     public String getSkinTypeForMbti(String mbtiCode) {
-        return mbtiMappingRepo.findById(mbtiCode)
-            .map(m -> m.getSkinType().name())
-            .orElse("알 수 없음");
+        User.SkinType type = MBTI_TO_SKIN_TYPE.get(mbtiCode);
+        return type != null ? type.name() : "알 수 없음";
     }
 }
 
