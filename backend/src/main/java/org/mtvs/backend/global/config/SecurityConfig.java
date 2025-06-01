@@ -73,6 +73,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/health").permitAll()
+                        .requestMatchers("/api/checklist/guest").permitAll()
+                        .requestMatchers("/api/recommend/guest-recommendations").permitAll()
 
 
                         // Protected endpoints

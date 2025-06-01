@@ -53,8 +53,29 @@ async function apiPost<T>(url: string, data: any): Promise<T> {
 // Types for results
 type GuestChecklistResult = { mbti: string; skinType: string };
 type UserChecklistResult = { mbti: string; skinType: string };
-
 type ChecklistInitResponse = { troubles?: string[] };
+
+// --- Recommendation Types ---
+interface Product {
+  id: string;
+  formulation: string;
+  ingredients: string[];
+  recommendedType: string;
+  productName: string;
+  userId: string;
+  imageUrl: string;
+}
+
+interface RecommendData {
+  skinType: string;
+  concerns: string[];
+  recommendations: {
+    토너: Product[];
+    세럼: Product[];
+    로션: Product[];
+    크림: Product[];
+  };
+}
 
 export default function ChecklistPage() {
   const [stage, setStage] = useState<'quiz' | 'concerns'>('quiz');
@@ -67,6 +88,7 @@ export default function ChecklistPage() {
   const [progress, setProgress] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [guestRecommendations, setGuestRecommendations] = useState<RecommendData | null>(null);
   const router = useRouter();
 
   // Fetch latest checklist for user or guest (if available)
@@ -173,7 +195,17 @@ export default function ChecklistPage() {
       const result = await submitAll(selectedConcerns);
       if (result && typeof result === 'object' && 'mbti' in result && 'skinType' in result) {
         setGuestResult(result as GuestChecklistResult);
+        // --- Fetch guest recommendations ---
+        const recommendRes = await fetch(apiConfig.endpoints.recommend.guest, {
+          method: 'POST',
+          headers: buildAuthHeaders(),
+          body: JSON.stringify(result), // or adjust as needed for backend
+        });
+        if (!recommendRes.ok) throw new Error('추천 결과를 가져오지 못했습니다.');
+        const recommendData: RecommendData = await recommendRes.json();
+        setGuestRecommendations(recommendData);
       } else {
+        // User flow
         await fetchNaverData();
         router.push('/');
       }

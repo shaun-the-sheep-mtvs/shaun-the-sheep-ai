@@ -133,10 +133,22 @@ export default function RecommendPage() {
     const token = localStorage.getItem('accessToken');
     const fetchData = async () => {
       try {
-        const response = await axios.get(apiConfig.endpoints.recommend.user, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        
+        let response;
+        if (token) {
+          response = await axios.get(apiConfig.endpoints.recommend.user, {
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            }
+          });
+        } else {
+          response = await axios.post(apiConfig.endpoints.recommend.guest, {}, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+
         // 백엔드 응답 로깅
         console.log('백엔드 응답(원본):', response.data);
         
