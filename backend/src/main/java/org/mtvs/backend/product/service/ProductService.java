@@ -2,6 +2,7 @@ package org.mtvs.backend.product.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.naver.image.api.NaverApiService;
 import org.mtvs.backend.product.dto.ProductDTO;
 import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
@@ -10,6 +11,7 @@ import org.mtvs.backend.product.repository.ProductRepository;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collection;

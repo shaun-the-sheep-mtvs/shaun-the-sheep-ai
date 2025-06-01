@@ -8,8 +8,17 @@ import org.mtvs.backend.routine.entity.enums.Time;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class RoutinesDto {
+    public RoutinesDto(Long id, String name, Kinds kind, String method, int orders, Time time, Long routineGroupId) {
+        this.id = id;
+        this.name = name;
+        this.kind = kind;
+        System.out.println(kind);
+        this.method = method;
+        this.orders = orders;
+        this.time = time;
+        this.routineGroupId = routineGroupId;
+    }
 
     private Long id;
     private String name;

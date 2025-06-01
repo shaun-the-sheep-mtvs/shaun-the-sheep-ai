@@ -19,7 +19,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 
-@RestController("api/profile")
+@RestController("/api/profile")
 public class ProfileController {
     ProfileService profileService;
     AuthService authService;
@@ -54,7 +54,7 @@ public class ProfileController {
 
     @DeleteMapping("/routines/update")
     public ResponseEntity<?> updateRoutines(@RequestBody RoutinesDto routinesDTO,@AuthenticationPrincipal CustomUserDetails user){
-        routineManageService.updateRoutine(routinesDTO.getRoutineGroupId(),user);
+//        routineManageService.updateRoutine(routinesDTO.getRoutineGroupId(),user);
         return ResponseEntity.ok("success");
     }
 
