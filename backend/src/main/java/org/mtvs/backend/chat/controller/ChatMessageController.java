@@ -22,15 +22,15 @@ public class ChatMessageController {
     private ChatMessageDTO toDTO(ChatMessage entity) {
         return entity.toDTO();
     }
-    
-        private ChatMessage toEntity(ChatMessageDTO dto) {
-            ChatMessage entity = new ChatMessage();
-            entity.setUserId(dto.getUserId());
-            entity.setId(dto.getId());
-            entity.setRole(dto.getRole());
-            entity.setContent(dto.getContent());
-            entity.setTimestamp(dto.getTimestamp());
-            return entity;
+
+    private ChatMessage toEntity(ChatMessageDTO dto) {
+        ChatMessage entity = new ChatMessage();
+        entity.setUserId(dto.getUserId());
+        entity.setId(dto.getId());
+        entity.setRole(dto.getRole());
+        entity.setContent(dto.getContent());
+        entity.setTimestamp(dto.getTimestamp());
+        return entity;
     }
 
     @GetMapping
@@ -58,22 +58,22 @@ public class ChatMessageController {
         return toDTO(saved);
     }
 
-    @PostMapping("/bulk")
-    public List<ChatMessageDTO> createMessages(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody List<ChatMessageDTO> dtos
-    ) {
-        // userId 주입 후 저장
-        return dtos.stream()
-                .filter(dto -> "user".equals(dto.getRole()))
-                // userId 주입
-                .peek(dto -> dto.setUserId(userDetails.getUserId()))
-                // DTO → Entity → 저장 → DTO 변환
-                .map(this::toEntity)
-                .map(chatMessageService::save)
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
+//    @PostMapping("/bulk")
+//    public List<ChatMessageDTO> createMessages(
+//            @AuthenticationPrincipal CustomUserDetails userDetails,
+//            @RequestBody List<ChatMessageDTO> dtos
+//    ) {
+//        // userId 주입 후 저장
+//        return dtos.stream()
+//                .filter(dto -> "user".equals(dto.getRole()))
+//                // userId 주입
+//                .peek(dto -> dto.setUserId(userDetails.getUserId()))
+//                // DTO → Entity → 저장 → DTO 변환
+//                .map(this::toEntity)
+//                .map(chatMessageService::save)
+//                .map(this::toDTO)
+//                .collect(Collectors.toList());
+//    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ChatMessageDTO> updateMessage(
@@ -133,17 +133,17 @@ public class ChatMessageController {
                 userId, history, userQuestion, templateKey
         );
 
+        // 4) 요약 여부 검사: 줄 수가 5줄이고, "1) 피부 타입:" 으로 시작하면 요약
         String text = aiMsg.getContent();
-        // 줄바꿈 기준으로 5줄짜리 요약인 경우에만 저장
         long lines = text.lines().count();
         boolean isSummary = lines == 5 && text.startsWith("1) 피부 타입:");
 
-        // 4) “summary” 키일 때만 저장
+        // 5) 요약인 경우에만 저장
         if (isSummary) {
             aiMsg = chatMessageService.save(aiMsg);
         }
 
-        // 5) Entity → DTO 변환
+        // 6) Entity → DTO
         ChatMessageDTO responseDto = new ChatMessageDTO();
         responseDto.setUserId(aiMsg.getUserId());
         responseDto.setId(aiMsg.getId());
@@ -153,4 +153,4 @@ public class ChatMessageController {
 
         return ResponseEntity.ok(responseDto);
     }
-} 
+}
