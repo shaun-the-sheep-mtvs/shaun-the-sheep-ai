@@ -35,6 +35,9 @@ export const apiConfig = {
     },
     user: {
       skinData: `${API_BASE_URL}/api/user/skin-data`,
+    },
+    profile: {
+      base: `${API_BASE_URL}/api/profile`,
     }
   }
 };

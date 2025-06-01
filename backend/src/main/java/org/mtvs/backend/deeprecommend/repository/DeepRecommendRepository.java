@@ -14,13 +14,13 @@ public interface DeepRecommendRepository extends JpaRepository<DeepRecommend,Int
     SELECT new org.mtvs.backend.deeprecommend.dto.RecommendResponseDTO(
            d.action,
            d.kind,
-           r.routineName,
+           r.name,
            d.suggest_product,
            d.reason,
            d.routineGroupId
        )
        FROM DeepRecommend d
-       LEFT JOIN RoutineChange r on d.existingProductId = r.routineChangeId
+       LEFT JOIN Routine r on d.existingProductId = r.id
        WHERE d.routineGroupId = (
            SELECT MAX(rg.id)
            FROM RoutineGroup rg
