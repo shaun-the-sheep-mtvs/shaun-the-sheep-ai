@@ -53,7 +53,7 @@ export default function ChatWidget() {
         promptText = '트러블 상담을 선택하셨습니다. 현재 겪고 계신 트러블을 말씀해 주세요 (예: 건조함, 홍조…).'
         break
       case 'SKIN_TYPE':
-        promptText = '피부 타입 상담을 선택하셨습니다. 평소 느끼시는 수분·유분·민감도를 알려주세요.'
+        promptText = '피부 타입 상담을 선택하셨습니다. 피부 고민에 대해 말씀해주시면 피부 타입을 진단해 드리겠습니다.'
         break
       default:
         promptText = '안녕하세요! 상담을 시작해보세요.'
