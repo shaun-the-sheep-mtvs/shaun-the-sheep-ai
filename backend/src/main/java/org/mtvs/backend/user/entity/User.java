@@ -15,7 +15,8 @@ import org.mtvs.backend.product.entity.ProductUserLink;
 
 @Getter
 @Setter
-@Entity
+@Entity 
+@NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
 public class User extends BaseEntity {
@@ -51,9 +52,6 @@ public class User extends BaseEntity {
     // yunzi
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ProductUserLink> productUserLinks = new ArrayList<>();
-
-
-    public User() {}
 
     public User(String email, String password, String username) {
         this.email = email;
