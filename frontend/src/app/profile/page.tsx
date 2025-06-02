@@ -611,7 +611,6 @@ const ProfilePage = () => {
                         <div className={styles.productsSection}>
                           <div className={styles.sectionHeader}>
                             <div className={styles.sectionMainTitle}>제품 변경 및 추가 추천</div>
-                           
                           </div>
 
                           {/* 루틴 탭 */}
