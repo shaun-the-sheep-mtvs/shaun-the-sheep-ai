@@ -43,13 +43,10 @@ public class NaverApiService {
 
     public ResponseEntity<?> saveImageProductDB(CustomUserDetails user) {
 
-        // dto's productName=> Texts
-        // 윤지 : getProduct 메소드에서 getProductsByUserId 메소드로 변경
         List<ProductDTO> dtos = productService.getProductsByUserId(user.getUser().getId());
-        Map<String, String> responses = new HashMap<>();
 
+        Map<String, String> responses = new HashMap<>();
         List<String> productNames = new ArrayList<>();
-        List<String> notAlreadyUploads = new ArrayList<>();
         for (ProductDTO dto : dtos) {
             productNames.add(dto.getProductName());
         }
@@ -61,7 +58,6 @@ public class NaverApiService {
             if (!isExistImage(productNames.get(i))) {
                 responses.put(productNames.get(i), apiSearchImage.get(apiSearchImage.urlEncode(productNames.get(i))));
             }
-
             count++;
             sum++;
             System.out.println(count);
@@ -70,7 +66,6 @@ public class NaverApiService {
                     Thread.sleep(1010);
                     sum += count;
                     count = 0;
-
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
