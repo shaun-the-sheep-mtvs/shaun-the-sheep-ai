@@ -19,4 +19,3 @@ public class CheckListResponse {
     private List<String> troubles;
     private LocalDateTime createdAt;
 }
-

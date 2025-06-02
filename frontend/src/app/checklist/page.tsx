@@ -19,6 +19,43 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+function getAccessToken() {
+  return localStorage.getItem('accessToken');
+}
+
+function buildAuthHeaders() {
+  const token = getAccessToken();
+  return {
+    'Content-Type': 'application/json',
+    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+  };
+}
+
+function getChecklistEndpoint() {
+  const token = getAccessToken();
+  return token
+    ? apiConfig.endpoints.checklist.base
+    : apiConfig.endpoints.checklist.guest;
+}
+
+async function apiPost<T>(url: string, data: any): Promise<T> {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: buildAuthHeaders(),
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    throw new Error(await res.text());
+  }
+  return res.json();
+}
+
+// Types for results
+type GuestChecklistResult = { mbti: string; skinType: string };
+type UserChecklistResult = { mbti: string; skinType: string };
+
+type ChecklistInitResponse = { troubles?: string[] };
+
 export default function ChecklistPage() {
   const [stage, setStage] = useState<'quiz' | 'concerns'>('quiz');
   const [qs, setQs] = useState<Question[]>([]);
@@ -26,48 +63,39 @@ export default function ChecklistPage() {
   const [answers, setAnswers] = useState<{ cat: Category; score: number; weight: number }[]>([]);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [selectedConcerns, setSelectedConcerns] = useState<string[]>([]);
+  const [guestResult, setGuestResult] = useState<GuestChecklistResult | null>(null);
   const [progress, setProgress] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
+  // Fetch latest checklist for user or guest (if available)
   useEffect(() => {
-    const token = localStorage.getItem('accessToken')
-    if (!token) return
-
-     fetch(`${apiConfig.endpoints.checklist.base}/latest`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
-    })
-    .then(res => res.json())
-      .then((data: { troubles?: string[] }) => {
+    const endpoint = getChecklistEndpoint();
+    apiPost<ChecklistInitResponse>(endpoint, {})
+      .then((data) => {
         if (Array.isArray(data.troubles) && data.troubles.length > 0) {
           const ids = data.troubles
-          .map(label =>
-            CONCERNS.find(c => c.label === label)?.id
-          )
-          .filter((id): id is string => !!id)
-          setSelectedConcerns(ids)
+            .map(label => CONCERNS.find(c => c.label === label)?.id)
+            .filter((id): id is string => !!id);
+          setSelectedConcerns(ids);
         }
       })
       .catch(err => {
-        console.warn('최신 체크리스트 조회 실패, quiz부터 시작', err)
-      })
-  }, [])
+        console.warn('최신 체크리스트 조회 실패, quiz부터 시작', err);
+      });
+  }, []);
 
   // 로그인 상태 초기화
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
+    const token = getAccessToken();
     setIsLoggedIn(!!token);
   }, []);
 
   // 진행도 계산
   useEffect(() => {
     setProgress(qs.length ? Math.round((idx / qs.length) * 100) : 0);
-  }, [idx]);
+  }, [idx, qs.length]);
 
   // 퀴즈 셋업: 카테고리별 3문항씩 랜덤 선택
   useEffect(() => {
@@ -84,79 +112,46 @@ export default function ChecklistPage() {
 
   // 카테고리별 총점 & 백분율 계산
   const weightedSums = answers.reduce<Record<Category, number>>((acc, { cat, score, weight }) => {
-  acc[cat] = (acc[cat] || 0) + score * weight;
-  return acc;
-}, { moisture: 0, oil: 0, sensitivity: 0, tension: 0 });
+    acc[cat] = (acc[cat] || 0) + score * weight;
+    return acc;
+  }, { moisture: 0, oil: 0, sensitivity: 0, tension: 0 });
 
-const percent = (cat: Category) => {
-  const qsOfCat = qs.filter(q => q.category === cat);
-  // 카테고리별 최대 가중치 합계 = ∑(q.weight * maxScoreForQ)
-  const maxWeighted = qsOfCat.reduce((sum, q) => {
-    const maxScore = Math.max(...q.options.map(o => o.score));
-    return sum + q.weight * maxScore;
-  }, 0);
-  if (maxWeighted === 0) return 0;
-  const raw = Math.round((weightedSums[cat] / maxWeighted) * 100);
-  return Math.min(raw, 100);
-};
-
-  // 체크리스트 서버 제출 (setSubmitting 은 handleSubmit에서 관리)
-  const submitAll = async (concernIds: string[]): Promise<boolean> => {
-    try {
-      const labels = concernIds
-        .map(id => CONCERNS.find(c => c.id === id)?.label)
-        .filter((l): l is string => !!l);
-
-      const body = {
-        moisture: percent('moisture'),
-        oil: percent('oil'),
-        sensitivity: percent('sensitivity'),
-        tension: percent('tension'),
-        troubles: labels,
-      };
-
-      const token = localStorage.getItem('accessToken');
-      const url = token
-      ? apiConfig.endpoints.checklist.base
-      : apiConfig.endpoints.checklist.base + '/guest';
-
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token ? { 'Authorization': `Bearer ${token}` } : {})
-        },
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        console.error('체크리스트 제출 실패:', await res.text());
-        return false;
-      }
-
-      await res.json();
-      return true;
-    } catch (err) {
-      console.error('제출 중 오류:', err);
-      return false;
-    }
+  const percent = (cat: Category) => {
+    const qsOfCat = qs.filter(q => q.category === cat);
+    const maxWeighted = qsOfCat.reduce((sum, q) => {
+      const maxScore = Math.max(...q.options.map(o => o.score));
+      return sum + q.weight * maxScore;
+    }, 0);
+    if (maxWeighted === 0) return 0;
+    const raw = Math.round((weightedSums[cat] / maxWeighted) * 100);
+    return Math.min(raw, 100);
   };
 
-  // 네이버 연동
+  // Checklist submission for both guest and user
+  const submitAll = async (concernIds: string[]): Promise<GuestChecklistResult | UserChecklistResult> => {
+    const labels = concernIds
+      .map(id => CONCERNS.find(c => c.id === id)?.label)
+      .filter((l): l is string => !!l);
+
+    const body = {
+      moisture: percent('moisture'),
+      oil: percent('oil'),
+      sensitivity: percent('sensitivity'),
+      tension: percent('tension'),
+      troubles: labels,
+    };
+
+    const endpoint = getChecklistEndpoint();
+    return apiPost(endpoint, body);
+  };
+
+  // 네이버 연동 
   const fetchNaverData = async () => {
     try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        console.log('No token found');
-        return;
-      }
-
-      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+      const endpoint = getChecklistEndpoint();
+      const response = await fetch(endpoint, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: buildAuthHeaders()
       });
 
       if (!response.ok) {
@@ -171,21 +166,20 @@ const percent = (cat: Category) => {
     }
   };
 
-  // 제출 핸들러
+  // 제출 핸들러 
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
-      const success = await submitAll(selectedConcerns);
-      if (!success) {
-        alert('제출에 실패했습니다. 다시 시도해주세요.');
-        return;
+      const result = await submitAll(selectedConcerns);
+      if (result && typeof result === 'object' && 'mbti' in result && 'skinType' in result) {
+        setGuestResult(result as GuestChecklistResult);
+      } else {
+        await fetchNaverData();
+        router.push('/');
       }
-
-      await fetchNaverData();
-      router.push('/');
     } catch (error) {
-      console.error('처리 중 오류 발생:', error);
-      alert('처리 중 오류가 발생했습니다. 다시 시도해주세요.');
+      alert('제출에 실패했습니다. 다시 시도해주세요.');
+      console.error(error);
     } finally {
       setSubmitting(false);
     }
@@ -455,19 +449,3 @@ const percent = (cat: Category) => {
     </div>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

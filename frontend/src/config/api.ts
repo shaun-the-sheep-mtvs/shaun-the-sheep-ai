@@ -13,6 +13,7 @@ export const apiConfig = {
     checklist: {
       base: `${API_BASE_URL}/api/checklist`,
       mbti: `${API_BASE_URL}/api/checklist/mbti`,
+      guest: `${API_BASE_URL}/api/checklist/guest`,
     },
     routine: {
       base: `${API_BASE_URL}/api/routine`,
