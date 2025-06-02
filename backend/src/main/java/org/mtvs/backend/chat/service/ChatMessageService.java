@@ -8,7 +8,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
-import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -147,7 +146,8 @@ public class ChatMessageService {
      */
     @SuppressWarnings("unchecked")
     public ChatMessage askAI_Single(String sessionId, String userId, String userQuestion) {
-        List<ChatMessage> history = historyCache.computeIfAbsent(sessionId, k -> new ArrayList<>());
+        List<ChatMessage> fullHistory = historyCache.computeIfAbsent(sessionId, k -> new ArrayList<>());
+
 
         // (0-1) 히스토리에 사용자 메시지 추가
         ChatMessage userMsg = new ChatMessage();
@@ -155,10 +155,17 @@ public class ChatMessageService {
         userMsg.setRole("user");
         userMsg.setContent(userQuestion);
         userMsg.setTimestamp(LocalDateTime.now());
-        history.add(userMsg);
+        fullHistory.add(userMsg);
 
         // (1) 시스템 프롬프트 조회
         String systemPrompt = promptCache.getOrDefault(sessionId, MBTI_SYSTEM_PROMPT);
+
+        List<ChatMessage> truncated;
+        if (fullHistory.size() > 6) {
+            truncated = fullHistory.subList(fullHistory.size() - 6, fullHistory.size());
+        } else {
+            truncated = fullHistory;
+        }
 
         // (2) "contents” 생성: [systemPrompt, …history…, 마지막 userQuestion]
         Map<String, Object> generationConfig = Map.of(
@@ -172,7 +179,7 @@ public class ChatMessageService {
                 "role",  "user",
                 "parts", List.of(Map.of("text", systemPrompt))
         ));
-        for (ChatMessage msg : history) {
+        for (ChatMessage msg : truncated) {
             String role = "user".equals(msg.getRole()) ? "user" : "model";
             contents.add(Map.of(
                     "role",  role,
@@ -189,27 +196,50 @@ public class ChatMessageService {
                 "generationConfig", generationConfig
         );
 
-        // (3) WebClient로 Gemini API 호출 및 응답 파싱
-        Map<String, Object> res;
-        try {
-            res = (Map<String, Object>) webClient.post()
-                    .uri(b -> b
-                            .path("/v1beta/models/gemini-2.0-flash:generateContent")
-                            .queryParam("key", apiKey)
-                            .build())
-                    .bodyValue(body)
-                    .retrieve()
-                    .bodyToMono(new ParameterizedTypeReference<>() {})
-                    .block();
-        } catch (WebClientResponseException.ServiceUnavailable e) {
-            throw new RuntimeException("AI 서비스가 일시적으로 중단되었습니다. 잠시 후 다시 시도해주세요.", e);
-        } catch (WebClientResponseException e) {
-            throw new RuntimeException(
-                    "AI 호출 중 오류가 발생했습니다. 상태코드=" + e.getRawStatusCode() +
-                            ", 응답메시지=" + e.getResponseBodyAsString(), e
-            );
+        int maxRetries = 3;
+        int attempt = 0;
+        long backoffMillis = 1_000L; // 첫 재시도 대기 1초
+
+        Map<String, Object> res = null;
+        while (true) {
+            try {
+                res = webClient.post()
+                        .uri(uriBuilder -> uriBuilder
+                                .path("/v1beta/models/gemini-2.0-flash:generateContent")
+                                .queryParam("key", apiKey)
+                                .build()
+                        )
+                        .bodyValue(body)
+                        .retrieve()
+                        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                        .block();
+                break; // 성공적으로 응답을 받았다면 반복문 종료
+
+            } catch (WebClientResponseException.ServiceUnavailable e) {
+                attempt++;
+                if (attempt > maxRetries) {
+                    throw new RuntimeException("AI 서비스가 계속 중단 중입니다. 잠시 후 다시 시도해주세요.", e);
+                }
+                // 503이 발생하면 잠시 대기 후 재시도
+                try {
+                    Thread.sleep(backoffMillis);
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("재시도 대기 중 인터럽트 발생", ie);
+                }
+                backoffMillis *= 2; // 1초 → 2초 → 4초 …
+            } catch (WebClientResponseException e) {
+                // 503 이외의 4xx/5xx 에러
+                throw new RuntimeException(
+                        "AI 호출 중 오류가 발생했습니다. 상태코드=" + e.getRawStatusCode() +
+                                ", 응답메시지=" + e.getResponseBodyAsString(), e
+                );
+            }
         }
 
+        // ────────────────────────────────────────────────────────────────────────────────
+        // 4) API 응답 파싱
+        // ────────────────────────────────────────────────────────────────────────────────
         if (res == null) {
             throw new RuntimeException("AI 응답이 비어 있습니다.");
         }
@@ -221,14 +251,17 @@ public class ChatMessageService {
         List<Map<String, Object>> parts = (List<Map<String, Object>>) contentMap.get("parts");
         String aiText = parts.get(0).get("text").toString().trim();
 
-        // (4) AI 응답을 ChatMessage로 래핑하고, 히스토리에 추가
+        // ────────────────────────────────────────────────────────────────────────────────
+        // 5) ChatMessage 형태로 래핑 + 히스토리에 AI 응답 추가
+        // ────────────────────────────────────────────────────────────────────────────────
         ChatMessage aiMsg = new ChatMessage();
         aiMsg.setUserId(userId);
         aiMsg.setRole("ai");
         aiMsg.setContent(aiText);
         aiMsg.setTimestamp(LocalDateTime.now());
-        history.add(aiMsg);
-        historyCache.put(sessionId, history);
+
+        fullHistory.add(aiMsg);
+        historyCache.put(sessionId, fullHistory);
 
         return aiMsg;
     }
