@@ -19,4 +19,7 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 //    List<Product> findByUserIdAndFormulationType(String userId, String formulationType);
 
     boolean existsProductByProductName(String productName);
+
+
+    List<Product> findAllByImageUrl(String imageUrl);
 }

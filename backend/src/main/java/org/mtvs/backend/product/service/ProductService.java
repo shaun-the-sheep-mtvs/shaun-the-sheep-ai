@@ -1,8 +1,12 @@
 package org.mtvs.backend.product.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.mtvs.backend.naver.image.api.ApiSearchImage;
 import org.mtvs.backend.naver.image.api.NaverApiService;
 import org.mtvs.backend.product.dto.ProductDTO;
 import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
@@ -19,6 +23,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -26,15 +31,8 @@ public class ProductService {
     private final NaverApiService naverApiService;
     private final ProductUserLinkRepository productUserLinkRepository;
     private final ProductUserLinkService productUserLinkService;
-
-    @Autowired
-    public ProductService(ProductRepository productRepository, UserRepository userRepository, NaverApiService naverApiService, ProductUserLinkRepository productUserLinkRepository, ProductUserLinkService productUserLinkService) {
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-        this.naverApiService = naverApiService;
-        this.productUserLinkRepository = productUserLinkRepository;
-        this.productUserLinkService = productUserLinkService;
-    }
+    private final ApiSearchImage apiSearchImage;
+    private final ObjectMapper objectMapper;
 
     public List<ProductDTO> getProductsByFormulation(String userId, String formulation, int limit) {
         // userId 에 해당되는 Product 리스트 불러오기
@@ -179,5 +177,29 @@ public class ProductService {
 
         // 링크 테이블에 저장
         productUserLinkService.saveLinks(product, userId);
+    }
+
+
+    //x인 product Entity 찾는 로직
+    private List<Product> getAllProductsWithNoURL(){
+        return productRepository.findAllByImageUrl("x");
+    }
+
+    public void updateProductsWithNoURL() {
+        try{
+        List<Product> noURLproducts = productRepository.findAllByImageUrl("x");
+        noURLproducts.forEach(noUrlproduct -> {
+            apiSearchImage.get(apiSearchImage.urlEncode( noUrlproduct.getProductName()));
+            try {
+                JsonNode rootNode = objectMapper.readTree(apiSearchImage.get(apiSearchImage.urlEncode(noUrlproduct.getProductName())));
+                JsonNode imageNode = rootNode.findValue("thumbnail");
+                naverApiService.addImageUrl(noUrlproduct.getProductName(),imageNode.toString().replaceAll("\"",""));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
