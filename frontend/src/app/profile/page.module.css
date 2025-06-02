@@ -3,6 +3,7 @@
     background: #fff;
     padding: 2rem 0;
     display: flex;
+    margin-top: 3rem; /* 헤더와의 간격 추가 */
     flex-direction: row;
     justify-content: center;
     align-items: flex-start;
@@ -12,13 +13,13 @@
   .profilePage.pwEditOpen {
     gap: 2rem;
   }
+
   .profileContainer {
     max-width: 600px;
     width: 600px;
     margin: 0;
     background: #fff;
     border-radius: 16px;
-    box-shadow: 0 2px 12px rgba(67, 160, 71, 0.08);
     padding: 2.5rem 2rem;
     transition: transform 0.3s;
   }
@@ -88,10 +89,82 @@
     padding: 0.3rem 0.9rem;
     font-size: 0.95rem;
   }
-  .routineSection {
-    display: flex;
+  .routineSectionsContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 2rem;
-    margin-top: 1.5rem;
+    margin-top: 1rem;
+  }
+  .routineReason {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-radius: 6px;
+    line-height: 1.4;
+  }
+  .routineSection {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #eee;
+  }
+  .routineHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+  }
+  .routineTotal {
+    font-size: 0.9rem;
+    color: #666;
+    background: #e8f5e9;
+    padding: 0.3rem 0.8rem;
+    border-radius: 12px;
+    color: #388e3c;
+  }
+  .routineList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .routineList li {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid #eee;
+  }
+  .routineList li:last-child {
+    border-bottom: none;
+  }
+  .routineNum {
+    background: #e8f5e9;
+    color: #388e3c;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+  .routineInfo {
+    flex: 1;
+  }
+  .routineTitle {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.3rem;
+  }
+  .routineDesc {
+    font-size: 0.9rem;
+    color: #666;
   }
   .routineBox {
     flex: 1;
@@ -100,22 +173,6 @@
     padding: 1rem;
     box-shadow: 0 1px 4px rgba(67, 160, 71, 0.05);
   }
-  .routineTitle {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    color: #388e3c;
-    margin-bottom: 0.7rem;
-  }
-  .routineList {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
-  }
   .routineEmpty {
     color: #aaa;
     font-size: 0.97rem;
@@ -123,10 +180,10 @@
   }
   .routineSplit {
     display: flex;
-    gap: 2rem;
+    gap: 7rem;
   }
-  .routineSplit > div {
-    flex: 1;
+  .profileInfo > h3 {
+    margin-bottom: 1rem;
   }
   .routineEmpty {
     color: #aaa;
@@ -197,4 +254,519 @@
     margin-top: 0.5rem;
     cursor: not-allowed;
     opacity: 0.7;
+  }
+  .profileTabsWrapper {
+    padding-top: px;
+    width: 100%;
+    max-width: 900px;
+    margin: 0 auto 2.5rem auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .profileTabs {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 2.5rem;
+    width: 100%;
+    margin-bottom: 0.5rem;
+  }
+  .tab {
+    font-size: 2rem;
+    font-weight: 600;
+    background: #388e3c;
+    border: none;
+    border-radius: 6px 6px 0 0;
+    padding: 0.5rem 2.5rem;
+    color: #222;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    outline: none;
+  }
+  .tab.active {
+    background: #fff;
+    color: #222;
+    border-bottom: 4px solid #111;
+    z-index: 2;
+  }
+  .tab:not(.active):hover {
+    background: #f5f5f5;
+  }
+  .tabUnderline {
+    width: 100%;
+    height: 6px;
+    background: #111;
+    border-radius: 3px;
+    margin-bottom: 2.5rem;
+  }
+
+  /* 분석 기록 섹션 스타일 */
+  .historyCard {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+    cursor: pointer;
+    border: 1px solid #eee;
+  }
+
+  .historyCard:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: #e8f5e9;
+  }
+
+  .graphContainer {
+    background: #fff;
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    margin-bottom: 2rem;
+  }
+
+  .graphLegend {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+
+  .legendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .legendColor {
+    width: 12px;
+    height: 12px;
+    border-radius: 3px;
+  }
+
+  /* 모달 스타일 개선 */
+  .modalContent {
+    background: #fff;
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 1200px;
+    width: 95%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .modalTitle {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+  }
+
+  .modalClose {
+    background: none;
+    border: none;
+    color: #666;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.2s;
+  }
+
+  .modalClose:hover {
+    background: #f5f5f5;
+    color: #333;
+  }
+
+  /* 분석 결과 카드 스타일 */
+  .analysisCard {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border: 1px solid #eee;
+  }
+
+  .analysisCardTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .analysisCardContent {
+    color: #666;
+    line-height: 1.6;
+  }
+
+  /* 로딩 스피너 스타일 */
+  .loadingSpinner {
+    animation: spin 1s linear infinite;
+    color: #43a047;
+  }
+
+  @keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  /* 빈 상태 메시지 스타일 */
+  .emptyState {
+    text-align: center;
+    padding: 3rem;
+    color: #888;
+    font-size: 1.1rem;
+  }
+
+  .emptyStateIcon {
+    font-size: 3rem;
+    color: #ddd;
+    margin-bottom: 1rem;
+  }
+
+  /* 제품 섹션 스타일 */
+  .productsSection {
+    margin-top: 2rem;
+  }
+
+  .sectionHeader {
+    margin-bottom: 1.5rem;
+  }
+
+  .sectionMainTitle {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+  }
+
+  .sectionDescription {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .changeBox {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid #eee;
+  }
+
+  .changeRecommendTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  .changeRecommendCard {
+    background: #fff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+  }
+
+  .changeProductRow {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .changeProductCol {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .changeProductIcon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f5f5f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .changeProductIcon.green {
+    background: #e8f5e9;
+  }
+
+  .changeProductLabel {
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 0.3rem;
+  }
+
+  .changeProductLabel.green {
+    color: #388e3c;
+  }
+
+  .changeProductTitle {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .changeArrow {
+    padding: 1rem 0;
+    color: #4CD3A5;
+  }
+
+  .changeReasonBox {
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid #eee;
+  }
+
+  .changeReasonText {
+    color: #666;
+    line-height: 1.6;
+    font-size: 0.95rem;
+  }
+
+  .addRecommendGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .addRecommendCard {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .addRecommendHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .addProductIcon {
+    width: 28px;
+    height: 28px;
+    background: #e8f5e9;
+    color: #388e3c;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    margin-right: 0.8rem;
+  }
+
+  .addProductTitle {
+    font-weight: 600;
+    color: #333;
+  }
+
+  .addReason {
+    color: #666;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .buyBtn {
+    background: #43a047;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .buyBtn:hover {
+    background: #388e3c;
+  }
+
+  .emptyMessageCard {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    color: #666;
+  }
+
+  .routineItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 0.8rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+  }
+
+  .routineItem:hover {
+    background: #e8f5e9;
+  }
+
+  .routineOrder {
+    background: #43a047;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.9rem;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  .routineName {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.3rem;
+  }
+
+  .routineDetail {
+    font-size: 0.9rem;
+    color: #666;
+  }
+
+  .routineList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .routineEmpty {
+    color: #888;
+    font-size: 0.95rem;
+    text-align: center;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+  }
+
+  .routineGroupSection {
+    margin-bottom: 2rem;
+    padding: 2rem;
+    background: #f8f9fa;
+    border-radius: 12px;
+  }
+
+  .routineGroupSection:last-child {
+    margin-bottom: 0;
+  }
+
+  .routineGroupHeader {
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #eee;
+  }
+
+  .routineGroupHeader h3 {
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 600;
+  }
+
+  .currentRoutines {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    background: #fff;
+    border-radius: 8px;
+  }
+
+  .routineTimeSection h4 {
+    font-size: 1.1rem;
+    color: #388e3c;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .recommendationsSection {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+  }
+
+  .recommendationsSection h4 {
+    font-size: 1.1rem;
+    color: #333;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+
+  .groupNavigation {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .navButton {
+    background: #e8f5e9;
+    color: #388e3c;
+    border: none;
+    border-radius: 6px;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.2s;
+  }
+
+  .navButton:hover {
+    background: #c8e6c9;
+  }
+
+  .groupSelector {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .groupButton {
+    padding: 0.75rem 1.5rem;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: white;
+    color: #666;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+
+  .groupButton:hover {
+    background: #f5f5f5;
+    border-color: #d0d0d0;
+  }
+
+  .groupButton.active {
+    background: #4CD3A5;
+    color: white;
+    border-color: #4CD3A5;
   }

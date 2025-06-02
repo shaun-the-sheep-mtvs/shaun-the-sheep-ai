@@ -9,6 +9,7 @@ import styles from './Navbar.module.css';
 interface User {
   username: string;
   id: number;
+  routines: { id: number; name: string; time: string }[];
 }
 
 interface NavbarProps {

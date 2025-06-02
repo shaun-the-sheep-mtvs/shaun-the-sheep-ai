@@ -36,5 +36,14 @@ public interface RoutineRepository extends JpaRepository<Routine, Integer> {
             ")")
     List<RoutinesDto> findRoutinesByUserId(@Param("userId") String userId);
 
+    @Query("SELECT new org.mtvs.backend.routine.dto.RoutinesDto(r.id, r.name, r.kind, r.method, r.orders, r.time, r.routineGroupId) " +
+            "FROM Routine r " +
+            "WHERE r.routineGroupId IN (" +
+            "   SELECT r2.routineGroupId " +
+            "   FROM Routine r2 " +
+            "   WHERE r2.user.id = :userId" +
+            ")")
+    List<RoutinesDto> findAllRoutinesByUserId(@Param("userId") String userId);
+
     Iterable<? extends Routine> findRoutinesByRoutineGroupIdAndUser(long groupId, User user);
 }

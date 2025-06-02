@@ -275,9 +275,16 @@ public class DeepRecommendService {
     public List<RoutineChangeDTO> getRoutineChangeList(String userId) {
         return routineChangeRepository.findRoutinesByUserId(userId);
     }
+    public List<RoutineChangeDTO> getAllRoutineChangeList(String userId) {
+        return routineChangeRepository.findAllRoutinesByUserId(userId);
+    }
 
     /* step2. 제품 변경 및 추가 추천 */
     public List<RecommendResponseDTO> getRecommendResponseDTOList(String userId) {
         return deepRecommendRepository.findLatestRecommendByUserId(userId);
+    }
+
+    public List<RecommendResponseDTO> getAllecommendResponseDTOList(String userId) {
+        return deepRecommendRepository.findAllRecommendByUserId(userId);
     }
 }

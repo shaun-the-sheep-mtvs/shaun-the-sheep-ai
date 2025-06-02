@@ -64,6 +64,9 @@ public class RoutineManageService {
     public List<RoutinesDto> getRoutineList(String userId) {
         return routineRepository.findRoutinesByUserId(userId);
     }
+    public List<RoutinesDto> getAllRoutineList(String userId) {
+        return routineRepository.findAllRoutinesByUserId(userId);
+    }
 
     public void deleteRoutine(long groupId, CustomUserDetails userDetails) {
         routineRepository.deleteAll(routineRepository.findRoutinesByRoutineGroupIdAndUser(groupId,userDetails.getUser())
