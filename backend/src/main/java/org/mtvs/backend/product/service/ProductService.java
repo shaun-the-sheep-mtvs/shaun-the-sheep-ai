@@ -17,6 +17,7 @@ import org.mtvs.backend.product.repository.ProductUserLinkRepository;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -149,34 +150,36 @@ public class ProductService {
         // ObjectNode 로 캐스팅
         ObjectNode objectNode = (ObjectNode) jsonNode;
         ProductDTO dto = new ProductDTO();
-
         // 제품명
-        dto.setProductName(objectNode.get("제품명") != null ?
-                objectNode.get("제품명").asText() : null);
+        if(!productRepository.existsProductByProductName(objectNode.get("제품명").asText()));{
+            dto.setProductName(objectNode.get("제품명") != null ?
+                    objectNode.get("제품명").asText() : null);
 
-        // 추천타입
-        dto.setRecommendedType(objectNode.get("추천타입") != null ?
-                objectNode.get("추천타입").asText() : null);
+            // 추천타입
+            dto.setRecommendedType(objectNode.get("추천타입") != null ?
+                    objectNode.get("추천타입").asText() : null);
 
-        // 성분 (JSON 배열 → List<String>)
-        JsonNode ingredientsNode = objectNode.get("성분");
-        List<String> ingredients = new ArrayList<>();
-        if (ingredientsNode != null && ingredientsNode.isArray()) {
-            for (JsonNode node : ingredientsNode) {
-                ingredients.add(node.asText());
+            // 성분 (JSON 배열 → List<String>)
+            JsonNode ingredientsNode = objectNode.get("성분");
+            List<String> ingredients = new ArrayList<>();
+            if (ingredientsNode != null && ingredientsNode.isArray()) {
+                for (JsonNode node : ingredientsNode) {
+                    ingredients.add(node.asText());
+                }
             }
+            dto.setIngredients(ingredients);
+
+            dto.setFormulation(formulation);
+            dto.setImageUrl("");
+
+            // Product 엔티티로 변환 및 저장 (예외는 상위 메서드에서 처리)
+            Product product = dto.toEntity();
+            productRepository.save(product);
+
+            // 링크 테이블에 저장
+            productUserLinkService.saveLinks(product, userId);
         }
-        dto.setIngredients(ingredients);
 
-        dto.setFormulation(formulation);
-        dto.setImageUrl("");
-
-        // Product 엔티티로 변환 및 저장 (예외는 상위 메서드에서 처리)
-        Product product = dto.toEntity();
-        productRepository.save(product);
-
-        // 링크 테이블에 저장
-        productUserLinkService.saveLinks(product, userId);
     }
 
 
@@ -185,7 +188,7 @@ public class ProductService {
         return productRepository.findAllByImageUrl("x");
     }
 
-    public void updateProductsWithNoURL() {
+    public ResponseEntity<?> updateProductsWithNoURL() {
         try{
         List<Product> noURLproducts = productRepository.findAllByImageUrl("x");
         noURLproducts.forEach(noUrlproduct -> {
@@ -201,5 +204,6 @@ public class ProductService {
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
         }
+        return ResponseEntity.ok(200);
     }
 }

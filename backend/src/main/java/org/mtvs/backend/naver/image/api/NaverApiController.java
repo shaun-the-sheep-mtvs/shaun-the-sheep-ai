@@ -40,8 +40,7 @@ public class NaverApiController {
     //페이지 새로고침시.
     @GetMapping("/re")
     public ResponseEntity<?> reSaveImageFromDB() {
-        productService.updateProductsWithNoURL();
-
+        return productService.updateProductsWithNoURL();
     }
 
     /*
