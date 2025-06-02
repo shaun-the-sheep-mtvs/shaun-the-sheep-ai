@@ -67,25 +67,22 @@ public class ProductService {
         return ProductsWithUserInfoResponseDTO.create(user, selectedProducts);
     }
 
-
-
-    public List<ProductDTO> getProducts(String userId){
-        // userId에 해당된 추천 제품들이 있는지 확인
-        boolean exists = userRepository.existsById(userId);
-        if (!exists) {
-            throw new RuntimeException("해당 유저의 추천 제품이 존재하지 않습니다. 체크리스트는 최초 1회 필요합니다.");
-        }
-        // userId에 해당된 추천 제품 리스트 가져오기
-        List<Product> products = productRepository.findProductsById(userId);
-        List<ProductDTO> productDTOs = new ArrayList<>();
-
-        // 엔티티를 DTO로 변환
-        for (Product product : products) {
-            ProductDTO productDTO = ProductDTO.fromEntity(product);
-            productDTOs.add(productDTO);
-        }
-        return productDTOs;
-    }
+//    public List<ProductDTO> searchProducts(String mode, String query) {
+//        // 검색 조건에 따라 ProductDTO List 반환
+//        List<ProductDTO> productList = switch (mode) {
+//            case "all" -> searchAllByWords(query);
+//            case "brand" -> productRepository.searchAllByBrand(query);
+//            case "productName" -> productRepository.searchAllByProductName(query);
+//            case "ingredient" -> productRepository.searchAllByIngredient(query);
+//        };
+//
+//        return productList;
+//    }
+//
+//    public List<ProductDTO> searchAllByWords(String query) {
+//        List<ProductDTO> productDTOS = new ArrayList<>();
+//
+//    }
 
     // userId 에 해당된 제품 리스트(productDTO) 가져오기 (NaverApiController.java 사용)
     public List<ProductDTO> getProductsByUserId(String userId){
