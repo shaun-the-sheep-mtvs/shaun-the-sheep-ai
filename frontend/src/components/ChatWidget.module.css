@@ -200,3 +200,66 @@
   white-space: pre-line;
 }
 
+/* ───────────────────────────────────────────────────────────────────────── */
+/* 1) 로딩 버블 전체 스타일 */
+/* ───────────────────────────────────────────────────────────────────────── */
+.loadingBubble {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  background-color: #06ff9f; /* AI 메시지 색상에 맞춰서 조정 */
+  border-radius: 16px;
+  position: relative;
+  min-width: 40px;
+  height: 32px;
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* 2) 점 세 개(ellipsis) 애니메이션 */
+/* ───────────────────────────────────────────────────────────────────────── */
+.dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 2px;
+  background-color: #026925; /* 점 색상을 원하는 색으로 변경 가능 */
+  border-radius: 50%;
+  opacity: 0;
+  animation: blink 1s infinite;
+}
+
+.dot:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.dot:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* 3) 점 깜빡임 키프레임 */
+/* ───────────────────────────────────────────────────────────────────────── */
+@keyframes blink {
+  0%, 80%, 100% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+}
+
+.messageBubble a {
+  color: #1a73e8;          /* 진한 빨간색 예시 (#d32f2f) */
+  font-weight: 600;        /* 살짝 더 굵게 */
+  text-decoration: underline; /* 밑줄 추가 */
+}
+
+/* ───────────────────────────────────────────────────────────────────────── */
+/* 2) 호버 시 좀 더 강조하기 (선택 사항) */
+/* ───────────────────────────────────────────────────────────────────────── */
+.messageBubble a:hover {
+  color: #0f57c0;          /* 호버 시 좀 더 어두운 색으로 변경 */
+  text-decoration: none;   /* 호버 시 밑줄 제거 (선택) */
+}
+
