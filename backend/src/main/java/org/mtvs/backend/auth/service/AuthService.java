@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.util.JwtUtil;
 import org.mtvs.backend.user.dto.ProblemDto;
 import org.mtvs.backend.user.entity.User;
@@ -111,5 +112,9 @@ public class AuthService {
 
     public Optional<User> getUserByLoginId(String loginId) {
         return userRepository.findByUsername(loginId);
+    }
+
+    public void deleteUser(CustomUserDetails user) {
+        userRepository.delete(user.getUser());
     }
 }

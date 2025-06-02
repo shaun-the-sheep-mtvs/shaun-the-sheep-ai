@@ -7,6 +7,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 import org.mtvs.backend.user.entity.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Table(name = "products")
@@ -37,16 +38,18 @@ public class Product {
     @Column(name = "product_name")
     private String productName;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false, updatable = false)
-    private User user;
+    @Column(name = "image_url")
+    private String imageUrl;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductUserLink> productUserLinks = new ArrayList<>();
 
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.id= id;
     }
 
     public String getFormulationType() {
@@ -81,11 +84,19 @@ public class Product {
         this.productName = productName;
     }
 
-    public User getUser() {
-        return user;
+    public String getImageUrl() {
+        return imageUrl;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
+
+    public List<ProductUserLink> getProductUserLinks() {
+        return productUserLinks;
+    }
+
+    public void setProductUserLinks(List<ProductUserLink> productUserLinks) {
+        this.productUserLinks = productUserLinks;
     }
 }
