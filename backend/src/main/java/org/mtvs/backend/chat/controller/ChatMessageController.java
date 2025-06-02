@@ -10,7 +10,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -104,53 +106,57 @@ public class ChatMessageController {
     @PostMapping("/ask")
     public ResponseEntity<ChatMessageDTO> askAI(
             @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("sessionId") String sessionId,
             @RequestParam(value = "templateKey", required = false) String templateKey,
-            @RequestBody List<ChatMessageDTO> historyDto
-    ) throws JsonProcessingException {
+            @RequestBody Map<String, String> body   // { "userMessage": "질문 내용" }
+    ) {
         String userId = userDetails.getUserId();
+        String userQuestion = body.get("userMessage");
 
-        // 1) DTO → Entity 변환
-        List<ChatMessage> history = historyDto.stream()
-                .map(dto -> {
-                    ChatMessage msg = new ChatMessage();
-                    msg.setUserId(dto.getUserId());
-                    msg.setRole(dto.getRole());
-                    msg.setContent(dto.getContent());
-                    msg.setTimestamp(dto.getTimestamp());
-                    return msg;
-                })
-                .collect(Collectors.toList());
+        // 1) sessionId가 누락되었거나 빈 문자열이라면, Bad Request로 리턴
+        if (sessionId == null || sessionId.isBlank()) {
+            ChatMessageDTO errorDto = new ChatMessageDTO();
+                     errorDto.setRole("ai");
+                     errorDto.setContent("세션이 유효하지 않습니다. 다시 시도해주세요.");
+                     errorDto.setTimestamp(LocalDateTime.now());
+            return ResponseEntity.badRequest().body(errorDto);
+        }
 
-        // 2) 마지막 user 메시지를 질문으로
-        String userQuestion = history.stream()
-                .filter(m -> "user".equals(m.getRole()))
-                .map(ChatMessage::getContent)
-                .reduce((first, second) -> second)
-                .orElse("");
+        // 2) AI 호출 (서비스 레이어에서 sessionId를 이용해 캐싱된 히스토리＋프롬프트를 결합)
+        ChatMessage aiMsg = chatMessageService.askAI_Single(sessionId, userId, userQuestion);
 
-        // 3) AI 호출 (DB 저장 없이 메시지 생성만)
-        ChatMessage aiMsg = chatMessageService.askAI_Single(
-                userId, history, userQuestion, templateKey
-        );
-
-        // 4) 요약 여부 검사: 줄 수가 5줄이고, "1) 피부 타입:" 으로 시작하면 요약
+        // 3) AI 텍스트가 5줄 요약 형식이라면 DB에 저장
         String text = aiMsg.getContent();
         long lines = text.lines().count();
         boolean isSummary = lines == 5 && text.startsWith("1) 피부 타입:");
-
-        // 5) 요약인 경우에만 저장
         if (isSummary) {
             aiMsg = chatMessageService.save(aiMsg);
         }
 
-        // 6) Entity → DTO
+        // 4) DTO로 변환 후 반환
         ChatMessageDTO responseDto = new ChatMessageDTO();
-        responseDto.setUserId(aiMsg.getUserId());
         responseDto.setId(aiMsg.getId());
+        responseDto.setUserId(aiMsg.getUserId());
         responseDto.setRole(aiMsg.getRole());
         responseDto.setContent(aiMsg.getContent());
         responseDto.setTimestamp(aiMsg.getTimestamp());
 
         return ResponseEntity.ok(responseDto);
+    }
+
+    /**
+     * “퀵 액션” 버튼을 누를 때마다, 최초로 시스템 프롬프트 + 빈 히스토리를 셋업해야 합니다.
+     * 클라이언트가 퀵 액션(예: PRODUCT_INQUIRY) 버튼을 클릭한 순간에 이 메서드를 호출하세요.
+     */
+    @PostMapping("/init-session")
+    public ResponseEntity<Void> initSession(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam(value = "templateKey", required = false) String templateKey
+    ) {
+        String actualUserId = userDetails.getUserId();
+        // 서비스 레이어에 해당 sessionId, templateKey로 히스토리 초기화 요청
+        chatMessageService.initSession(sessionId, actualUserId, templateKey);
+        return ResponseEntity.ok().build();
     }
 }

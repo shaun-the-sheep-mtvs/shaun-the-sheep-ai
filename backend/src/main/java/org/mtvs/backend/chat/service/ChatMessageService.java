@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientResponseException;
 import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @RequiredArgsConstructor
@@ -60,9 +62,11 @@ public class ChatMessageService {
         당신은 뷰티 제품 전문가입니다.
         - 사용자가 기억이 안 나는 제품을 묘사하면, 외관·질감·향기 등의 설명만으로 유추하여 제안하세요.
         - 이미지를 제시하지 말고, 말로만 상세히 설명해 주세요.
-        - 추천 예시는 최대 3가지로 제시하고, 각 예시마다 제품명·주요 성분·질감·기대 효과를 간략히 알려주세요.
+        - 유추한 제품의 예시를 최대 3가지로 제시하고, 각 예시마다 제품명·주요 성분·질감·기대 효과를 간략히 알려주세요.
         - 주제와 상관없는 질문에는 대응하지 마세요.
         - 상대가 “모르겠습니다” 등으로 애매하게 답하면, 다른 질문으로 교체하세요.
+        - 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(`\\n`)로만** 구분되게 출력하세요.
+                   - 각 줄 앞뒤에 공백을 추가하거나, 다른 구두점·문자를 붙이지 마세요.
     """ ;
 
     private static final String INGREDIENT_INQUIRY_PROMPT = """
@@ -71,6 +75,8 @@ public class ChatMessageService {
         - 민감 피부 등 주의가 필요한 경우 별도 경고도 함께 제공해 주세요.
         - 주제와 상관없는 질문에는 대응하지 마세요.
         - 상대가 “모르겠습니다” 등으로 애매하게 답하면, 다른 질문으로 교체하세요.
+        - 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(`\\n`)로만** 구분되게 출력하세요.
+                           - 각 줄 앞뒤에 공백을 추가하거나, 다른 구두점·문자를 붙이지 마세요.
     """ ;
 
     private static final String SKIN_TYPE_PROMPT = """
@@ -80,6 +86,8 @@ public class ChatMessageService {
         - 타입별 의미와 특징을 설명해 주세요.
         - 주제와 상관없는 질문에는 대응하지 마세요.
         - 상대가 “모르겠습니다” 등으로 애매하게 답하면, 다른 질문으로 교체하세요.
+        - 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(`\\n`)로만** 구분되게 출력하세요.
+                           - 각 줄 앞뒤에 공백을 추가하거나, 다른 구두점·문자를 붙이지 마세요.
     """ ;
 
     private static final String SKIN_TROUBLE_PROMPT = """
@@ -88,145 +96,140 @@ public class ChatMessageService {
           (지원하는 트러블 키워드 예: 건조함, 번들거림, 민감함, 탄력 저하, 홍조, 톤 안정, 색소침착, 잔주름, 모공 케어, 다크써클, 결 거칠음 등)
         - 주제와 상관없는 질문에는 대응하지 마세요.
         - 상대가 “모르겠습니다” 등으로 애매하게 답하면, 다른 질문으로 교체하세요.
+        - 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(`\\n`)로만** 구분되게 출력하세요.
+                           - 각 줄 앞뒤에 공백을 추가하거나, 다른 구두점·문자를 붙이지 마세요.
     """ ;
 
     private final ChatMessageRepository chatMessageRepository;
     private final WebClient webClient;
+
     @Value("${gemini.api.key}")
     private String apiKey;
 
-    public List<ChatMessage> findAll() {
-        return chatMessageRepository.findAll();
+    public List<ChatMessage> findAll() { return chatMessageRepository.findAll(); }
+    public Optional<ChatMessage> findById(Long id) { return chatMessageRepository.findById(id); }
+    public ChatMessage save(ChatMessage message) { return chatMessageRepository.save(message); }
+    public void deleteById(Long id) { chatMessageRepository.deleteById(id); }
+
+    /**
+     * “세션 초기화” 메서드: 컨트롤러에서 initSession(sessionId, userId, templateKey) 로 호출
+     */
+    public void initSession(String sessionId, String userId, String templateKey) {
+        String sysPrompt;
+        switch (templateKey) {
+            case "PRODUCT_INQUIRY":
+                sysPrompt = PRODUCT_INQUIRY_PROMPT;
+                break;
+            case "INGREDIENT_INQUIRY":
+                sysPrompt = INGREDIENT_INQUIRY_PROMPT;
+                break;
+            case "SKIN_TYPE":
+                sysPrompt = SKIN_TYPE_PROMPT;
+                break;
+            case "SKIN_TROUBLE":
+                sysPrompt = SKIN_TROUBLE_PROMPT;
+                break;
+            default:
+                sysPrompt = MBTI_SYSTEM_PROMPT;
+        }
+        promptCache.put(sessionId, sysPrompt);
+        historyCache.put(sessionId, new ArrayList<>());
     }
 
-    public Optional<ChatMessage> findById(Long id) {
-        return chatMessageRepository.findById(id);
-    }
+    // in‐memory 캐시: sessionId → 지금까지 대화 히스토리
+    private final Map<String, List<ChatMessage>> historyCache = new ConcurrentHashMap<>();
 
-    public ChatMessage save(ChatMessage message) {
-        return chatMessageRepository.save(message);
-    }
+    // in‐memory 캐시: sessionId → 시스템 프롬프트
+    private final Map<String, String> promptCache = new ConcurrentHashMap<>();
 
-    public void deleteById(Long id) {
-        chatMessageRepository.deleteById(id);
-    }
-
+    /**
+     * 실제 AI 호출 메서드: sessionId, userId, userQuestion을 받아 historyCache에서 꺼내 온 뒤 AI 요청
+     */
     @SuppressWarnings("unchecked")
-    public ChatMessage askAI_Single(
-            String userId,
-            List<ChatMessage> history,
-            String userQuestion,
-            String templateKey
-    ) {
-        // ----------------------------
-        // 0) templateKey에 따라 사용할 시스템 프롬프트를 선택
-        // ----------------------------
-        String systemPrompt;
-        if ("PRODUCT_INQUIRY".equals(templateKey)) {
-            systemPrompt = PRODUCT_INQUIRY_PROMPT;
-        }
-        else if ("INGREDIENT_INQUIRY".equals(templateKey)) {
-            systemPrompt = INGREDIENT_INQUIRY_PROMPT;
-        }
-        else if ("SKIN_TYPE".equals(templateKey)) {
-            systemPrompt = SKIN_TYPE_PROMPT;
-        }
-        else if ("SKIN_TROUBLE".equals(templateKey)) {
-            systemPrompt = SKIN_TROUBLE_PROMPT;
-        }
-        else {
-            // 아무 키값도 안 들어오면 MBTI_SYSTEM_PROMPT를 기본으로 사용
-            systemPrompt = MBTI_SYSTEM_PROMPT;
-        }
+    public ChatMessage askAI_Single(String sessionId, String userId, String userQuestion) {
+        List<ChatMessage> history = historyCache.computeIfAbsent(sessionId, k -> new ArrayList<>());
 
-        // ----------------------------
-        // 1) 생성 설정
-        // ----------------------------
-        Map<String,Object> generationConfig = Map.of(
-                "temperature",      0.2,
-                "topK",             40,
-                "topP",             0.95,
-                "maxOutputTokens",  1000
+        // (0-1) 히스토리에 사용자 메시지 추가
+        ChatMessage userMsg = new ChatMessage();
+        userMsg.setUserId(userId);
+        userMsg.setRole("user");
+        userMsg.setContent(userQuestion);
+        userMsg.setTimestamp(LocalDateTime.now());
+        history.add(userMsg);
+
+        // (1) 시스템 프롬프트 조회
+        String systemPrompt = promptCache.getOrDefault(sessionId, MBTI_SYSTEM_PROMPT);
+
+        // (2) "contents” 생성: [systemPrompt, …history…, 마지막 userQuestion]
+        Map<String, Object> generationConfig = Map.of(
+                "temperature",     0.2,
+                "topK",            40,
+                "topP",            0.95,
+                "maxOutputTokens", 1000
         );
-
-        // ----------------------------
-        // 2) contents 리스트 만들기
-        // ----------------------------
-        List<Map<String,Object>> contents = new ArrayList<>();
-
-        // (1) system 프롬프트
+        List<Map<String, Object>> contents = new ArrayList<>();
         contents.add(Map.of(
                 "role",  "user",
                 "parts", List.of(Map.of("text", systemPrompt))
         ));
-
-        // (2) 대화 히스토리
         for (ChatMessage msg : history) {
-            String role = msg.getRole().equals("user")
-                    ? "user"
-                    : "model";  // ai → model
+            String role = "user".equals(msg.getRole()) ? "user" : "model";
             contents.add(Map.of(
                     "role",  role,
                     "parts", List.of(Map.of("text", msg.getContent()))
             ));
         }
-
-        // (3) 마지막 질문
+        // 최종 userQuestion을 한 번 더 명시적으로 추가
         contents.add(Map.of(
                 "role",  "user",
                 "parts", List.of(Map.of("text", userQuestion))
         ));
-
-        // ----------------------------
-        // 3) request body 구성
-        // ----------------------------
-        Map<String,Object> body = Map.of(
+        Map<String, Object> body = Map.of(
                 "contents",         contents,
                 "generationConfig", generationConfig
         );
 
-        // ----------------------------
-        // 4) API 호출 & 에러 처리
-        // ----------------------------
-        Map<String,Object> res = webClient.post()
-                .uri(b -> b
-                        .path("/v1beta/models/gemini-2.0-flash:generateContent")
-                        .queryParam("key", apiKey)
-                        .build()
-                )
-                .bodyValue(body)
-                .retrieve()
-                .onStatus(status -> status.is4xxClientError(), resp ->
-                        resp.bodyToMono(String.class)
-                                .flatMap(errBody -> {
-                                    System.err.println("=== 400 응답 바디 ===");
-                                    System.err.println(errBody);
-                                    return Mono.error(new RuntimeException("API 요청 에러: " + errBody));
-                                })
-                )
-                .bodyToMono(new ParameterizedTypeReference<Map<String,Object>>() {})
-                .block();
+        // (3) WebClient로 Gemini API 호출 및 응답 파싱
+        Map<String, Object> res;
+        try {
+            res = (Map<String, Object>) webClient.post()
+                    .uri(b -> b
+                            .path("/v1beta/models/gemini-2.0-flash:generateContent")
+                            .queryParam("key", apiKey)
+                            .build())
+                    .bodyValue(body)
+                    .retrieve()
+                    .bodyToMono(new ParameterizedTypeReference<>() {})
+                    .block();
+        } catch (WebClientResponseException.ServiceUnavailable e) {
+            throw new RuntimeException("AI 서비스가 일시적으로 중단되었습니다. 잠시 후 다시 시도해주세요.", e);
+        } catch (WebClientResponseException e) {
+            throw new RuntimeException(
+                    "AI 호출 중 오류가 발생했습니다. 상태코드=" + e.getRawStatusCode() +
+                            ", 응답메시지=" + e.getResponseBodyAsString(), e
+            );
+        }
 
-        // ----------------------------
-        // 5) 결과 파싱
-        // ----------------------------
-        List<Map<String,Object>> candidates = (List<Map<String,Object>>) res.get("candidates");
+        if (res == null) {
+            throw new RuntimeException("AI 응답이 비어 있습니다.");
+        }
+        List<Map<String, Object>> candidates = (List<Map<String, Object>>) res.get("candidates");
         if (candidates == null || candidates.isEmpty()) {
             throw new RuntimeException("AI output이 없습니다.");
         }
-        Map<String,Object> contentMap = (Map<String,Object>) candidates.get(0).get("content");
-        List<Map<String,Object>> parts     = (List<Map<String,Object>>) contentMap.get("parts");
+        Map<String, Object> contentMap = (Map<String, Object>) candidates.get(0).get("content");
+        List<Map<String, Object>> parts = (List<Map<String, Object>>) contentMap.get("parts");
         String aiText = parts.get(0).get("text").toString().trim();
 
-        // ----------------------------
-        // 6) DB에 저장하지 않고 ChatMessage 객체만 만들어서 반환
-        //    (컨트롤러에서 “5줄 요약”인지 확인 후 save)
-        // ----------------------------
+        // (4) AI 응답을 ChatMessage로 래핑하고, 히스토리에 추가
         ChatMessage aiMsg = new ChatMessage();
         aiMsg.setUserId(userId);
         aiMsg.setRole("ai");
         aiMsg.setContent(aiText);
         aiMsg.setTimestamp(LocalDateTime.now());
+        history.add(aiMsg);
+        historyCache.put(sessionId, history);
+
         return aiMsg;
     }
 }
