@@ -23,6 +23,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static org.mtvs.backend.product.dto.ProductDTO.fromEntity;
+
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -67,25 +69,32 @@ public class ProductService {
         return ProductsWithUserInfoResponseDTO.create(user, selectedProducts);
     }
 
-
-
-    public List<ProductDTO> getProducts(String userId){
-        // userId에 해당된 추천 제품들이 있는지 확인
-        boolean exists = userRepository.existsById(userId);
-        if (!exists) {
-            throw new RuntimeException("해당 유저의 추천 제품이 존재하지 않습니다. 체크리스트는 최초 1회 필요합니다.");
-        }
-        // userId에 해당된 추천 제품 리스트 가져오기
-        List<Product> products = productRepository.findProductsById(userId);
+    // 주어진 키워드(query)로 브랜드 및 제품 검색
+    public List<ProductDTO> searchAllByBrandAndName(String query) {
+        List<Product> products = productRepository.findAll();
         List<ProductDTO> productDTOs = new ArrayList<>();
-
-        // 엔티티를 DTO로 변환
         for (Product product : products) {
-            ProductDTO productDTO = ProductDTO.fromEntity(product);
-            productDTOs.add(productDTO);
+            if (product.getProductName().toLowerCase().contains(query.toLowerCase())) {
+                productDTOs.add(fromEntity(product));
+            }
         }
         return productDTOs;
     }
+
+    // 주어진 키워드(query)로 성분 검색
+    public List<ProductDTO> searchAllByIngredient(String query) {
+        List<Product> products = productRepository.findAll();
+        List<ProductDTO> productDTOs = new ArrayList<>();
+        for (Product product : products) {
+            for (int i = 0; i < product.getIngredients().size(); i++) {
+                if (product.getIngredients().get(i).contains(query.toLowerCase())){
+                    productDTOs.add(fromEntity(product));
+                }
+            }
+        }
+        return productDTOs;
+    }
+
 
     // userId 에 해당된 제품 리스트(productDTO) 가져오기 (NaverApiController.java 사용)
     public List<ProductDTO> getProductsByUserId(String userId){
@@ -99,7 +108,7 @@ public class ProductService {
         // productIdList 에 해당되는 productId 에 연결된 product 객체를 반환해서
         // 이를 productDTO 리스트 객체로 반환
         for (ProductUserLink productUserLink : productIdList) {
-            productDTOs.add(ProductDTO.fromEntity(productUserLink.getProduct()));
+            productDTOs.add(fromEntity(productUserLink.getProduct()));
         }
 
         return productDTOs;

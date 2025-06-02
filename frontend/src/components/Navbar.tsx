@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, HomeIcon, ClipboardCheck, MessageCircle, User } from 'lucide-react';
+import { Menu, X, HomeIcon, ClipboardCheck, MessageCircle, User, Search } from 'lucide-react';
 import styles from './Navbar.module.css';
 
 interface User {
@@ -22,6 +22,8 @@ interface NavbarProps {
 export default function Navbar({ user, loading = false, isLoggedIn: propIsLoggedIn, onLogout }: NavbarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -54,6 +56,15 @@ export default function Navbar({ user, loading = false, isLoggedIn: propIsLogged
     }
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+      setSearchQuery("");
+      setShowSearchResults(false);
+    }
+  };
+
   return (
     <>
       {/* 네비게이션 바 */}
@@ -62,8 +73,26 @@ export default function Navbar({ user, loading = false, isLoggedIn: propIsLogged
           {isSidebarOpen ? <X className={styles.menuToggleIcon} /> : <Menu className={styles.menuToggleIcon} />}
         </button>
         <div className={styles.logoContainer}>
-          <h1 className={styles.logo}>Shaun</h1>
+          <Link href="/" className={styles.logoLink}>
+            <h1 className={styles.logo}>Shaun</h1>
+          </Link>
         </div>
+
+        {/* 검색창 (데스크탑) */}
+        {isLoggedIn && (
+          <form className={styles.navSearchForm} onSubmit={handleSearch}>
+            <div className={styles.navSearchContainer}>
+              <Search className={styles.navSearchIcon} />
+              <input
+                type="text"
+                placeholder="제품, 브랜드 검색..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.navSearchInput}
+              />
+            </div>
+          </form>
+        )}
 
         <div className={styles.navRight}>
           {!isLoggedIn ? (
