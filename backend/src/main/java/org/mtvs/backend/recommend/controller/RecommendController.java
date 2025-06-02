@@ -1,3 +1,6 @@
+
+// raw code from current dev branch
+
 package org.mtvs.backend.recommend.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -5,25 +8,26 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.naver.image.api.NaverApiService;
 import org.mtvs.backend.product.dto.ProductDTO;
+import org.mtvs.backend.product.dto.ProductWithImageDTO;
 import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
 import org.mtvs.backend.product.entity.Product;
 import org.mtvs.backend.product.repository.ProductRepository;
 import org.mtvs.backend.product.service.ProductUserLinkService;
 import org.mtvs.backend.recommend.dto.RequestDTO;
 import org.mtvs.backend.product.service.ProductService;
+import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.entity.User.SkinType;
 import org.mtvs.backend.recommend.dto.ResponseDTO;
+import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Value;
-import org.mtvs.backend.session.GuestData;
-import jakarta.servlet.http.HttpSession;
-import org.mtvs.backend.checklist.service.CheckListService;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -41,13 +45,15 @@ public class RecommendController {
     private final RestTemplate restTemplate;
     private final ObjectMapper objectMapper;
     private final ProductService productService;
+    private final UserRepository userRepository;
     private final NaverApiService naverApiService;
-    private final CheckListService checkListService;
 
     public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService, ProductUserLinkService productUserLinkService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.productService = productService;
+        this.userRepository = userRepository;
+        this.productRepository = productRepository;
         this.naverApiService = naverApiService;
         this.productUserLinkService = productUserLinkService;
     }
@@ -79,16 +85,21 @@ public class RecommendController {
                         "응답은 JSON 코드 블록 없이 순수한 JSON 형식으로 제공해 주세요.",
                 skinType, String.join(", ", concerns)
         );
-    }
 
-    // --- Utility: Call Gemini API and parse response ---
-    private JsonNode callGeminiAndParse(String prompt) throws Exception {
+        // Gemini에 전달하는 DTO 생성 후 prompt 담아서 전달
         RequestDTO request = new RequestDTO();
         request.createGeminiReqDto(prompt);
         String rawResponse = "";
+
+        System.out.println("Gemini API에 요청을 보냅니다: " + prompt);
+
         try {
-            ResponseDTO response = restTemplate.postForObject(geminiApiUrl, request, ResponseDTO.class);
+            // Gemini API 호출
+            ResponseDTO response = restTemplate.postForObject(geminiURL, request, ResponseDTO.class);
             rawResponse = response.getCandidates().get(0).getContent().getParts().get(0).getText();
+            System.out.println(rawResponse);
+
+            // 마크다운 코드 블록 제거 (```json과 ```)
             String cleanedJson = rawResponse.replaceAll("(?s)```json\\s*|```\\s*", "");
             System.out.println("정제된 JSON: " + cleanedJson);
 
@@ -116,55 +127,18 @@ public class RecommendController {
         } catch (Exception e) {
             System.err.println("오류 발생: " + e.getMessage());
             System.err.println("원본 응답: " + rawResponse);
-            throw e;
+
+            // 오류 시 원본 문자열 반환 (프론트엔드에서 처리)
+            return ResponseEntity.ok(rawResponse);
         }
     }
 
-    // --- Shared recommendation logic ---
-    private ResponseEntity<?> handleRecommendation(String skinType, List<String> concerns, String userEmail) {
-        try {
-            // 1. Build prompt
-            String prompt = buildGeminiPrompt(skinType != null ? skinType : "", concerns);
-            // 2. Call Gemini
-            JsonNode jsonNode = callGeminiAndParse(prompt);
-            // 3. Save products for user if email is provided
-            if (userEmail != null) {
-                productService.saveProducts(jsonNode, userEmail);
-            }
-            // 4. Return recommendations
-            return ResponseEntity.ok(jsonNode);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body("Gemini recommendation error: " + e.getMessage());
-        }
-    }
-
-    // --- User Recommendation (Authenticated) ---
-    @PostMapping("/api/recommend/diagnoses")
-    public ResponseEntity<?> diagnose(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
-        SkinType skinType = customUserDetail.getUser().getSkinType();
-        List<String> concerns = customUserDetail.getUser().getTroubles();
-        String userEmail = customUserDetail.getUser().getEmail();
-        return handleRecommendation(skinType != null ? skinType.toString() : "", concerns, userEmail);
-    }
-
-    // --- Guest Recommendation (Session-based) ---
-    @PostMapping("/api/recommend/guest")
-    public ResponseEntity<?> recommendForGuest(HttpSession session) {
-        GuestData guestData = (GuestData) session.getAttribute("guestData");
-        if (guestData == null) {
-            return ResponseEntity.badRequest().body("No guest data in session");
-        }
-        String mbtiCode = checkListService.calculateMbtiForGuest(guestData);
-        String skinType = checkListService.getSkinTypeForMbti(mbtiCode);
-        List<String> concerns = guestData.getTroubles();
-        // Pass null for userEmail so products are not saved for guests
-        return handleRecommendation(skinType, concerns, null);
-    }
-
-    // --- Get 3 random products for user ---
     @GetMapping("api/recommend/random-recommendations")
     public List<ProductDTO> ThreeProducts(@AuthenticationPrincipal CustomUserDetails customUserDetail){
+        // 토큰에 있는 아이디를 불러옴
         String Id = customUserDetail.getUser().getId();
+        // 아이디에 해당된 제품 리스트를 섞기
+
         List<ProductDTO> products = productService.getProducts(Id);
         Collections.shuffle(products);
 
@@ -174,9 +148,9 @@ public class RecommendController {
                 .collect(Collectors.toList());
     }
 
-    // --- User recommendations with user info ---
     @GetMapping("api/recommend/user-recommendations")
     public ProductsWithUserInfoResponseDTO UserRecommendation(@AuthenticationPrincipal CustomUserDetails customUserDetail){
+        // 토큰에 있는 유저 Id 사용
         String userId = customUserDetail.getUser().getId();
         return productService.getBalancedRecommendations(userId);
     }
