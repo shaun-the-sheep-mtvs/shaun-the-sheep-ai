@@ -233,22 +233,22 @@ export default function ProfilePage() {
       setModalRecommendData(res.data);
 
       // 루틴 변경 데이터 가져오기
-      const routineChangeRes = await fetch(`${apiConfig.endpoints.deep.routineChangeAll}?id=${item.id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: 'include'
-      });
-      if (routineChangeRes.ok) {
-        const routineChangeData = await routineChangeRes.json();
-        setRoutineChanges(routineChangeData);
-      }
-    } catch (error) {
-      console.error('Failed to fetch data:', error);
-      setModalRecommendData(null);
-      setRoutineChanges([]);
-    } finally {
-      setModalLoading(false);
-    }
-  };
+  //     const routineChangeRes = await fetch(`${apiConfig.endpoints.deep.routineChangeAll}?id=${item.id}`, {
+  //       headers: { Authorization: `Bearer ${token}` },
+  //       credentials: 'include'
+  //     });
+  //     if (routineChangeRes.ok) {
+  //       const routineChangeData = await routineChangeRes.json();
+  //       setRoutineChanges(routineChangeData);
+  //     }
+  //   } catch (error) {
+  //     console.error('Failed to fetch data:', error);
+  //     setModalRecommendData(null);
+  //     setRoutineChanges([]);
+  //   } finally {
+  //     setModalLoading(false);
+  //   }
+  // };
 
   const handleGroupClick = (groupId: number) => {
     setCurrentGroupId(groupId);
