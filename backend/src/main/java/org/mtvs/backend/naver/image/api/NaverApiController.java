@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.product.dto.ProductDTO;
@@ -24,23 +25,22 @@ import java.util.Timer;
 
 @RestController
 @RequestMapping("/api/naver")
+@RequiredArgsConstructor
 public class NaverApiController {
     private final ApiSearchImage apiSearchImage;
     private final ProductService productService;
     private final NaverApiService naverApiService;
-    @Autowired
-    public NaverApiController(ApiSearchImage apiSearchImage, ProductService productService, NaverApiService naverApiService) {
-        this.apiSearchImage = apiSearchImage;
-        this.productService = productService;
-        this.naverApiService = naverApiService;
-    }
 
-    //front에서 보낼것.
+
+    //체크리스트시 api요청
     @GetMapping
-    public ResponseEntity<?> saveImageFromProductDB(@AuthenticationPrincipal CustomUserDetails user) {
-        //dto's productName=> Texts
-       List<ProductDTO> dtos =productService.getProducts(user.getUser().getId());
-        System.out.println(dtos.toString());
+    public ResponseEntity<?> saveImage(@AuthenticationPrincipal CustomUserDetails user) {
+        // dto's productName=> Texts
+        // 윤지 : getProduct 메소드에서 getProductsByUserId 메소드로 변경
+       List<ProductDTO> dtos = productService.getProductsByUserId(user.getUser().getId());
+
+//        System.out.println("dtosSize = " + dtos.size());
+
         List<String> texts= new ArrayList<>();
         List<String> notAlreadyUploads= new ArrayList<>();
         for(ProductDTO dto : dtos) {
@@ -73,21 +73,23 @@ public class NaverApiController {
             }
         }
 
-        System.out.println(responses.toString());
+        System.out.println(responses);
+
         ObjectMapper objectMapper = new ObjectMapper();
         for(int j=0; j<responses.size(); j++){
             try {
                 JsonNode rootNode = objectMapper.readTree(responses.get(j));
-                System.out.println(rootNode.toString());
-
                 JsonNode imageNode = rootNode.findValue("image");
+//                naverApiService.addImageUrl(texts.get(j),imageNode.toString().replaceAll("\"",""));
                 System.out.println("value j= "+j);
                 System.out.println(texts.get(j));
                 if(imageNode == null){
-                    naverApiService.addImage(new ImageDTO("x", notAlreadyUploads.get(j)));
+                    //JsonNode reRootNode = objectMapper.readTree(apiSearchImage.reGet(apiSearchImage.urlEncode(notAlreadyUploads.get(j))));
+                    //JsonNode reimageNode = rootNode.findValue("image").elements().next();
+                    naverApiService.addImageUrl(notAlreadyUploads.get(j),"x");
                 }
                 if(imageNode != null){
-                    naverApiService.addImage(new ImageDTO(imageNode.toString().replaceAll("\"",""),notAlreadyUploads.get(j)));
+                    naverApiService.addImageUrl(notAlreadyUploads.get(j),imageNode.toString().replaceAll("\"",""));
                 }
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
@@ -96,6 +98,13 @@ public class NaverApiController {
         return ResponseEntity.ok(responses);
     }
 
+/*
+    //페이지 새로고침시.
+    @GetMapping("/re")
+    public ResponseEntity<?> reSaveImageFromDB() {
+     //   return naverApiService.findAndUpdateImages();
+    }
+*/
     /*
     * 1. get 3번때리기 -> 별로 안좋은거같음
     * get 3번때리고 응답 3번 받기. db저장하기 추천제품 띄우기.

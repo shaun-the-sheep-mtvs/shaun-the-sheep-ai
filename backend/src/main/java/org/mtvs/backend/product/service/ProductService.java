@@ -2,19 +2,20 @@ package org.mtvs.backend.product.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import jakarta.transaction.Transactional;
 import org.mtvs.backend.naver.image.api.NaverApiService;
 import org.mtvs.backend.product.dto.ProductDTO;
 import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
 import org.mtvs.backend.product.entity.Product;
+import org.mtvs.backend.product.entity.ProductUserLink;
 import org.mtvs.backend.product.repository.ProductRepository;
+import org.mtvs.backend.product.repository.ProductUserLinkRepository;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -23,27 +24,33 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final UserRepository userRepository;
     private final NaverApiService naverApiService;
-    public ProductService(ProductRepository productRepository, UserRepository userRepository, NaverApiService naverApiService) {
+    private final ProductUserLinkRepository productUserLinkRepository;
+    private final ProductUserLinkService productUserLinkService;
+
+    @Autowired
+    public ProductService(ProductRepository productRepository, UserRepository userRepository, NaverApiService naverApiService, ProductUserLinkRepository productUserLinkRepository, ProductUserLinkService productUserLinkService) {
         this.productRepository = productRepository;
         this.userRepository = userRepository;
         this.naverApiService = naverApiService;
+        this.productUserLinkRepository = productUserLinkRepository;
+        this.productUserLinkService = productUserLinkService;
     }
 
     public List<ProductDTO> getProductsByFormulation(String userId, String formulation, int limit) {
-        List<Product> products = productRepository.findByUserIdAndFormulationType(userId, formulation);
-        //object->dto
-        List<ProductDTO> productsDTO = new ArrayList<>();
-        for(Product product : products){
-            productsDTO.add(new ProductDTO(product));
-        }
-        //dto set imageUrl
-        for(ProductDTO product : productsDTO){
-            product.setImageUrl(naverApiService.getImage(product.getProductName()));
-        }
-        Collections.shuffle(productsDTO);
+        // userId 에 해당되는 Product 리스트 불러오기
+        List<ProductDTO> productsByUserId = getProductsByUserId(userId);
+        List<ProductDTO> productsByFormulation = new ArrayList<>();
 
-        return productsDTO.stream().limit(limit).collect(Collectors.toList());
+        // productsByUserId 에서 특정 제형인 productDTO 생성
+        for (ProductDTO product : productsByUserId) {
+            if (product.getFormulation().equals(formulation)) {
+                productsByFormulation.add(product);
+            }
+        }
+
+        return productsByFormulation.stream().limit(limit).collect(Collectors.toList());
     }
+
 
     public ProductsWithUserInfoResponseDTO getBalancedRecommendations(String userId) {
         User user = userRepository.findById(userId)
@@ -64,12 +71,12 @@ public class ProductService {
 
     public List<ProductDTO> getProducts(String userId){
         // userId에 해당된 추천 제품들이 있는지 확인
-        boolean exists = productRepository.existsByUserId(userId);
+        boolean exists = userRepository.existsById(userId);
         if (!exists) {
             throw new RuntimeException("해당 유저의 추천 제품이 존재하지 않습니다. 체크리스트는 최초 1회 필요합니다.");
         }
         // userId에 해당된 추천 제품 리스트 가져오기
-        List<Product> products = productRepository.findByUserId(userId);
+        List<Product> products = productRepository.findProductsById(userId);
         List<ProductDTO> productDTOs = new ArrayList<>();
 
         // 엔티티를 DTO로 변환
@@ -80,40 +87,71 @@ public class ProductService {
         return productDTOs;
     }
 
-    public void saveProducts(JsonNode productJson, String email) {
+    // userId 에 해당된 제품 리스트(productDTO) 가져오기 (NaverApiController.java 사용)
+    public List<ProductDTO> getProductsByUserId(String userId){
+        boolean exists = userRepository.existsById(userId);
+        if (!exists) {
+            throw new RuntimeException("User not found");
+        }
+        List<ProductUserLink> productIdList = productUserLinkRepository.findByUserId(userId);
+        List<ProductDTO> productDTOs = new ArrayList<>();
 
-        String userId = userRepository.findUserIdByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found for email: " + email));
+        // productIdList 에 해당되는 productId 에 연결된 product 객체를 반환해서
+        // 이를 productDTO 리스트 객체로 반환
+        for (ProductUserLink productUserLink : productIdList) {
+            productDTOs.add(ProductDTO.fromEntity(productUserLink.getProduct()));
+        }
 
+        return productDTOs;
+    }
+
+
+    public void saveProducts(JsonNode productJson, String userId) {
         JsonNode tonerArray = productJson.get("recommendations").get("toner");
         JsonNode serumArray = productJson.get("recommendations").get("serum");
         JsonNode lotionArray = productJson.get("recommendations").get("lotion");
         JsonNode creamArray = productJson.get("recommendations").get("cream");
 
-        // 각 배열을 순회하면서 개별 제품 저장
+        // 각 배열을 순회하면서 개별 제품 저장 (예외 발생해도 전체 트랜잭션은 계속)
         for (JsonNode product : tonerArray) {
-            saveProduct(product, userId, "toner");
+            try {
+                saveProduct(product, userId, "toner");
+            } catch (Exception e) {
+                // 개별 제품 저장 실패해도 계속 진행
+                System.out.println("토너 제품 저장 실패: " + e.getMessage());
+            }
         }
 
         for (JsonNode product : serumArray) {
-            saveProduct(product, userId, "serum");
+            try {
+                saveProduct(product, userId, "serum");
+            } catch (Exception e) {
+                System.out.println("세럼 제품 저장 실패: " + e.getMessage());
+            }
         }
 
         for (JsonNode product : lotionArray) {
-            saveProduct(product, userId, "lotion");
+            try {
+                saveProduct(product, userId, "lotion");
+            } catch (Exception e) {
+                System.out.println("로션 제품 저장 실패: " + e.getMessage());
+            }
         }
 
         for (JsonNode product : creamArray) {
-            saveProduct(product, userId, "cream");
+            try {
+                saveProduct(product, userId, "cream");
+            } catch (Exception e) {
+                System.out.println("크림 제품 저장 실패: " + e.getMessage());
+            }
         }
-
     }
 
     public void saveProduct(JsonNode jsonNode, String userId, String formulation) {
         // ObjectNode 로 캐스팅
         ObjectNode objectNode = (ObjectNode) jsonNode;
-
         ProductDTO dto = new ProductDTO();
+
         // 제품명
         dto.setProductName(objectNode.get("제품명") != null ?
                 objectNode.get("제품명").asText() : null);
@@ -132,26 +170,14 @@ public class ProductService {
         }
         dto.setIngredients(ingredients);
 
-        // formulationType (추천타입 기반 매핑)
-//        String recommendedType = dto.getRecommendedType();
-//        if (recommendedType != null) {
-//            try {
-//                dto.setFormulationType(Product.FormulationType.valueOf(recommendedType));
-//            } catch (IllegalArgumentException e) {
-//                dto.setFormulationType(null);
-//            }
-//        }
         dto.setFormulation(formulation);
-        dto.setUserId(userId);
+        dto.setImageUrl("");
 
-        // User 엔티티 조회
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        // Product 엔티티로 변환 및 저장 (예외는 상위 메서드에서 처리)
+        Product product = dto.toEntity();
+        productRepository.save(product);
 
-        // Product 엔티티로 변환 및 저장
-        Product product = dto.toEntity(user);
-        if(!productRepository.existsProductByProductName(product.getProductName())){
-            productRepository.save(product);
-        }
+        // 링크 테이블에 저장
+        productUserLinkService.saveLinks(product, userId);
     }
 }

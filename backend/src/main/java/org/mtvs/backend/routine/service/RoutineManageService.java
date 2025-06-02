@@ -73,7 +73,11 @@ public class RoutineManageService {
         );
     }
 
-    public void updateRoutine(Long routineGroupId) {
+    public void updateRoutine(Long routineGroupId , CustomUserDetails userDetails,List<RoutinesDto> routinesDtos) {
 
+        List<Routine> routines =routineRepository.getRoutinesByRoutineGroupId(routineGroupId);
+        for(Routine routine : routines){
+        }
+        routineRepository.saveAll(routines);
     }
 }
