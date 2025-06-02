@@ -6,7 +6,13 @@ import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.service.AuthService;
+<<<<<<< HEAD
 import org.mtvs.backend.session.GuestData;
+=======
+import org.mtvs.backend.user.dto.ProblemDto;
+import org.mtvs.backend.session.GuestData;
+import org.springframework.http.HttpStatus;
+>>>>>>> 4a34018 (WIP session dodo)
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
