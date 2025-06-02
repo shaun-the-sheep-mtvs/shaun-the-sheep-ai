@@ -17,6 +17,7 @@
   background: linear-gradient(to bottom, var(--primary-color-bg), var(--white), var(--primary-color-bg)); /* 변경된 배경 */
   color: var(--text-dark);
   overflow-x: hidden; /* 가로 스크롤 방지 */
+ /* 화면 전체 높이 */
 }
 
 .container {
@@ -114,37 +115,55 @@
 
 /* Hero Section */
 .heroSection {
-  padding-top: 120px; /* 헤더 높이만큼 확보 */
-  padding-bottom: 60px;
-  min-height: 70vh;
+  padding-top: 120px; 
+  padding-bottom: 100px; /* 하단 패딩도 함께 증가 */
+  min-height: 100vh; /* 최소 높이를 viewport height 기준으로 늘림 (기존 85vh) */
   display: flex;
   align-items: center;
+  width: 100%; /* 섹션 자체는 전체 너비 */
+}
+
+/* Hero 섹션 내부의 container만 특별히 너비 확장 */
+.heroSection > .container {
+  max-width: 100%; /* 기존 1200px 제한 해제 또는 더 큰 값으로 설정 */
+  /* 기존 .container의 padding: 0 20px; 보다 넓은 패딩 적용 */
+  padding-left: 40px; 
+  padding-right: 40px;
+  margin: 0 auto; /* 전체 너비 사용 시 중앙 정렬은 유지 */
 }
 
 .heroContent {
+  /* max-width: 1200px; /* .container와 동일한 최대 너비 설정 */
+  /* margin: 0 auto; /* 중앙 정렬 */
+  /* padding: 0 20px; /* heroSection에 container 패딩이 없다면 여기서 적용 */
+  /* 위 주석 처리된 내용은 .container가 .heroSection 내부에 사용될 경우 중복될 수 있음 */
+  /* 현재 page.tsx에서는 .heroSection > .container > .heroContent 구조임 */
+  
   background-color: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(8px);
   border-radius: 24px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--primary-color-light); /* 변경된 색상 */
+  border: 1px solid var(--primary-color-light); 
   overflow: hidden;
   display: flex;
-  flex-direction: column; /* 기본 세로 정렬 */
+  flex-direction: column; 
+  width: 100%; /* .container 내부에서 꽉 차도록 */
 }
 
-/* 테블릿 및 데스크탑에서 가로 정렬 */
 @media (min-width: 768px) {
   .heroContent {
-    flex-direction: row;
+    flex-direction: row; 
+    align-items: stretch; 
   }
 }
 
 .heroTextContainer {
-  flex: 1;
-  padding: 40px;
+  flex: 1.2; 
+  padding: 50px 40px; /* 패딩 증가 */
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative; 
 }
 
 .aiBadge {
@@ -227,11 +246,17 @@
   color: var(--primary-color); /* 변경된 색상 */
 }
 
-.heroImageContainer {
-  flex: 1;
+.heroImageContainer { /* 그래프 컨테이너 역할 */
+  flex: 0.8; 
   position: relative;
-  min-height: 400px; /* 이미지 영역 최소 높이 */
-  overflow: hidden; /* 스캔라인이 이미지를 벗어나지 않도록 */
+  /* min-height: 400px;  -> heroContent의 align-items:stretch로 높이 조절 */
+  display: flex; 
+  flex-direction: column; 
+  justify-content: center; 
+  padding: 40px 30px; /* 패딩 증가 */
+  background-color: rgba(255, 255, 255, 0.6); 
+  border-radius: 16px; 
+  gap: 20px; /* 그래프 아이템 간 간격 약간 증가 */
 }
 
 .heroImage {
@@ -239,6 +264,7 @@
   height: 100%;
   object-fit: cover; /* 이미지가 컨테이너를 채우도록 */
 }
+
 .newScanLine {
     position: absolute;
     left: 0;
@@ -257,6 +283,60 @@
   position: absolute;
   inset: 0;
   background: linear-gradient(to top, rgba(64, 221, 186, 0.2), transparent); /* 변경된 색상 계열 */
+}
+
+/* .heroGraphContainer 클래스는 이제 .heroImageContainer에 통합되었으므로 삭제 또는 주석 처리 가능 */
+/* .heroGraphContainer { 
+  gap: 16px; 
+} */
+
+.graphItem {
+  width: 100%;
+  /* background-color: rgba(0,0,0,0.02); /* 각 아이템 배경 살짝 추가하여 구분 (선택 사항) */
+  /* border-radius: 8px; */
+  /* padding: 10px; */
+}
+
+.graphItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px; /* 바와의 간격 조정 */
+}
+
+.graphItemDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.graphItemName {
+  font-size: 15px;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.graphItemValue { 
+  font-size: 13px; 
+  font-weight: bold; 
+  color: var(--white); 
+  min-width: 50px; /* 값 표시 영역 최소 너비 확보 */
+  text-align: center; /* 텍스트 중앙 정렬 */
+  /* page.tsx의 style 속성으로 padding, backgroundColor, borderRadius 적용됨 */
+}
+
+.graphItemBarBackground {
+  width: 100%;
+  height: 14px; /* 바 높이 약간 증가 */
+  background-color: #e9ecef; 
+  border-radius: 7px; /* 바 높이에 맞춰 조정 */
+  overflow: hidden; 
+}
+
+.graphItemBarForeground {
+  height: 100%;
+  border-radius: 7px; /* 바 높이에 맞춰 조정 */
 }
 
 /* Skin Concerns Section */
@@ -451,46 +531,78 @@
 
 /* Checkpoints Section */
 .checkpointsSection {
-  background-color: #F3F4F6; /* 원래의 연한 회색 */
-  padding: 60px 0; /* 원래 패딩 */
+  background-color: #F3F4F6; 
+  padding: 60px 0; 
 }
 
 .checkpointsContainer {
   display: flex;
   flex-direction: column;
-  gap: 60px; /* 원래 간격 */
+  gap: 80px; /* 섹션 간 간격 증가 */
 }
 
 .checkpoint {
   display: flex;
-  flex-direction: column; /* Mobile first */
-  align-items: center;
-  gap: 30px;
-}
-@media (min-width: 1024px) { /* lg and up */
-  .checkpoint {
-    flex-direction: row;
-  }
-  .checkpointReverse {
-    flex-direction: row-reverse;
-  }
+  /* flex-direction은 row 또는 row-reverse로 설정됨 (기존 로직) */
+  align-items: center; /* 수직 중앙 정렬 */
+  gap: 40px; /* 텍스트 컨테이너와 카드/이미지 컨테이너 사이 간격 */
 }
 
 .checkpointTextContainer {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Align text to left */
-}
-@media (min-width: 1024px) {
-  .checkpoint:not(.checkpointReverse) .checkpointTextContainer {
-     align-items: flex-start;
-  }
-   .checkpointReverse .checkpointTextContainer {
-     align-items: flex-start; /* Still flex-start, layout reversed by flex-direction */
-  }
+  /* 내부 텍스트 정렬 등은 기존 스타일 유지 */
 }
 
+/* 새로운 컨테이너: 이미지 + 카드를 묶는 역할 */
+.checkpointCardAndImageContainer {
+  flex: 1.5; /* 텍스트보다 이미지+카드 영역을 약간 더 넓게 */
+  display: flex;
+  /* 기본적으로 이미지가 왼쪽, 카드가 오른쪽. reverse 시에는 CSS로 순서 변경 */
+  gap: 20px;
+  align-items: flex-start; /* 상단 정렬 */
+}
+
+.checkpoint.checkpointReverse .checkpointCardAndImageContainer {
+  flex-direction: row-reverse; /* reverse일 때 이미지와 카드 순서 변경 */
+}
+
+.checkpointImageWrapper {
+  flex: 1; /* 이미지 래퍼가 차지할 공간 */
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  background-color: var(--white); /* 이미지 로딩 전 배경 */
+}
+
+.checkpointImage {
+  width: 100%;
+  height: auto; /* 너비에 맞춰 높이 자동 조정 */
+  object-fit: cover; /* 컨테이너에 맞게 이미지 채우기 */
+  display: block; /* 이미지 하단 여백 제거 */
+}
+
+.checkpointCardContainer {
+  flex: 1; /* 카드가 차지할 공간 */
+  /* max-width는 제거하거나, flex-basis와 함께 조정 */
+  /* width: 100%; 기존 스타일 유지 또는 flex-basis로 대체 */
+}
+
+.checkpointCard {
+  background-color: var(--white);
+  border-radius: 16px; 
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+  border: 1px solid var(--border-color);
+  padding: 24px; 
+  height: 100%; /* 부모 컨테이너 높이에 맞추도록 시도 */
+  display: flex; /* 내부 컨텐츠 정렬을 위해 */
+  flex-direction: column; /* 내부 컨텐츠 세로 정렬 */
+}
+
+.checkpointCardInner {
+  flex-grow: 1; /* 카드 내부 컨텐츠가 남은 공간 채우도록 */
+  border-radius: 12px;
+  padding: 24px;
+}
 
 .checkpointBadgeContainer {
   display: flex;
@@ -530,26 +642,6 @@
   color: var(--text-light);
   line-height: 1.6; /* 원래 줄간격 */
   /* margin-bottom은 기본값 또는 상위 요소에 따름 */
-}
-
-.checkpointCardContainer {
-  flex: 1;
-  max-width: 450px; /* 원래 최대 너비 */
-  width: 100%;
-}
-
-.checkpointCard {
-  background-color: var(--white);
-  border-radius: 16px; /* 원래 모양 */
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1); /* 원래 그림자 */
-  border: 1px solid var(--border-color);
-  padding: 24px; /* 원래 패딩 */
-  transition: none; /* 원래 트랜지션 없음 */
-}
-
-.checkpointCardInner { 
-  border-radius: 12px;
-  padding: 24px;
 }
 
 .checkpointCardHeader {
