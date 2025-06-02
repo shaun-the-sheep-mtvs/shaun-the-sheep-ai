@@ -73,7 +73,9 @@ export default function Navbar({ user, loading = false, isLoggedIn: propIsLogged
           {isSidebarOpen ? <X className={styles.menuToggleIcon} /> : <Menu className={styles.menuToggleIcon} />}
         </button>
         <div className={styles.logoContainer}>
-          <h1 className={styles.logo}>Shaun</h1>
+          <Link href="/" className={styles.logoLink}>
+            <h1 className={styles.logo}>Shaun</h1>
+          </Link>
         </div>
 
         {/* 검색창 (데스크탑) */}

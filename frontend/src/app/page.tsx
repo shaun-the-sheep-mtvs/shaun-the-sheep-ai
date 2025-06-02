@@ -40,9 +40,7 @@ export default function Home() {
   const [mbtiError, setMbtiError] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchType, setSearchType] = useState<'all' | 'brand' | 'product' | 'ingredient'>('all');
+  const [searchType, setSearchType] = useState<'all' | 'brand' | 'productName' | 'ingredient'>('all');
 
   const fetchNaverData = async () => {
     try {
@@ -184,34 +182,15 @@ export default function Home() {
 
   const handleSearch = async (query: string) => {
     if (!query.trim()) {
-      setSearchResults([]);
       return;
     }
     
-    setIsSearching(true);
-    try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) return;
-
-      // 검색 타입에 따라 다른 API 엔드포인트 호출
-      const searchParams = new URLSearchParams({
-        q: query,
-        type: searchType
-      });
-      
-      const response = await fetch(`${apiConfig.baseURL}/api/search?${searchParams.toString()}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
-      
-      if (response.ok) {
-        const results = await response.json();
-        setSearchResults(results);
-      }
-    } catch (error) {
-      console.error('Search error:', error);
-    } finally {
-      setIsSearching(false);
-    }
+    // 검색 페이지로 이동
+    const searchParams = new URLSearchParams({
+      q: query,
+      type: searchType
+    });
+    router.push(`/search?${searchParams.toString()}`);
   };
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -220,10 +199,12 @@ export default function Home() {
   };
 
   const handlePopularTagClick = (tag: string) => {
-    setSearchQuery(tag);
-    // 인기 검색어는 주로 성분이므로 타입을 성분으로 설정
-    setSearchType('ingredient');
-    handleSearch(tag);
+    // 인기 검색어 클릭 시 검색 페이지로 이동
+    const searchParams = new URLSearchParams({
+      q: tag,
+      type: 'ingredient'
+    });
+    router.push(`/search?${searchParams.toString()}`);
   };
 
   return (
@@ -255,130 +236,41 @@ export default function Home() {
             </div>
 
             {/* 검색 히어로 섹션 */}
-            <section className={`${styles.pageSection} ${styles.searchHeroSection}`}>
-              <div className={styles.sectionContent}>
-                <div className={styles.sectionHeader}>
-                  <h2 className={styles.sectionMainTitle}>원하는 제품을 찾아보세요</h2>
-                  <div className={styles.sectionSubtitle}>
-                    브랜드, 제품명, 성분으로 검색하여<br/>
-                    나에게 맞는 완벽한 스킨케어 제품을 발견하세요
+            <section className={styles.searchHeroSection}>
+              <div className={styles.searchContainer}>
+                <form onSubmit={handleSearchSubmit}>
+                  <div className={styles.searchInputContainer}>
+                    <Search className={styles.searchIcon} />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="제품명, 브랜드, 성분으로 검색하세요"
+                      className={styles.searchInput}
+                    />
+                    <button 
+                      type="submit" 
+                      className={styles.searchButton}
+                    >
+                      검색
+                    </button>
                   </div>
-                </div>
+                </form>
 
-                <div className={styles.searchContainer}>
-                  {/* 검색 타입 선택 */}
-                  <div className={styles.searchTypeSelector}>
-                    <span className={styles.searchTypeLabel}>검색 범위:</span>
-                    <div className={styles.searchTypeOptions}>
-                      <label className={styles.searchTypeOption}>
-                        <input
-                          type="radio"
-                          name="searchType"
-                          value="all"
-                          checked={searchType === 'all'}
-                          onChange={(e) => setSearchType('all')}
-                          className={styles.searchTypeRadio}
-                        />
-                        <span className={styles.searchTypeText}>전체</span>
-                      </label>
-                      <label className={styles.searchTypeOption}>
-                        <input
-                          type="radio"
-                          name="searchType"
-                          value="brand"
-                          checked={searchType === 'brand'}
-                          onChange={(e) => setSearchType('brand')}
-                          className={styles.searchTypeRadio}
-                        />
-                        <span className={styles.searchTypeText}>브랜드</span>
-                      </label>
-                      <label className={styles.searchTypeOption}>
-                        <input
-                          type="radio"
-                          name="searchType"
-                          value="product"
-                          checked={searchType === 'product'}
-                          onChange={(e) => setSearchType('product')}
-                          className={styles.searchTypeRadio}
-                        />
-                        <span className={styles.searchTypeText}>제품명</span>
-                      </label>
-                      <label className={styles.searchTypeOption}>
-                        <input
-                          type="radio"
-                          name="searchType"
-                          value="ingredient"
-                          checked={searchType === 'ingredient'}
-                          onChange={(e) => setSearchType('ingredient')}
-                          className={styles.searchTypeRadio}
-                        />
-                        <span className={styles.searchTypeText}>성분</span>
-                      </label>
-                    </div>
-                  </div>
-
-                  <form className={styles.searchForm} onSubmit={handleSearchSubmit}>
-                    <div className={styles.searchInputContainer}>
-                      <Search className={styles.searchIcon} />
-                      <input
-                        type="text"
-                        placeholder="제품명, 브랜드, 성분을 검색해보세요..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className={styles.searchInput}
-                      />
-                      <button 
-                        type="submit" 
-                        className={styles.searchButton}
-                        disabled={isSearching}
+                {/* 인기 검색어 */}
+                <div className={styles.popularSearches}>
+                  <span className={styles.popularLabel}>인기 검색어:</span>
+                  <div className={styles.popularTags}>
+                    {['비타민C', '히알루론산', '레티놀', '나이아신아마이드', '세라마이드'].map((tag) => (
+                      <button
+                        key={tag}
+                        className={styles.popularTag}
+                        onClick={() => handlePopularTagClick(tag)}
                       >
-                        {isSearching ? '검색 중...' : '검색'}
+                        {tag}
                       </button>
-                    </div>
-                  </form>
-
-                  {/* 인기 검색어 */}
-                  <div className={styles.popularSearches}>
-                    <span className={styles.popularLabel}>인기 검색어:</span>
-                    <div className={styles.popularTags}>
-                      {['비타민C', '히알루론산', '레티놀', '나이아신아마이드', '세라마이드'].map((tag) => (
-                        <button
-                          key={tag}
-                          className={styles.popularTag}
-                          onClick={() => handlePopularTagClick(tag)}
-                        >
-                          {tag}
-                        </button>
-                      ))}
-                    </div>
+                    ))}
                   </div>
-
-                  {/* 검색 결과 미리보기 */}
-                  {searchResults.length > 0 && (
-                    <div className={styles.searchPreview}>
-                      <h4>검색 결과 
-                        <span className={styles.searchTypeIndicator}>
-                          ({searchType === 'all' ? '전체' : 
-                            searchType === 'brand' ? '브랜드' : 
-                            searchType === 'product' ? '제품명' : '성분'} 검색)
-                        </span>
-                      </h4>
-                      <div className={styles.previewList}>
-                        {searchResults.slice(0, 3).map((result, index) => (
-                          <div key={index} className={styles.previewItem}>
-                            <div className={styles.previewName}>{result.name}</div>
-                            <div className={styles.previewDesc}>{result.description}</div>
-                          </div>
-                        ))}
-                      </div>
-                      <Link 
-                        href={`/search?q=${searchQuery}&type=${searchType}`} 
-                        className={styles.viewAllResults}
-                      >
-                        모든 검색 결과 보기 ({searchResults.length}개)
-                      </Link>
-                    </div>
-                  )}
                 </div>
               </div>
             </section>

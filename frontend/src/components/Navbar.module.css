@@ -44,6 +44,17 @@
   flex-shrink: 0;
 }
 
+/* 로고 링크 */
+.logoLink {
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.logoLink:hover {
+  opacity: 0.8;
+}
+
 .logo {
   font-size: 1.75rem;
   font-weight: 800;
