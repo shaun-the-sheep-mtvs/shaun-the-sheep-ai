@@ -14,7 +14,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+<<<<<<< HEAD
     show-sql: false
+=======
+    show-sql: 
+>>>>>>> 339029d (mbti workaournd done, before removal)
     properties:
       hibernate:
         format_sql: true

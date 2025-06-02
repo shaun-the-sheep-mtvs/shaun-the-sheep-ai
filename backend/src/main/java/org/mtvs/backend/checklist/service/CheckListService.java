@@ -158,7 +158,3 @@ public class CheckListService {
         return type != null ? type.name() : "알 수 없음";
     }
 }
-
-
-
-
