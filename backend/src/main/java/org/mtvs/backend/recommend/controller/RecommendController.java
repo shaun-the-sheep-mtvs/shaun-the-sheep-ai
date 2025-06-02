@@ -59,7 +59,8 @@ public class RecommendController {
     }
 
     @PostMapping("/api/recommend/diagnoses")
-    public ResponseEntity<?> diagnose(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
+    public ResponseEntity<?> diagnose(
+        @AuthenticationPrincipal CustomUserDetails customUserDetail) {
 
         // 사용자의 피부 타입과 고민 목록을 가져옴
         SkinType skinType = customUserDetail.getUser().getSkinType();
