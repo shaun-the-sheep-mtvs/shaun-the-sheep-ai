@@ -41,6 +41,15 @@ public class RoutineManageController {
         return ResponseEntity.ok(routinesDto);
     }
 
+    @GetMapping("/all-existing")
+    public ResponseEntity<?> AllexistingRoutine(@AuthenticationPrincipal CustomUserDetails user) {
+        if (user == null) {
+            ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
+        }
+        List<RoutinesDto> routinesDto = routineManageService.getAllRoutineList(user.getUser().getId());
+        return ResponseEntity.ok(routinesDto);
+    }
+
     @DeleteMapping("/delete")
     public ResponseEntity<String> deleteRoutine(@RequestBody GroupIdDTO id, @AuthenticationPrincipal CustomUserDetails user) {
         routineManageService.deleteRoutine(id.getGroupId(),user);
