@@ -18,8 +18,6 @@ public class ProductDTO {
     private List<String> ingredients;
     private String recommendedType;
     private String productName;
-
-    //jun's
     private String imageUrl;
 
     public ProductDTO(String id, String formulation, List<String> ingredients, String recommendedType, String productName, String imageUrl) {
