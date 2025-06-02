@@ -13,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import jakarta.servlet.http.HttpSession;
+
 @Slf4j
 @RestController
 @RequestMapping("/api/auth")
@@ -25,10 +27,12 @@ public class AuthController {
      * 회원가입
      * */
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequest dto) {
+    public ResponseEntity<?> signup(@RequestBody SignupRequest dto, HttpSession session) {
         log.info("[회원가입] 요청 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
         try {
-            authService.signup(dto);
+            GuestData guestData = (GuestData) session.getAttribute("guestData");
+            authService.signup(dto, guestData);
+            session.removeAttribute("guestData");
             log.info("[회원가입] 성공 : 이메일={}", dto.getEmail());
             return ResponseEntity.ok("회원가입 성공");
         } catch (RuntimeException e) {
