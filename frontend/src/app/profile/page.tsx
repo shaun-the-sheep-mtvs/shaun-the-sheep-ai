@@ -80,7 +80,6 @@ const ProfilePage = () => {
   const [recommendedRoutines, setRecommendedRoutines] = useState<RecommendedRoutine[]>([]);
   const [routines, setRoutines] = useState<Routine[]>([]);
   const allRecommendEndpoint = apiConfig.endpoints.deep.analysisHistory;
- 
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -231,9 +230,9 @@ const ProfilePage = () => {
         withCredentials: true,
       });
       setModalRecommendData(res.data);
-
+      
       // 루틴 변경 데이터 가져오기
-      const routineChangeRes = await fetch(`${apiConfig.endpoints.deep.routineChange}?id=${item.id}`, {
+      const routineChangeRes = await fetch(`${apiConfig.baseURL}/api/deep/all-routine-change?id=${item.id}`, {
         headers: { Authorization: `Bearer ${token}` },
         credentials: 'include'
       });
@@ -612,32 +611,40 @@ const ProfilePage = () => {
                         <div className={styles.productsSection}>
                           <div className={styles.sectionHeader}>
                             <div className={styles.sectionMainTitle}>제품 변경 및 추가 추천</div>
-                            <div className={styles.sectionDescription}>
-                              현재 사용 중인 제품 중 더 나은 대안이 있는 제품을 추천합니다.
-                              <br />
-                              각 추천에는 선택 이유와 기대 효과가 함께 제공됩니다.
-                            </div>
+                           
+                          </div>
+
+                          {/* 루틴 탭 */}
+                          <div className={styles.routineTabs}>
+                            <button 
+                              className={`${styles.routineTab} ${routineTimeTab === 'MORNING' ? styles.active : ''}`}
+                              onClick={() => setRoutineTimeTab('MORNING')}
+                            >
+                              아침 루틴
+                            </button>
+                            <button 
+                              className={`${styles.routineTab} ${routineTimeTab === 'NIGHT' ? styles.active : ''}`}
+                              onClick={() => setRoutineTimeTab('NIGHT')}
+                            >
+                              저녁 루틴
+                            </button>
                           </div>
 
                           <div className={styles.changeBox}>
                             {(() => {
                               const recommendations = modalRecommendData.filter((item: any) => item.routineGroupId === selectedHistory.routineGroupId);
                               const groupRoutines = routines.filter(r => r.routineGroupId === selectedHistory.routineGroupId);
-                              const morningRoutines = groupRoutines.filter(r => r.time === 'MORNING').sort((a, b) => a.orders - b.orders);
-                              const nightRoutines = groupRoutines.filter(r => r.time === 'NIGHT').sort((a, b) => a.orders - b.orders);
+                              const currentRoutines = groupRoutines.filter(r => r.time === routineTimeTab).sort((a, b) => a.orders - b.orders);
+                              const filteredRoutineChanges = routineChanges.filter((r: any) => r.routineTime === routineTimeTab).sort((a: any, b: any) => a.routineOrders - b.routineOrders);
 
                               return (
                                 <div className={styles.routineGroupSection}>
-                                  <div className={styles.routineGroupHeader}>
-                                   
-                                  </div>
-                                  
                                   {/* 현재 루틴 */}
                                   <div className={styles.currentRoutines}>
                                     <div className={styles.routineTimeSection}>
-                                      <h4>아침 루틴</h4>
+                                      <h4>현재 {routineTimeTab === 'MORNING' ? '아침' : '저녁'} 루틴</h4>
                                       <ul className={styles.routineList}>
-                                        {morningRoutines.map((routine) => (
+                                        {currentRoutines.map((routine) => (
                                           <li key={routine.id} className={styles.routineItem}>
                                             <div className={styles.routineOrder}>{routine.orders}</div>
                                             <div className={styles.routineInfo}>
@@ -650,16 +657,23 @@ const ProfilePage = () => {
                                         ))}
                                       </ul>
                                     </div>
+                                  </div>
+
+                                  {/* 루틴 변경 추천 */}
+                                  <div className={styles.recommendationsSection}>
+                                    <h4>{routineTimeTab === 'MORNING' ? '아침' : '저녁'} 루틴 변경 추천</h4>
                                     <div className={styles.routineTimeSection}>
-                                      <h4>저녁 루틴</h4>
                                       <ul className={styles.routineList}>
-                                        {nightRoutines.map((routine) => (
-                                          <li key={routine.id} className={styles.routineItem}>
-                                            <div className={styles.routineOrder}>{routine.orders}</div>
+                                        {filteredRoutineChanges.map((routine: any) => (
+                                          <li key={routine.routineChangeId} className={styles.routineItem}>
+                                            <div className={styles.routineOrder}>{routine.routineOrders}</div>
                                             <div className={styles.routineInfo}>
-                                              <div className={styles.routineName}>{routine.name}</div>
+                                              <div className={styles.routineName}>{routine.routineName}</div>
                                               <div className={styles.routineDetail}>
-                                                {routine.kind} ({routine.method})
+                                                {routine.routineKind}
+                                              </div>
+                                              <div className={styles.changeMethod}>
+                                                {routine.changeMethod}
                                               </div>
                                             </div>
                                           </li>
