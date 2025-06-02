@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import Link from 'next/link';
 import Navbar from "@/components/Navbar";
-import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles, FileText, Search } from "lucide-react";
+import { ClipboardCheck, ShoppingBag, Sparkles, FileText, Search } from "lucide-react";
 import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/data/useCurrentUser';
 import { mbtiList } from '@/data/mbtiList';

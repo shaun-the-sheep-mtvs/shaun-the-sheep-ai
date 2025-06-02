@@ -147,12 +147,6 @@ export default function Navbar({ user, loading = false, isLoggedIn: propIsLogged
               검사하기
             </Link>
           </li>
-          <li className={pathname === '/ai-chat' ? styles.menuActive : ''}>
-            <Link href="/ai-chat" className={styles.menuLink}>
-              <MessageCircle className={styles.menuIcon} />
-              AI 채팅
-            </Link>
-          </li>
           <li className={pathname === '/profile' ? styles.menuActive : ''}>
             <Link href="/profile" className={styles.menuLink}>
               <User className={styles.menuIcon} />
