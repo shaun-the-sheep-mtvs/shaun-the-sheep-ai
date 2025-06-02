@@ -37,10 +37,13 @@ public class NaverApiController {
 
     //체크리스트시 api요청
     @GetMapping
-    public ResponseEntity<?> saveImageFromProductDB(@AuthenticationPrincipal CustomUserDetails user) {
-        //dto's productName=> Texts
-       List<ProductDTO> dtos =productService.getProducts(user.getUser().getId());
-        System.out.println(dtos.toString());
+    public ResponseEntity<?> saveImage(@AuthenticationPrincipal CustomUserDetails user) {
+        // dto's productName=> Texts
+        // 윤지 : getProduct 메소드에서 getProductsByUserId 메소드로 변경
+       List<ProductDTO> dtos = productService.getProductsByUserId(user.getUser().getId());
+
+//        System.out.println("dtosSize = " + dtos.size());
+
         List<String> texts= new ArrayList<>();
         List<String> notAlreadyUploads= new ArrayList<>();
         for(ProductDTO dto : dtos) {
@@ -74,12 +77,13 @@ public class NaverApiController {
         }
 
         System.out.println(responses);
+
         ObjectMapper objectMapper = new ObjectMapper();
         for(int j=0; j<responses.size(); j++){
             try {
                 JsonNode rootNode = objectMapper.readTree(responses.get(j));
-                System.out.println(rootNode.toString());
                 JsonNode imageNode = rootNode.findValue("image");
+                naverApiService.addImageUrl(texts.get(j),imageNode.toString().replaceAll("\"",""));
                 System.out.println("value j= "+j);
                 System.out.println(texts.get(j));
                 if(imageNode == null){

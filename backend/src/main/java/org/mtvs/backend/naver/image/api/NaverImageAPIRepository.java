@@ -17,4 +17,5 @@ public interface NaverImageAPIRepository extends JpaRepository<NaverImage, Long>
     boolean existsNaverImageByProductName(String productName);
 
     List<NaverImage> findNaverImagesByImgUrlIs(String imgUrl);
+//    boolean existsNaverImageByProductName(String productName);
 }
