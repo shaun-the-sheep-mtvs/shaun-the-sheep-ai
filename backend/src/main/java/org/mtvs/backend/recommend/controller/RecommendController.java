@@ -136,7 +136,7 @@ public class RecommendController {
         String Id = customUserDetail.getUser().getId();
         // 아이디에 해당된 제품 리스트를 섞기
 
-        List<ProductDTO> products = productService.getProducts(Id);
+        List<ProductDTO> products = productService.getProductsByUserId(Id);
         Collections.shuffle(products);
 
         // 3개 반환

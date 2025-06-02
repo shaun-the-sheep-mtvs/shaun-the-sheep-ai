@@ -1,5 +1,6 @@
 package org.mtvs.backend.product.repository;
 
+import org.mtvs.backend.product.dto.ProductDTO;
 import org.mtvs.backend.product.entity.Product;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -15,8 +16,6 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
     Product findByProductName(String productName);
 
-    List<Product> findProductsById(String userId);
-//    List<Product> findByUserIdAndFormulationType(String userId, String formulationType);
-
-    boolean existsProductByProductName(String productName);
+//    @Query("SELECT p FROM Product p WHERE p.productName LIKE %:query%")
+//    List<Product> findProductsByProductNameContaining(String query);
 }
