@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -188,6 +189,10 @@ public class ProductService {
         return productRepository.findAllByImageUrl("x");
     }
 
+    /**
+     * Product ImageURL 없는거 갱신하는 함수입니다
+     *
+     * */
     public ResponseEntity<?> updateProductsWithNoURL() {
         try{
         List<Product> noURLproducts = productRepository.findAllByImageUrl("x");

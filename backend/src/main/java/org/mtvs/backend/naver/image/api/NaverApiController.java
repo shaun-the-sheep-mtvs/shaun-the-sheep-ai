@@ -33,7 +33,7 @@ public class NaverApiController {
     //체크리스트시 api요청
     @GetMapping
     public ResponseEntity<?> saveImage(@AuthenticationPrincipal CustomUserDetails user) {
-            return naverApiService.saveImageProductDB(user);
+            return naverApiService.saveImageProductDB(user,productService);
     }
 
 
@@ -43,10 +43,4 @@ public class NaverApiController {
         return productService.updateProductsWithNoURL();
     }
 
-    /*
-    * 1. get 3번때리기 -> 별로 안좋은거같음
-    * get 3번때리고 응답 3번 받기. db저장하기 추천제품 띄우기.
-    *
-    *
-    * */
 }
