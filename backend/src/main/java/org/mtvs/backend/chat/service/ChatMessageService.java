@@ -15,12 +15,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
     // ────────────────────────────────────────────────────────────────────────────
-    // 1) 시스템 프롬프트 정의 (MBTI_SYSTEM_PROMPT 삭제됨)
+    // 1) 시스템 프롬프트 정의
     // ────────────────────────────────────────────────────────────────────────────
     private static final String PRODUCT_INQUIRY_PROMPT = """
         응답은 최대 3문장 이내로 간결하게 작성해 주세요.
@@ -162,12 +163,15 @@ public class ChatMessageService {
     public List<ChatMessage> findAll() {
         return chatMessageRepository.findAll();
     }
+
     public Optional<ChatMessage> findById(Long id) {
         return chatMessageRepository.findById(id);
     }
+
     public ChatMessage save(ChatMessage message) {
         return chatMessageRepository.save(message);
     }
+
     public void deleteById(Long id) {
         chatMessageRepository.deleteById(id);
     }
@@ -191,8 +195,7 @@ public class ChatMessageService {
                 sysPrompt = SKIN_TROUBLE_PROMPT;
                 break;
             default:
-                // MBTI_SYSTEM_PROMPT를 더 이상 사용하지 않으므로 빈 문자열로 처리하거나
-                // 필요시 예외를 던지도록 수정하세요.
+                // MBTI_SYSTEM_PROMPT를 더 이상 사용하지 않으므로 빈 문자열로 처리합니다.
                 sysPrompt = "";
         }
         promptCache.put(sessionId, sysPrompt);
@@ -231,13 +234,14 @@ public class ChatMessageService {
             truncated = fullHistory;
         }
 
-        // (3) "contents” 생성: [systemPrompt, …history…, 마지막 userQuestion]
+        // (3) "contents" 생성: [systemPrompt, …history…, 마지막 userQuestion]
         Map<String, Object> generationConfig = Map.of(
-                "temperature",     0.1,   // 0.2 → 0.1 (간결화)
+                "temperature",     0.1,    // 간결하게
                 "topK",            40,
                 "topP",            0.95,
-                "maxOutputTokens", 300    // 1000 → 500 (출력 최대 토큰 하향)
+                "maxOutputTokens", 300     // 최대 토큰 300으로 제한
         );
+
         List<Map<String, Object>> contents = new ArrayList<>();
         // 시스템 프롬프트가 비어 있을 수도 있으므로, 빈 문자열이라도 넣어줍니다.
         contents.add(Map.of(
@@ -256,15 +260,16 @@ public class ChatMessageService {
                 "role",  "user",
                 "parts", List.of(Map.of("text", userQuestion))
         ));
+
         Map<String, Object> body = Map.of(
                 "contents",         contents,
                 "generationConfig", generationConfig
         );
 
         // (4) Gemini API 호출 (503 재시도 로직 포함)
-        int maxRetries = 3;
+        int maxRetries = 5;
         int attempt = 0;
-        long backoffMillis = 1_000L; // 첫 재시도 대기 1초
+        long baseBackoff = 1_000L; // 1초
 
         Map<String, Object> res = null;
         while (true) {
@@ -284,17 +289,19 @@ public class ChatMessageService {
             } catch (WebClientResponseException.ServiceUnavailable e) {
                 attempt++;
                 if (attempt > maxRetries) {
-                    throw new RuntimeException("AI 서비스가 계속 중단 중입니다. 잠시 후 다시 시도해주세요.", e);
+                    throw new RuntimeException("AI 서비스가 계속 중단되어 더 이상 재시도하지 않습니다.", e);
                 }
+                // 지수 백오프 + 랜덤 지터
+                long jitter = ThreadLocalRandom.current().nextLong(0, 500);
+                long waitTime = baseBackoff * (1L << (attempt - 1)) + jitter;
                 try {
-                    Thread.sleep(backoffMillis);
+                    Thread.sleep(waitTime);
                 } catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     throw new RuntimeException("재시도 대기 중 인터럽트 발생", ie);
                 }
-                backoffMillis *= 2; // 1초 → 2초 → 4초 …
             } catch (WebClientResponseException e) {
-                // 503 이외의 4xx/5xx 에러
+                // 503 이외의 4xx/5xx 에러 발생 시 즉시 예외 던짐
                 throw new RuntimeException(
                         "AI 호출 중 오류가 발생했습니다. 상태코드=" + e.getRawStatusCode() +
                                 ", 응답메시지=" + e.getResponseBodyAsString(), e
