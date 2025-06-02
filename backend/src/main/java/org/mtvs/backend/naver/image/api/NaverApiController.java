@@ -35,7 +35,7 @@ public class NaverApiController {
         this.naverApiService = naverApiService;
     }
 
-    //front에서 보낼것.
+    //체크리스트시 api요청
     @GetMapping
     public ResponseEntity<?> saveImageFromProductDB(@AuthenticationPrincipal CustomUserDetails user) {
         //dto's productName=> Texts
@@ -73,17 +73,18 @@ public class NaverApiController {
             }
         }
 
-        System.out.println(responses.toString());
+        System.out.println(responses);
         ObjectMapper objectMapper = new ObjectMapper();
         for(int j=0; j<responses.size(); j++){
             try {
                 JsonNode rootNode = objectMapper.readTree(responses.get(j));
                 System.out.println(rootNode.toString());
-
                 JsonNode imageNode = rootNode.findValue("image");
                 System.out.println("value j= "+j);
                 System.out.println(texts.get(j));
                 if(imageNode == null){
+                    //JsonNode reRootNode = objectMapper.readTree(apiSearchImage.reGet(apiSearchImage.urlEncode(notAlreadyUploads.get(j))));
+                    //JsonNode reimageNode = rootNode.findValue("image").elements().next();
                     naverApiService.addImage(new ImageDTO("x", notAlreadyUploads.get(j)));
                 }
                 if(imageNode != null){
@@ -94,6 +95,13 @@ public class NaverApiController {
             }
         }
         return ResponseEntity.ok(responses);
+    }
+
+
+    //페이지 새로고침시.
+    @GetMapping("/re")
+    public ResponseEntity<?> reSaveImageFromDB() {
+        return naverApiService.findAndUpdateImages();
     }
 
     /*

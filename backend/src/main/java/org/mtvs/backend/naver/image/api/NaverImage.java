@@ -2,10 +2,13 @@ package org.mtvs.backend.naver.image.api;
 
 
 import jakarta.persistence.*;
+import lombok.AccessLevel;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@NoArgsConstructor
+@Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class NaverImage {
 
     @Id
@@ -21,6 +24,10 @@ public class NaverImage {
     public NaverImage(String image, String productName) {
         this.imgUrl = image;
         this.productName = productName;
+    }
+
+    public void updateImgUrl(String newImgUrl) {
+        this.imgUrl = newImgUrl;
     }
 
     @Override
