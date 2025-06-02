@@ -2401,3 +2401,164 @@ a.secondary {
     padding: 0.75rem 1rem;
   }
 }
+
+/* Header 스타일 */
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(10px);
+  z-index: 1000;
+  border-bottom: 1px solid rgba(52, 211, 153, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative; /* 자식 요소의 절대 위치를 위한 설정 */
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 24px;
+  font-weight: bold;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logoIcon {
+  color: var(--primary-mint);
+}
+
+.logoText {
+  background: linear-gradient(to right, var(--primary-mint), var(--primary-mint-light));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* 버튼 컨테이너 */
+.headerButtons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+/* 회원가입 버튼 */
+.signupButton {
+  background: linear-gradient(to right, var(--primary-mint), var(--primary-teal));
+  color: var(--background-light);
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-weight: 600;
+  box-shadow: 0 4px 6px rgba(52, 211, 153, 0.2);
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex; /* 아이콘 포함 시 */
+  align-items: center; /* 아이콘 포함 시 */
+  gap: 8px; /* 아이콘 포함 시 */
+}
+
+.signupButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(52, 211, 153, 0.3);
+}
+
+
+/* 로그인 버튼 */
+.loginButton {
+  background: transparent;
+  color: var(--primary-mint);
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-weight: 600;
+  border: 2px solid var(--primary-mint);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+  display: inline-flex; /* 아이콘 포함 시 */
+  align-items: center; /* 아이콘 포함 시 */
+  gap: 8px; /* 아이콘 포함 시 */
+}
+
+.loginButton:hover {
+  background-color: var(--bg-mint);
+  transform: translateY(-2px);
+}
+
+/* 로그인 상태 컨테이너 */
+.loggedInContainer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+/* 사용자 환영 메시지 */
+.userGreeting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.userAvatarSmall {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--bg-mint);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+/* 로그아웃 버튼 */
+.logoutButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  color: var(--text-medium);
+  padding: 8px 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s, background-color 0.2s;
+}
+
+.logoutButton:hover {
+  color: var(--primary-red); /* 로그아웃은 빨간색 계열로 */
+  background-color: rgba(255, 107, 107, 0.1); /* 연한 빨간색 배경 */
+}
+
+.buttonIcon {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+/* 가운데 제목 스타일 */
+.centerTitle {
+  position: absolute; /* 절대 위치 설정 */
+  left: 50%; /* 가로 중앙으로 이동 */
+  transform: translateX(-50%); /* 요소 자체의 절반 너비만큼 왼쪽으로 이동하여 정확히 중앙 정렬 */
+  font-size: 20px; /* 적절한 폰트 크기 */
+  font-weight: bold; /* 굵게 표시 */
+  color: var(--text-dark); /* 텍스트 색상 */
+  z-index: 1001; /* 헤더 요소들 위에 표시되도록 z-index 설정 */
+}

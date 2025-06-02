@@ -169,7 +169,7 @@ export default function Home() {
       badge: "체크 포인트",
       title: "떠먹여 주는 나의 피부 상태 확인",
       description: "클릭 한번으로 내 피부 알아보기",
-      imageUrl: "/checkpoint1.png",
+      imageUrl: "/images/checkpoint1.png",
       reverse: false,
     },
     {
@@ -177,7 +177,7 @@ export default function Home() {
       badge: "체크 포인트",
       title: "좋다는 제품들이 너무 많아",
       description: "그럴 땐 추천 받아서 필요한거만 알면 되지 !!",
-      imageUrl: "/checkpoint2.png",
+      imageUrl: "/images/checkpoint2.png",
       reverse: true,
     },
     {
@@ -185,7 +185,7 @@ export default function Home() {
       badge: "체크 포인트",
       title: "내가 사용하고 있는 제품을 검사 받아보자 !",
       description: null,
-      imageUrl: "/checkpoint3.png",
+      imageUrl: "/images/checkpoint3.png",
       reverse: false,
     },
   ]
@@ -196,12 +196,16 @@ export default function Home() {
       <header className={styles.header}>
         <div className={`${styles.container} ${styles.headerContainer}`}>
           <motion.div className={styles.logo} whileHover={{ scale: 1.05 }}>
-            <Droplet className={styles.logoIcon} />
-            <span className={styles.logoText}>스킨AI</span>
           </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <button className={styles.headerButton}>피부 진단하기</button>
-          </motion.div>
+          <h1 className={styles.logo1}>Shaun</h1>
+          <div className={styles.headerButtons}>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link href="/register" className={styles.signupButton}>회원가입</Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link href="/login" className={styles.loginButton}>로그인</Link>
+            </motion.div>
+          </div>
         </div>
       </header>
 
@@ -290,10 +294,10 @@ export default function Home() {
       <section className={`${styles.section} ${styles.skinConcernsSection}`}>
         <div className={styles.container}>
           <h2 className={styles.sectionTitle}>
-            <span className={styles.pinkGradientText}>어떤 피부에</span>해당 되시나요?
+            <span className={styles.pinkGradientText}>어떤 피부에</span> 해당되시나요?
           </h2>
           <p className={styles.sectionSubtitle}>
-            당신의 피부 타입과 고민에 맞는 솔루션을 제공해 드립니다
+            당신의 피부 타입과 고민에 맞는 솔루션을 제공해 드립니다.
           </p>
           <div className={styles.concernsGrid}>
             {skinConcerns.map((item, index) => (
