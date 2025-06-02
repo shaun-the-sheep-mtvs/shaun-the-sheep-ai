@@ -18,29 +18,17 @@ public class ProductDTO {
     private List<String> ingredients;
     private String recommendedType;
     private String productName;
-    private String userId;
 
     //jun's
     private String imageUrl;
 
-    // 모든 필드를 받는 생성자
-    public ProductDTO(String id, String formulation, List<String> ingredients,
-                     String recommendedType, String productName, String userId) {
+    public ProductDTO(String id, String formulation, List<String> ingredients, String recommendedType, String productName, String imageUrl) {
         this.id = id;
         this.formulation = formulation;
         this.ingredients = ingredients;
         this.recommendedType = recommendedType;
         this.productName = productName;
-        this.userId = userId;
-    }
-
-    public ProductDTO(Product product) {
-        this.id = product.getId();
-        this.formulation = product.getFormulationType();
-        this.ingredients = product.getIngredients();
-        this.recommendedType = product.getRecommendedType();
-        this.productName = product.getProductName();
-        this.userId = product.getUser().getId();
+        this.imageUrl = imageUrl;
     }
 
     // 엔티티에서 DTO로 변환
@@ -51,19 +39,18 @@ public class ProductDTO {
                 product.getIngredients(),
                 product.getRecommendedType(),
                 product.getProductName(),
-                product.getUser() != null ? product.getUser().getId() : null
+                product.getImageUrl()
         );
     }
 
-    // DTO에서 엔티티로 변환
-    public Product toEntity(User user) {
+    // DTO 에서 엔티티로 변환
+    public Product toEntity() {
         Product product = new Product();
         product.setId(this.id);
         product.setFormulationType(this.formulation);
         product.setIngredients(this.ingredients);
         product.setRecommendedType(this.recommendedType);
         product.setProductName(this.productName);
-        product.setUser(user);
         return product;
     }
 }

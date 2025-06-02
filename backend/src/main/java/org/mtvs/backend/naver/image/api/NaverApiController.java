@@ -37,29 +37,38 @@ public class NaverApiController {
     //front에서 보낼것.
     @GetMapping
     public ResponseEntity<?> saveImage(@AuthenticationPrincipal CustomUserDetails user) {
-        //dto's productName=> Texts
-       List<ProductDTO> dtos =productService.getProducts(user.getUser().getId());
-        System.out.println("dtosSize = " + dtos.size());
+        // dto's productName=> Texts
+        // 윤지 : getProduct 메소드에서 getProductsByUserId 메소드로 변경
+       List<ProductDTO> dtos = productService.getProductsByUserId(user.getUser().getId());
+
+//        System.out.println("dtosSize = " + dtos.size());
+
         List<String> texts= new ArrayList<>();
         for(ProductDTO dto : dtos) {
             texts.add(dto.getProductName());
         }
-        System.out.println(texts.size());
+        System.out.println(texts);
+
         //recommend 응답 한번에 몇개오나 분석.
         List<String> responses = new ArrayList<>();
-        for(int i=0; i<texts.size(); i++){
+
+        for(int i=0; i < texts.size(); i++){
+            // 해당 유저의 제품들 이미지의 존재 여부 확인
             if(!naverApiService.isExistImage(texts.get(i))){
                 responses.add(apiSearchImage.get(apiSearchImage.urlEncode(texts.get(i))));
                 //json 파싱
                 //i++
             }
         }
+
+        System.out.println(responses);
+
         ObjectMapper objectMapper = new ObjectMapper();
         for(int j=0; j<responses.size(); j++){
             try {
                 JsonNode rootNode = objectMapper.readTree(responses.get(j));
                 JsonNode imageNode = rootNode.findValue("image");
-                naverApiService.addImage(new ImageDTO(imageNode.toString().replaceAll("\"",""),texts.get(j)));
+                naverApiService.addImageUrl(texts.get(j),imageNode.toString().replaceAll("\"",""));
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
