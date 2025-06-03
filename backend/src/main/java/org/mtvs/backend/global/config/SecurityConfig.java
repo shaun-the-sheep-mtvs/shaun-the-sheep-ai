@@ -73,21 +73,23 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/health").permitAll()
-                        .requestMatchers("/api/guest/**").permitAll()
-                        .requestMatchers("/api/checklist/guest").permitAll()
-                        .requestMatchers("/api/recommend/guest").permitAll()
-                        .requestMatchers("/api/recommend/diagnoses").permitAll()
+                        
+                        // Guest endpoints (accessible with guest token)
+                        .requestMatchers("/api/guest/**").hasAnyRole("GUEST", "USER")
+                        .requestMatchers("/api/checklist/guest").hasAnyRole("GUEST", "USER")
+                        .requestMatchers("/api/recommend/guest").hasAnyRole("GUEST", "USER")
+                        .requestMatchers("/api/recommend/diagnoses").hasAnyRole("GUEST", "USER")
 
-
-                        // Protected endpoints
-                        .requestMatchers("/api/profile").authenticated()
-                        .requestMatchers("/api/naver").authenticated()
-                        .requestMatchers("/api/recommend/**").authenticated()
-                        .requestMatchers("/api/deep/**").authenticated()
-                        .requestMatchers("/api/routine/**").authenticated()
-                        .requestMatchers("/api/user/**").authenticated()
-                        .requestMatchers("/api/chat-messages/ask").authenticated()
-                        .requestMatchers("/api/checklist/**").authenticated()
+                        // Protected endpoints (requires full user authentication)
+                        .requestMatchers("/api/profile").hasRole("USER")
+                        .requestMatchers("/api/naver").hasRole("USER")
+                        .requestMatchers("/api/recommend/**").hasRole("USER")
+                        .requestMatchers("/api/deep/**").hasRole("USER")
+                        .requestMatchers("/api/routine/**").hasRole("USER")
+                        .requestMatchers("/api/user/**").hasRole("USER")
+                        .requestMatchers("/api/chat-messages/ask").hasRole("USER")
+                        .requestMatchers("/api/checklist/**").hasRole("USER")
+                        
                         // All other requests require authentication
                         .anyRequest().authenticated()
                 )

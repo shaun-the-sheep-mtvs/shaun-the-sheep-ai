@@ -104,20 +104,6 @@ public class RecommendController {
             String cleanedJson = rawResponse.replaceAll("(?s)```json\\s*|```\\s*", "");
             System.out.println("정제된 JSON: " + cleanedJson);
 
-            // JSON으로 파싱
-            // Gemini 응답값이 JSON 처럼 보이는 String 값이라 직렬화를 하기 위해 ObectMapper 사용
-//            public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException {
-//                this._assertNotNull("content", content);
-//
-//                try {
-//                    return this._readTreeAndClose(this._jsonFactory.createParser(content));
-//                } catch (JsonProcessingException e) {
-//                    throw e;
-//                } catch (IOException e) {
-//                    throw JsonMappingException.fromUnexpectedIOE(e);
-//                }
-//            }
-
             JsonNode jsonNode = objectMapper.readTree(cleanedJson);
             System.out.println(jsonNode);
             productService.saveProducts(jsonNode,customUserDetail.getUser().getId());
@@ -156,3 +142,17 @@ public class RecommendController {
         return productService.getBalancedRecommendations(userId);
     }
 }
+
+// JSON으로 파싱
+            // Gemini 응답값이 JSON 처럼 보이는 String 값이라 직렬화를 하기 위해 ObectMapper 사용
+//            public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException {
+//                this._assertNotNull("content", content);
+//
+//                try {
+//                    return this._readTreeAndClose(this._jsonFactory.createParser(content));
+//                } catch (JsonProcessingException e) {
+//                    throw e;
+//                } catch (IOException e) {
+//                    throw JsonMappingException.fromUnexpectedIOE(e);
+//                }
+//            }

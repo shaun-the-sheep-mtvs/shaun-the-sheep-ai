@@ -6,6 +6,7 @@ import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.service.AuthService;
+import org.mtvs.backend.auth.util.JwtUtil;
 import org.mtvs.backend.session.GuestData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -20,6 +21,7 @@ import jakarta.servlet.http.HttpSession;
 public class AuthController {
 
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
     /*
      * 회원가입
@@ -100,6 +102,23 @@ public class AuthController {
         } catch (Exception e) {
             log.warn("[현재 사용자 조회] 실패 : {}", e.getMessage());
             return ResponseEntity.status(401).body("사용자 정보 조회 실패: " + e.getMessage());
+        }
+    }
+
+    /*
+     * 게스트 토큰 발급
+     * */
+    @PostMapping("/guest-token")
+    public ResponseEntity<?> generateGuestToken() {
+        log.info("[게스트 토큰] 발급 요청");
+        try {
+            String guestToken = jwtUtil.generateGuestToken();
+            AuthResponse response = new AuthResponse(guestToken, null); // Guest doesn't need refresh token
+            log.info("[게스트 토큰] 발급 성공");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.warn("[게스트 토큰] 발급 실패 : {}", e.getMessage());
+            return ResponseEntity.status(500).body("게스트 토큰 발급 실패: " + e.getMessage());
         }
     }
 }

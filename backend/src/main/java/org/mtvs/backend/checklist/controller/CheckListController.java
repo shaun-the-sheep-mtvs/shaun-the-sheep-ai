@@ -67,7 +67,7 @@ public class CheckListController {
                 .orElseGet(() -> ResponseEntity.ok(new CheckListResponse()));  // 빈 DTO( troubles = null or empty )
     }
 
-    /** 게스트 체크리스트 제출 */
+    // /** 게스트 체크리스트 제출 */
     // @PostMapping("/guest")
     // public ResponseEntity<?> guestChecklist(@RequestBody GuestData guestData, HttpSession session) {
     //     // 1. MBTI 코드 계산
