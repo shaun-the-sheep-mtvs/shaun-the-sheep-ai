@@ -10,5 +10,7 @@ import java.util.Optional;
 
 @Repository
 public interface ChatMessageRepository extends JpaRepository<ChatMessage, Long> {
-    List<ChatMessageDTO> findByUserId(String userId);
-} 
+    // 기존: List<ChatMessageDTO> findByUserId(String userId);
+    // 수정: 엔티티를 반환하도록
+    List<ChatMessage> findByUserId(String userId);
+}

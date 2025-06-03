@@ -38,6 +38,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -252,7 +253,10 @@ public class ChatMessageService {
             List<RoutineChangeDTO> routinechange = routineChangeRepository.findAllRoutinesByUserId(userId); // 루틴 방법 수정 된 결과
             List<RecommendResponseDTO> deeprecommend = deepRecommendRepository.findAllRecommendByUserId(userId); // 제품 추천 , 이유 , 추가(대체)
 //            List<CheckList> checklist = checkListRepository.findByUserOrderByCreatedAtDesc(user.getId()); //
-            List<ChatMessageDTO> chatlist = chatMessageRepository1.findByUserId(userId);
+            List<ChatMessage> chatEntities = chatMessageRepository.findByUserId(userId);
+            List<ChatMessageDTO> chatlist = chatEntities.stream()
+                    .map(ChatMessage::toDTO)
+                    .collect(Collectors.toList());
 
             ObjectMapper mapper = new ObjectMapper();
 
