@@ -1,4 +1,3 @@
-// API Configuration for different environments
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
 
 export const apiConfig = {
@@ -9,9 +8,11 @@ export const apiConfig = {
       signup: `${API_BASE_URL}/api/auth/signup`,
       refresh: `${API_BASE_URL}/api/auth/refresh`,
       me: `${API_BASE_URL}/api/auth/me`,
+      guestToken: `${API_BASE_URL}/api/auth/guest-token`,
     },
     checklist: {
       base: `${API_BASE_URL}/api/checklist`,
+      latest: `${API_BASE_URL}/api/checklist/latest`,
       mbti: `${API_BASE_URL}/api/checklist/mbti`,
       guest: `${API_BASE_URL}/api/checklist/guest`,
     },
@@ -25,8 +26,7 @@ export const apiConfig = {
     recommend: {
       diagnoses: `${API_BASE_URL}/api/recommend/diagnoses`,
       random: `${API_BASE_URL}/api/recommend/random-recommendations`,
-      user: `${API_BASE_URL}/api/recommend/user-recommendations`,
-      guest: `${API_BASE_URL}/api/recommend/guest`,
+      user: `${API_BASE_URL}/api/recommend/user-recommendations`
     },
     chat: {
       base: `${API_BASE_URL}/api/chat-messages`,

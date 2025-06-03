@@ -4,10 +4,10 @@ import React, { useEffect, useState } from 'react';
 import { QUESTIONS, Question, Category } from '@/data/questions';
 import { CONCERNS } from '@/data/concerns';
 import styles from './page.checklist.module.css';
-import apiConfig from '@/config/api';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import { apiConfig } from '@/config/api';
 
 // Fisher–Yates 셔플 함수
 function shuffle<T>(arr: T[]): T[] {
@@ -22,7 +22,7 @@ function shuffle<T>(arr: T[]): T[] {
 // Add guest token generation function
 const getGuestToken = async () => {
   try {
-    const response = await fetch(`${apiConfig.baseURL}/api/auth/guest-token`, {
+    const response = await fetch(`${apiConfig.endpoints.auth.guestToken}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     });
@@ -93,7 +93,7 @@ export default function ChecklistPage() {
 
       // Fetch latest checklist if token exists
       if (token) {
-        fetch(`${apiConfig.endpoints.checklist.base}/latest`, {
+        fetch(`${apiConfig.endpoints.checklist.latest}`, {
           headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
@@ -234,8 +234,8 @@ const percent = (cat: Category) => {
         };
         sessionStorage.setItem('guestSignupData', JSON.stringify(guestData));
         
-        // Redirect to recommendations page for guests
-        router.push('/recommend/guest');
+        // Redirect to home
+        router.push('/');
       } else {
         // For regular users, proceed with normal flow
         await fetchNaverData();
