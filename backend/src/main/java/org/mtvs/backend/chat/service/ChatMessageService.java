@@ -5,9 +5,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mtvs.backend.chat.dto.ChatMessageDTO;
 import org.mtvs.backend.chat.entity.ChatMessage;
+import org.mtvs.backend.chat.entity.Prompt_Type;
 import org.mtvs.backend.chat.repository.ChatMessageRepository;
-import org.mtvs.backend.checklist.dto.CheckListResponse;
-import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
 import org.mtvs.backend.checklist.service.CheckListService;
 import org.mtvs.backend.deeprecommend.config.OpenConfig;
@@ -18,7 +17,6 @@ import org.mtvs.backend.deeprecommend.repository.DeepRecommendRepository;
 import org.mtvs.backend.deeprecommend.repository.RoutineChangeRepository;
 import org.mtvs.backend.routine.dto.RoutinesDto;
 import org.mtvs.backend.routine.repository.RoutineRepository;
-import org.mtvs.backend.user.dto.ProblemDto;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
@@ -30,13 +28,17 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -52,7 +54,36 @@ public class ChatMessageService {
     // ────────────────────────────────────────────────────────────────────────────
     // 1) 시스템 프롬프트 정의
     // ────────────────────────────────────────────────────────────────────────────
+    private static String TOTAL_REPORT_PROMPT = """
+            [역할 부여]
+            당신은 상세하고 친절한 뷰티 제품 전문가입니다. 피부 분석, 제품 추천 및 사용 루틴 컨설팅에 매우 능숙합니다.
+            [입력 데이터]
+            1.  **피부 상태 체크리스트:**
+                %s
+                * **해석 기준:**
+                    * moisture (촉촉함): 60% 이상일 경우 촉촉한 편, 미만일 경우 건조한 편으로 판단합니다.
+                    * oil (유분): 60% 이상일 경우 유분이 많은 편, 미만일 경우 유분이 적은 편으로 판단합니다.
+                    * sensitivity (민감도): 60% 이상일 경우 민감한 편, 미만일 경우 일반적인 편으로 판단합니다.
+                    * tension (탄력): 60% 이상일 경우 탄력이 높은 편, 미만일 경우 탄력이 낮은 편으로 판단합니다.
+            2.  **기존 뷰티 루틴:**
+                %s
+            3.  **사용법이 달라진 (개선된) 뷰티 루틴:**
+                %s
+            4.  **추가 또는 대체 추천 화장품 목록:**
+                %s
+            [역질문]
+            위클리 관리를 위한 추가 피부 분석을 위한 역질문 5가지 해줘. 예를 들어, 세안법, 주 단위 피부 습관 등
+            (주 1회 팩, 주 1~2회 각질 제거 여부)
+            [요청 사항]
+            - 요일마다 주간 스킨케어 루틴을 추천해줘.
+            - 추가 지침도 알려줘.
+            **레포트 작성 스타일:**
+            * 전문적이고 신뢰감을 주면서도, 사용자가 이해하기 쉽도록 친절하고 상세하게 설명해주세요.
+            * 단순 정보 나열이 아닌, 각 요소 간의 연관성을 분석하고 그 이유를 명확히 밝혀주세요.
+            * 긍정적인 변화를 기대할 수 있도록 격려하는 어투를 사용해주세요.
+            """;
 
+    // ────────────────────────────────────────────────────────────────────────────
     private static final String PRODUCT_INQUIRY_PROMPT = """
         응답은 최대 3문장 이내로 간결하게 작성해 주세요.
         당신은 뷰티 제품 전문가입니다.
@@ -182,13 +213,19 @@ public class ChatMessageService {
         ▶ [맞춤형 제품 추천](/recommend)
         --------------------
     """ ;
-
+//    private final CheckListRepository checkListRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final WebClient webClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
+    // application.properties 에 설정된 “저장 디렉터리” 경로
+    @Value("${chat.md-json.storage-dir}")
+    private String mdJsonStorageDir;
     /** Gemini API 키 */
     @Value("${gemini.api.key}")
     private String apiKey;
+
+    private final AtomicInteger totalReportAiCounter = new AtomicInteger(0);
 
     public List<ChatMessage> findAll() {
         return chatMessageRepository.findAll();
@@ -210,42 +247,12 @@ public class ChatMessageService {
      * “세션 초기화” 메서드: 컨트롤러에서 initSession(sessionId, userId, templateKey) 로 호출
      */
     public void initSession(String sessionId, String userId, String templateKey) {
-
-        String TOTAL_REPORT_PROMPT = """
-            [역할 부여]
-            당신은 상세하고 친절한 뷰티 제품 전문가입니다. 피부 분석, 제품 추천 및 사용 루틴 컨설팅에 매우 능숙합니다.
-            [입력 데이터]
-            1.  **피부 상태 체크리스트:**
-                %s
-                * **해석 기준:**
-                    * moisture (촉촉함): 60% 이상일 경우 촉촉한 편, 미만일 경우 건조한 편으로 판단합니다.
-                    * oil (유분): 60% 이상일 경우 유분이 많은 편, 미만일 경우 유분이 적은 편으로 판단합니다.
-                    * sensitivity (민감도): 60% 이상일 경우 민감한 편, 미만일 경우 일반적인 편으로 판단합니다.
-                    * tension (탄력): 60% 이상일 경우 탄력이 높은 편, 미만일 경우 탄력이 낮은 편으로 판단합니다.
-            2.  **기존 뷰티 루틴:**
-                %s
-            3.  **사용법이 달라진 (개선된) 뷰티 루틴:**
-                %s
-            4.  **추가 또는 대체 추천 화장품 목록:**
-                %s
-            [역질문]
-            위클리 관리를 위한 추가 피부 분석을 위한 역질문 5가지 해줘. 예를 들어, 세안법, 주 단위 피부 습관 등
-            (주 1회 팩, 주 1~2회 각질 제거 여부)
-            [요청 사항]
-            - 요일마다 주간 스킨케어 루틴을 추천해줘.
-            - 추가 지침도 알려줘.
-            **레포트 작성 스타일:**
-            * 전문적이고 신뢰감을 주면서도, 사용자가 이해하기 쉽도록 친절하고 상세하게 설명해주세요.
-            * 단순 정보 나열이 아닌, 각 요소 간의 연관성을 분석하고 그 이유를 명확히 밝혀주세요.
-            * 긍정적인 변화를 기대할 수 있도록 격려하는 어투를 사용해주세요.
-            """;
-
         try {
             List<RoutinesDto> recommend = routineRepository.findRoutinesByUserId(userId); //보류
             List<RoutineChangeDTO> routinechange = routineChangeRepository.findAllRoutinesByUserId(userId); // 루틴 방법 수정 된 결과
             List<RecommendResponseDTO> deeprecommend = deepRecommendRepository.findAllRecommendByUserId(userId); // 제품 추천 , 이유 , 추가(대체)
 //            List<CheckList> checklist = checkListRepository.findByUserOrderByCreatedAtDesc(user.getId()); //
-            List<ChatMessageDTO> chatlist = chatMessageRepository1.findChatMessage(userId);
+            List<ChatMessageDTO> chatlist = chatMessageRepository1.findByUserId(userId);
 
             ObjectMapper mapper = new ObjectMapper();
 
@@ -436,6 +443,71 @@ public class ChatMessageService {
         historyCache.put(sessionId, fullHistory);
 
         return aiMsg;
+    }
+    public void handleAiResponseAndMaybeSaveMd(String sessionId, ChatMessage aiMsg, String templateKey) {
+        // 1) 만약 templateKey가 "TOTAL_REPORT"가 아니면, 카운트도 MD 저장도 하지 않음
+        if (!"TOTAL_REPORT".equals(templateKey)) {
+            // 엔티티만 저장
+            chatMessageRepository.save(aiMsg);
+            return;
+        }
+
+        // 2) 여기부터는 "TOTAL_REPORT"인 경우
+        //    AI 응답 횟수 카운트 증가
+        int newCount = totalReportAiCounter.incrementAndGet();
+
+        // 3) promptType 설정
+        aiMsg.setPromptType(Prompt_Type.TOTAL);
+
+        // 4) 채팅 메시지(DB) 저장
+        chatMessageRepository.save(aiMsg);
+
+        // 5) 만약 카운트가 5라면, MD 파일을 생성하고 카운트 초기화
+        if (newCount >= 5) {
+            saveAiResponseAsMdJson(sessionId, aiMsg.getContent());
+            totalReportAiCounter.set(0);
+        }
+    }
+    public String saveAiResponseAsMdJson(String sessionId, String aiText) {
+        // 1) 저장할 디렉터리 경로 생성 (없다면 폴더 생성)
+        Path dirPath = Paths.get(mdJsonStorageDir);
+        if (!Files.exists(dirPath)) {
+            try {
+                Files.createDirectories(dirPath);
+            } catch (IOException e) {
+                throw new RuntimeException("저장 폴더 생성 실패: " + mdJsonStorageDir, e);
+            }
+        }
+
+        // 2) Markdown 포맷으로 래핑 (헤더·타임스탬프 포함 예시)
+        StringBuilder mdBuilder = new StringBuilder();
+        mdBuilder.append("# AI 진단서\n\n");
+        mdBuilder.append("**생성 시각**: ").append(LocalDateTime.now()).append("\n\n");
+        mdBuilder.append("```\n").append(aiText).append("\n```\n");
+        String markdown = mdBuilder.toString();
+
+        // 3) JSON 구조 생성
+        Map<String, Object> jsonMap = new LinkedHashMap<>();
+        jsonMap.put("generatedAt", LocalDateTime.now().toString());
+        jsonMap.put("sessionId", sessionId);
+        jsonMap.put("markdown", markdown);
+
+        // 4) 파일 이름: ai-diagnosis-{sessionId}-{timestamp}.json
+        String filename = String.format("ai-diagnosis-%s-%d.json",
+                sessionId.replaceAll("[^a-zA-Z0-9\\-]", "_"),
+                System.currentTimeMillis());
+        Path filePath = dirPath.resolve(filename);
+
+        // 5) 실제 디스크에 JSON 쓰기
+        try {
+            String jsonString = objectMapper.writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(jsonMap);
+            Files.write(filePath, jsonString.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException("AI 응답 JSON 저장 실패: " + filename, e);
+        }
+
+        return filename;
     }
 }
 
