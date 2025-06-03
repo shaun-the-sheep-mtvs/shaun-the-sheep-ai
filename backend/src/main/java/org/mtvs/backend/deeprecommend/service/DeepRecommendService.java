@@ -103,7 +103,7 @@ public class DeepRecommendService {
                             "    {\n" +
                             "      \"routineChangeId\": 123, \n" + // AI가 기존 루틴의 ID를 알 수 있도록 포함
                             "      \"routineName\": \"세안\",\n" +
-                            "      \"routineKind\": \"[토너, 앰플, 크림, 로션, 세럼] 중\",\n" +
+                            "      \"routineKind\": \"[토너, 앰플, 크림, 로션, 세럼 ,팩 ,패드 ,스킨] 중\",\n" +
                             "      \"routineTime\": \"MORNING\",\n" +
                             "      \"routineOrders\": 1,\n" +
                             "      \"changeMethod\": \"수분크림을 바르기 전, 피부 타입에 맞는 앰플이나 세럼을 추가하여 보습력을 높임\"\n" +
@@ -468,9 +468,16 @@ public class DeepRecommendService {
     public List<RoutineChangeDTO> getRoutineChangeList(String userId) {
         return routineChangeRepository.findRoutinesByUserId(userId);
     }
+    public List<RoutineChangeDTO> getAllRoutineChangeList(String userId) {
+        return routineChangeRepository.findAllRoutinesByUserId(userId);
+    }
 
     /* step2. 제품 변경 및 추가 추천 */
     public List<RecommendResponseDTO> getRecommendResponseDTOList(String userId) {
         return deepRecommendRepository.findLatestRecommendByUserId(userId);
+    }
+
+    public List<RecommendResponseDTO> getAllecommendResponseDTOList(String userId) {
+        return deepRecommendRepository.findAllRecommendByUserId(userId);
     }
 }

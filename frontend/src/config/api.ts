@@ -16,6 +16,7 @@ export const apiConfig = {
     },
     routine: {
       base: `${API_BASE_URL}/api/routine`,
+      existingall: `${API_BASE_URL}/api/routine/all-existing`,
       existing: `${API_BASE_URL}/api/routine/existing`,
       create: `${API_BASE_URL}/api/routine/create`,
       delete: `${API_BASE_URL}/api/routine/delete`,
@@ -32,9 +33,13 @@ export const apiConfig = {
       recommend: `${API_BASE_URL}/api/deep/recommend`,
       routineChange: `${API_BASE_URL}/api/deep/routine-change`,
       productRecommend: `${API_BASE_URL}/api/deep/product-recommend`,
+      analysisHistory: `${API_BASE_URL}/api/deep/all-recommend`,
     },
     user: {
       skinData: `${API_BASE_URL}/api/user/skin-data`,
+    },
+    profile: {
+      base: `${API_BASE_URL}/api/profile`,
     }
   }
 };

@@ -74,7 +74,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/health").permitAll()
 
+
                         // Protected endpoints
+                        .requestMatchers("/api/profile").authenticated()
                         .requestMatchers("/api/naver").authenticated()
                         .requestMatchers("/api/recommend/**").authenticated()
                         .requestMatchers("/api/deep/**").authenticated()

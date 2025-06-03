@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import org.mtvs.backend.product.entity.ProductUserLink;
 
 @Getter
 @Setter
@@ -45,6 +46,11 @@ public class User extends BaseEntity {
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
     private List<String> troubles = new ArrayList<>();
+
+    // yunzi
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductUserLink> productUserLinks = new ArrayList<>();
+
 
     public User() {}
 

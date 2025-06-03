@@ -64,7 +64,34 @@ function parseBackendResponse(data: BackendResponse): RecommendData {
   const serums = data.products.filter(product => product.formulation === 'serum');
   const lotions = data.products.filter(product => product.formulation === 'lotion');
   const creams = data.products.filter(product => product.formulation === 'cream');
-  
+  const fetchNaverData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
+
+      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Naver API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching Naver data:', error);
+    }
+  };
+
   return {
     skinType: data.userInfo.skinType || '알 수 없음',
     concerns: data.userInfo.troubles || ['정보 없음'],
@@ -88,6 +115,12 @@ export default function RecommendPage() {
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
+    fetchNaverData();
+  }, []);
+
+  // 네이버 데이터 가져오기
+  useEffect(() => {
+    fetchNaverData();
   }, []);
 
   // 로그아웃 함수
@@ -162,10 +195,42 @@ export default function RecommendPage() {
     console.log('Image URL:', product.imageUrl);
     return product.imageUrl;
   };
-  
+  const fetchNaverData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
+
+      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Naver API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching Naver data:', error);
+    }
+  };
+
   // 이미지 에러 핸들러
-  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement>) => {
+  const handleImageError = async (e: React.SyntheticEvent<HTMLImageElement>) => {
     const target = e.target as HTMLImageElement;
+    const data = await fetchNaverData();
+    if (data?.items?.[0]?.link) {
+      target.src = data.items[0].link;
+      return;
+    }
     target.style.display = 'none';
     const parent = target.parentElement;
     if (parent) {
@@ -183,7 +248,7 @@ export default function RecommendPage() {
         isLoggedIn={isLoggedIn}
         onLogout={handleLogout}
       />
-      
+      fetchNaverData();
       <div className={`${styles["content-wrapper"]} ${styles.centerContent}`}>
         <div className={styles.loadingContainer}>
           <div className={styles.loadingSpinner}>

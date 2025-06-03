@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import Link from 'next/link';
 import Navbar from "@/components/Navbar";
-import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles, FileText } from "lucide-react";
+import { ClipboardCheck, ShoppingBag, Sparkles, FileText, Search } from "lucide-react";
 import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/data/useCurrentUser';
 import { mbtiList } from '@/data/mbtiList';
@@ -39,6 +39,36 @@ export default function Home() {
   const [mbti, setMbti] = useState<string>("default");
   const [mbtiError, setMbtiError] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchType, setSearchType] = useState<'all' | 'brand' | 'productName' | 'ingredient'>('all');
+
+  const fetchNaverData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
+
+      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Naver API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching Naver data:', error);
+    }
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
@@ -150,6 +180,33 @@ export default function Home() {
     tension:     styles.barGray,
   } as const;
 
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      return;
+    }
+    
+    // 검색 페이지로 이동
+    const searchParams = new URLSearchParams({
+      q: query,
+      type: searchType
+    });
+    router.push(`/search?${searchParams.toString()}`);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch(searchQuery);
+  };
+
+  const handlePopularTagClick = (tag: string) => {
+    // 인기 검색어 클릭 시 검색 페이지로 이동
+    const searchParams = new URLSearchParams({
+      q: tag,
+      type: 'ingredient'
+    });
+    router.push(`/search?${searchParams.toString()}`);
+  };
+
   return (
     <div className={styles.wrapper}>
       <Navbar
@@ -177,6 +234,46 @@ export default function Home() {
                 </span>
               </div>
             </div>
+
+            {/* 검색 히어로 섹션 */}
+            <section className={styles.searchHeroSection}>
+              <div className={styles.searchContainer}>
+                <form onSubmit={handleSearchSubmit}>
+                  <div className={styles.searchInputContainer}>
+                    <Search className={styles.searchIcon} />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="제품명, 브랜드, 성분으로 검색하세요"
+                      className={styles.searchInput}
+                    />
+                    <button 
+                      type="submit" 
+                      className={styles.searchButton}
+                    >
+                      검색
+                    </button>
+                  </div>
+                </form>
+
+                {/* 인기 검색어 */}
+                <div className={styles.popularSearches}>
+                  <span className={styles.popularLabel}>인기 검색어:</span>
+                  <div className={styles.popularTags}>
+                    {['비타민C', '히알루론산', '레티놀', '나이아신아마이드', '세라마이드'].map((tag) => (
+                      <button
+                        key={tag}
+                        className={styles.popularTag}
+                        onClick={() => handlePopularTagClick(tag)}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
 
             {/* 체크리스트 결과 섹션 */}
             <section className={`${styles.pageSection} ${styles.analysisReportSection}`}>
@@ -222,16 +319,16 @@ export default function Home() {
                         <div>Tension</div>
                       </div>
                     </div>
-                    <div className={styles.analysisType}>{mbtiList[mbti as keyof typeof mbtiList]?.type}</div>
+                    <div className={styles.analysisType}>{mbtiList[mbti as keyof typeof mbtiList]?.type || '일반'}</div>
                     <div className={styles.analysisDesc}>
-                      {mbtiList[mbti as keyof typeof mbtiList]?.description}
+                      {mbtiList[mbti as keyof typeof mbtiList]?.description || '피부 상태를 분석해주세요.'}
                     </div>
                     <div className={styles.analysisAdvice}>
                       <div className={styles.adviceLabel}>
                         💡 추천 관리법
                       </div>
                       <div className={styles.adviceContent}>
-                        {mbtiList[mbti as keyof typeof mbtiList].advice}
+                        {mbtiList[mbti as keyof typeof mbtiList]?.advice || '기본적인 스킨케어 루틴을 유지해주세요.'}
                       </div>
                     </div>
 
@@ -261,12 +358,12 @@ export default function Home() {
                     <div key={i} className={styles.productCard}>
                       <div className={styles.productImg}>
                         {p.imageUrl ? (
-
                           <img
                             src={p.imageUrl} 
                             alt={p.name}
-                            onError={(e) => {
+                            onError={async (e) => {
                               const target = e.target as HTMLImageElement;
+                              await fetchNaverData();
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
