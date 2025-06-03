@@ -162,67 +162,57 @@ export default function ChatWidget() {
   // 8) 질문 전송
   // ────────────────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
-    if (isDisabled) return
-    if (!input.trim() || loading) return
+  if (isDisabled) return;
+  if (!input.trim() || loading) return;
 
-    const userMsg: ChatMessageDTO = {
-      role: 'user',
-      content: input,
-      timestamp: new Date().toISOString(),
+  const userMsg: ChatMessageDTO = {
+    role: 'user',
+    content: input,
+    timestamp: new Date().toISOString(),
+  };
+
+  setMessages((prev) => [...prev, userMsg]);
+  setInput('');
+  setLoading(true);
+
+  try {
+    const url = new URL(apiConfig.endpoints.chat.base + '/ask');
+    url.searchParams.set('sessionId', sessionId);
+    if (templateKey) {
+      url.searchParams.set('templateKey', templateKey);
     }
 
-    setMessages(prev => [...prev, userMsg])
-    setInput('')
-    setLoading(true)
+    const token = localStorage.getItem('accessToken');
+    const res = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userMessage: userMsg.content }),
+    });
 
-    try {
-      const url = new URL(apiConfig.endpoints.chat.base + '/ask')
-      url.searchParams.set('sessionId', sessionId)
-      if (templateKey) {
-        url.searchParams.set('templateKey', templateKey)
-      }
-
-      const token = localStorage.getItem('accessToken')
-      const res = await fetch(url.toString(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userMessage: userMsg.content }),
-      })
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`)
-      }
-      const aiDto = (await res.json()) as ChatMessageDTO
-
-      // CUSTOMER_SUPPORT 템플릿인 경우, AI 응답 대신 고정 메시지를 보여줌
-      if (templateKey === 'TOTAL_REPORT') {
-        setMessages(prev => [
-          ...prev,
-          {
-            role: 'ai',
-            content: '진단서가 제출되었습니다.',
-            timestamp: new Date().toISOString(),
-          },
-        ])
-      } else {
-        setMessages(prev => [...prev, aiDto])
-      }
-    } catch (err) {
-      console.error(err)
-      setMessages(prev => [
-        ...prev,
-        {
-          role: 'ai',
-          content: '서버가 이상이 생겼습니다. 잠시 후 다시 시도해주세요.',
-          timestamp: new Date().toISOString(),
-        },
-      ])
-    } finally {
-      setLoading(false)
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
     }
+
+    // 항상 AI가 반환하는 ChatMessageDTO를 받아서 화면에 추가
+    const aiDto = (await res.json()) as ChatMessageDTO;
+    setMessages((prev) => [...prev, aiDto]);
+  } catch (err) {
+    console.error(err);
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'ai',
+        content: '서버가 이상이 생겼습니다. 잠시 후 다시 시도해주세요.',
+        timestamp: new Date().toISOString(),
+      },
+    ]);
+  } finally {
+    setLoading(false);
   }
+};
 
   // ────────────────────────────────────────────────────────────────────────────
   // 9) JSX 반환
