@@ -68,28 +68,28 @@ public class CheckListController {
     }
 
     /** 게스트 체크리스트 제출 */
-    @PostMapping("/guest")
-    public ResponseEntity<?> guestChecklist(@RequestBody GuestData guestData, HttpSession session) {
-        // 1. MBTI 코드 계산
-        String mbtiCode = service.calculateMbtiForGuest(guestData);
-        // 2. SkinType 조회 (한글명 반환)
-        String skinType = service.getSkinTypeForMbti(mbtiCode);
+    // @PostMapping("/guest")
+    // public ResponseEntity<?> guestChecklist(@RequestBody GuestData guestData, HttpSession session) {
+    //     // 1. MBTI 코드 계산
+    //     String mbtiCode = service.calculateMbtiForGuest(guestData);
+    //     // 2. SkinType 조회 (한글명 반환)
+    //     String skinType = service.getSkinTypeForMbti(mbtiCode);
 
-        // 3. (Optional) Save guest checklist to session
-        session.setAttribute("guestChecklist", guestData);
+    //     // 3. (Optional) Save guest checklist to session
+    //     session.setAttribute("guestChecklist", guestData);
 
-        // 4. Call recommendation/diagnosis logic for guest
-        recommendController.diagnoseGuest(guestData, mbtiCode, skinType, session);
+    //     // 4. Call recommendation/diagnosis logic for guest
+    //     recommendController.diagnoseGuest(guestData, mbtiCode, skinType, session);
 
-        // 5. Log the result
-        log.info("Guest checklist submitted: mbti={}, skinType={}", mbtiCode, skinType);
+    //     // 5. Log the result
+    //     log.info("Guest checklist submitted: mbti={}, skinType={}", mbtiCode, skinType);
 
-        // 6. Return result
-        return ResponseEntity.ok(Map.of(
-            "mbti", mbtiCode,
-            "skinType", skinType
-        ));
-    }
+    //     // 6. Return result
+    //     return ResponseEntity.ok(Map.of(
+    //         "mbti", mbtiCode,
+    //         "skinType", skinType
+    //     ));
+    // }
 }
 
 
