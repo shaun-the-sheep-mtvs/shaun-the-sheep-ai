@@ -121,10 +121,6 @@ export default function ChatWidget() {
     // 2) 화면 메시지 초기화 + 첫 안내 텍스트 세팅
     let promptText = ''
     switch (key) {
-      case 'TOTAL_REPORT':
-        promptText =
-          '지금까지의 정보를 바탕으로 진단서를 작성해드릴게요.'
-        break
       case 'PRODUCT_INQUIRY':
         promptText =
           '제품 문의를 선택하셨습니다. 사용하시는 제품이 기억나지 않으시면, 외관·질감·향기 등을 설명해 주세요.'
@@ -133,13 +129,17 @@ export default function ChatWidget() {
         promptText =
           '성분 문의를 선택하셨습니다. 궁금하신 성분을 입력해 주세요 (예: 히알루론산, 비타민C…).'
         break
+        case 'SKIN_TYPE':
+        promptText =
+          '피부 타입 상담을 선택하셨습니다. 피부 고민에 대해 말씀해주시면 피부 타입을 진단해 드리겠습니다.'
+        break
       case 'SKIN_TROUBLE':
         promptText =
           '트러블 상담을 선택하셨습니다. 현재 겪고 계신 트러블을 말씀해 주세요 (예: 건조함, 홍조…).'
         break
-      case 'SKIN_TYPE':
+      case 'TOTAL_REPORT':
         promptText =
-          '피부 타입 상담을 선택하셨습니다. 피부 고민에 대해 말씀해주시면 피부 타입을 진단해 드리겠습니다.'
+          '지금까지의 정보를 바탕으로 진단서를 작성해드릴게요.'
         break
       default:
         promptText = '안녕하세요! 상담을 시작해보세요.'
@@ -194,33 +194,20 @@ export default function ChatWidget() {
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`)
       }
-      const aiDto = (await res.json()) as ChatMessageDTO
-
-      // CUSTOMER_SUPPORT 템플릿인 경우, AI 응답 대신 고정 메시지를 보여줌
-      if (templateKey === 'TOTAL_REPORT') {
-        setMessages(prev => [
-          ...prev,
-          {
-            role: 'ai',
-            content: '진단서가 제출되었습니다.',
-            timestamp: new Date().toISOString(),
-          },
-        ])
-      } else {
-        setMessages(prev => [...prev, aiDto])
-      }
+      const aiDto = (await res.json()) as ChatMessageDTO;
+      setMessages((prev) => [...prev, aiDto]);
     } catch (err) {
-      console.error(err)
-      setMessages(prev => [
-        ...prev,
-        {
-          role: 'ai',
-          content: '서버가 이상이 생겼습니다. 잠시 후 다시 시도해주세요.',
-          timestamp: new Date().toISOString(),
-        },
-      ])
-    } finally {
-      setLoading(false)
+      console.error(err);
+      setMessages((prev) => [
+      ...prev,
+      {
+        role: 'ai',
+        content: '서버가 이상이 생겼습니다. 잠시 후 다시 시도해주세요.',
+        timestamp: new Date().toISOString(),
+      },
+    ]);
+  } finally {
+    setLoading(false);
     }
   }
 
@@ -245,9 +232,6 @@ export default function ChatWidget() {
 
           {/* 퀵 액션 버튼 */}
           <div className={styles.quickActions}>
-            <button onClick={() => handleQuick('TOTAL_REPORT')}>
-              종합 리포트
-            </button>
             <button onClick={() => handleQuick('PRODUCT_INQUIRY')}>
               <PackageSearch size={16} className={styles.quickIcon} />
               제품 문의
@@ -263,6 +247,9 @@ export default function ChatWidget() {
             <button onClick={() => handleQuick('SKIN_TYPE')}>
               <Smile size={20} className={styles.headerIcon} />
               피부 타입
+            </button>
+            <button onClick={() => handleQuick('TOTAL_REPORT')}>
+              종합 리포트
             </button>
           </div>
 

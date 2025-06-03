@@ -387,24 +387,37 @@ public class ChatMessageService {
         return aiMsg;
     }
     public void handleAiResponseAndMaybeSaveMd(String sessionId, ChatMessage aiMsg, String templateKey) {
-        // 1) 만약 templateKey가 "TOTAL_REPORT"가 아니면, 카운트도 MD 저장도 하지 않음
+        // 1) TOTAL_REPORT이 아닐 때
         if (!"TOTAL_REPORT".equals(templateKey)) {
-            // 엔티티만 저장
+            Prompt_Type pt;
+            switch (templateKey) {
+                case "PRODUCT_INQUIRY":
+                    pt = Prompt_Type.PRODUCT;
+                    break;
+                case "INGREDIENT_INQUIRY":
+                    pt = Prompt_Type.INGREDIENT;
+                    break;
+                case "SKIN_TYPE":
+                    pt = Prompt_Type.SKIN_TYPE;
+                    break;
+                case "SKIN_TROUBLE":
+                    // ★ SKIN_TROUBLE일 때는 오직 AI 메시지만 저장
+                    pt = Prompt_Type.SKIN_TROUBLE;
+                    break;
+                default:
+                    pt = Prompt_Type.TOTAL;
+            }
+            // AI 메시지의 promptType만 설정 → DB에 저장
+            aiMsg.setPromptType(pt);
             chatMessageRepository.save(aiMsg);
             return;
         }
 
-        // 2) 여기부터는 "TOTAL_REPORT"인 경우
-        //    AI 응답 횟수 카운트 증가
+        // 2) templateKey == "TOTAL_REPORT"인 경우 (기존 로직)
         int newCount = totalReportAiCounter.incrementAndGet();
-
-        // 3) promptType 설정
         aiMsg.setPromptType(Prompt_Type.TOTAL);
-
-        // 4) 채팅 메시지(DB) 저장
         chatMessageRepository.save(aiMsg);
 
-        // 5) 만약 카운트가 5라면, MD 파일을 생성하고 카운트 초기화
         if (newCount >= 5) {
             saveAiResponseAsMdJson(sessionId, aiMsg.getContent());
             totalReportAiCounter.set(0);

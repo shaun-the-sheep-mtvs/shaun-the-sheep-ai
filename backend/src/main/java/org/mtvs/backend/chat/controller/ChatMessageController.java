@@ -157,6 +157,9 @@ public class ChatMessageController {
                     case "SKIN_TYPE":
                         pt = Prompt_Type.SKIN_TYPE;
                         break;
+                    case "SKIN_TROUBLE":
+                        pt = Prompt_Type.SKIN_TROUBLE;
+                        break;
                     default:
                         pt = Prompt_Type.TOTAL;
                 }

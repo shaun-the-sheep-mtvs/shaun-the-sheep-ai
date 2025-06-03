@@ -4,5 +4,6 @@ public enum Prompt_Type {
     TOTAL,
     PRODUCT,
     INGREDIENT,
-    SKIN_TYPE;
+    SKIN_TYPE,
+    SKIN_TROUBLE;
 }
