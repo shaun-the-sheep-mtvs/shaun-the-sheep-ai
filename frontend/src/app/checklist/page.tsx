@@ -149,7 +149,7 @@ const percent = (cat: Category) => {
         return;
       }
       // 네이버 데이터 불러오기
-      // await fetchNaverData();
+      await fetchNaverData();
 
       // 홈으로 이동
       router.push('/');
@@ -428,31 +428,31 @@ const percent = (cat: Category) => {
 }
 
 
-  // // 네이버 연동
-  // const fetchNaverData = async () => {
-  //   try {
-  //     const token = localStorage.getItem('accessToken');
-  //     if (!token) {
-  //       console.log('No token found');
-  //       return;
-  //     }
+  // 네이버 연동
+  const fetchNaverData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
 
-  //     const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
-  //       method: 'GET',
-  //       headers: {
-  //         'Authorization': `Bearer ${token}`,
-  //         'Content-Type': 'application/json'
-  //       }
-  //     });
+      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! status: ${response.status}`);
-  //     }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-  //     const data = await response.json();
-  //     console.log('Naver API response:', data);
-  //     return data;
-  //   } catch (error) {
-  //     console.error('Error fetching Naver data:', error);
-  //   }
-  // };
+      const data = await response.json();
+      console.log('Naver API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching Naver data:', error);
+    }
+  };

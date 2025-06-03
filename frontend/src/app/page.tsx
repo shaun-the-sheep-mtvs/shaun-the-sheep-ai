@@ -150,13 +150,11 @@ export default function Home() {
     }
   }, []);
   
-
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     window.location.reload();
   }
   
-
   // 한글 레이블 매핑
   const labels = {
     moisture:    '수분',
