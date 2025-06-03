@@ -40,7 +40,7 @@
   }
   .homeButton {
     background: #e8f5e9;
-    color: #388e3c;
+    color: #6ee7b7;
     border: none;
     border-radius: 6px;
     padding: 0.4rem 1.2rem;
@@ -72,7 +72,7 @@
     border-bottom: none;
   }
   .icon {
-    color: #43a047;
+    color: #6ee7b7;
     flex-shrink: 0;
   }
   .concernsList {
@@ -85,7 +85,7 @@
   }
   .concernsList li {
     background: #e8f5e9;
-    color: #388e3c;
+    color: #6ee7b7;
     border-radius: 12px;
     padding: 0.3rem 0.9rem;
     font-size: 0.95rem;
@@ -125,7 +125,7 @@
     background: #e8f5e9;
     padding: 0.3rem 0.8rem;
     border-radius: 12px;
-    color: #388e3c;
+    color: #6ee7b7;
   }
   .routineList {
     list-style: none;
@@ -144,7 +144,7 @@
   }
   .routineNum {
     background: #e8f5e9;
-    color: #388e3c;
+    color: #6ee7b7;
     width: 24px;
     height: 24px;
     border-radius: 50%;
@@ -193,7 +193,7 @@
   }
   .pwEditBtn {
     background: #e8f5e9;
-    color: #388e3c;
+    color: #6ee7b7;
     border: none;
     border-radius: 6px;
     padding: 0.5rem 1.2rem;
@@ -223,7 +223,7 @@
     to { opacity: 1; transform: translateX(0); }
   }
   .pwEditPanel h3 {
-    color: #388e3c;
+    color: #6ee7b7;
     margin-bottom: 1rem;
   }
   .pwEditForm {
@@ -246,7 +246,7 @@
     font-size: 1rem;
   }
   .pwEditSubmitBtn {
-    background: #43a047;
+    background: #6ee7b7;
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -276,7 +276,7 @@
   .tab {
     font-size: 2rem;
     font-weight: 600;
-    background: #388e3c;
+    background: #6ee7b7;
     border: none;
     border-radius: 6px 6px 0 0;
     padding: 0.5rem 2.5rem;
@@ -307,7 +307,7 @@
     background: #fff;
     border-radius: 16px;
     padding: 1rem;
-    margin-bottom: 5rem;
+    margin-bottom: 1.5rem;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     transition: all 0.2s ease;
     cursor: pointer;
@@ -380,7 +380,7 @@
 
   .modalClose {
     background: #e8f5e9;
-    color: #388e3c;
+    color: #6ee7b7;
     border: none;
     border-radius: 6px;
     width: 32px;
@@ -407,7 +407,7 @@
   .analysisCardTitle {
     font-size: 1.3rem;
     font-weight: 600;
-    color: #c61717;
+    color: #333;
     margin-bottom: 1.5rem;
     padding-bottom: 0.8rem;
     border-bottom: 2px solid #e8f5e9;
@@ -421,7 +421,7 @@
   /* 로딩 스피너 스타일 */
   .loadingSpinner {
     animation: spin 1s linear infinite;
-    color: #43a047;
+    color: #6ee7b7;
   }
 
   @keyframes spin {
@@ -522,7 +522,7 @@
   }
 
   .changeProductLabel.green {
-    color: #388e3c;
+    color: #6ee7b7;
   }
 
   .changeProductTitle {
@@ -571,7 +571,7 @@
     width: 28px;
     height: 28px;
     background: #e8f5e9;
-    color: #388e3c;
+    color: #6ee7b7;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -592,7 +592,7 @@
   }
 
   .buyBtn {
-    background: #43a047;
+    background: #6ee7b7;
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -604,7 +604,7 @@
   }
 
   .buyBtn:hover {
-    background: #388e3c;
+    background: #6ee7b7;
   }
 
   .emptyMessageCard {
@@ -630,7 +630,7 @@
   }
 
   .routineOrder {
-    background: #43a047;
+    background: #6ee7b7;
     color: white;
     width: 24px;
     height: 24px;
@@ -673,11 +673,16 @@
   }
 
   .routineGroupSection {
-    margin-bottom: 2rem;
-    padding: 2rem;
-    background: #f8f9fa;
-    border-radius: 12px;
-    width: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    padding: 1rem;
+  }
+
+  .currentRoutines,
+  .recommendationsSection {
+    flex: 1;
+    min-width: 0;
   }
 
   .routineGroupSection:last-child {
@@ -717,7 +722,7 @@
 
   .routineTimeSection h4 {
     font-size: 1.2rem;
-    color: #388e3c;
+    color: #6ee7b7;
     margin-bottom: 1.5rem;
     font-weight: 600;
     padding-bottom: 0.5rem;
@@ -741,7 +746,7 @@
   }
 
   .routineOrder {
-    background: #43a047;
+    background: #6ee7b7;
     color: white;
     width: 28px;
     height: 28px;
@@ -787,13 +792,6 @@
     margin-top: 0.5rem;
   }
 
-  .routineGroupSection {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-    padding: 1rem;
-  }
-
   .sectionMainTitle {
     font-size: 1.4rem;
     font-weight: 600;
@@ -829,7 +827,7 @@
 
   .navButton {
     background: #e8f5e9;
-    color: #388e3c;
+    color: #6ee7b7;
     border: none;
     border-radius: 6px;
     width: 32px;
@@ -897,7 +895,7 @@
   .routineTab.active {
     background: #e8f5e9;
     border-color: #4CD3A5;
-    color: #388e3c;
+    color: #6ee7b7;
   }
 
   .routineTab:hover:not(.active) {
@@ -920,7 +918,7 @@
 
   .routineTimeSection h4 {
     font-size: 1.2rem;
-    color: #388e3c;
+    color: #6ee7b7;
     margin-bottom: 1.5rem;
     font-weight: 600;
     padding-bottom: 0.8rem;
@@ -949,7 +947,7 @@
   }
 
   .routineOrder {
-    background: #43a047;
+    background: #6ee7b7;
     color: white;
     width: 28px;
     height: 28px;
@@ -1051,7 +1049,7 @@
   }
 
   .changeProductLabel.green {
-    color: #388e3c;
+    color: #6ee7b7;
   }
 
   .changeProductTitle {
@@ -1078,7 +1076,7 @@
   }
 
   .buyBtn {
-    background: #43a047;
+    background: #6ee7b7;
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -1090,5 +1088,47 @@
   }
 
   .buyBtn:hover {
-    background: #388e3c;
+    background: #6ee7b7;
+  }
+
+  @media (max-width: 800px) {
+    .routineGroupSection {
+      flex-direction: column;
+    }
+  }
+
+  .recommendProductsSection {
+    margin-top: 2.5rem;
+    width: 100%;
+  }
+
+  .routineCard {
+    flex: 1;
+    background: #f8f9fa;
+    border-radius: 14px;
+    box-shadow: 0 2px 8px rgba(67, 160, 71, 0.06);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .routineCardTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #6ee7b7;
+    margin-bottom: 1.2rem;
+    letter-spacing: -0.5px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.7rem;
+  }
+
+  @media (max-width: 800px) {
+    .routineGroupSection {
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+    .routineCard {
+      padding: 1.2rem 0.7rem;
+    }
   }

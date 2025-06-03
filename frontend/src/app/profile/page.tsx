@@ -130,6 +130,7 @@ const ProfilePage = () => {
       });
   }, []);
 
+
   useEffect(() => {
     if (tab === 'history') {
       setLoadingHistory(true);
@@ -155,6 +156,7 @@ const ProfilePage = () => {
         .then(data => setHistoricalData(data || []));
     }
   }, [tab]);
+  
 
   if (error) {
     return (
@@ -214,16 +216,6 @@ const ProfilePage = () => {
     setRoutineChanges([]);
     const token = localStorage.getItem('accessToken');
     try {
-      // 기존 루틴 데이터 가져오기
-      const existingRes = await fetch(`${apiConfig.baseURL}/api/routine/all-existing`, {
-        headers: { Authorization: `Bearer ${token}` },
-        credentials: 'include'
-      });
-      if (existingRes.ok) {
-        const existingData = await existingRes.json();
-        setExistingRoutines(existingData);
-      }
-
       // 분석 결과 데이터 가져오기
       const res = await axios.get(`${allRecommendEndpoint}?id=${item.id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -287,8 +279,8 @@ const ProfilePage = () => {
                 fontWeight: 600,
                 fontSize: '1.1rem',
                 borderRadius: '6px',
-                border: tab === 'info' ? '2px solid #388e3c' : '1px solid #ccc',
-                background: tab === 'info' ? '#e8f5e9' : '#fff',
+                border: tab === 'info' ? '2px solid #6ee7b7' : '1px solid #ccc',
+                background: tab === 'info' ? '#6ee7b7' : '#fff',
                 color: tab === 'info' ? '#222' : '#888',
                 cursor: 'pointer',
                 transition: 'all 0.2s'
@@ -301,8 +293,8 @@ const ProfilePage = () => {
                 fontWeight: 600,
                 fontSize: '1.1rem',
                 borderRadius: '6px',
-                border: tab === 'history' ? '2px solid #388e3c' : '1px solid #ccc',
-                background: tab === 'history' ? '#e8f5e9' : '#fff',
+                border: tab === 'history' ? '2px solid #6ee7b7' : '1px solid #ccc',
+                background: tab === 'history' ? '#6ee7b7' : '#fff',
                 color: tab === 'history' ? '#222' : '#888',
                 cursor: 'pointer',
                 transition: 'all 0.2s'
@@ -360,39 +352,31 @@ const ProfilePage = () => {
                   </div>
                   <div className={styles.profileInfo1}>
                     <h3> 최근 등록된 루틴</h3>
-                    <div className={styles.routineSplit1}>
-                      <div>
-                        <b>아침</b>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <span style={{ minWidth: 40, fontWeight: 600 }}>아침</span>
                         {morningRoutines.length > 0 ? (
-                          <ul className={styles.routineList}>
-                            {morningRoutines.map((routine) => (
-                              <li key={routine.id}>
-                                <div><b>{routine.orders}. {routine.name}</b></div>
-                                <div style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.3rem' }}>
-                                  {routine.kind} ({routine.method})
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                          morningRoutines.map((routine) => (
+                            <div key={routine.id} style={{ minWidth: 160, background: '#f8f9fa', borderRadius: 6, padding: '0.5rem 1rem', marginRight: 8 }}>
+                              <b>{routine.name}</b>
+                              <div style={{ fontSize: '0.85rem', color: '#666' }}>{routine.kind} ({routine.method})</div>
+                            </div>
+                          ))
                         ) : (
-                          <p className={styles.routineEmpty}>등록된 아침 루틴이 없습니다.</p>
+                          <span className={styles.routineEmpty}>등록된 아침 루틴이 없습니다.</span>
                         )}
                       </div>
-                      <div>
-                        <b>저녁</b>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <span style={{ minWidth: 40, fontWeight: 600 }}>저녁</span>
                         {nightRoutines.length > 0 ? (
-                          <ul className={styles.routineList}>
-                            {nightRoutines.map((routine) => (
-                              <li key={routine.id}>
-                                <div><b>{routine.orders}. {routine.name}</b></div>
-                                <div style={{ fontSize: '0.9rem', color: '#666', marginTop: '0.3rem' }}>
-                                  {routine.kind} ({routine.method})
-                                </div>
-                              </li>
-                            ))}
-                          </ul>
+                          nightRoutines.map((routine) => (
+                            <div key={routine.id} style={{ minWidth: 160, background: '#f8f9fa', borderRadius: 6, padding: '0.5rem 1rem', marginRight: 8 }}>
+                              <b>{routine.name}</b>
+                              <div style={{ fontSize: '0.85rem', color: '#666' }}>{routine.kind} ({routine.method})</div>
+                            </div>
+                          ))
                         ) : (
-                          <p className={styles.routineEmpty}>등록된 저녁 루틴이 없습니다.</p>
+                          <span className={styles.routineEmpty}>등록된 저녁 루틴이 없습니다.</span>
                         )}
                       </div>
                     </div>
@@ -511,63 +495,31 @@ const ProfilePage = () => {
                         <div style={{ marginBottom: 16 }}>
                           <b>피부 고민:</b> {item.troubles ? Object.values(item.troubles).join(', ') : '-'}
                         </div>
-                        <div style={{ display: 'flex', gap: 32 }}>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ 
-                              fontWeight: 600, 
-                              marginBottom: 8,
-                              color: '#388e3c',
-                              fontSize: '1.1rem'
-                            }}>
-                              아침 루틴
-                            </div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <span style={{ minWidth: 40, fontWeight: 600, color: '#388e3c' }}>아침</span>
                             {morningRoutines.length > 0 ? (
-                              <ul className={styles.routineList}>
-                                {morningRoutines.map((routine) => (
-                                  <li key={routine.id}>
-                                    <div className={styles.routineItem}>
-                                      <div className={styles.routineOrder}>{routine.orders}</div>
-                                      <div className={styles.routineInfo}>
-                                        <div className={styles.routineName}>{routine.name}</div>
-                                        <div className={styles.routineDetail}>
-                                          {routine.kind} ({routine.method})
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </li>
-                                ))}
-                              </ul>
+                              morningRoutines.map((routine) => (
+                                <div key={routine.id} style={{ minWidth: 160, background: '#f8f9fa', borderRadius: 6, padding: '0.5rem 1rem', marginRight: 8 }}>
+                                  <b>{routine.name}</b>
+                                  <div style={{ fontSize: '0.85rem', color: '#666' }}>{routine.kind} ({routine.method})</div>
+                                </div>
+                              ))
                             ) : (
-                              <p className={styles.routineEmpty}>등록된 아침 루틴이 없습니다.</p>
+                              <span className={styles.routineEmpty}>등록된 아침 루틴이 없습니다.</span>
                             )}
                           </div>
-                          <div style={{ flex: 1 }}>
-                            <div style={{ 
-                              fontWeight: 600, 
-                              marginBottom: 8,
-                              color: '#388e3c',
-                              fontSize: '1.1rem'
-                            }}>
-                              저녁 루틴
-                            </div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                            <span style={{ minWidth: 40, fontWeight: 600, color: '#388e3c' }}>저녁</span>
                             {nightRoutines.length > 0 ? (
-                              <ul className={styles.routineList}>
-                                {nightRoutines.map((routine) => (
-                                  <li key={routine.id}>
-                                    <div className={styles.routineItem}>
-                                      <div className={styles.routineOrder}>{routine.orders}</div>
-                                      <div className={styles.routineInfo}>
-                                        <div className={styles.routineName}>{routine.name}</div>
-                                        <div className={styles.routineDetail}>
-                                          {routine.kind} ({routine.method})
-                                        </div>
-                                      </div>
-                                    </div>
-                                  </li>
-                                ))}
-                              </ul>
+                              nightRoutines.map((routine) => (
+                                <div key={routine.id} style={{ minWidth: 160, background: '#f8f9fa', borderRadius: 6, padding: '0.5rem 1rem', marginRight: 8 }}>
+                                  <b>{routine.name}</b>
+                                  <div style={{ fontSize: '0.85rem', color: '#666' }}>{routine.kind} ({routine.method})</div>
+                                </div>
+                              ))
                             ) : (
-                              <p className={styles.routineEmpty}>등록된 저녁 루틴이 없습니다.</p>
+                              <span className={styles.routineEmpty}>등록된 저녁 루틴이 없습니다.</span>
                             )}
                           </div>
                         </div>
@@ -612,7 +564,6 @@ const ProfilePage = () => {
                           <div className={styles.sectionHeader}>
                             <div className={styles.sectionMainTitle}>제품 변경 및 추가 추천</div>
                           </div>
-
                           {/* 루틴 탭 */}
                           <div className={styles.routineTabs}>
                             <button 
@@ -628,61 +579,68 @@ const ProfilePage = () => {
                               저녁 루틴
                             </button>
                           </div>
-
                           <div className={styles.changeBox}>
                             {(() => {
-                              const recommendations = modalRecommendData.filter((item: any) => item.routineGroupId === selectedHistory.routineGroupId);
-                              const groupRoutines = routines.filter(r => r.routineGroupId === selectedHistory.routineGroupId);
+                              const groupId = selectedHistory.routineGroupId;
+                              const recommendations = modalRecommendData
+                                ? modalRecommendData.filter((item: any) => item.routineGroupId === groupId)
+                                : [];
+                              const groupRoutines = routines.filter(r => r.routineGroupId === groupId);
                               const currentRoutines = groupRoutines.filter(r => r.time === routineTimeTab).sort((a, b) => a.orders - b.orders);
-                              const filteredRoutineChanges = routineChanges.filter((r: any) => r.routineTime === routineTimeTab).sort((a: any, b: any) => a.routineOrders - b.routineOrders);
+                              const filteredRoutineChanges = routineChanges
+                                ? routineChanges.filter((r: any) => r.routineGroupId === groupId && r.routineTime === routineTimeTab).sort((a: any, b: any) => a.routineOrders - b.routineOrders)
+                                : [];
+
+                              const allOrders = Array.from(
+                                new Set([
+                                  ...currentRoutines.map(r => r.orders),
+                                  ...filteredRoutineChanges.map(r => r.routineOrders)
+                                ])
+                              ).sort((a, b) => a - b);
 
                               return (
-                                <div className={styles.routineGroupSection}>
-                                  {/* 현재 루틴 */}
-                                  <div className={styles.currentRoutines}>
-                                    <div className={styles.routineTimeSection}>
-                                      <h4>현재 {routineTimeTab === 'MORNING' ? '아침' : '저녁'} 루틴</h4>
-                                      <ul className={styles.routineList}>
-                                        {currentRoutines.map((routine) => (
-                                          <li key={routine.id} className={styles.routineItem}>
-                                            <div className={styles.routineOrder}>{routine.orders}</div>
-                                            <div className={styles.routineInfo}>
-                                              <div className={styles.routineName}>{routine.name}</div>
-                                              <div className={styles.routineDetail}>
-                                                {routine.kind} ({routine.method})
-                                              </div>
+                                <>
+                                  <div className={styles.routineGroupSection} style={{ flexDirection: 'column', gap: '1.5rem' }}>
+                                    {allOrders.map(order => {
+                                      const routine = currentRoutines.find(r => r.orders === order);
+                                      const change = filteredRoutineChanges.find(r => r.routineOrders === order);
+                                      return (
+                                        <div key={order} style={{ display: 'flex', gap: '2rem' }}>
+                                          <div className={styles.routineCard} style={{ flex: 1 }}>
+                                            <div className={styles.routineCardTitle}>
+                                              {routineTimeTab === 'MORNING' ? '아침' : '저녁'} 루틴
                                             </div>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  </div>
-
-                                  {/* 루틴 변경 추천 */}
-                                  <div className={styles.recommendationsSection}>
-                                    <h4>{routineTimeTab === 'MORNING' ? '아침' : '저녁'} 루틴 변경 추천</h4>
-                                    <div className={styles.routineTimeSection}>
-                                      <ul className={styles.routineList}>
-                                        {filteredRoutineChanges.map((routine: any) => (
-                                          <li key={routine.routineChangeId} className={styles.routineItem}>
-                                            <div className={styles.routineOrder}>{routine.routineOrders}</div>
-                                            <div className={styles.routineInfo}>
-                                              <div className={styles.routineName}>{routine.routineName}</div>
-                                              <div className={styles.routineDetail}>
-                                                {routine.routineKind}
+                                            {routine ? (
+                                              <div className={styles.routineItem}>
+                                                <div className={styles.routineOrder}>{routine.orders}</div>
+                                                <div className={styles.routineInfo}>
+                                                  <div className={styles.routineName}>{routine.name}</div>
+                                                  <div className={styles.routineDetail}>{routine.kind} ({routine.method})</div>
+                                                </div>
                                               </div>
-                                              <div className={styles.changeMethod}>
-                                                {routine.changeMethod}
-                                              </div>
+                                            ) : <div style={{ height: 48 }} />}
+                                          </div>
+                                          <div className={styles.routineCard} style={{ flex: 1 }}>
+                                            <div className={styles.routineCardTitle}>
+                                              {routineTimeTab === 'MORNING' ? '아침' : '저녁'} 루틴 변경 추천
                                             </div>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
+                                            {change ? (
+                                              <div className={styles.routineItem}>
+                                                <div className={styles.routineOrder}>{change.routineOrders}</div>
+                                                <div className={styles.routineInfo}>
+                                                  <div className={styles.routineName}>{change.routineName}</div>
+                                                  <div className={styles.routineDetail}>{change.routineKind}</div>
+                                                  <div className={styles.changeMethod}>{change.changeMethod}</div>
+                                                </div>
+                                              </div>
+                                            ) : <div style={{ height: 48 }} />}
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
                                   </div>
-
-                                  {/* 추천 제품 */}
-                                  <div className={styles.recommendationsSection}>
+                                  {/* 추천 제품은 아래로 분리 */}
+                                  <div className={styles.recommendProductsSection}>
                                     <h4>추천 제품</h4>
                                     {recommendations.map((item: any, idx: number) => (
                                       <div className={styles.changeRecommendCard} key={`change-${idx}-${item.suggestProduct}`}>
@@ -725,7 +683,7 @@ const ProfilePage = () => {
                                       </div>
                                     ))}
                                   </div>
-                                </div>
+                                </>
                               );
                             })()}
                           </div>
@@ -778,5 +736,5 @@ const ProfilePage = () => {
     </>
   );
 }
-
 export default ProfilePage;
+
