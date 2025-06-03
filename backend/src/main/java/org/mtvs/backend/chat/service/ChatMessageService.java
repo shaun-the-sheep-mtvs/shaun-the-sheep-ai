@@ -31,55 +31,57 @@ public class ChatMessageService {
     // 1) 시스템 프롬프트 정의
     // ────────────────────────────────────────────────────────────────────────────
     private static final String TOTAL_REPORT_PROMPT = """
-        [역할 부여]
+    [역할 부여]
     당신은 상세하고 친절한 뷰티 제품 전문가입니다. 피부 분석, 제품 추천 및 사용 루틴 컨설팅에 매우 능숙합니다.
 
-    [입력 데이터]
-    1.  **피부 상태 체크리스트:**
-        %s
-        * **해석 기준:**
-            * moisture (촉촉함): 60%% 이상일 경우 촉촉한 편, 미만일 경우 건조한 편으로 판단합니다.
-            * oil (유분): 60%% 이상일 경우 유분이 많은 편, 미만일 경우 유분이 적은 편으로 판단합니다.
-            * sensitivity (민감도): 60%% 이상일 경우 민감한 편, 미만일 경우 일반적인 편으로 판단합니다.
-            * tension (탄력): 60%% 이상일 경우 탄력이 높은 편, 미만일 경우 탄력이 낮은 편으로 판단합니다.
-    2.  **기존 뷰티 루틴:**
-        %s
-    3.  **사용법이 달라진 (개선된) 뷰티 루틴:**
-        %s
-    4.  **추가 또는 대체 추천 화장품 목록:**
-        %s
-
     [역질문]
-    위클리 관리를 위한 추가 피부 분석을 위한 역질문 5가지 구체적인 진단 질문을 한 번에 하나씩,
-    최대 3줄 이내로 순차적으로 물어봐주세요. 예: 세안법, 주 단위 피부 습관 등
-    (주 1회 팩, 주 1~2회 각질 제거 여부)
+    • 위클리 관리를 위한 추가 피부 분석 진단 질문을 **총 5개**만 제시하세요.
+    • “한 번에 하나씩 질문 → 사용자의 답변 → 그다음 질문” 과정을 반드시 지켜야 합니다.
+    • 절대로 5개를 초과하지 마세요.
+    • 각 질문은 최대 3줄 이내로 작성해주세요. (예: 세안법, 주 단위 피부 습관 등)
 
     [요청 사항]
-    - 최종 레포트의 제목은 반드시 “맞춤 위클리 루틴 추천”으로 고정하며, 다른 곳에서는 절대 언급하지 마세요.
-    - 최종 레포트를 아래 형식의 Markdown으로 출력해 주세요:
-      1) ## 💅 맞춤 위클리 루틴 추천  ← 제목
-      2) 표(Table) 형태로 요일별 루틴을 간결히 한 줄씩 작성  
-         ```
-         | 요일   | 루틴                          |
-         | ------ | ----------------------------- |
-         | 월요일 | 클렌징 → 토너 → 세럼 → 수분 크림     |
-         | 화요일 | 클렌징 → 토너 → 각질 제거 패드 → 수분 크림 |
-         | 수요일 | 클렌징 → 토너 → 시트 마스크 팩 → 수분 크림 |
-         | 목요일 | 클렌징 → 토너 → 앰플 → 수분 크림     |
-         | 금요일 | 클렌징 → 토너 → 시트 마스크 팩 → 수분 크림 |
-         | 토요일 | 클렌징 → 스크럽/필링 제품 사용 → 수분 크림 |
-         | 일요일 | 클렌징 → 토너 → 영양 크림            |
-         ```
-      3) `---` 한 줄을 추가하여 섹션 구분  
-      4) ### 💡 추가 지침  ← 소제목  
-         - AI가 위 체크리스트와 루틴 데이터를 바탕으로, 사용자의 피부 상태를 최적화하기 위한 추가 권장 사항을 자유롭게 생성해 주세요.  
-         - 예: “주 2회 수분 팩 사용”, “저녁에 레티놀 세럼 도입” 등과 같이 사용자의 피부 특성에 맞춘 구체적인 조언을 포함해야 합니다.  
-         - 딱딱한 나열보다는, 각 조언 뒤에 이유와 기대 효과를 간단히 설명해 주세요.  
+    1) **제목 고정**
+       최종 보고서의 제목은 반드시 “맞춤 위클리 루틴 추천”으로 고정합니다. 다른 곳에서는 절대 언급하지 마세요.
 
-    **레포트 작성 스타일:**
-    * 전문적이고 신뢰감을 주면서도, 사용자가 이해하기 쉽도록 친절하고 상세하게 설명해주세요.
-    * 단순 정보 나열이 아닌, 각 요소 간의 연관성을 분석하고 이유를 명확히 밝혀주세요.
-    * 긍정적인 변화를 기대할 수 있도록 격려하는 어투를 사용해주세요.
+    2) **표(Table) 생성**
+       - 표의 첫 번째 행(헤더)은 정확히 `| 요일   | 루틴                          |` 형태로 작성합니다.  
+       - 두 번째 행(구분선)은 정확히 `| ------ | ----------------------------- |` 형태로 작성합니다.  
+       - 그 아래부터 월요일부터 일요일까지, AI가 입력된 피부 상태·기존 루틴·개선된 루틴·추천 화장품 목록을 종합적으로 분석하여  
+         각 요일별 “하루 루틴”을 구체적으로 작성합니다.  
+       - ‘하루 루틴’ 예시(임의 예시가 아닌, AI가 판단하여 생성):
+         ```
+         | 월요일 | 클렌징  |
+         | 화요일 | 토너 |
+         | 수요일 | 수분 마스크 팩  |
+         | 목요일 | 히알루론산 앰플  |
+         | 금요일 | 진정 시트 마스크 팩 |
+         | 토요일 | 스크럽/필링 제품 사용  |
+         | 일요일 | 영양 크림  |
+         ```
+       - 위 예시는 AI가 생성할 형식을 보여주는 “형식 예시”일 뿐이며, 실제 출력에는 AI가 스스로 생성한 요일별 루틴만 나오도록 해야 합니다.  
+
+    3) **표와 추가 지침 사이 구분선**  
+       표가 끝난 뒤에는 반드시 세 개의 대시(`---`)를 한 줄로 넣어주세요.
+
+    4) **추가 지침(💡 추가 지침) 섹션**  
+       - 표 아래에는 다음과 같은 소제목 형태를 반드시 지켜야 합니다:
+         ```
+         ### 💡 추가 지침
+         ```
+       - 이 섹션에서는 AI가 “입력된 피부 상태·기존 루틴·개선된 루틴·추천 화장품 목록”을 종합 분석하여,  
+         사용자의 피부를 최적화하기 위한 “추가 권장 사항”을 자유롭게 생성해야 합니다.  
+         예시:  
+         - “주 2회 수분 팩 사용: 피부가 건조해진 부위에 집중 보습을 돕습니다.”  
+         - “저녁 루틴 시 레티놀 세럼 도입: 잔주름 예방과 피부 재생을 촉진합니다.”  
+       - 위 두 가지 예시는 형식만 보여주는 가이드일 뿐이며, 실제 출력 시에는 AI가 입력 데이터를 바탕으로 새로운 조언을 작성해야 합니다.  
+       - 각 조언 뒤에는 반드시 “간단한 이유”와 “기대 효과”를 함께 서술해야 합니다.
+
+    ***레포트 작성 스타일***  
+    - 전문적이고 신뢰감을 주면서도, 사용자가 쉽게 이해할 수 있도록 친절하고 상세하게 설명해주세요.  
+    - 단순 정보 나열이 아닌, 각 요소 간의 연관성을 분석하고 그 이유를 명확히 밝혀주세요.  
+    - 긍정적인 변화를 기대할 수 있도록 격려하는 어투를 사용해주세요.
+    - 주제와 상관없는 질문에는 대응하지 마세요.
     """;
     // ────────────────────────────────────────────────────────────────────────────
     private static final String PRODUCT_INQUIRY_PROMPT = """
@@ -93,26 +95,6 @@ public class ChatMessageService {
         - 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(`\\n`)로만** 구분되게 출력하세요.
           - 각 줄 앞뒤에 공백을 추가하거나, 다른 구두점·문자를 붙이지 마세요.
 
-        ※ 대화 중 아래 세 가지 상황을 판단하면, 반드시 링크를 하나만 안내하세요:
-          1) “피부 고민의 근본 원인을 더 알기를 원한다”라고 사용자가 말할 때,
-          2) 사용자가 “내 피부 상태를 점검하고 싶어요” 같은 의도를 보일 때,
-          3) 제품 설명만으로 부족함을 암시할 때.
-
-        위 조건 중 하나라도 해당되면, 아래 예시 중 반드시 한 가지만 골라서 출력하십시오:
-          - ▶ [간편 피부 검사](/checklist)
-          - ▶ [정밀 검사 및 루틴 관리](/routine-manage)
-          - ▶ [맞춤형 제품 추천](/recommend)
-
-        단, 링크 안내 시 **반드시**:
-          1. “▶ [텍스트](경로)” 형태만 사용
-          2. 도메인 전체 작성 금지(오직 상대 경로 `/checklist`, `/routine-manage`, `/recommend`만)
-          3. 링크 안내 문구는 “~원하시면 ▶ [텍스트](경로) 페이지를 방문하세요.” 식으로 자연스럽게 한 문장 안에 포함
-          4. 오직 링크 제안 문장만 추가 (다른 내용 없음)
-
-        예시 출력:
-        --------------------
-        ▶ [맞춤형 제품 추천](/recommend)
-        --------------------
     """ ;
 
     private static final String INGREDIENT_INQUIRY_PROMPT = """
@@ -124,27 +106,6 @@ public class ChatMessageService {
         - 상대가 “모르겠습니다” 등으로 애매하게 답하면, 다른 질문으로 교체하세요.
         - 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(`\\n`)로만** 구분되게 출력하세요.
           - 각 줄 앞뒤에 공백을 추가하거나, 다른 구두점·문자를 붙이지 마세요.
-
-        ※ 대화 중 아래 세 가지 상황을 판단하면, 반드시 링크를 하나만 안내하세요:
-          1) “피부 고민의 근본 원인을 더 알기를 원한다”라고 사용자가 말할 때,
-          2) 사용자가 “내 피부 상태를 점검하고 싶어요” 같은 의도를 보일 때,
-          3) 제품 설명만으로 부족함을 암시할 때.
-
-        위 조건 중 하나라도 해당되면, 아래 예시 중 반드시 한 가지만 골라서 출력하십시오:
-          - ▶ [간편 피부 검사](/checklist)
-          - ▶ [정밀 검사 및 루틴 관리](/routine-manage)
-          - ▶ [맞춤형 제품 추천](/recommend)
-
-        단, 링크 안내 시 **반드시**:
-          1. “▶ [텍스트](경로)” 형태만 사용
-          2. 도메인 전체 작성 금지(오직 상대 경로 `/checklist`, `/routine-manage`, `/recommend`만)
-          3. 링크 안내 문구는 “~원하시면 ▶ [텍스트](경로) 페이지를 방문하세요.” 식으로 자연스럽게 한 문장 안에 포함
-          4. 오직 링크 제안 문장만 추가 (다른 내용 없음)
-
-        예시 출력:
-        --------------------
-        ▶ [맞춤형 제품 추천](/recommend)
-        --------------------
     """ ;
 
     private static final String SKIN_TYPE_PROMPT = """
@@ -162,22 +123,6 @@ public class ChatMessageService {
           1) “피부 고민의 근본 원인을 더 알기를 원한다”라고 사용자가 말할 때,
           2) 사용자가 “내 피부 상태를 점검하고 싶어요” 같은 의도를 보일 때,
           3) 제품 설명만으로 부족함을 암시할 때.
-
-        위 조건 중 하나라도 해당되면, 아래 예시 중 반드시 한 가지만 골라서 출력하십시오:
-          - ▶ [간편 피부 검사](/checklist)
-          - ▶ [정밀 검사 및 루틴 관리](/routine-manage)
-          - ▶ [맞춤형 제품 추천](/recommend)
-
-        단, 링크 안내 시 **반드시**:
-          1. “▶ [텍스트](경로)” 형태만 사용
-          2. 도메인 전체 작성 금지(오직 상대 경로 `/checklist`, `/routine-manage`, `/recommend`만)
-          3. 링크 안내 문구는 “~원하시면 ▶ [텍스트](경로) 페이지를 방문하세요.” 식으로 자연스럽게 한 문장 안에 포함
-          4. 오직 링크 제안 문장만 추가 (다른 내용 없음)
-
-        예시 출력:
-        --------------------
-        ▶ [맞춤형 제품 추천](/recommend)
-        --------------------
     """ ;
 
     private static final String SKIN_TROUBLE_PROMPT = """
@@ -189,27 +134,6 @@ public class ChatMessageService {
         - 상대가 “모르겠습니다” 등으로 애매하게 답하면, 다른 질문으로 교체하세요.
         - 최종 결과는 **반드시** 다음과 같이 **줄바꿈 문자(`\\n`)로만** 구분되게 출력하세요.
           - 각 줄 앞뒤에 공백을 추가하거나, 다른 구두점·문자를 붙이지 마세요.
-
-        ※ 대화 중 아래 세 가지 상황을 판단하면, 반드시 링크를 하나만 안내하세요:
-          1) “피부 고민의 근본 원인을 더 알기를 원한다”라고 사용자가 말할 때,
-          2) 사용자가 “내 피부 상태를 점검하고 싶어요” 같은 의도를 보일 때,
-          3) 제품 설명만으로 부족함을 암시할 때.
-
-        위 조건 중 하나라도 해당되면, 아래 예시 중 반드시 한 가지만 골라서 출력하십시오:
-          - ▶ [간편 피부 검사](/checklist)
-          - ▶ [정밀 검사 및 루틴 관리](/routine-manage)
-          - ▶ [맞춤형 제품 추천](/recommend)
-
-        단, 링크 안내 시 **반드시**:
-          1. “▶ [텍스트](경로)” 형태만 사용
-          2. 도메인 전체 작성 금지(오직 상대 경로 `/checklist`, `/routine-manage`, `/recommend`만)
-          3. 링크 안내 문구는 “~원하시면 ▶ [텍스트](경로) 페이지를 방문하세요.” 식으로 자연스럽게 한 문장 안에 포함
-          4. 오직 링크 제안 문장만 추가 (다른 내용 없음)
-
-        예시 출력:
-        --------------------
-        ▶ [맞춤형 제품 추천](/recommend)
-        --------------------
     """ ;
     private final CheckListRepository checkListRepository;
     private final ChatMessageRepository chatMessageRepository;
@@ -307,7 +231,7 @@ public class ChatMessageService {
     public ChatMessage askAI_Single(String sessionId, String userId, String userQuestion) {
         List<ChatMessage> fullHistory = historyCache.computeIfAbsent(sessionId, k -> new ArrayList<>());
 
-        // (0-1) 히스토리에 사용자 메시지 추가
+        // 0) 사용자 메시지를 히스토리에 추가
         ChatMessage userMsg = new ChatMessage();
         userMsg.setUserId(userId);
         userMsg.setRole("user");
@@ -315,55 +239,57 @@ public class ChatMessageService {
         userMsg.setTimestamp(LocalDateTime.now());
         fullHistory.add(userMsg);
 
-        // (1) 시스템 프롬프트 조회 (기본값은 빈 문자열)
+        // 1) 시스템 프롬프트(“총 5개만 질문” 등)를 가져온다 (role:"system"이 아님)
         String systemPrompt = promptCache.getOrDefault(sessionId, "");
 
-        // (2) 히스토리 트렁케이트: 최대 4개로 축소
         List<ChatMessage> truncated;
-        if (fullHistory.size() > 4) {
-            truncated = fullHistory.subList(fullHistory.size() - 4, fullHistory.size());
+        if (fullHistory.size() > 10) {
+            truncated = fullHistory.subList(fullHistory.size() - 10, fullHistory.size());
         } else {
-            truncated = fullHistory;
+            truncated = new ArrayList<>(fullHistory);
         }
 
-        // (3) "contents" 생성: [systemPrompt, …history…, 마지막 userQuestion]
+        // 3) 메시지 배열 구성 (모두 role:"user" 또는 role:"assistant"만 사용)
         Map<String, Object> generationConfig = Map.of(
-                "temperature",     0.1,    // 간결하게
+                "temperature",     0.1,
                 "topK",            40,
                 "topP",            0.95,
-                "maxOutputTokens", 300     // 최대 토큰 300으로 제한
+                "maxOutputTokens", 300
         );
 
-        List<Map<String, Object>> contents = new ArrayList<>();
-        // 시스템 프롬프트가 비어 있을 수도 있으므로, 빈 문자열이라도 넣어줍니다.
+        List<Map<String,Object>> contents = new ArrayList<>();
+
+        // → 시스템 프롬프트도 user 역할로 포장한다
         contents.add(Map.of(
                 "role",  "user",
                 "parts", List.of(Map.of("text", systemPrompt))
         ));
+
+        // → 과거 히스토리(질문/답변)도 user 또는 assistant로
         for (ChatMessage msg : truncated) {
-            String role = "user".equals(msg.getRole()) ? "user" : "model";
+            String role = msg.getRole().equals("user") ? "user" : "assistant";
             contents.add(Map.of(
                     "role",  role,
                     "parts", List.of(Map.of("text", msg.getContent()))
             ));
         }
-        // 최종 userQuestion을 한 번 더 명시적으로 추가
+
+        // → 마지막으로 지금 받은 질문(userQuestion)을 한 번 더 추가
         contents.add(Map.of(
                 "role",  "user",
                 "parts", List.of(Map.of("text", userQuestion))
         ));
 
-        Map<String, Object> body = Map.of(
+        Map<String,Object> body = Map.of(
                 "contents",         contents,
                 "generationConfig", generationConfig
         );
 
-        // (4) Gemini API 호출 (503 재시도 로직 포함)
-        int maxRetries = 5;
-        int attempt = 0;
-        long baseBackoff = 1_000L; // 1초
+        // 4) Gemini API 호출
+        int maxRetries = 5, attempt = 0;
+        long baseBackoff = 1_000L;
+        Map<String,Object> res = null;
 
-        Map<String, Object> res = null;
         while (true) {
             try {
                 res = webClient.post()
@@ -374,53 +300,46 @@ public class ChatMessageService {
                         )
                         .bodyValue(body)
                         .retrieve()
-                        .bodyToMono(new ParameterizedTypeReference<Map<String, Object>>() {})
+                        .bodyToMono(new ParameterizedTypeReference<Map<String,Object>>() {})
                         .block();
-                break; // 성공적으로 응답을 받았다면 반복문 종료
-
+                break;
             } catch (WebClientResponseException.ServiceUnavailable e) {
                 attempt++;
                 if (attempt > maxRetries) {
-                    throw new RuntimeException("AI 서비스가 계속 중단되어 더 이상 재시도하지 않습니다.", e);
+                    throw new RuntimeException("AI 서비스가 중단되어 재시도 불가", e);
                 }
-                // 지수 백오프 + 랜덤 지터
                 long jitter = ThreadLocalRandom.current().nextLong(0, 500);
                 long waitTime = baseBackoff * (1L << (attempt - 1)) + jitter;
-                try {
-                    Thread.sleep(waitTime);
-                } catch (InterruptedException ie) {
+                try { Thread.sleep(waitTime); }
+                catch (InterruptedException ie) {
                     Thread.currentThread().interrupt();
                     throw new RuntimeException("재시도 대기 중 인터럽트 발생", ie);
                 }
             } catch (WebClientResponseException e) {
-                // 503 이외의 4xx/5xx 에러 발생 시 즉시 예외 던짐
+                // 400~500 에러
                 throw new RuntimeException(
-                        "AI 호출 중 오류가 발생했습니다. 상태코드=" + e.getRawStatusCode() +
+                        "AI 호출 중 오류 발생. 상태코드=" + e.getRawStatusCode() +
                                 ", 응답메시지=" + e.getResponseBodyAsString(), e
                 );
             }
         }
 
-        // ────────────────────────────────────────────────────────────────────────────────
-        // 5) API 응답 파싱
-        // ────────────────────────────────────────────────────────────────────────────────
+        // 5) 응답 파싱
         if (res == null) {
             throw new RuntimeException("AI 응답이 비어 있습니다.");
         }
-        List<Map<String, Object>> candidates = (List<Map<String, Object>>) res.get("candidates");
+        List<Map<String,Object>> candidates = (List<Map<String,Object>>) res.get("candidates");
         if (candidates == null || candidates.isEmpty()) {
             throw new RuntimeException("AI output이 없습니다.");
         }
-        Map<String, Object> contentMap = (Map<String, Object>) candidates.get(0).get("content");
-        List<Map<String, Object>> parts = (List<Map<String, Object>>) contentMap.get("parts");
+        Map<String,Object> contentMap = (Map<String,Object>) candidates.get(0).get("content");
+        List<Map<String,Object>> parts = (List<Map<String,Object>>) contentMap.get("parts");
         String aiText = parts.get(0).get("text").toString().trim();
 
-        // ────────────────────────────────────────────────────────────────────────────────
-        // 6) ChatMessage 형태로 래핑 + 히스토리에 AI 응답 추가
-        // ────────────────────────────────────────────────────────────────────────────────
+        // 6) DB에 저장 + 히스토리에 AI 응답 추가
         ChatMessage aiMsg = new ChatMessage();
         aiMsg.setUserId(userId);
-        aiMsg.setRole("ai");
+        aiMsg.setRole("ai");  // DB에는 ai로 저장
         aiMsg.setContent(aiText);
         aiMsg.setTimestamp(LocalDateTime.now());
 
@@ -429,47 +348,44 @@ public class ChatMessageService {
 
         return aiMsg;
     }
+
     public void handleAiResponseAndMaybeSaveMd(String sessionId, ChatMessage aiMsg, String templateKey) {
-        // 1) AI 메시지는 항상 DB에 저장
+        // AI 메시지는 항상 저장
         aiMsg.setPromptType(Prompt_Type.TOTAL);
         chatMessageRepository.save(aiMsg);
 
-        // 2) '맞춤 위클리 루틴 추천'이 AI 응답 내용 안에 들어 있으면 MD/JSON 파일 생성
-        if (aiMsg.getContent() != null && aiMsg.getContent().contains("맞춤 위클리 루틴 추천")) {
+        // “맞춤 위클리 루틴 추천”이라는 문구가 AI 응답에 들어가 있으면 MD/JSON 파일 생성
+        if (aiMsg.getContent() != null &&
+                aiMsg.getContent().contains("맞춤 위클리 루틴 추천")) {
             saveAiResponseAsMdJson(sessionId, aiMsg.getContent());
         }
     }
+
     public String saveAiResponseAsMdJson(String sessionId, String aiText) {
-        // 1) 저장할 디렉터리 경로 생성 (없다면 폴더 생성)
         Path dirPath = Paths.get(mdJsonStorageDir);
         if (!Files.exists(dirPath)) {
-            try {
-                Files.createDirectories(dirPath);
-            } catch (IOException e) {
+            try { Files.createDirectories(dirPath); }
+            catch (IOException e) {
                 throw new RuntimeException("저장 폴더 생성 실패: " + mdJsonStorageDir, e);
             }
         }
 
-        // 2) Markdown 포맷으로 래핑 (헤더·타임스탬프 포함 예시)
         StringBuilder mdBuilder = new StringBuilder();
         mdBuilder.append("# AI 진단서\n\n");
         mdBuilder.append("**생성 시각**: ").append(LocalDateTime.now()).append("\n\n");
         mdBuilder.append("```\n").append(aiText).append("\n```\n");
         String markdown = mdBuilder.toString();
 
-        // 3) JSON 구조 생성
-        Map<String, Object> jsonMap = new LinkedHashMap<>();
+        Map<String,Object> jsonMap = new LinkedHashMap<>();
         jsonMap.put("generatedAt", LocalDateTime.now().toString());
         jsonMap.put("sessionId", sessionId);
         jsonMap.put("markdown", markdown);
 
-        // 4) 파일 이름: ai-diagnosis-{sessionId}-{timestamp}.json
         String filename = String.format("ai-diagnosis-%s-%d.json",
                 sessionId.replaceAll("[^a-zA-Z0-9\\-]", "_"),
                 System.currentTimeMillis());
         Path filePath = dirPath.resolve(filename);
 
-        // 5) 실제 디스크에 JSON 쓰기
         try {
             String jsonString = objectMapper.writerWithDefaultPrettyPrinter()
                     .writeValueAsString(jsonMap);

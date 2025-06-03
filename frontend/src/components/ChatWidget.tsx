@@ -235,9 +235,6 @@ export default function ChatWidget() {
 
           {/* 퀵 액션 버튼 */}
           <div className={styles.quickActions}>
-            <button onClick={() => handleQuick('TOTAL_REPORT')}>
-              종합 리포트
-            </button>
             <button onClick={() => handleQuick('PRODUCT_INQUIRY')}>
               <PackageSearch size={16} className={styles.quickIcon} />
               제품 문의
@@ -253,6 +250,9 @@ export default function ChatWidget() {
             <button onClick={() => handleQuick('SKIN_TYPE')}>
               <Smile size={20} className={styles.headerIcon} />
               피부 타입
+            </button>
+            <button onClick={() => handleQuick('TOTAL_REPORT')}>
+              종합 리포트
             </button>
           </div>
 
