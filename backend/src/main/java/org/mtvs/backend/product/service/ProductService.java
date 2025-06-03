@@ -161,7 +161,8 @@ public class ProductService {
         ObjectNode objectNode = (ObjectNode) jsonNode;
         ProductDTO dto = new ProductDTO();
         // 제품명
-        if(!productRepository.existsProductByProductName(objectNode.get("제품명").asText()));{
+
+        if (productNameNode != null && !productRepository.existsProductByProductName(productNameNode.asText())) {
             dto.setProductName(objectNode.get("제품명") != null ?
                     objectNode.get("제품명").asText() : null);
 
@@ -189,7 +190,9 @@ public class ProductService {
             // 링크 테이블에 저장
             productUserLinkService.saveLinks(product, userId);
         }
-
+        else{
+            System.out.println("중복! 저장!");
+        }
     }
 
 
