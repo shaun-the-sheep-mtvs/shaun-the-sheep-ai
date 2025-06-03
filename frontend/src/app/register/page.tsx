@@ -17,11 +17,22 @@ export default function RegisterPage() {
     setError(null);
 
     try {
+      // Check for guest data in session storage
+      const guestData = sessionStorage.getItem('guestChecklistData');
+      const guestSignupData = sessionStorage.getItem('guestSignupData');
+      
       // 1) 회원가입
       const signupRes = await fetch(apiConfig.endpoints.auth.signup, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, email, password }),
+        body: JSON.stringify({ 
+          username, 
+          email, 
+          password,
+          // Include guest data if it exists
+          guestData: guestData ? JSON.parse(guestData) : null,
+          guestSignupData: guestSignupData ? JSON.parse(guestSignupData) : null
+        }),
         credentials: 'include',
       });
 
@@ -30,6 +41,10 @@ export default function RegisterPage() {
         setError(text || '회원가입에 실패했습니다.');
         return;
       }
+
+      // Clear guest data from session storage after successful signup
+      sessionStorage.removeItem('guestChecklistData');
+      sessionStorage.removeItem('guestSignupData');
 
       // 2) 바로 로그인
       const loginRes = await fetch(apiConfig.endpoints.auth.login, {

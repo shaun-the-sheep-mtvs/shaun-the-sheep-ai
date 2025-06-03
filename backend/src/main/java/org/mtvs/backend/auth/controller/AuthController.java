@@ -27,12 +27,10 @@ public class AuthController {
      * 회원가입
      * */
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(@RequestBody SignupRequest dto, HttpSession session) {
+    public ResponseEntity<?> signup(@RequestBody SignupRequest dto) {
         log.info("[회원가입] 요청 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
         try {
-            GuestData guestData = (GuestData) session.getAttribute("guestData");
-            authService.signup(dto, guestData);
-            session.removeAttribute("guestData");
+            authService.signup(dto, null);
             log.info("[회원가입] 성공 : 이메일={}", dto.getEmail());
             return ResponseEntity.ok("회원가입 성공");
         } catch (RuntimeException e) {

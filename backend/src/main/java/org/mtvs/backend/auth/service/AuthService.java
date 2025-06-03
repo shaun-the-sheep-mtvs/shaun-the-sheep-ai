@@ -15,6 +15,8 @@ import org.mtvs.backend.session.GuestData;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -48,16 +50,32 @@ public class AuthService {
         );
         userRepository.save(user);
 
-        // If guestData is present, migrate checklist data
-        if (guestData != null) {
-            CheckList checkList = new CheckList();
-            checkList.setUser(user);
-            checkList.setMoisture(guestData.getMoisture());
-            checkList.setOil(guestData.getOil());
-            checkList.setSensitivity(guestData.getSensitivity());
-            checkList.setTension(guestData.getTension());
-            checkList.setTroubles(guestData.getTroubles());
-            checkListRepository.save(checkList);
+        // Handle guest data from request if present
+        if (dto.getGuestData() != null) {
+            try {
+                CheckList checkList = new CheckList();
+                checkList.setUser(user);
+                
+                // Extract data from guestData map
+                Map<String, Object> guestDataMap = dto.getGuestData();
+                checkList.setMoisture(((Number) guestDataMap.get("moisture")).intValue());
+                checkList.setOil(((Number) guestDataMap.get("oil")).intValue());
+                checkList.setSensitivity(((Number) guestDataMap.get("sensitivity")).intValue());
+                checkList.setTension(((Number) guestDataMap.get("tension")).intValue());
+                
+                // Handle troubles list
+                @SuppressWarnings("unchecked")
+                List<String> troubles = (List<String>) guestDataMap.get("troubles");
+                if (troubles != null) {
+                    checkList.setTroubles(troubles);
+                }
+                
+                checkListRepository.save(checkList);
+                log.info("[회원 가입] 게스트 데이터 마이그레이션 완료 : 이메일={}", dto.getEmail());
+            } catch (Exception e) {
+                log.error("[회원 가입] 게스트 데이터 마이그레이션 실패 : 이메일={}, error={}", dto.getEmail(), e.getMessage());
+                // Don't throw exception - allow signup to complete even if guest data migration fails
+            }
         }
 
         log.info("[회원 가입] 완료 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());

@@ -168,7 +168,23 @@ export default function Home() {
     }
   }, [isGuest, guestChecklist]);
 
-  // Modify the products useEffect to use default products for guests
+  // Add useEffect for initial Naver data fetch
+  useEffect(() => {
+    const fetchInitialNaverData = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (token && !isGuest) {
+        try {
+          await fetchNaverData();
+        } catch (error) {
+          console.error('Error fetching initial Naver data:', error);
+        }
+      }
+    };
+
+    fetchInitialNaverData();
+  }, [isGuest]); // Only re-run if guest status changes
+
+  // Modify the products useEffect to handle image errors
   useEffect(() => {
     if (isGuest) {
       // For guests, use the default products defined at the top
@@ -191,8 +207,14 @@ export default function Home() {
             }));
             setProducts(transformedProducts);
           })
-          .catch(error => {
+          .catch(async (error) => {
             console.error('Error fetching products:', error);
+            // If product fetch fails, try to get Naver data
+            try {
+              await fetchNaverData();
+            } catch (naverError) {
+              console.error('Error fetching Naver data:', naverError);
+            }
           });
       }
     }
@@ -411,7 +433,13 @@ export default function Home() {
                             alt={p.name}
                             onError={async (e) => {
                               const target = e.target as HTMLImageElement;
-                              await fetchNaverData();
+                              if (!isGuest) {
+                                try {
+                                  await fetchNaverData();
+                                } catch (error) {
+                                  console.error('Error fetching Naver data on image error:', error);
+                                }
+                              }
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
