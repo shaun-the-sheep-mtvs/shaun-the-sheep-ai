@@ -3,6 +3,7 @@ package org.mtvs.backend.chat.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.chat.entity.ChatMessage;
+import org.mtvs.backend.chat.entity.Prompt_Type;
 import org.mtvs.backend.chat.repository.ChatMessageRepository;
 import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RequiredArgsConstructor
@@ -28,10 +30,13 @@ public class ChatMessageService {
     // ────────────────────────────────────────────────────────────────────────────
     // 1) 시스템 프롬프트 정의
     // ────────────────────────────────────────────────────────────────────────────
-    private static final String CUSTOMER_SUPPORT_PROMPT = """
+    private static final String TOTAL_REPORT_PROMPT = """
         ※ 아래는 사용자의 최신 체크리스트 데이터입니다. 이 데이터를 참고하여, 문제 해결 단계나 조언을 구체적으로 작성해 주세요:
         {CHECKLIST_DATA}
-
+        
+        - **반드시** 헤더(##, ###), 표, 리스트, 이모지 등 순수 Markdown 문법만 사용하세요.
+        - 코드 블록(````…```)이나 HTML 태그는 절대로 포함하지 마세요.
+        ""\" ;
         """ ;
     // ────────────────────────────────────────────────────────────────────────────
     private static final String PRODUCT_INQUIRY_PROMPT = """
@@ -175,6 +180,8 @@ public class ChatMessageService {
     @Value("${gemini.api.key}")
     private String apiKey;
 
+    private final AtomicInteger totalReportAiCounter = new AtomicInteger(0);
+
     public List<ChatMessage> findAll() {
         return chatMessageRepository.findAll();
     }
@@ -197,7 +204,7 @@ public class ChatMessageService {
     public void initSession(String sessionId, String userId, String templateKey) {
         String sysPrompt;
         switch (templateKey) {
-            case "CUSTOMER_SUPPORT":
+            case "TOTAL_REPORT":
                 Optional<CheckList> maybeCheck =
                         checkListRepository.findFirstByUser_IdOrderByCreatedAtDesc(userId);
 
@@ -221,7 +228,7 @@ public class ChatMessageService {
                 // ─────────────────────────────────────────────────────────────────
                 // 4-3) 템플릿 내 {CHECKLIST_DATA}를 실제 데이터로 치환
                 // ─────────────────────────────────────────────────────────────────
-                sysPrompt = CUSTOMER_SUPPORT_PROMPT
+                sysPrompt = TOTAL_REPORT_PROMPT
                         .replace("{CHECKLIST_DATA}", checklistSection);
                 break;
             case "PRODUCT_INQUIRY":
@@ -378,6 +385,30 @@ public class ChatMessageService {
         historyCache.put(sessionId, fullHistory);
 
         return aiMsg;
+    }
+    public void handleAiResponseAndMaybeSaveMd(String sessionId, ChatMessage aiMsg, String templateKey) {
+        // 1) 만약 templateKey가 "TOTAL_REPORT"가 아니면, 카운트도 MD 저장도 하지 않음
+        if (!"TOTAL_REPORT".equals(templateKey)) {
+            // 엔티티만 저장
+            chatMessageRepository.save(aiMsg);
+            return;
+        }
+
+        // 2) 여기부터는 "TOTAL_REPORT"인 경우
+        //    AI 응답 횟수 카운트 증가
+        int newCount = totalReportAiCounter.incrementAndGet();
+
+        // 3) promptType 설정
+        aiMsg.setPromptType(Prompt_Type.TOTAL);
+
+        // 4) 채팅 메시지(DB) 저장
+        chatMessageRepository.save(aiMsg);
+
+        // 5) 만약 카운트가 5라면, MD 파일을 생성하고 카운트 초기화
+        if (newCount >= 5) {
+            saveAiResponseAsMdJson(sessionId, aiMsg.getContent());
+            totalReportAiCounter.set(0);
+        }
     }
     public String saveAiResponseAsMdJson(String sessionId, String aiText) {
         // 1) 저장할 디렉터리 경로 생성 (없다면 폴더 생성)
