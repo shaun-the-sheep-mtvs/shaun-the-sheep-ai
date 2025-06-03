@@ -43,13 +43,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
-    private final CheckListRepository checkListRepository;
+
     private final RoutineRepository routineRepository;
     private final RoutineChangeRepository routineChangeRepository;
     private final DeepRecommendRepository deepRecommendRepository;
-    private final ChatMessageRepository chatMessageRepository1;
     private final OpenConfig openConfig;
-
 
     // ────────────────────────────────────────────────────────────────────────────
     // 1) 시스템 프롬프트 정의
@@ -213,7 +211,7 @@ public class ChatMessageService {
         ▶ [맞춤형 제품 추천](/recommend)
         --------------------
     """ ;
-//    private final CheckListRepository checkListRepository;
+
     private final ChatMessageRepository chatMessageRepository;
     private final WebClient webClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -247,29 +245,31 @@ public class ChatMessageService {
      * “세션 초기화” 메서드: 컨트롤러에서 initSession(sessionId, userId, templateKey) 로 호출
      */
     public void initSession(String sessionId, String userId, String templateKey) {
+
         try {
             List<RoutinesDto> recommend = routineRepository.findRoutinesByUserId(userId); //보류
-            List<RoutineChangeDTO> routinechange = routineChangeRepository.findAllRoutinesByUserId(userId); // 루틴 방법 수정 된 결과
-            List<RecommendResponseDTO> deeprecommend = deepRecommendRepository.findAllRecommendByUserId(userId); // 제품 추천 , 이유 , 추가(대체)
-//            List<CheckList> checklist = checkListRepository.findByUserOrderByCreatedAtDesc(user.getId()); //
-            List<ChatMessageDTO> chatlist = chatMessageRepository1.findByUserId(userId);
+            List<RoutineChangeDTO> routineChangeDTOList = routineChangeRepository.findRoutinesByUserId(userId); // 루틴 방법 수정 된 결과
+            List<RecommendResponseDTO> deeprecommendResponseDTOList = deepRecommendRepository.findLatestRecommendByUserId(userId); // 제품 추천 , 이유 , 추가(대체)
+            List<ChatMessageDTO> chatMessageDTOList = chatMessageRepository.findByUserId(userId);
+
+            if (recommend.isEmpty() || routineChangeDTOList.isEmpty() || deeprecommendResponseDTOList.isEmpty() || chatMessageDTOList.isEmpty()) {
+                log.warn("추천 또는 변경 루틴 또는 제품 추천 데이터가 없음: userId={}", userId);
+                throw new IllegalStateException("데이터 저장 후 등록 가능합니다.");
+            }
 
             ObjectMapper mapper = new ObjectMapper();
 
             String json1 = mapper.writeValueAsString(recommend);
-            String json2 = mapper.writeValueAsString(routinechange);
-            String json3 = mapper.writeValueAsString(deeprecommend);
-//            String json4 = mapper.writeValueAsString(checklist);
-            String json6 = mapper.writeValueAsString(chatlist);
+            String json2 = mapper.writeValueAsString(routineChangeDTOList);
+            String json3 = mapper.writeValueAsString(deeprecommendResponseDTOList);
+            String json4 = mapper.writeValueAsString(chatMessageDTOList);
 
-            String filledPrompt = String.format(TOTAL_REPORT_PROMPT, json1, json2, json3, json6);
-
+            String filledPrompt = String.format(TOTAL_REPORT_PROMPT, json1, json2, json3, json4);
 
             RequestDTO request = new RequestDTO();
             request.createGeminiReqDto(filledPrompt);
             String requestJson = mapper.writeValueAsString(request);
             System.out.println("Gemini API 요청 본문: " + requestJson);
-
 
             RestTemplate restTemplate = new RestTemplate();
             HttpHeaders headers = new HttpHeaders();
@@ -279,11 +279,9 @@ public class ChatMessageService {
 
             ResponseEntity<String> response = restTemplate.postForEntity(openConfig.getUrl(), entity, String.class); // md파일 형태로 저장하기
 
-
         } catch (Exception e) {
             log.error("예상치 못한 오류 발생: ", e);
         }
-
 
         String sysPrompt;
         switch (templateKey) {
