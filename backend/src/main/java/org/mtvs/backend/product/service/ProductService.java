@@ -162,7 +162,7 @@ public class ProductService {
         ProductDTO dto = new ProductDTO();
         // 제품명
 
-        if (productNameNode != null && !productRepository.existsProductByProductName(productNameNode.asText())) {
+        if(!productRepository.existsProductByProductName(objectNode.get("제품명").asText())){
             dto.setProductName(objectNode.get("제품명") != null ?
                     objectNode.get("제품명").asText() : null);
 
@@ -211,7 +211,9 @@ public class ProductService {
         noURLproducts.forEach(noUrlproduct -> {
             apiSearchImage.get(apiSearchImage.urlEncode( noUrlproduct.getProductName()));
             try {
-                JsonNode rootNode = objectMapper.readTree(apiSearchImage.get(apiSearchImage.urlEncode(noUrlproduct.getProductName())));
+                System.out.println(noUrlproduct.getProductName());
+                JsonNode rootNode = objectMapper.readTree(apiSearchImage.reGet(apiSearchImage.urlEncode(noUrlproduct.getProductName())));
+                System.out.println(rootNode);
                 JsonNode imageNode = rootNode.findValue("thumbnail");
                 naverApiService.addImageUrl(noUrlproduct.getProductName(),imageNode.toString().replaceAll("\"",""));
             } catch (JsonProcessingException e) {
