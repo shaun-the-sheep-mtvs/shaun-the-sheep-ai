@@ -1,6 +1,5 @@
 package org.mtvs.backend.chat.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.chat.dto.ChatMessageDTO;
@@ -125,6 +124,11 @@ public class ChatMessageController {
         // 2) AI 호출 (서비스 레이어에서 sessionId를 이용해 캐싱된 히스토리＋프롬프트를 결합)
         ChatMessage aiMsg = chatMessageService.askAI_Single(sessionId, userId, userQuestion);
 
+        // 3) **AI 메시지인 경우에만 저장**
+        if ("ai".equals(aiMsg.getRole())) {
+            chatMessageService.save(aiMsg);
+        }
+
         // 3) AI 텍스트가 5줄 요약 형식이라면 DB에 저장
         String text = aiMsg.getContent();
         long lines = text.lines().count();
@@ -133,7 +137,19 @@ public class ChatMessageController {
             aiMsg = chatMessageService.save(aiMsg);
         }
 
-        // 4) DTO로 변환 후 반환
+        // 4) templateKey가 CUSTOMER_SUPPORT인 경우 → MD-JSON 파일로 저장하고, 간단한 성공 메시지만 리턴
+        if ("CUSTOMER_SUPPORT".equals(templateKey)) {
+            // 4-1) AI 텍스트를 Markdown-JSON으로 저장
+            String savedFilename = chatMessageService.saveAiResponseAsMdJson(
+                    sessionId, aiMsg.getContent());
+
+            // 4-2) 프론트엔드에는 파일명/내용 노출 없이, 메시지만 응답
+            return ResponseEntity.ok(
+                    (ChatMessageDTO) Map.of("message", "진단서가 제출되었습니다.")
+            );
+        }
+
+        // 5) DTO로 변환 후 반환
         ChatMessageDTO responseDto = new ChatMessageDTO();
         responseDto.setId(aiMsg.getId());
         responseDto.setUserId(aiMsg.getUserId());

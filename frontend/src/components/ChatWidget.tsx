@@ -195,7 +195,20 @@ export default function ChatWidget() {
         throw new Error(`HTTP ${res.status}`)
       }
       const aiDto = (await res.json()) as ChatMessageDTO
-      setMessages(prev => [...prev, aiDto])
+
+      // CUSTOMER_SUPPORT 템플릿인 경우, AI 응답 대신 고정 메시지를 보여줌
+      if (templateKey === 'CUSTOMER_SUPPORT') {
+        setMessages(prev => [
+          ...prev,
+          {
+            role: 'ai',
+            content: '진단서가 제출되었습니다.',
+            timestamp: new Date().toISOString(),
+          },
+        ])
+      } else {
+        setMessages(prev => [...prev, aiDto])
+      }
     } catch (err) {
       console.error(err)
       setMessages(prev => [

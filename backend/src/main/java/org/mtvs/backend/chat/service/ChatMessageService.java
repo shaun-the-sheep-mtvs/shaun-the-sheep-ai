@@ -1,5 +1,6 @@
 package org.mtvs.backend.chat.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.chat.entity.ChatMessage;
 import org.mtvs.backend.chat.repository.ChatMessageRepository;
@@ -11,11 +12,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -163,7 +166,11 @@ public class ChatMessageService {
     private final CheckListRepository checkListRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final WebClient webClient;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
+    // application.properties 에 설정된 “저장 디렉터리” 경로
+    @Value("${chat.md-json.storage-dir}")
+    private String mdJsonStorageDir;
     /** Gemini API 키 */
     @Value("${gemini.api.key}")
     private String apiKey;
@@ -371,6 +378,47 @@ public class ChatMessageService {
         historyCache.put(sessionId, fullHistory);
 
         return aiMsg;
+    }
+    public String saveAiResponseAsMdJson(String sessionId, String aiText) {
+        // 1) 저장할 디렉터리 경로 생성 (없다면 폴더 생성)
+        Path dirPath = Paths.get(mdJsonStorageDir);
+        if (!Files.exists(dirPath)) {
+            try {
+                Files.createDirectories(dirPath);
+            } catch (IOException e) {
+                throw new RuntimeException("저장 폴더 생성 실패: " + mdJsonStorageDir, e);
+            }
+        }
+
+        // 2) Markdown 포맷으로 래핑 (헤더·타임스탬프 포함 예시)
+        StringBuilder mdBuilder = new StringBuilder();
+        mdBuilder.append("# AI 진단서\n\n");
+        mdBuilder.append("**생성 시각**: ").append(LocalDateTime.now()).append("\n\n");
+        mdBuilder.append("```\n").append(aiText).append("\n```\n");
+        String markdown = mdBuilder.toString();
+
+        // 3) JSON 구조 생성
+        Map<String, Object> jsonMap = new LinkedHashMap<>();
+        jsonMap.put("generatedAt", LocalDateTime.now().toString());
+        jsonMap.put("sessionId", sessionId);
+        jsonMap.put("markdown", markdown);
+
+        // 4) 파일 이름: ai-diagnosis-{sessionId}-{timestamp}.json
+        String filename = String.format("ai-diagnosis-%s-%d.json",
+                sessionId.replaceAll("[^a-zA-Z0-9\\-]", "_"),
+                System.currentTimeMillis());
+        Path filePath = dirPath.resolve(filename);
+
+        // 5) 실제 디스크에 JSON 쓰기
+        try {
+            String jsonString = objectMapper.writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(jsonMap);
+            Files.write(filePath, jsonString.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new RuntimeException("AI 응답 JSON 저장 실패: " + filename, e);
+        }
+
+        return filename;
     }
 }
 
