@@ -16,10 +16,11 @@ interface NavbarProps {
   user?: User | null;
   loading?: boolean;
   isLoggedIn?: boolean;
+  isGuest?: boolean;
   onLogout?: () => void;
 }
 
-export default function Navbar({ user, loading = false, isLoggedIn: propIsLoggedIn, onLogout }: NavbarProps) {
+export default function Navbar({ user, loading = false, isLoggedIn: propIsLoggedIn, isGuest = false, onLogout }: NavbarProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -111,12 +112,22 @@ export default function Navbar({ user, loading = false, isLoggedIn: propIsLogged
               </button>
             </>
           ) : (
-            <button 
-              className={styles.logoutButton}
-              onClick={handleLogout}
-            >
-              로그아웃
-            </button>
+            <>
+              {isGuest && (
+                <button 
+                  className={styles.authButton}
+                  onClick={() => router.push('/register')}
+                >
+                  회원가입
+                </button>
+              )}
+              <button 
+                className={styles.logoutButton}
+                onClick={handleLogout}
+              >
+                {isGuest ? '게스트' : '로그아웃'}
+              </button>
+            </>
           )}
         </div>
       </nav>
