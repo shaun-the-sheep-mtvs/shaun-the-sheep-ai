@@ -139,45 +139,17 @@ public class ChatMessageController {
         // 2) AI 호출 (서비스 레이어)
         ChatMessage aiMsg = chatMessageService.askAI_Single(sessionId, userId, userQuestion);
 
-        // 2) AI 메시지인 경우
-        if ("ai".equals(aiMsg.getRole())) {
-            // 2-1) templateKey → promptType enum으로 변환
-            Prompt_Type pt = null;
-            if (templateKey != null) {
-                switch (templateKey) {
-                    case "TOTAL_REPORT":
-                        pt = Prompt_Type.TOTAL;
-                        break;
-                    case "PRODUCT_INQUIRY":
-                        pt = Prompt_Type.PRODUCT;
-                        break;
-                    case "INGREDIENT_INQUIRY":
-                        pt = Prompt_Type.INGREDIENT;
-                        break;
-                    case "SKIN_TYPE":
-                        pt = Prompt_Type.SKIN_TYPE;
-                        break;
-                    default:
-                        pt = Prompt_Type.TOTAL;
-                }
+        Prompt_Type pt = Prompt_Type.TOTAL;
+        if (templateKey != null) {
+            switch (templateKey) {
+                case "PRODUCT_INQUIRY":     pt = Prompt_Type.PRODUCT;    break;
+                case "INGREDIENT_INQUIRY":  pt = Prompt_Type.INGREDIENT; break;
+                case "SKIN_TYPE":           pt = Prompt_Type.SKIN_TYPE;  break;
+                case "TOTAL_REPORT":        pt = Prompt_Type.TOTAL;      break;
             }
-            aiMsg.setPromptType(pt);
-
-            // 2-2) AI 응답 처리 + “5회차 도달 시 MD 저장” 로직
-            chatMessageService.handleAiResponseAndMaybeSaveMd(sessionId, aiMsg, templateKey);
         }
-
-        // 4) CUSTOMER_SUPPORT 템플릿인 경우
-        if ("TOTAL_REPORT".equals(templateKey)) {
-            // 4-1) AI 텍스트를 Markdown-JSON으로 저장
-            chatMessageService.saveAiResponseAsMdJson(
-                    sessionId, aiMsg.getContent());
-
-            // 4-2) 프론트엔드에는 메시지만
-            return ResponseEntity.ok(
-                    Map.of("message", "진단서가 제출되었습니다.")
-            );
-        }
+        aiMsg.setPromptType(pt);
+        chatMessageService.handleAiResponseAndMaybeSaveMd(sessionId, aiMsg, templateKey);
 
         // 5) 그 외 템플릿인 경우 → ChatMessageDTO 반환
         ChatMessageDTO responseDto = new ChatMessageDTO();
@@ -185,6 +157,13 @@ public class ChatMessageController {
         responseDto.setUserId(aiMsg.getUserId());
         responseDto.setRole(aiMsg.getRole());
         responseDto.setContent(aiMsg.getContent());
+        responseDto.setTimestamp(aiMsg.getTimestamp());
+
+        if ("TOTAL_REPORT".equals(templateKey)) {
+            aiMsg.getContent();
+        } else {
+            responseDto.setContent(aiMsg.getContent());
+        }
         responseDto.setTimestamp(aiMsg.getTimestamp());
 
         return ResponseEntity.ok(responseDto);
