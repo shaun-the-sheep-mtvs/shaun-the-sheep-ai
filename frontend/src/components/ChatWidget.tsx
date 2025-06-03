@@ -17,8 +17,8 @@ import {
 import { usePathname } from 'next/navigation'
 import apiConfig from '@/config/api'
 import styles from './ChatWidget.module.css'
-import ReactMarkdown from 'react-markdown'
-import remarkGfm from 'remark-gfm'
+// import ReactMarkdown from 'react-markdown'
+// import remarkGfm from 'remark-gfm'
 
 export default function ChatWidget() {
   // ────────────────────────────────────────────────────────────────────────────
@@ -264,9 +264,9 @@ export default function ChatWidget() {
                   {m.role === 'user' ? <User /> : <Bot />}
                 </div>
                 <div className={styles.messageBubble} style={{ whiteSpace: 'pre-line' }}>
-                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                  {/* <ReactMarkdown remarkPlugins={[remarkGfm]}>
                     {m.content}
-                  </ReactMarkdown>
+                  </ReactMarkdown> */}
                   <span className={styles.time}>
                     {new Date(m.timestamp).toLocaleTimeString([], {
                       hour: '2-digit',

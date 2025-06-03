@@ -2,14 +2,29 @@ package org.mtvs.backend.chat.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.mtvs.backend.chat.dto.ChatMessageDTO;
 import org.mtvs.backend.chat.entity.ChatMessage;
 import org.mtvs.backend.chat.entity.Prompt_Type;
 import org.mtvs.backend.chat.repository.ChatMessageRepository;
-import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
+import org.mtvs.backend.checklist.service.CheckListService;
+import org.mtvs.backend.deeprecommend.config.OpenConfig;
+import org.mtvs.backend.deeprecommend.dto.RecommendResponseDTO;
+import org.mtvs.backend.deeprecommend.dto.RequestDTO;
+import org.mtvs.backend.deeprecommend.dto.RoutineChangeDTO;
+import org.mtvs.backend.deeprecommend.repository.DeepRecommendRepository;
+import org.mtvs.backend.deeprecommend.repository.RoutineChangeRepository;
+import org.mtvs.backend.routine.dto.RoutinesDto;
+import org.mtvs.backend.routine.repository.RoutineRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
@@ -24,20 +39,50 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicInteger;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ChatMessageService {
+    private final CheckListRepository checkListRepository;
+    private final RoutineRepository routineRepository;
+    private final RoutineChangeRepository routineChangeRepository;
+    private final DeepRecommendRepository deepRecommendRepository;
+    private final ChatMessageRepository chatMessageRepository1;
+    private final OpenConfig openConfig;
+
+
     // ────────────────────────────────────────────────────────────────────────────
     // 1) 시스템 프롬프트 정의
     // ────────────────────────────────────────────────────────────────────────────
-    private static final String TOTAL_REPORT_PROMPT = """
-        ※ 아래는 사용자의 최신 체크리스트 데이터입니다. 이 데이터를 참고하여, 문제 해결 단계나 조언을 구체적으로 작성해 주세요:
-        {CHECKLIST_DATA}
-        
-        - **반드시** 헤더(##, ###), 표, 리스트, 이모지 등 순수 Markdown 문법만 사용하세요.
-        - 코드 블록(````…```)이나 HTML 태그는 절대로 포함하지 마세요.
-        ""\" ;
-        """ ;
+    private static String TOTAL_REPORT_PROMPT = """
+            [역할 부여]
+            당신은 상세하고 친절한 뷰티 제품 전문가입니다. 피부 분석, 제품 추천 및 사용 루틴 컨설팅에 매우 능숙합니다.
+            [입력 데이터]
+            1.  **피부 상태 체크리스트:**
+                %s
+                * **해석 기준:**
+                    * moisture (촉촉함): 60% 이상일 경우 촉촉한 편, 미만일 경우 건조한 편으로 판단합니다.
+                    * oil (유분): 60% 이상일 경우 유분이 많은 편, 미만일 경우 유분이 적은 편으로 판단합니다.
+                    * sensitivity (민감도): 60% 이상일 경우 민감한 편, 미만일 경우 일반적인 편으로 판단합니다.
+                    * tension (탄력): 60% 이상일 경우 탄력이 높은 편, 미만일 경우 탄력이 낮은 편으로 판단합니다.
+            2.  **기존 뷰티 루틴:**
+                %s
+            3.  **사용법이 달라진 (개선된) 뷰티 루틴:**
+                %s
+            4.  **추가 또는 대체 추천 화장품 목록:**
+                %s
+            [역질문]
+            위클리 관리를 위한 추가 피부 분석을 위한 역질문 5가지 해줘. 예를 들어, 세안법, 주 단위 피부 습관 등
+            (주 1회 팩, 주 1~2회 각질 제거 여부)
+            [요청 사항]
+            - 요일마다 주간 스킨케어 루틴을 추천해줘.
+            - 추가 지침도 알려줘.
+            **레포트 작성 스타일:**
+            * 전문적이고 신뢰감을 주면서도, 사용자가 이해하기 쉽도록 친절하고 상세하게 설명해주세요.
+            * 단순 정보 나열이 아닌, 각 요소 간의 연관성을 분석하고 그 이유를 명확히 밝혀주세요.
+            * 긍정적인 변화를 기대할 수 있도록 격려하는 어투를 사용해주세요.
+            """;
+
     // ────────────────────────────────────────────────────────────────────────────
     private static final String PRODUCT_INQUIRY_PROMPT = """
         응답은 최대 3문장 이내로 간결하게 작성해 주세요.
@@ -168,7 +213,7 @@ public class ChatMessageService {
         ▶ [맞춤형 제품 추천](/recommend)
         --------------------
     """ ;
-    private final CheckListRepository checkListRepository;
+//    private final CheckListRepository checkListRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final WebClient webClient;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -202,35 +247,48 @@ public class ChatMessageService {
      * “세션 초기화” 메서드: 컨트롤러에서 initSession(sessionId, userId, templateKey) 로 호출
      */
     public void initSession(String sessionId, String userId, String templateKey) {
+        try {
+            List<RoutinesDto> recommend = routineRepository.findRoutinesByUserId(userId); //보류
+            List<RoutineChangeDTO> routinechange = routineChangeRepository.findAllRoutinesByUserId(userId); // 루틴 방법 수정 된 결과
+            List<RecommendResponseDTO> deeprecommend = deepRecommendRepository.findAllRecommendByUserId(userId); // 제품 추천 , 이유 , 추가(대체)
+//            List<CheckList> checklist = checkListRepository.findByUserOrderByCreatedAtDesc(user.getId()); //
+            List<ChatMessageDTO> chatlist = chatMessageRepository1.findByUserId(userId);
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            String json1 = mapper.writeValueAsString(recommend);
+            String json2 = mapper.writeValueAsString(routinechange);
+            String json3 = mapper.writeValueAsString(deeprecommend);
+//            String json4 = mapper.writeValueAsString(checklist);
+            String json6 = mapper.writeValueAsString(chatlist);
+
+            String filledPrompt = String.format(TOTAL_REPORT_PROMPT, json1, json2, json3, json6);
+
+
+            RequestDTO request = new RequestDTO();
+            request.createGeminiReqDto(filledPrompt);
+            String requestJson = mapper.writeValueAsString(request);
+            System.out.println("Gemini API 요청 본문: " + requestJson);
+
+
+            RestTemplate restTemplate = new RestTemplate();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.set("x-goog-api-key", openConfig.getKey());
+            HttpEntity<String> entity = new HttpEntity<>(requestJson, headers);
+
+            ResponseEntity<String> response = restTemplate.postForEntity(openConfig.getUrl(), entity, String.class); // md파일 형태로 저장하기
+
+
+        } catch (Exception e) {
+            log.error("예상치 못한 오류 발생: ", e);
+        }
+
+
         String sysPrompt;
         switch (templateKey) {
             case "TOTAL_REPORT":
-                Optional<CheckList> maybeCheck =
-                        checkListRepository.findFirstByUser_IdOrderByCreatedAtDesc(userId);
-
-                String checklistSection;
-                if (maybeCheck.isPresent()) {
-                    CheckList c = maybeCheck.get();
-                    // 4-2) 체크리스트 정보를 문자열 형태로 포맷
-                    checklistSection = String.format(
-                            "• 수분 지수: %d%%\n" +
-                                    "• 유분 지수: %d%%\n" +
-                                    "• 민감도 지수: %d%%\n" +
-                                    "• 탄력 지수: %d%%",
-                            c.getMoisture(), c.getOil(),
-                            c.getSensitivity(), c.getTension()
-                    );
-                } else {
-                    checklistSection = "해당 사용자의 최근 체크리스트 기록이 없습니다.";
-                }
-                // ─────────────────────────────────────────────────────────────────
-
-                // ─────────────────────────────────────────────────────────────────
-                // 4-3) 템플릿 내 {CHECKLIST_DATA}를 실제 데이터로 치환
-                // ─────────────────────────────────────────────────────────────────
-                sysPrompt = TOTAL_REPORT_PROMPT
-                        .replace("{CHECKLIST_DATA}", checklistSection);
-                break;
+                sysPrompt = TOTAL_REPORT_PROMPT;
             case "PRODUCT_INQUIRY":
                 sysPrompt = PRODUCT_INQUIRY_PROMPT;
                 break;

@@ -70,9 +70,12 @@ public class DeepRecommendService {
         String validKinds = kindsList.toString();
 
 
+
         try {
-            ObjectMapper mapper = new ObjectMapper();
             // Ensure RoutinesDto includes routineId for the prompt
+
+            ObjectMapper mapper = new ObjectMapper();
+
             String json1 = mapper.writeValueAsString(recommend);
             String json2 = mapper.writeValueAsString(getProblemByUsername);
 
