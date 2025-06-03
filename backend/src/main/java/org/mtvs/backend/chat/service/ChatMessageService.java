@@ -3,6 +3,8 @@ package org.mtvs.backend.chat.service;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.chat.entity.ChatMessage;
 import org.mtvs.backend.chat.repository.ChatMessageRepository;
+import org.mtvs.backend.checklist.model.CheckList;
+import org.mtvs.backend.checklist.repository.CheckListRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,12 @@ import java.util.concurrent.ThreadLocalRandom;
 public class ChatMessageService {
     // ────────────────────────────────────────────────────────────────────────────
     // 1) 시스템 프롬프트 정의
+    // ────────────────────────────────────────────────────────────────────────────
+    private static final String CUSTOMER_SUPPORT_PROMPT = """
+        ※ 아래는 사용자의 최신 체크리스트 데이터입니다. 이 데이터를 참고하여, 문제 해결 단계나 조언을 구체적으로 작성해 주세요:
+        {CHECKLIST_DATA}
+
+        """ ;
     // ────────────────────────────────────────────────────────────────────────────
     private static final String PRODUCT_INQUIRY_PROMPT = """
         응답은 최대 3문장 이내로 간결하게 작성해 주세요.
@@ -152,7 +160,7 @@ public class ChatMessageService {
         ▶ [맞춤형 제품 추천](/recommend)
         --------------------
     """ ;
-
+    private final CheckListRepository checkListRepository;
     private final ChatMessageRepository chatMessageRepository;
     private final WebClient webClient;
 
@@ -182,6 +190,33 @@ public class ChatMessageService {
     public void initSession(String sessionId, String userId, String templateKey) {
         String sysPrompt;
         switch (templateKey) {
+            case "CUSTOMER_SUPPORT":
+                Optional<CheckList> maybeCheck =
+                        checkListRepository.findFirstByUser_IdOrderByCreatedAtDesc(userId);
+
+                String checklistSection;
+                if (maybeCheck.isPresent()) {
+                    CheckList c = maybeCheck.get();
+                    // 4-2) 체크리스트 정보를 문자열 형태로 포맷
+                    checklistSection = String.format(
+                            "• 수분 지수: %d%%\n" +
+                                    "• 유분 지수: %d%%\n" +
+                                    "• 민감도 지수: %d%%\n" +
+                                    "• 탄력 지수: %d%%",
+                            c.getMoisture(), c.getOil(),
+                            c.getSensitivity(), c.getTension()
+                    );
+                } else {
+                    checklistSection = "해당 사용자의 최근 체크리스트 기록이 없습니다.";
+                }
+                // ─────────────────────────────────────────────────────────────────
+
+                // ─────────────────────────────────────────────────────────────────
+                // 4-3) 템플릿 내 {CHECKLIST_DATA}를 실제 데이터로 치환
+                // ─────────────────────────────────────────────────────────────────
+                sysPrompt = CUSTOMER_SUPPORT_PROMPT
+                        .replace("{CHECKLIST_DATA}", checklistSection);
+                break;
             case "PRODUCT_INQUIRY":
                 sysPrompt = PRODUCT_INQUIRY_PROMPT;
                 break;
