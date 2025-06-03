@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -361,35 +362,40 @@ public class ChatMessageService {
         }
     }
 
-    public String saveAiResponseAsMdJson(String sessionId, String aiText) {
+    public String saveAiResponseAsMdJson(String userId, String aiText) {
+        // 1) 저장할 디렉터리 생성
         Path dirPath = Paths.get(mdJsonStorageDir);
         if (!Files.exists(dirPath)) {
-            try { Files.createDirectories(dirPath); }
-            catch (IOException e) {
+            try {
+                Files.createDirectories(dirPath);
+            } catch (IOException e) {
                 throw new RuntimeException("저장 폴더 생성 실패: " + mdJsonStorageDir, e);
             }
         }
 
-        StringBuilder mdBuilder = new StringBuilder();
-        mdBuilder.append("# AI 진단서\n\n");
-        mdBuilder.append("**생성 시각**: ").append(LocalDateTime.now()).append("\n\n");
-        mdBuilder.append("```\n").append(aiText).append("\n```\n");
-        String markdown = mdBuilder.toString();
-
-        Map<String,Object> jsonMap = new LinkedHashMap<>();
-        jsonMap.put("generatedAt", LocalDateTime.now().toString());
-        jsonMap.put("sessionId", sessionId);
-        jsonMap.put("markdown", markdown);
-
-        String filename = String.format("ai-diagnosis-%s-%d.json",
-                sessionId.replaceAll("[^a-zA-Z0-9\\-]", "_"),
-                System.currentTimeMillis());
+        // 2) 파일명 생성: userId-생성날짜_타임스탬프.json
+        LocalDateTime now = LocalDateTime.now();
+        String datePart = now.format(DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss"));
+        String filename = String.format("%s-%s-%d.json", userId, datePart, System.currentTimeMillis());
         Path filePath = dirPath.resolve(filename);
 
+        // 3) JSON 구조에 Markdown 포함해서 쓰기
         try {
-            String jsonString = objectMapper.writerWithDefaultPrettyPrinter()
+            Map<String, Object> jsonMap = new LinkedHashMap<>();
+            jsonMap.put("generatedAt", now.toString());
+            jsonMap.put("userId", userId);
+
+            StringBuilder mdBuilder = new StringBuilder();
+            mdBuilder.append("# AI 진단서\n\n");
+            mdBuilder.append("**생성 시각**: ").append(now).append("\n\n");
+            mdBuilder.append("```\n").append(aiText).append("\n```\n");
+            jsonMap.put("markdown", mdBuilder.toString());
+
+            String jsonString = objectMapper
+                    .writerWithDefaultPrettyPrinter()
                     .writeValueAsString(jsonMap);
             Files.write(filePath, jsonString.getBytes(StandardCharsets.UTF_8));
+
         } catch (IOException e) {
             throw new RuntimeException("AI 응답 JSON 저장 실패: " + filename, e);
         }
