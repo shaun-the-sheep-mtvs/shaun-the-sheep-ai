@@ -121,7 +121,7 @@ export default function ChatWidget() {
     // 2) 화면 메시지 초기화 + 첫 안내 텍스트 세팅
     let promptText = ''
     switch (key) {
-      case 'CUSTOMER_SUPPORT':
+      case 'TOTAL_REPORT':
         promptText =
           '지금까지의 정보를 바탕으로 진단서를 작성해드릴게요.'
         break
@@ -197,7 +197,7 @@ export default function ChatWidget() {
       const aiDto = (await res.json()) as ChatMessageDTO
 
       // CUSTOMER_SUPPORT 템플릿인 경우, AI 응답 대신 고정 메시지를 보여줌
-      if (templateKey === 'CUSTOMER_SUPPORT') {
+      if (templateKey === 'TOTAL_REPORT') {
         setMessages(prev => [
           ...prev,
           {
@@ -245,7 +245,7 @@ export default function ChatWidget() {
 
           {/* 퀵 액션 버튼 */}
           <div className={styles.quickActions}>
-            <button onClick={() => handleQuick('CUSTOMER_SUPPORT')}>
+            <button onClick={() => handleQuick('TOTAL_REPORT')}>
               종합 리포트
             </button>
             <button onClick={() => handleQuick('PRODUCT_INQUIRY')}>
