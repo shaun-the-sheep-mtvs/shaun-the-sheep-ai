@@ -121,6 +121,10 @@ export default function ChatWidget() {
     // 2) 화면 메시지 초기화 + 첫 안내 텍스트 세팅
     let promptText = ''
     switch (key) {
+      case 'CUSTOMER_SUPPORT':
+        promptText =
+          '지금까지의 정보를 바탕으로 진단서를 작성해드릴게요.'
+        break
       case 'PRODUCT_INQUIRY':
         promptText =
           '제품 문의를 선택하셨습니다. 사용하시는 제품이 기억나지 않으시면, 외관·질감·향기 등을 설명해 주세요.'
@@ -228,6 +232,9 @@ export default function ChatWidget() {
 
           {/* 퀵 액션 버튼 */}
           <div className={styles.quickActions}>
+            <button onClick={() => handleQuick('CUSTOMER_SUPPORT')}>
+              종합 리포트
+            </button>
             <button onClick={() => handleQuick('PRODUCT_INQUIRY')}>
               <PackageSearch size={16} className={styles.quickIcon} />
               제품 문의
@@ -336,5 +343,3 @@ export default function ChatWidget() {
     </div>
   )
 }
-
-
