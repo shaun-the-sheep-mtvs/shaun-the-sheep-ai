@@ -120,7 +120,7 @@ export default function RegisterPage() {
             </div>
 
             <button type="submit" className={styles.registerButton}>
-              가입 하기
+              가입하기
             </button>
             <div
               className={styles.loginLink}

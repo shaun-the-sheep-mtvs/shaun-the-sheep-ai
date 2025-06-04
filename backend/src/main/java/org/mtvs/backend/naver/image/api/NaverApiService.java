@@ -21,7 +21,6 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class NaverApiService {
-    private final NaverImageAPIRepository naverImageAPIRepository;
     private final ApiSearchImage apiSearchImage;
     private final ObjectMapper objectMapper;
     private final ProductRepository productRepository;
@@ -51,22 +50,19 @@ public class NaverApiService {
 
 
         int count = 0;
-        int sum = 0;
         for (int i = 0; i < productNames.size(); i++) {
             if (!isExistImage(productNames.get(i))) {
                 responses.put(productNames.get(i), apiSearchImage.get(apiSearchImage.urlEncode(productNames.get(i))));
             }
             count++;
-            sum++;
-            System.out.println(count);
             if (count == 10) {
                 try {
-                    Thread.sleep(1010);
-                    sum += count;
-                    count = 0;
+                    Thread.sleep(1010); // Sleep for just over 1 second
                 } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt(); // Best practice
                     e.printStackTrace();
                 }
+                count = 0;
             }
         }
 
