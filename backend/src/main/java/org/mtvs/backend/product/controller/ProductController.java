@@ -22,7 +22,7 @@ public class ProductController {
     }
 
     @GetMapping("/search/products")
-    public List<ProductDTO> searchProducts(@RequestParam String mode, @RequestParam String word) {
+    public List<ProductDTO> searchProducts(@RequestParam("mode") String mode, @RequestParam("word") String word) {
         // 검색 조건에 따라 ProductDTO List 반환
         List<ProductDTO> productList = switch (mode) {
             case "all" -> productService.searchAllByIngredient(word);
