@@ -106,7 +106,7 @@ export default function Home() {
 
   // Modify the initial useEffect to handle both guest and regular user data
   useEffect(() => {
-    const APP_VERSION = '2024-06-05'; // Update this on each deploy
+    const APP_VERSION = '2024-06-05-a'; // Update this on each deploy
 
     if (localStorage.getItem('app_version') !== APP_VERSION) {
       localStorage.clear();
