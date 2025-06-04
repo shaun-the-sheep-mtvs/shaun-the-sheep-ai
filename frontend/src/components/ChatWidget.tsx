@@ -123,7 +123,7 @@ export default function ChatWidget() {
     switch (key) {
       case 'TOTAL_REPORT':
         promptText =
-          '지금까지의 정보를 바탕으로 진단서를 작성해드릴게요.'
+          '추천 위클리 루틴을 작성해드리겠습니다.'
         break
       case 'PRODUCT_INQUIRY':
         promptText =
@@ -252,7 +252,7 @@ export default function ChatWidget() {
               피부 타입
             </button>
             <button onClick={() => handleQuick('TOTAL_REPORT')}>
-              종합 리포트
+              위클리 루틴 추천
             </button>
           </div>
 
