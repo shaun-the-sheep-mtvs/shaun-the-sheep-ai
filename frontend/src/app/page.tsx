@@ -53,6 +53,8 @@ export default function Home() {
   const [isGuest, setIsGuest] = useState(false);
   const [guestChecklist, setGuestChecklist] = useState<GuestChecklistData | null>(null);
 
+  
+
   const fetchNaverData = async () => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -104,6 +106,13 @@ export default function Home() {
 
   // Modify the initial useEffect to handle both guest and regular user data
   useEffect(() => {
+    const APP_VERSION = '2024-06-05'; // Update this on each deploy
+
+    if (localStorage.getItem('app_version') !== APP_VERSION) {
+      localStorage.clear();
+      localStorage.setItem('app_version', APP_VERSION);
+      window.location.reload();
+    }
     const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
     
