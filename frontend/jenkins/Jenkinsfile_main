@@ -24,7 +24,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 dir('frontend') {
-                    sh "docker build -t $IMAGE_NAME:latest ."
+                    sh "docker build --build-arg NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL -t $IMAGE_NAME:latest ."
                 }
             }
         }
