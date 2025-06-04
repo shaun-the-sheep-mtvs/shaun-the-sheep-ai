@@ -18,4 +18,11 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
 //    @Query("SELECT p FROM Product p WHERE p.productName LIKE %:query%")
 //    List<Product> findProductsByProductNameContaining(String query);
+    List<Product> findProductsById(String userId);
+//    List<Product> findByUserIdAndFormulationType(String userId, String formulationType);
+
+    boolean existsProductByProductName(String productName);
+
+
+    List<Product> findAllByImageUrl(String imageUrl);
 }

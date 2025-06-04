@@ -72,7 +72,7 @@ function parseBackendResponse(data: BackendResponse): RecommendData {
         return;
       }
 
-      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+      const response = await fetch(`${apiConfig.baseURL}/api/naver/re`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -203,7 +203,7 @@ export default function RecommendPage() {
         return;
       }
 
-      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+      const response = await fetch(`${apiConfig.baseURL}/api/naver/re`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,

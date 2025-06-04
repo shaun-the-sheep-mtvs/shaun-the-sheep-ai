@@ -1,8 +1,12 @@
 package org.mtvs.backend.product.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.mtvs.backend.naver.image.api.ApiSearchImage;
 import org.mtvs.backend.naver.image.api.NaverApiService;
 import org.mtvs.backend.product.dto.ProductDTO;
 import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
@@ -13,6 +17,7 @@ import org.mtvs.backend.product.repository.ProductUserLinkRepository;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -21,6 +26,8 @@ import java.util.stream.Collectors;
 import static org.mtvs.backend.product.dto.ProductDTO.fromEntity;
 
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class ProductService {
 
     private final ProductRepository productRepository;
@@ -28,15 +35,8 @@ public class ProductService {
     private final NaverApiService naverApiService;
     private final ProductUserLinkRepository productUserLinkRepository;
     private final ProductUserLinkService productUserLinkService;
-
-    @Autowired
-    public ProductService(ProductRepository productRepository, UserRepository userRepository, NaverApiService naverApiService, ProductUserLinkRepository productUserLinkRepository, ProductUserLinkService productUserLinkService) {
-        this.productRepository = productRepository;
-        this.userRepository = userRepository;
-        this.naverApiService = naverApiService;
-        this.productUserLinkRepository = productUserLinkRepository;
-        this.productUserLinkService = productUserLinkService;
-    }
+    private final ApiSearchImage apiSearchImage;
+    private final ObjectMapper objectMapper;
 
     public List<ProductDTO> getProductsByFormulation(String userId, String formulation, int limit) {
         // userId 에 해당되는 Product 리스트 불러오기
@@ -160,33 +160,69 @@ public class ProductService {
         // ObjectNode 로 캐스팅
         ObjectNode objectNode = (ObjectNode) jsonNode;
         ProductDTO dto = new ProductDTO();
-
         // 제품명
-        dto.setProductName(objectNode.get("제품명") != null ?
-                objectNode.get("제품명").asText() : null);
 
-        // 추천타입
-        dto.setRecommendedType(objectNode.get("추천타입") != null ?
-                objectNode.get("추천타입").asText() : null);
+        if(!productRepository.existsProductByProductName(objectNode.get("제품명").asText())){
+            dto.setProductName(objectNode.get("제품명") != null ?
+                    objectNode.get("제품명").asText() : null);
 
-        // 성분 (JSON 배열 → List<String>)
-        JsonNode ingredientsNode = objectNode.get("성분");
-        List<String> ingredients = new ArrayList<>();
-        if (ingredientsNode != null && ingredientsNode.isArray()) {
-            for (JsonNode node : ingredientsNode) {
-                ingredients.add(node.asText());
+            // 추천타입
+            dto.setRecommendedType(objectNode.get("추천타입") != null ?
+                    objectNode.get("추천타입").asText() : null);
+
+            // 성분 (JSON 배열 → List<String>)
+            JsonNode ingredientsNode = objectNode.get("성분");
+            List<String> ingredients = new ArrayList<>();
+            if (ingredientsNode != null && ingredientsNode.isArray()) {
+                for (JsonNode node : ingredientsNode) {
+                    ingredients.add(node.asText());
+                }
             }
+            dto.setIngredients(ingredients);
+
+            dto.setFormulation(formulation);
+            dto.setImageUrl("");
+
+            // Product 엔티티로 변환 및 저장 (예외는 상위 메서드에서 처리)
+            Product product = dto.toEntity();
+            productRepository.save(product);
+
+            // 링크 테이블에 저장
+            productUserLinkService.saveLinks(product, userId);
         }
-        dto.setIngredients(ingredients);
+        else{
+            System.out.println("중복! 저장!");
+        }
+    }
 
-        dto.setFormulation(formulation);
-        dto.setImageUrl("");
 
-        // Product 엔티티로 변환 및 저장 (예외는 상위 메서드에서 처리)
-        Product product = dto.toEntity();
-        productRepository.save(product);
+    //x인 product Entity 찾는 로직
+    private List<Product> getAllProductsWithNoURL(){
+        return productRepository.findAllByImageUrl("x");
+    }
 
-        // 링크 테이블에 저장
-        productUserLinkService.saveLinks(product, userId);
+    /**
+     * Product ImageURL 없는거 갱신하는 함수입니다
+     *
+     * */
+    public ResponseEntity<?> updateProductsWithNoURL() {
+        try{
+        List<Product> noURLproducts = productRepository.findAllByImageUrl("x");
+        noURLproducts.forEach(noUrlproduct -> {
+            apiSearchImage.get(apiSearchImage.urlEncode( noUrlproduct.getProductName()));
+            try {
+                System.out.println(noUrlproduct.getProductName());
+                JsonNode rootNode = objectMapper.readTree(apiSearchImage.reGet(apiSearchImage.urlEncode(noUrlproduct.getProductName())));
+                System.out.println(rootNode);
+                JsonNode imageNode = rootNode.findValue("thumbnail");
+                naverApiService.addImageUrl(noUrlproduct.getProductName(),imageNode.toString().replaceAll("\"",""));
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException(e);
+            }
+        });
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok(200);
     }
 }
