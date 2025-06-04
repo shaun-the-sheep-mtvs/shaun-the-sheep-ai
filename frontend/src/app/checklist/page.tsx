@@ -9,7 +9,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import { apiConfig } from '@/config/api';
 
-// Fisher–Yates 셔플 함수
+// Fisher–Yates 셔플 함수 추가
 function shuffle<T>(arr: T[]): T[] {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {
