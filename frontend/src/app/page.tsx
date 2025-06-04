@@ -139,7 +139,8 @@ export default function Home() {
           console.log('API Response:', data); // 실제 데이터 구조 확인
           const transformedProducts = data.map(product => ({
             name: product.productName,
-            description: `${product.recommendedType} - ${product.ingredients.join(', ')}`,
+            recommendedType: product.recommendedType,
+            ingredients: product.ingredients,
             imageUrl: product.imageUrl
           }));
           setProducts(transformedProducts);
@@ -379,11 +380,8 @@ export default function Home() {
                         )}
                       </div>
                       <div className={styles.productName}>{p.name}</div>
-                      <div className={styles.productDesc}>{p.description}</div>
-                      <button className={styles.buyBtn}>
-                        <ShoppingBag className={styles.buttonIcon} />
-                        자세히 보기
-                      </button>
+                      <div className={styles.productDesc}>{p.recommendedType}</div>
+                      <div className={styles.product}>{p.ingredients}</div>
                     </div>
                   ))}
                 </div>

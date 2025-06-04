@@ -49,7 +49,6 @@ public class ProductService {
                 productsByFormulation.add(product);
             }
         }
-
         return productsByFormulation.stream().limit(limit).collect(Collectors.toList());
     }
 
@@ -69,6 +68,20 @@ public class ProductService {
         return ProductsWithUserInfoResponseDTO.create(user, selectedProducts);
     }
 
+    // 중복 방지 -> Set 사용
+    public List<ProductDTO> findUniqueFromTwoQueries(String query) {
+        List<ProductDTO> product1 = searchAllByBrandAndName(query);
+        List<ProductDTO> product2 = searchAllByIngredient(query);
+
+//        Set<ProductDTO> productSet = new HashSet<>();
+        // 중복 방지 (ProductName 기준으로 중복 방지)
+        Set<ProductDTO> productSet = new TreeSet<>(Comparator.comparing(ProductDTO::getProductName));
+        productSet.addAll(product1);
+        productSet.addAll(product2);
+
+        return new ArrayList<>(productSet);
+    }
+
     // 주어진 키워드(query)로 브랜드 및 제품 검색
     public List<ProductDTO> searchAllByBrandAndName(String query) {
         List<Product> products = productRepository.findAll();
@@ -80,6 +93,7 @@ public class ProductService {
         }
         return productDTOs;
     }
+
 
     // 주어진 키워드(query)로 성분 검색
     public List<ProductDTO> searchAllByIngredient(String query) {
