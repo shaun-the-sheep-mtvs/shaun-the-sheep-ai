@@ -5,7 +5,7 @@ import styles from './page.module.css';
 import '../globals.css';
 import axios from 'axios';
 import { usePathname, useRouter } from 'next/navigation';
-import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles, FileText } from "lucide-react";
+import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles, FileText } from 'lucide-react';
 import Link from 'next/link';
 import apiConfig from '@/config/api';
 import Navbar from '../../components/Navbar';
@@ -63,16 +63,18 @@ interface DisplayRoutineItem {
 
 // 제품 변경 및 추가 추천 API (deep-recommend) 응답 형식
 interface ApiDeepRecommendItem {
-    action: 'Add' | 'Replace'; // API 실제 값인 소문자로 수정
+    action: 'Add' | 'Replace';
     routineName?: string;      
     suggestProduct: string;   
     reason: string;
+    existingProductId?: string; // Add this field
+    name?: string;
 }
 
 // 화면 표시용 인터페이스
 interface ProductChangeItem {
-    currentProduct: string;
-    suggest_product: string; // JSX와 일치시키기 위해 이 필드명 사용
+    currentProduct: string; // Change from existingProductId to currentProduct
+    suggest_product: string;
     reason: string;
 }
 
@@ -101,6 +103,12 @@ export default function Step2() {
     // 제품 변경 및 추가 추천 상태
     const [productChanges, setProductChanges] = useState<ProductChangeItem[]>([]);
     const [productAdditions, setProductAdditions] = useState<ProductAdditionItem[]>([]);
+
+    // Add this helper function before the useEffect
+    const findRoutineNameById = (routineId: string, routines: DisplayRoutineItem[]): string => {
+        const routine = routines.find(r => r.title === routineId || r.kind === routineId);
+        return routine ? routine.title : routineId; // fallback to routineId if not found
+    };
 
     useEffect(() => {
         const token = localStorage.getItem('accessToken');
@@ -185,13 +193,17 @@ export default function Step2() {
                 const additions: ProductAdditionItem[] = [];
 
                 deepRecommendationsFromApi.forEach(item => {
-                    if (item.action === 'Replace') { // 소문자로 비교 수정
+                    if (item.action === 'Replace') {
+                        // Combine all routines to search from
+                        const allRoutines = [...transformedExistingRoutines];
+                        const currentProductName = item.name || '알 수 없는 제품';
+                            
                         changes.push({
-                            currentProduct: item.routineName || '', 
+                            currentProduct: currentProductName,
                             suggest_product: item.suggestProduct, 
                             reason: item.reason,
                         });
-                    } else if (item.action === 'Add') { // 소문자로 비교 수정
+                    } else if (item.action === 'Add') {
                         additions.push({
                             addProduct: item.suggestProduct,
                             reason: item.reason,

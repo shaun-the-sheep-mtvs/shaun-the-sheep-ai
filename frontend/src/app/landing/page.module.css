@@ -17,6 +17,9 @@
   background: linear-gradient(to bottom, var(--primary-color-bg), var(--white), var(--primary-color-bg)); /* 변경된 배경 */
   color: var(--text-dark);
   overflow-x: hidden; /* 가로 스크롤 방지 */
+
+ /* 화면 전체 높이 */
+
 }
 
 .container {
@@ -26,23 +29,33 @@
 }
 
 .section {
-  padding: 60px 0;
+  padding: 40px 0;
   position: relative;
 }
-
+/* 로고 컨테이너 */
+.logoContainer {
+    display: flex;
+    align-items: center;
+    position: absolute;
+    width: calc(100% - 3rem);
+    justify-content: center;
+    z-index: -1;
+  }
 .sectionTitle {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: bold;
   text-align: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+
   color: var(--text-dark);
 }
 
 .sectionSubtitle {
-  font-size: 16px;
+  font-size: 14px;
   text-align: center;
   color: var(--text-light);
-  margin-bottom: 40px;
+  margin-bottom: 32px;
+
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -70,9 +83,56 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 15px 20px; /* 기존 container 대신 header 내부에서 padding 처리 */
-  max-width: 1200px;
+  padding: 15px 20px;
+  max-width: 1000px;
   margin: 0 auto;
+}
+
+.headerButtons {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.signupButton {
+    background-color: transparent;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    border-radius: 9999px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+.signupButton:hover {
+    background-color: #f9fafb;
+    color: #111827;
+}
+
+.loginButton {
+    background-color: #6ee7b7;
+    color: white;
+    border: none;
+    border-radius: 9999px;
+    padding: 0.5rem 1.25rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+.loginButton:hover {
+    background-color: #34d399;
 }
 
 .logo {
@@ -94,57 +154,85 @@
   color: transparent;
 }
 
-.headerButton {
-  background: linear-gradient(to right, var(--primary-color), #2CAAA0); /* 변경된 색상 계열 */
-  color: var(--white);
-  padding: 10px 20px;
-  border-radius: 9999px; /* fully rounded */
-  font-weight: 600;
-  box-shadow: 0 4px 6px rgba(64, 221, 186, 0.2); /* 변경된 색상 계열 */
-  transition: all 0.3s ease;
-  border: none;
-  cursor: pointer;
-}
 
-.headerButton:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 12px rgba(64, 221, 186, 0.3); /* 변경된 색상 계열 */
-}
-
+/* Shaun 제목 스타일 */
+.logo1 {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #111827;
+    background: linear-gradient(90deg, #34d399 0%, #6ee7b7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.02em;
+    padding: 0;
+    margin: 0;
+    font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
 
 /* Hero Section */
 .heroSection {
-  padding-top: 120px; /* 헤더 높이만큼 확보 */
-  padding-bottom: 60px;
-  min-height: 70vh;
   display: flex;
+  padding-top: 100px;
   align-items: center;
+  width: 100%;
+}
+
+/* Hero 섹션 내부의 container만 특별히 너비 확장 */
+.heroSection > .container {
+  max-width: none; /* 최대 너비 제한 제거 */
+  /* 기존 .container의 padding: 0 20px; 보다 넓은 패딩 적용 */
+  padding-left: 20px; /* 좌우 패딩 제거 */
+  padding-right: 20px; /* 좌우 패딩 제거 */
+  margin: 0 auto; /* 전체 너비 사용 시 중앙 정렬은 유지 */
 }
 
 .heroContent {
-  background-color: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(8px);
-  border-radius: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-  border: 1px solid var(--primary-color-light); /* 변경된 색상 */
-  overflow: hidden;
-  display: flex;
-  flex-direction: column; /* 기본 세로 정렬 */
+    max-width: 1000px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 20px 15px;
+    display: flex;
+    flex-direction: column;
+    background-color: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 20px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--primary-color-light);
+    overflow: hidden;
+    min-width: 1000px;
 }
-
-/* 테블릿 및 데스크탑에서 가로 정렬 */
-@media (min-width: 768px) {
-  .heroContent {
-    flex-direction: row;
+  
+  /* 데스크탑 이상에서도 고정
+  @media (min-width: 768px) {
+    .heroContent {
+      flex-direction: row;
+      align-items: stretch;
+    }
+  } */
+  @media (min-width: 768px) {
+    .heroContent {
+      flex-direction: row;
+      align-items: stretch;
+    }
   }
+/* 
+ */
+ 
+@media (max-width: 1000px) {
+    .heroContent {
+      flex-wrap: wrap; /* ✅ 레이아웃 자동 줄바꿈 */
+    }
 }
 
 .heroTextContainer {
-  flex: 1;
-  padding: 40px;
+  flex: 1.0; 
+  padding: 30px 20px;
   display: flex;
   flex-direction: column;
   justify-content: center;
+  position: relative; 
+
 }
 
 .aiBadge {
@@ -169,25 +257,28 @@
 }
 
 .heroTitle {
-  font-size: 48px;
-  font-weight: 800; /* 기존 bold(700)에서 800으로 변경하여 더 두껍게 */
+
+  font-size: 36px;
+  font-weight: 800;
   line-height: 1.2;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
+
 }
 
 .heroSkinTypeInfo {
   background: linear-gradient(to right, var(--primary-color-bg), #D1F7EE ); /* 변경된 색상 계열 */
-  padding: 20px;
-  border-radius: 12px;
+  padding: 16px;
+  border-radius: 10px;
   border: 1px solid var(--primary-color-light); /* 변경된 색상 */
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .heroSkinTypeQuestion {
-  font-size: 24px;
+  font-size: 20px;
   color: var(--primary-color); /* 변경된 색상 (기존 D946EF 자줏빛) */
   font-weight: 600;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
+
 }
 
 .heroSkinTypeDynamic {
@@ -198,8 +289,9 @@
 .heroCtaButton {
     background: linear-gradient(to right, #FF8C00, #FFA500); /* 주황색 계열로 변경 */
     color: #ffffff; /* 흰색 텍스트 */
-    padding: 20px 40px;
-    font-size: 20px;
+    padding: 16px 32px;
+    font-size: 18px;
+
     font-weight: bold;
     border-radius: 9999px;
     box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4); /* 주황색 그림자 */
@@ -228,10 +320,16 @@
 }
 
 .heroImageContainer {
-  flex: 1;
+  flex: 1.0; 
   position: relative;
-  min-height: 400px; /* 이미지 영역 최소 높이 */
-  overflow: hidden; /* 스캔라인이 이미지를 벗어나지 않도록 */
+  display: flex; 
+  flex-direction: column; 
+  justify-content: center; 
+  padding: 30px 20px;
+  background-color: rgba(255, 255, 255, 0.6); 
+  border-radius: 16px; 
+  gap: 16px;
+
 }
 
 .heroImage {
@@ -239,6 +337,7 @@
   height: 100%;
   object-fit: cover; /* 이미지가 컨테이너를 채우도록 */
 }
+
 .newScanLine {
     position: absolute;
     left: 0;
@@ -259,9 +358,65 @@
   background: linear-gradient(to top, rgba(64, 221, 186, 0.2), transparent); /* 변경된 색상 계열 */
 }
 
+/* .heroGraphContainer 클래스는 이제 .heroImageContainer에 통합되었으므로 삭제 또는 주석 처리 가능 */
+/* .heroGraphContainer { 
+  gap: 16px; 
+} */
+
+.graphItem {
+  width: 100%;
+  /* background-color: rgba(0,0,0,0.02); /* 각 아이템 배경 살짝 추가하여 구분 (선택 사항) */
+  /* border-radius: 8px; */
+  /* padding: 10px; */
+}
+
+.graphItemHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px; /* 바와의 간격 조정 */
+}
+
+.graphItemDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.graphItemName {
+  font-size: 15px;
+  color: var(--text-dark);
+  font-weight: 500;
+}
+
+.graphItemValue { 
+  font-size: 13px; 
+  font-weight: bold; 
+  color: var(--white); 
+  min-width: 50px; /* 값 표시 영역 최소 너비 확보 */
+  text-align: center; /* 텍스트 중앙 정렬 */
+  /* page.tsx의 style 속성으로 padding, backgroundColor, borderRadius 적용됨 */
+}
+
+.graphItemBarBackground {
+  width: 100%;
+  height: 14px; /* 바 높이 약간 증가 */
+  background-color: #e9ecef; 
+  border-radius: 7px; /* 바 높이에 맞춰 조정 */
+  overflow: hidden; 
+}
+
+.graphItemBarForeground {
+  height: 100%;
+  border-radius: 7px; /* 바 높이에 맞춰 조정 */
+}
+
 /* Skin Concerns Section */
 .skinConcernsSection {
   background-color: var(--white); /* 흰색 배경 */
+  padding-top: 100px; /* Hero 섹션과의 간격을 줄임 */
+
 }
 
 .concernsGrid {
@@ -275,7 +430,8 @@
 .concernCard {
   background: linear-gradient(to bottom right, #F0F9FF, #E0F2FE); /* Light blue gradient for "건조함" */
   border-radius: 16px;
-  padding: 24px;
+  padding: 20px;
+
   text-align: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #B9E2F5;
@@ -302,13 +458,14 @@
 
 
 .concernIconContainer {
-  width: 64px;
-  height: 64px;
+  width: 48px;
+  height: 48px;
+
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 16px auto;
+  margin-bottom: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 /* Icon container colors need to match card type */
@@ -319,12 +476,12 @@
 
 .concernIcon {
   color: var(--white); /* Icon color */
-  width: 32px;
-  height: 32px;
+  width: 24px;
+  height: 24px;
 }
 
 .concernTitle {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: bold;
   margin-bottom: 8px;
   color: var(--text-dark);
@@ -351,7 +508,7 @@
 .recommendationCard {
   background-color: var(--white);
   border-radius: 16px;
-  padding: 24px;
+  padding: 20px;
   text-align: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--border-color);
@@ -364,9 +521,9 @@
 .recommendationIconContainer {
   margin-bottom: 16px;
 }
-.recommendationIcon { /* Icons seem to have their own colors in the image */
-  width: 32px;
-  height: 32px;
+.recommendationIcon {
+  width: 24px;
+  height: 24px;
   margin: 0 auto;
 }
 
@@ -451,46 +608,94 @@
 
 /* Checkpoints Section */
 .checkpointsSection {
-  background-color: #F3F4F6; /* 원래의 연한 회색 */
-  padding: 60px 0; /* 원래 패딩 */
+  background-color: #F3F4F6; 
+  padding: 60px 0; 
 }
 
 .checkpointsContainer {
   display: flex;
   flex-direction: column;
-  gap: 60px; /* 원래 간격 */
+  gap: 80px; /* 섹션 간 간격 증가 */
 }
 
 .checkpoint {
   display: flex;
-  flex-direction: column; /* Mobile first */
-  align-items: center;
-  gap: 30px;
-}
-@media (min-width: 1024px) { /* lg and up */
-  .checkpoint {
-    flex-direction: row;
-  }
-  .checkpointReverse {
-    flex-direction: row-reverse;
-  }
+  /* flex-direction은 row 또는 row-reverse로 설정됨 (기존 로직) */
+  align-items: center; /* 수직 중앙 정렬 */
+  gap: 40px; /* 텍스트 컨테이너와 카드/이미지 컨테이너 사이 간격 */
 }
 
 .checkpointTextContainer {
   flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Align text to left */
-}
-@media (min-width: 1024px) {
-  .checkpoint:not(.checkpointReverse) .checkpointTextContainer {
-     align-items: flex-start;
-  }
-   .checkpointReverse .checkpointTextContainer {
-     align-items: flex-start; /* Still flex-start, layout reversed by flex-direction */
-  }
+  /* 내부 텍스트 정렬 등은 기존 스타일 유지 */
 }
 
+/* 새로운 컨테이너: 이미지 + 카드를 묶는 역할 */
+.checkpointCardAndImageContainer {
+  flex: 1.5; /* 텍스트보다 이미지+카드 영역을 약간 더 넓게 */
+  display: flex;
+  /* 기본적으로 이미지가 왼쪽, 카드가 오른쪽. reverse 시에는 CSS로 순서 변경 */
+  gap: 20px;
+  align-items: flex-start; /* 상단 정렬 */
+}
+
+.checkpoint.checkpointReverse .checkpointCardAndImageContainer {
+  flex-direction: row-reverse; /* reverse일 때 이미지와 카드 순서 변경 */
+}
+
+.checkpointImageWrapper {
+  flex: 1;
+  width: 500px; /* 고정된 너비 */
+  height: 375px; /* 고정된 높이 */
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+  background-color: var(--white);
+  position: relative; /* 이미지 위치 기준점 */
+}
+
+.checkpointImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  position: absolute; /* 절대 위치로 설정 */
+  top: 0;
+  left: 0;
+  transition: opacity 0.5s ease; /* 부드러운 전환 효과 */
+}
+
+/* 이미지 전환 시 배경이 흔들리지 않도록 설정 */
+.checkpointImageWrapper > div {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.checkpointCardContainer {
+  flex: 1; /* 카드가 차지할 공간 */
+  /* max-width는 제거하거나, flex-basis와 함께 조정 */
+  /* width: 100%; 기존 스타일 유지 또는 flex-basis로 대체 */
+}
+
+.checkpointCard {
+  background-color: var(--white);
+  border-radius: 16px; 
+  box-shadow: 0 8px 24px rgba(0,0,0,0.1); 
+  border: 1px solid var(--border-color);
+  padding: 24px; 
+  height: 100%; /* 부모 컨테이너 높이에 맞추도록 시도 */
+  display: flex; /* 내부 컨텐츠 정렬을 위해 */
+  flex-direction: column; /* 내부 컨텐츠 세로 정렬 */
+}
+
+.checkpointCardInner {
+  flex-grow: 1; /* 카드 내부 컨텐츠가 남은 공간 채우도록 */
+  border-radius: 12px;
+  padding: 24px;
+}
 
 .checkpointBadgeContainer {
   display: flex;
@@ -530,26 +735,6 @@
   color: var(--text-light);
   line-height: 1.6; /* 원래 줄간격 */
   /* margin-bottom은 기본값 또는 상위 요소에 따름 */
-}
-
-.checkpointCardContainer {
-  flex: 1;
-  max-width: 450px; /* 원래 최대 너비 */
-  width: 100%;
-}
-
-.checkpointCard {
-  background-color: var(--white);
-  border-radius: 16px; /* 원래 모양 */
-  box-shadow: 0 8px 24px rgba(0,0,0,0.1); /* 원래 그림자 */
-  border: 1px solid var(--border-color);
-  padding: 24px; /* 원래 패딩 */
-  transition: none; /* 원래 트랜지션 없음 */
-}
-
-.checkpointCardInner { 
-  border-radius: 12px;
-  padding: 24px;
 }
 
 .checkpointCardHeader {
@@ -663,7 +848,7 @@
 /* CTA Section */
 .ctaSection {
   background: linear-gradient(to right, var(--primary-color), #2CAAA0); /* 변경된 색상 계열 */
-  padding: 80px 0;
+  padding: 60px 0;
 }
 
 .ctaContent {
@@ -674,22 +859,22 @@
 }
 
 .ctaTitle {
-  font-size: 36px;
+  font-size: 32px;
   font-weight: bold;
   margin-bottom: 16px;
 }
 
 .ctaSubtitle {
-  font-size: 20px;
-  margin-bottom: 32px;
+  font-size: 18px;
+  margin-bottom: 24px;
   opacity: 0.9;
 }
 
 .ctaButton {
   background: linear-gradient(to right, #EF4444, #DC2626); /* 빨간색 계열 그라데이션 */
   color: var(--white); /* 흰색 텍스트 */
-  padding: 16px 32px;
-  font-size: 18px;
+  padding: 14px 28px;
+  font-size: 16px;
   font-weight: bold;
   border-radius: 9999px;
   box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3); /* 빨간색 계열 그림자 */
@@ -711,7 +896,7 @@
 .footer {
   background-color: #f5f5f5; /* 연한 회색 배경으로 변경 */
   color: var(--text-dark); /* 내부 텍스트 색상을 어둡게 변경 */
-  padding: 40px 0;
+  padding: 32px 0;
 }
 
 .footerContainer {
@@ -734,7 +919,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: bold;
 }
 .footerLogoIcon { color: var(--primary-color); } 
@@ -744,16 +929,16 @@
   display: flex;
   flex-direction: column; 
   align-items: center;
-  gap: 16px;
+  gap: 12px;
   background-color: #f5f5f5; /* 푸터 배경과 어울리는 약간 더 어두운 회색 배경 */
-  padding: 16px;
+  padding: 12px;
   border-radius: 8px;
 }
 @media (min-width: 768px) {
   .footerLinks {
     flex-direction: row;
-    gap: 32px;
-    padding: 20px 32px; 
+    gap: 24px;
+    padding: 16px 24px; 
   }
 }
 
@@ -768,7 +953,7 @@
 
 .footerCopyright {
   margin-top: 32px;
-  padding-top: 32px;
+  padding-top: 100px;
   border-top: 1px solid #cccccc; /* 연한 회색 배경에 맞는 구분선 색으로 변경 */
   text-align: center;
   font-size: 14px;
