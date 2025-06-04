@@ -2,6 +2,7 @@
 import type { Metadata } from "next";
 import { GeistSans, GeistMono } from 'geist/font';
 import "./globals.css";
+import ChatWidget from '@/components/ChatWidget'
 import AuthGuard from '@/components/AuthGuard';
 import Nav from '@/components/Nav';
 import Script from 'next/script';
@@ -29,6 +30,7 @@ export default function RootLayout({
         </head>
         <body>
             {children}
+            <ChatWidget />
         </body>
         </html>
     );

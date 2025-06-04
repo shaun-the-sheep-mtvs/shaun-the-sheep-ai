@@ -1,24 +1,25 @@
 package org.mtvs.backend.deeprecommend.controller;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.deeprecommend.dto.RecommendResponseDTO;
 import org.mtvs.backend.deeprecommend.dto.RoutineChangeDTO;
-import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.deeprecommend.service.DeepRecommendService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/deep")
+@RequiredArgsConstructor
 public class DeepRecommendController {
 
-    @Autowired
-    private DeepRecommendService recommendService;
+    private final DeepRecommendService recommendService;
+
     @PostMapping("/recommend")
     public String ask(@AuthenticationPrincipal CustomUserDetails user){
         return recommendService.askOpenAI(user.getUser().getId());
@@ -30,10 +31,23 @@ public class DeepRecommendController {
         return recommendService.getRoutineChangeList(user.getUser().getId());
     }
 
+    @GetMapping("/all-routine-change")
+    public List<RoutineChangeDTO> getAllRoutineChangeList(@AuthenticationPrincipal CustomUserDetails user) {
+        return recommendService.getAllRoutineChangeList(user.getUser().getId());
+    }
+
     /* step2. 제품 변경 및 추가 추천 */
     @GetMapping("/product-recommend")
     public ResponseEntity<List<RecommendResponseDTO>> getRecommendResponseDTOList(@AuthenticationPrincipal CustomUserDetails user) {
         List<RecommendResponseDTO> list= recommendService.getRecommendResponseDTOList(user.getUser().getId());
         return ResponseEntity.ok(list);
     }
+
+    @GetMapping("/all-recommend")
+    public ResponseEntity<List<RecommendResponseDTO>> getAllRecommendResponseDTOList(@AuthenticationPrincipal CustomUserDetails user) {
+        List<RecommendResponseDTO> list= recommendService.getAllecommendResponseDTOList(user.getUser().getId());
+        return ResponseEntity.ok(list);
+    }
+
+
 }

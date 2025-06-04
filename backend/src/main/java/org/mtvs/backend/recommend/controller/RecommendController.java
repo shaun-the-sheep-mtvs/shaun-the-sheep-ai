@@ -1,3 +1,6 @@
+
+// raw code from current dev branch
+
 package org.mtvs.backend.recommend.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -9,6 +12,7 @@ import org.mtvs.backend.product.dto.ProductWithImageDTO;
 import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
 import org.mtvs.backend.product.entity.Product;
 import org.mtvs.backend.product.repository.ProductRepository;
+import org.mtvs.backend.product.service.ProductUserLinkService;
 import org.mtvs.backend.recommend.dto.RequestDTO;
 import org.mtvs.backend.product.service.ProductService;
 import org.mtvs.backend.user.entity.User;
@@ -31,6 +35,7 @@ import java.util.stream.Collectors;
 public class RecommendController {
 
     private final ProductRepository productRepository;
+    private final ProductUserLinkService productUserLinkService;
     @Value("${gemini.api.key}")
     private String geminiApiKey;
 
@@ -43,17 +48,19 @@ public class RecommendController {
     private final UserRepository userRepository;
     private final NaverApiService naverApiService;
 
-    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService) {
+    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService, ProductUserLinkService productUserLinkService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.productService = productService;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.naverApiService = naverApiService;
+        this.productUserLinkService = productUserLinkService;
     }
 
     @PostMapping("/api/recommend/diagnoses")
-    public ResponseEntity<?> diagnose(CustomUserDetails customUserDetail) {
+    public ResponseEntity<?> diagnose(
+        @AuthenticationPrincipal CustomUserDetails customUserDetail) {
 
         // 사용자의 피부 타입과 고민 목록을 가져옴
         SkinType skinType = customUserDetail.getUser().getSkinType();
@@ -97,23 +104,9 @@ public class RecommendController {
             String cleanedJson = rawResponse.replaceAll("(?s)```json\\s*|```\\s*", "");
             System.out.println("정제된 JSON: " + cleanedJson);
 
-            // JSON으로 파싱
-            // Gemini 응답값이 JSON 처럼 보이는 String 값이라 직렬화를 하기 위해 ObectMapper 사용
-//            public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException {
-//                this._assertNotNull("content", content);
-//
-//                try {
-//                    return this._readTreeAndClose(this._jsonFactory.createParser(content));
-//                } catch (JsonProcessingException e) {
-//                    throw e;
-//                } catch (IOException e) {
-//                    throw JsonMappingException.fromUnexpectedIOE(e);
-//                }
-//            }
-
             JsonNode jsonNode = objectMapper.readTree(cleanedJson);
             System.out.println(jsonNode);
-            productService.saveProducts(jsonNode, customUserDetail.getUser().getEmail());
+            productService.saveProducts(jsonNode,customUserDetail.getUser().getId());
 
             // 파싱된 JSON을 반환
             return ResponseEntity.ok("ok");
@@ -133,11 +126,9 @@ public class RecommendController {
         String Id = customUserDetail.getUser().getId();
         // 아이디에 해당된 제품 리스트를 섞기
 
-        List<ProductDTO> products = productService.getProducts(Id);
-        for(ProductDTO product : products){
-            product.setImageUrl(naverApiService.getImage(product.getProductName()));
-        }
+        List<ProductDTO> products = productService.getProductsByUserId(Id);
         Collections.shuffle(products);
+
         // 3개 반환
         return products.stream()
                 .limit(3)
@@ -151,3 +142,17 @@ public class RecommendController {
         return productService.getBalancedRecommendations(userId);
     }
 }
+
+// JSON으로 파싱
+            // Gemini 응답값이 JSON 처럼 보이는 String 값이라 직렬화를 하기 위해 ObectMapper 사용
+//            public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException {
+//                this._assertNotNull("content", content);
+//
+//                try {
+//                    return this._readTreeAndClose(this._jsonFactory.createParser(content));
+//                } catch (JsonProcessingException e) {
+//                    throw e;
+//                } catch (IOException e) {
+//                    throw JsonMappingException.fromUnexpectedIOE(e);
+//                }
+//            }

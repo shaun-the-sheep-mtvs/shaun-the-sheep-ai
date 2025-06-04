@@ -1,16 +1,18 @@
 package org.mtvs.backend.chat.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.chat.dto.ChatMessageDTO;
 import org.mtvs.backend.chat.entity.ChatMessage;
+import org.mtvs.backend.chat.entity.Prompt_Type;
 import org.mtvs.backend.chat.service.ChatMessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -22,15 +24,19 @@ public class ChatMessageController {
     private ChatMessageDTO toDTO(ChatMessage entity) {
         return entity.toDTO();
     }
-    
-        private ChatMessage toEntity(ChatMessageDTO dto) {
-            ChatMessage entity = new ChatMessage();
-            entity.setUserId(dto.getUserId());
-            entity.setId(dto.getId());
-            entity.setRole(dto.getRole());
-            entity.setContent(dto.getContent());
-            entity.setTimestamp(dto.getTimestamp());
-            return entity;
+
+    private ChatMessage toEntity(ChatMessageDTO dto) {
+        ChatMessage entity = new ChatMessage();
+        entity.setUserId(dto.getUserId());
+        entity.setId(dto.getId());
+        entity.setRole(dto.getRole());
+        if (dto.getPromptType() != null) {
+            // null 체크 후 enum 변환
+            entity.setPromptType(Prompt_Type.valueOf(dto.getPromptType()));
+        }
+        entity.setContent(dto.getContent());
+        entity.setTimestamp(dto.getTimestamp());
+        return entity;
     }
 
     @GetMapping
@@ -49,31 +55,34 @@ public class ChatMessageController {
     }
 
     @PostMapping
-    public ChatMessageDTO createMessage(
+    public ResponseEntity<ChatMessageDTO> createMessage(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ChatMessageDTO dto
     ) {
-        dto.setUserId(userDetails.getUserId());        // ← 여기서 덮어쓰기
+        // userId 덮어쓰기
+        dto.setUserId(userDetails.getUserId());
+
+        // 예: 프론트가 보낸 promptType 문자열이 "PRODUCT"라면 Prompt_Type.PRODUCT가 저장됨
         ChatMessage saved = chatMessageService.save(toEntity(dto));
-        return toDTO(saved);
+        return ResponseEntity.ok(saved.toDTO());
     }
 
-    @PostMapping("/bulk")
-    public List<ChatMessageDTO> createMessages(
-            @AuthenticationPrincipal CustomUserDetails userDetails,
-            @RequestBody List<ChatMessageDTO> dtos
-    ) {
-        // userId 주입 후 저장
-        return dtos.stream()
-                .filter(dto -> "user".equals(dto.getRole()))
-                // userId 주입
-                .peek(dto -> dto.setUserId(userDetails.getUserId()))
-                // DTO → Entity → 저장 → DTO 변환
-                .map(this::toEntity)
-                .map(chatMessageService::save)
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
+//    @PostMapping("/bulk")
+//    public List<ChatMessageDTO> createMessages(
+//            @AuthenticationPrincipal CustomUserDetails userDetails,
+//            @RequestBody List<ChatMessageDTO> dtos
+//    ) {
+//        // userId 주입 후 저장
+//        return dtos.stream()
+//                .filter(dto -> "user".equals(dto.getRole()))
+//                // userId 주입
+//                .peek(dto -> dto.setUserId(userDetails.getUserId()))
+//                // DTO → Entity → 저장 → DTO 변환
+//                .map(this::toEntity)
+//                .map(chatMessageService::save)
+//                .map(this::toDTO)
+//                .collect(Collectors.toList());
+//    }
 
     @PutMapping("/{id}")
     public ResponseEntity<ChatMessageDTO> updateMessage(
@@ -102,42 +111,77 @@ public class ChatMessageController {
     }
 
     @PostMapping("/ask")
-    public ResponseEntity<ChatMessageDTO> askAI(
+    public ResponseEntity<?> askAI(
             @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("sessionId") String sessionId,
             @RequestParam(value = "templateKey", required = false) String templateKey,
-            @RequestBody List<ChatMessageDTO> historyDto
-    ) throws JsonProcessingException {
+            @RequestBody Map<String, String> body   // { "userMessage": "질문 내용" }
+    ) {
         String userId = userDetails.getUserId();
-        // 1) DTO → Entity 변환
-        List<ChatMessage> history = historyDto.stream()
-                .map(dto -> {
-                    ChatMessage msg = new ChatMessage();
-                    msg.setUserId(dto.getUserId());
-                    msg.setRole(dto.getRole());
-                    msg.setContent(dto.getContent());
-                    msg.setTimestamp(dto.getTimestamp());
-                    return msg;
-                })
-                .collect(Collectors.toList());
+        String userQuestion = body.get("userMessage");
 
-        // 2) 마지막 user 메시지를 질문으로
-        String userQuestion = history.stream()
-                .filter(m -> "user".equals(m.getRole()))
-                .map(ChatMessage::getContent)
-                .reduce((first, second) -> second)
-                .orElse("");
+        // 1) sessionId 검증
+        if (sessionId == null || sessionId.isBlank()) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", "세션이 유효하지 않습니다. 다시 시도해주세요."));
+        }
+        if ("TOTAL_REPORT".equals(templateKey)) {
+            ChatMessage userMsgEntity = new ChatMessage();
+            userMsgEntity.setUserId(userId);
+            userMsgEntity.setRole("user");
+            userMsgEntity.setContent(userQuestion);
+            userMsgEntity.setTimestamp(LocalDateTime.now());
+            // promptType은 TOTAL_REPORT이므로 Prompt_Type.TOTAL로 설정
+            userMsgEntity.setPromptType(Prompt_Type.TOTAL);
+            chatMessageService.save(userMsgEntity);
+        }
+        // 2) AI 호출 (서비스 레이어)
+        ChatMessage aiMsg = chatMessageService.askAI_Single(sessionId, userId, userQuestion);
 
-        // 3) AI 호출 (templateKey 함께 전달)
-        ChatMessage aiMsg = chatMessageService.askAI_Single(userId, history, userQuestion, templateKey);
+        Prompt_Type pt = Prompt_Type.TOTAL;
+        if (templateKey != null) {
+            switch (templateKey) {
+                case "PRODUCT_INQUIRY":     pt = Prompt_Type.PRODUCT;    break;
+                case "INGREDIENT_INQUIRY":  pt = Prompt_Type.INGREDIENT; break;
+                case "SKIN_TYPE":           pt = Prompt_Type.SKIN_TYPE;  break;
+                case "TOTAL_REPORT":        pt = Prompt_Type.TOTAL;      break;
+            }
+        }
+        aiMsg.setPromptType(pt);
+        chatMessageService.handleAiResponseAndMaybeSaveMd(sessionId, aiMsg, templateKey);
 
-        // 4) Entity → DTO 변환
+        // 5) 그 외 템플릿인 경우 → ChatMessageDTO 반환
         ChatMessageDTO responseDto = new ChatMessageDTO();
-        responseDto.setUserId(aiMsg.getUserId());      // userId 채워줌
         responseDto.setId(aiMsg.getId());
+        responseDto.setUserId(aiMsg.getUserId());
         responseDto.setRole(aiMsg.getRole());
         responseDto.setContent(aiMsg.getContent());
         responseDto.setTimestamp(aiMsg.getTimestamp());
 
+        if ("TOTAL_REPORT".equals(templateKey)) {
+            aiMsg.getContent();
+        } else {
+            responseDto.setContent(aiMsg.getContent());
+        }
+        responseDto.setTimestamp(aiMsg.getTimestamp());
+
         return ResponseEntity.ok(responseDto);
     }
-} 
+
+    /**
+     * “퀵 액션” 버튼을 누를 때마다, 최초로 시스템 프롬프트 + 빈 히스토리를 셋업해야 합니다.
+     * 클라이언트가 퀵 액션(예: PRODUCT_INQUIRY) 버튼을 클릭한 순간에 이 메서드를 호출하세요.
+     */
+    @PostMapping("/init-session")
+    public ResponseEntity<Void> initSession(
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            @RequestParam("sessionId") String sessionId,
+            @RequestParam(value = "templateKey", required = false) String templateKey
+    ) {
+        String actualUserId = userDetails.getUserId();
+        // 서비스 레이어에 해당 sessionId, templateKey로 히스토리 초기화 요청
+        chatMessageService.initSession(sessionId, actualUserId, templateKey);
+        return ResponseEntity.ok().build();
+    }
+}

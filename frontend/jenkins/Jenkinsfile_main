@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    environment {
+        CONTAINER_NAME = 'frontend-main'
+        HOST_PORT = '3000'
+        IMAGE_NAME = 'frontend-main-image'
+        NODE_ENV = 'production'
+        NEXT_PUBLIC_API_BASE_URL = 'api.shaunthesheep.store'
+    }
+
+
+    stages {
+        stage('Stop Old Container') {
+            steps {
+                sh "docker rm -f $CONTAINER_NAME || true"
+            }
+        }
+        stage('Remove Old Image') {
+            steps {
+                sh "docker rmi $IMAGE_NAME:latest || true"
+            }
+        }
+        stage('Build Docker Image') {
+            steps {
+                dir('frontend') {
+                    sh "docker build -t $IMAGE_NAME:latest ."
+                }
+            }
+        }
+        stage('Run New Container') {
+            steps {
+                sh """
+                docker run -d --name $CONTAINER_NAME \
+                    -e NODE_ENV=$NODE_ENV \
+                    -e NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL \
+                    -p $HOST_PORT:3000 \
+                    $IMAGE_NAME:latest
+                """
+            }
+        }
+        stage('Cleanup Old Images') {
+            steps {
+                sh 'docker image prune -f'
+            }
+        }
+    }
+}

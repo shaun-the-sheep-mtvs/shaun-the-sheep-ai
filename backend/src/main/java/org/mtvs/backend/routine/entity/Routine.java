@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.routine.entity.enums.Kinds;
 import org.mtvs.backend.routine.entity.enums.Time;
@@ -20,6 +21,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
+@Setter
 @EntityListeners(AuditingEntityListener.class)
 public class Routine {
     @Id

@@ -5,13 +5,18 @@ import lombok.extern.slf4j.Slf4j;
 import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
+import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.util.JwtUtil;
-import org.mtvs.backend.user.dto.ProblemDto;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
+import org.mtvs.backend.checklist.model.CheckList;
+import org.mtvs.backend.checklist.repository.CheckListRepository;
+import org.mtvs.backend.session.GuestData;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -22,13 +27,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final CheckListRepository checkListRepository;
 
     /**
      * 회원가입
      *
      * @return
      */
-    public User signup(SignupRequest dto) {
+    public User signup(SignupRequest dto, GuestData guestData) {
         log.info("[회원 가입] 서비스 호출 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
 
         // 이메일 존재 여부 확인
@@ -43,6 +49,35 @@ public class AuthService {
                 dto.getUsername()
         );
         userRepository.save(user);
+
+        // Handle guest data from request if present
+        if (dto.getGuestData() != null) {
+            try {
+                CheckList checkList = new CheckList();
+                checkList.setUser(user);
+                
+                // Extract data from guestData map
+                Map<String, Object> guestDataMap = dto.getGuestData();
+                checkList.setMoisture(((Number) guestDataMap.get("moisture")).intValue());
+                checkList.setOil(((Number) guestDataMap.get("oil")).intValue());
+                checkList.setSensitivity(((Number) guestDataMap.get("sensitivity")).intValue());
+                checkList.setTension(((Number) guestDataMap.get("tension")).intValue());
+                
+                // Handle troubles list
+                @SuppressWarnings("unchecked")
+                List<String> troubles = (List<String>) guestDataMap.get("troubles");
+                if (troubles != null) {
+                    checkList.setTroubles(troubles);
+                }
+                
+                checkListRepository.save(checkList);
+                log.info("[회원 가입] 게스트 데이터 마이그레이션 완료 : 이메일={}", dto.getEmail());
+            } catch (Exception e) {
+                log.error("[회원 가입] 게스트 데이터 마이그레이션 실패 : 이메일={}, error={}", dto.getEmail(), e.getMessage());
+                // Don't throw exception - allow signup to complete even if guest data migration fails
+            }
+        }
+
         log.info("[회원 가입] 완료 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
         return user;
     }
@@ -111,5 +146,9 @@ public class AuthService {
 
     public Optional<User> getUserByLoginId(String loginId) {
         return userRepository.findByUsername(loginId);
+    }
+
+    public void deleteUser(CustomUserDetails user) {
+        userRepository.delete(user.getUser());
     }
 }

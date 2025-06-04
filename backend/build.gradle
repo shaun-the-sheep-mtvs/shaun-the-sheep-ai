@@ -44,7 +44,6 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.flywaydb:flyway-database-postgresql'
     implementation 'io.hypersistence:hypersistence-utils-hibernate-63:3.9.8'
-//    implementation "io.hypersistence:hypersistence-utils-hibernate-60:${hyperPersistenceVersion}"
     
     // Security & JWT
     implementation 'org.springframework.security:spring-security-crypto'

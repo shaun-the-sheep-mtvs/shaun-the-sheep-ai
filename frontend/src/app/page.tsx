@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import styles from "./page.module.css";
 import Link from 'next/link';
 import Navbar from "@/components/Navbar";
-import { User, MessageCircle, ClipboardCheck, ShoppingBag, HomeIcon, Menu, X, Sparkles, FileText } from "lucide-react";
+import { ClipboardCheck, ShoppingBag, Sparkles, FileText, Search } from "lucide-react";
 import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/data/useCurrentUser';
 import { mbtiList } from '@/data/mbtiList';
@@ -20,6 +20,15 @@ interface CheckListResponse {
   createdAt: string;
 }
 
+// Add interface for guest data
+interface GuestChecklistData {
+  moisture: number;
+  oil: number;
+  sensitivity: number;
+  tension: number;
+  troubles: string[];
+  timestamp: number;
+}
 
 const products = [
   { name: "수분 에센스", description: "진정효과 수분공급 민감피부용 에센스", category: "수분" },
@@ -39,12 +48,85 @@ export default function Home() {
   const [mbti, setMbti] = useState<string>("default");
   const [mbtiError, setMbtiError] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchType, setSearchType] = useState<'all' | 'brand' | 'productName' | 'ingredient'>('all');
+  const [isGuest, setIsGuest] = useState(false);
+  const [guestChecklist, setGuestChecklist] = useState<GuestChecklistData | null>(null);
 
+  
+
+  const fetchNaverData = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (!token) {
+        console.log('No token found');
+        return;
+      }
+
+      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log('Naver API response:', data);
+      return data;
+    } catch (error) {
+      console.error('Error fetching Naver data:', error);
+    }
+  };
+
+  // Add function to check guest data
+  const checkGuestData = () => {
+    const savedData = sessionStorage.getItem('guestChecklistData');
+    if (savedData) {
+      const data: GuestChecklistData = JSON.parse(savedData);
+      // Check if data is less than 30 minutes old
+      if (Date.now() - data.timestamp < 30 * 60 * 1000) {
+        setGuestChecklist(data);
+        setIsGuest(true);
+        return true;
+      } else {
+        // Clear expired data
+        sessionStorage.removeItem('guestChecklistData');
+        sessionStorage.removeItem('guestSignupData');
+        setGuestChecklist(null);
+        setIsGuest(false);
+      }
+    }
+    return false;
+  };
+
+  // Modify the initial useEffect to handle both guest and regular user data
   useEffect(() => {
+    const APP_VERSION = '2024-06-05-a'; // Update this on each deploy
+
+    if (localStorage.getItem('app_version') !== APP_VERSION) {
+      localStorage.clear();
+      localStorage.setItem('app_version', APP_VERSION);
+      window.location.reload();
+    }
     const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
     
-    if (token) {
+    // Check for guest data first
+    const hasGuestData = checkGuestData();
+    
+    // Redirect to /landing if neither guest data nor token exists
+    if (!hasGuestData && !token) {
+      router.replace('/landing');
+      return;
+    }
+    
+    // If no guest data, fetch regular user data
+    if (!hasGuestData && token) {
       fetch(apiConfig.endpoints.checklist.base, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -63,77 +145,101 @@ export default function Home() {
     }
   }, []);
 
+  // Modify the MBTI useEffect to handle guest data
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    setIsLoggedIn(!!token);
-    
-    if (token) {
-      fetch(apiConfig.endpoints.checklist.mbti, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`status ${res.status}`);
-          // String 응답을 처리하기 위해 text()로 변경
-          return res.text();
+    if (isGuest && guestChecklist) {
+      // For guests, calculate MBTI based on guest data using the same algorithm as backend
+      const calculateGuestMBTI = () => {
+        const { moisture, oil, sensitivity, tension } = guestChecklist;
+        const m = moisture >= 60 ? "M" : "D";
+        const o = oil >= 60 ? "O" : "B";
+        const s = sensitivity >= 60 ? "S" : "I";
+        const t = tension >= 60 ? "T" : "L";
+        return m + o + s + t;
+      };
+      setMbti(calculateGuestMBTI());
+    } else if (!isGuest) {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        fetch(apiConfig.endpoints.checklist.mbti, {
+          headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(data => {
-          console.log('Received data:', data);
-          // 빈 문자열이나 null 체크
-          if (!data || data.trim() === '' || data === 'null') {
-            setMbtiError('MBTI 결과가 없습니다.');
-          } else {
-            console.log('MBTI result:', data);
-            setMbti(data.trim());  // 앞뒤 공백 제거 후 설정
-          }
-        })
-        .catch(error => {
-          console.error('MBTI fetch error:', error);
-          setMbtiError('MBTI 불러오는 데 실패했습니다.');
-        });
+          .then(res => {
+            if (!res.ok) throw new Error(`status ${res.status}`);
+            return res.text();
+          })
+          .then(data => {
+            if (!data || data.trim() === '' || data === 'null') {
+              setMbtiError('MBTI 결과가 없습니다.');
+            } else {
+              setMbti(data.trim());
+            }
+          })
+          .catch(error => {
+            console.error('MBTI fetch error:', error);
+            setMbtiError('MBTI 불러오는 데 실패했습니다.');
+          });
+      }
     }
-  }, []);
+  }, [isGuest, guestChecklist]);
 
-
-  // 서버에서 보내는 3개 제품 데이터 가져오기
+  // Add useEffect for initial Naver data fetch
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      fetch(apiConfig.endpoints.recommend.random, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`status ${res.status}`);
-          return res.json() as Promise<any[]>;
+    const fetchInitialNaverData = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (token && !isGuest) {
+        try {
+          await fetchNaverData();
+        } catch (error) {
+          console.error('Error fetching initial Naver data:', error);
+        }
+      }
+    };
+
+    fetchInitialNaverData();
+  }, [isGuest]); // Only re-run if guest status changes
+
+  // Modify the products useEffect to handle image errors
+  useEffect(() => {
+    if (isGuest) {
+      // For guests, use the default products defined at the top
+      setProducts(products);
+    } else {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        fetch(apiConfig.endpoints.recommend.random, {
+          headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(data => {
-          console.log('API Response:', data); // 실제 데이터 구조 확인
-          const transformedProducts = data.map(product => ({
-            name: product.productName,
-            description: `${product.recommendedType} - ${product.ingredients.join(', ')}`,
-            imageUrl: product.imageUrl
-          }));
-          setProducts(transformedProducts);
-        })
-        .catch(error => {
-          console.error('Error fetching products:', error);
-        });
+          .then(res => {
+            if (!res.ok) throw new Error(`status ${res.status}`);
+            return res.json() as Promise<any[]>;
+          })
+          .then(data => {
+            const transformedProducts = data.map(product => ({
+              name: product.productName,
+              description: `${product.recommendedType} - ${product.ingredients.join(', ')}`,
+              imageUrl: product.imageUrl
+            }));
+            setProducts(transformedProducts);
+          })
+          .catch(async (error) => {
+            console.error('Error fetching products:', error);
+            // If product fetch fails, try to get Naver data
+            try {
+              await fetchNaverData();
+            } catch (naverError) {
+              console.error('Error fetching Naver data:', naverError);
+            }
+          });
+      }
     }
-  }, []);
+  }, [isGuest]);
   
-
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      router.push('/login');
-    }
-  }, [isLoggedIn]);
-
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     window.location.reload();
   }
   
-
   // 한글 레이블 매핑
   const labels = {
     moisture:    '수분',
@@ -150,10 +256,41 @@ export default function Home() {
     tension:     styles.barGray,
   } as const;
 
+  const handleSearch = async (query: string) => {
+    if (!query.trim()) {
+      return;
+    }
+    
+    // 검색 페이지로 이동
+    const searchParams = new URLSearchParams({
+      q: query,
+      type: searchType
+    });
+    router.push(`/search?${searchParams.toString()}`);
+  };
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSearch(searchQuery);
+  };
+
+  const handlePopularTagClick = (tag: string) => {
+    // 인기 검색어 클릭 시 검색 페이지로 이동
+    const searchParams = new URLSearchParams({
+      q: tag,
+      type: 'ingredient'
+    });
+    router.push(`/search?${searchParams.toString()}`);
+  };
+
+  // Modify the result section to use either guest or regular user data
+  const displayData = isGuest ? guestChecklist : checklist;
+
   return (
     <div className={styles.wrapper}>
       <Navbar
         isLoggedIn={isLoggedIn}
+        isGuest={isGuest}
         onLogout={handleLogout}
       />
 
@@ -178,6 +315,46 @@ export default function Home() {
               </div>
             </div>
 
+            {/* 검색 히어로 섹션 */}
+            <section className={styles.searchHeroSection}>
+              <div className={styles.searchContainer}>
+                <form onSubmit={handleSearchSubmit}>
+                  <div className={styles.searchInputContainer}>
+                    <Search className={styles.searchIcon} />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="제품명, 브랜드, 성분으로 검색하세요"
+                      className={styles.searchInput}
+                    />
+                    <button 
+                      type="submit" 
+                      className={styles.searchButton}
+                    >
+                      검색
+                    </button>
+                  </div>
+                </form>
+
+                {/* 인기 검색어 */}
+                <div className={styles.popularSearches}>
+                  <span className={styles.popularLabel}>인기 검색어:</span>
+                  <div className={styles.popularTags}>
+                    {['비타민C', '히알루론산', '레티놀', '나이아신아마이드', '세라마이드'].map((tag) => (
+                      <button
+                        key={tag}
+                        className={styles.popularTag}
+                        onClick={() => handlePopularTagClick(tag)}
+                      >
+                        {tag}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </section>
+
             {/* 체크리스트 결과 섹션 */}
             <section className={`${styles.pageSection} ${styles.analysisReportSection}`}>
               <div className={styles.sectionContent}>
@@ -191,18 +368,23 @@ export default function Home() {
                   <div className={styles.checklistBox}>
                     <h3>진단 측정 결과</h3>
                     <div className={styles.barWrap}>
-                      <div>수분 지수 <span>{checklist?.moisture ?? 0}%</span></div>
-                      <div className={styles.bar}><div style={{width: `${checklist?.moisture ?? 0}%`}} className={styles.barGold}></div></div>
+                      <div>수분 지수 <span>{displayData?.moisture ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${displayData?.moisture ?? 0}%`}} className={styles.barGold}></div></div>
 
-                      <div>유분 지수 <span>{checklist?.oil ?? 0}%</span></div>
-                      <div className={styles.bar}><div style={{width: `${checklist?.oil ?? 0}%`}} className={styles.barGoldLight}></div></div>
+                      <div>유분 지수 <span>{displayData?.oil ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${displayData?.oil ?? 0}%`}} className={styles.barGoldLight}></div></div>
 
-                      <div>민감도 지수 <span>{checklist?.sensitivity ?? 0}%</span></div>
-                      <div className={styles.bar}><div style={{width: `${checklist?.sensitivity ?? 0}%`}} className={styles.barRed}></div></div>
+                      <div>민감도 지수 <span>{displayData?.sensitivity ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${displayData?.sensitivity ?? 0}%`}} className={styles.barRed}></div></div>
 
-                      <div>탄력 지수 <span>{checklist?.tension ?? 0}%</span></div>
-                      <div className={styles.bar}><div style={{width: `${checklist?.tension ?? 0}%`}} className={styles.barGray}></div></div>
+                      <div>탄력 지수 <span>{displayData?.tension ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${displayData?.tension ?? 0}%`}} className={styles.barGray}></div></div>
                     </div>
+                    {isGuest && (
+                      <div className={styles.guestNote}>
+                        * 게스트 모드에서는 기본적인 분석 결과만 제공됩니다. 더 자세한 분석을 원하시면 회원가입해주세요!
+                      </div>
+                    )}
                   </div>
 
                   <div className={styles.analysisBox}>
@@ -222,16 +404,16 @@ export default function Home() {
                         <div>Tension</div>
                       </div>
                     </div>
-                    <div className={styles.analysisType}>{mbtiList[mbti as keyof typeof mbtiList]?.type}</div>
+                    <div className={styles.analysisType}>{mbtiList[mbti as keyof typeof mbtiList]?.type || '일반'}</div>
                     <div className={styles.analysisDesc}>
-                      {mbtiList[mbti as keyof typeof mbtiList]?.description}
+                      {mbtiList[mbti as keyof typeof mbtiList]?.description || '피부 상태를 분석해주세요.'}
                     </div>
                     <div className={styles.analysisAdvice}>
                       <div className={styles.adviceLabel}>
                         💡 추천 관리법
                       </div>
                       <div className={styles.adviceContent}>
-                        {mbtiList[mbti as keyof typeof mbtiList].advice}
+                        {mbtiList[mbti as keyof typeof mbtiList]?.advice || '기본적인 스킨케어 루틴을 유지해주세요.'}
                       </div>
                     </div>
 
@@ -261,12 +443,18 @@ export default function Home() {
                     <div key={i} className={styles.productCard}>
                       <div className={styles.productImg}>
                         {p.imageUrl ? (
-
                           <img
                             src={p.imageUrl} 
                             alt={p.name}
-                            onError={(e) => {
+                            onError={async (e) => {
                               const target = e.target as HTMLImageElement;
+                              if (!isGuest) {
+                                try {
+                                  await fetchNaverData();
+                                } catch (error) {
+                                  console.error('Error fetching Naver data on image error:', error);
+                                }
+                              }
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
