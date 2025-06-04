@@ -3,11 +3,16 @@ package org.mtvs.backend.checklist.model;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.session.GuestData;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 @Entity
 @Table(name = "checklists")
 public class CheckList {
@@ -46,72 +51,17 @@ public class CheckList {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
-    // --- 생성자, getter/setter ---
-
     public CheckList() { }
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
-    }
-
-    public Integer getMoisture() {
-        return moisture;
-    }
-
-    public void setMoisture(Integer moisture) {
-        this.moisture = moisture;
-    }
-
-    public Integer getOil() {
-        return oil;
-    }
-
-    public void setOil(Integer oil) {
-        this.oil = oil;
-    }
-
-    public Integer getSensitivity() {
-        return sensitivity;
-    }
-
-    public void setSensitivity(Integer sensitivity) {
-        this.sensitivity = sensitivity;
-    }
-
-    public Integer getTension() {
-        return tension;
-    }
-
-    public void setTension(Integer tension) {
-        this.tension = tension;
-    }
-
-    public List<String> getTroubles() {
-        return troubles;
-    }
-
-    public void setTroubles(List<String> troubles) {
-        this.troubles = troubles;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public CheckList createCheckListFromGuestData(GuestData guestData, User user) {
+        CheckList checkList = new CheckList();
+        checkList.setUser(user);
+        checkList.setMoisture(guestData.getMoisture());
+        checkList.setOil(guestData.getOil());
+        checkList.setSensitivity(guestData.getSensitivity());
+        checkList.setTension(guestData.getTension());
+        checkList.setTroubles(guestData.getTroubles());
+        return checkList;
     }
 }
 
