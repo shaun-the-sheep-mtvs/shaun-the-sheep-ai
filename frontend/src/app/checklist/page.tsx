@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { QUESTIONS, Question, Category } from '@/data/questions';
-import { CONCERNS } from '@/data/concerns';
+import { QUESTIONS, Question, Category } from '../../data/questions';
+import { CONCERNS } from '../../data/concerns';
 import styles from './page.checklist.module.css';
 import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import Navbar from '@/components/Navbar';
-import { apiConfig } from '@/config/api';
+import Navbar from '../../components/Navbar';
+import { apiConfig } from '../../config/api';
 
 // Fisher–Yates 셔플 함수 추가
 function shuffle<T>(arr: T[]): T[] {
