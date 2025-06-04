@@ -20,6 +20,15 @@ interface CheckListResponse {
   createdAt: string;
 }
 
+// Add interface for guest data
+interface GuestChecklistData {
+  moisture: number;
+  oil: number;
+  sensitivity: number;
+  tension: number;
+  troubles: string[];
+  timestamp: number;
+}
 
 const products = [
   { name: "수분 에센스", description: "진정효과 수분공급 민감피부용 에센스", category: "수분" },
@@ -41,6 +50,8 @@ export default function Home() {
   const [products, setProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchType, setSearchType] = useState<'all' | 'brand' | 'productName' | 'ingredient'>('all');
+  const [isGuest, setIsGuest] = useState(false);
+  const [guestChecklist, setGuestChecklist] = useState<GuestChecklistData | null>(null);
 
   const fetchNaverData = async () => {
     try {
@@ -70,11 +81,37 @@ export default function Home() {
     }
   };
 
+  // Add function to check guest data
+  const checkGuestData = () => {
+    const savedData = sessionStorage.getItem('guestChecklistData');
+    if (savedData) {
+      const data: GuestChecklistData = JSON.parse(savedData);
+      // Check if data is less than 30 minutes old
+      if (Date.now() - data.timestamp < 30 * 60 * 1000) {
+        setGuestChecklist(data);
+        setIsGuest(true);
+        return true;
+      } else {
+        // Clear expired data
+        sessionStorage.removeItem('guestChecklistData');
+        sessionStorage.removeItem('guestSignupData');
+        setGuestChecklist(null);
+        setIsGuest(false);
+      }
+    }
+    return false;
+  };
+
+  // Modify the initial useEffect to handle both guest and regular user data
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
     
-    if (token) {
+    // Check for guest data first
+    const hasGuestData = checkGuestData();
+    
+    // If no guest data, fetch regular user data
+    if (!hasGuestData && token) {
       fetch(apiConfig.endpoints.checklist.base, {
         headers: { 'Authorization': `Bearer ${token}` }
       })
@@ -93,77 +130,101 @@ export default function Home() {
     }
   }, []);
 
+  // Modify the MBTI useEffect to handle guest data
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    setIsLoggedIn(!!token);
-    
-    if (token) {
-      fetch(apiConfig.endpoints.checklist.mbti, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`status ${res.status}`);
-          // String 응답을 처리하기 위해 text()로 변경
-          return res.text();
+    if (isGuest && guestChecklist) {
+      // For guests, calculate MBTI based on guest data using the same algorithm as backend
+      const calculateGuestMBTI = () => {
+        const { moisture, oil, sensitivity, tension } = guestChecklist;
+        const m = moisture >= 60 ? "M" : "D";
+        const o = oil >= 60 ? "O" : "B";
+        const s = sensitivity >= 60 ? "S" : "I";
+        const t = tension >= 60 ? "T" : "L";
+        return m + o + s + t;
+      };
+      setMbti(calculateGuestMBTI());
+    } else if (!isGuest) {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        fetch(apiConfig.endpoints.checklist.mbti, {
+          headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(data => {
-          console.log('Received data:', data);
-          // 빈 문자열이나 null 체크
-          if (!data || data.trim() === '' || data === 'null') {
-            setMbtiError('MBTI 결과가 없습니다.');
-          } else {
-            console.log('MBTI result:', data);
-            setMbti(data.trim());  // 앞뒤 공백 제거 후 설정
-          }
-        })
-        .catch(error => {
-          console.error('MBTI fetch error:', error);
-          setMbtiError('MBTI 불러오는 데 실패했습니다.');
-        });
+          .then(res => {
+            if (!res.ok) throw new Error(`status ${res.status}`);
+            return res.text();
+          })
+          .then(data => {
+            if (!data || data.trim() === '' || data === 'null') {
+              setMbtiError('MBTI 결과가 없습니다.');
+            } else {
+              setMbti(data.trim());
+            }
+          })
+          .catch(error => {
+            console.error('MBTI fetch error:', error);
+            setMbtiError('MBTI 불러오는 데 실패했습니다.');
+          });
+      }
     }
-  }, []);
+  }, [isGuest, guestChecklist]);
 
-
-  // 서버에서 보내는 3개 제품 데이터 가져오기
+  // Add useEffect for initial Naver data fetch
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      fetch(apiConfig.endpoints.recommend.random, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`status ${res.status}`);
-          return res.json() as Promise<any[]>;
+    const fetchInitialNaverData = async () => {
+      const token = localStorage.getItem('accessToken');
+      if (token && !isGuest) {
+        try {
+          await fetchNaverData();
+        } catch (error) {
+          console.error('Error fetching initial Naver data:', error);
+        }
+      }
+    };
+
+    fetchInitialNaverData();
+  }, [isGuest]); // Only re-run if guest status changes
+
+  // Modify the products useEffect to handle image errors
+  useEffect(() => {
+    if (isGuest) {
+      // For guests, use the default products defined at the top
+      setProducts(products);
+    } else {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        fetch(apiConfig.endpoints.recommend.random, {
+          headers: { 'Authorization': `Bearer ${token}` }
         })
-        .then(data => {
-          console.log('API Response:', data); // 실제 데이터 구조 확인
-          const transformedProducts = data.map(product => ({
-            name: product.productName,
-            description: `${product.recommendedType} - ${product.ingredients.join(', ')}`,
-            imageUrl: product.imageUrl
-          }));
-          setProducts(transformedProducts);
-        })
-        .catch(error => {
-          console.error('Error fetching products:', error);
-        });
+          .then(res => {
+            if (!res.ok) throw new Error(`status ${res.status}`);
+            return res.json() as Promise<any[]>;
+          })
+          .then(data => {
+            const transformedProducts = data.map(product => ({
+              name: product.productName,
+              description: `${product.recommendedType} - ${product.ingredients.join(', ')}`,
+              imageUrl: product.imageUrl
+            }));
+            setProducts(transformedProducts);
+          })
+          .catch(async (error) => {
+            console.error('Error fetching products:', error);
+            // If product fetch fails, try to get Naver data
+            try {
+              await fetchNaverData();
+            } catch (naverError) {
+              console.error('Error fetching Naver data:', naverError);
+            }
+          });
+      }
     }
-  }, []);
+  }, [isGuest]);
   
-
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      router.push('/login');
-    }
-  }, [isLoggedIn]);
-
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     window.location.reload();
   }
   
-
   // 한글 레이블 매핑
   const labels = {
     moisture:    '수분',
@@ -207,10 +268,14 @@ export default function Home() {
     router.push(`/search?${searchParams.toString()}`);
   };
 
+  // Modify the result section to use either guest or regular user data
+  const displayData = isGuest ? guestChecklist : checklist;
+
   return (
     <div className={styles.wrapper}>
       <Navbar
         isLoggedIn={isLoggedIn}
+        isGuest={isGuest}
         onLogout={handleLogout}
       />
 
@@ -288,18 +353,23 @@ export default function Home() {
                   <div className={styles.checklistBox}>
                     <h3>진단 측정 결과</h3>
                     <div className={styles.barWrap}>
-                      <div>수분 지수 <span>{checklist?.moisture ?? 0}%</span></div>
-                      <div className={styles.bar}><div style={{width: `${checklist?.moisture ?? 0}%`}} className={styles.barGold}></div></div>
+                      <div>수분 지수 <span>{displayData?.moisture ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${displayData?.moisture ?? 0}%`}} className={styles.barGold}></div></div>
 
-                      <div>유분 지수 <span>{checklist?.oil ?? 0}%</span></div>
-                      <div className={styles.bar}><div style={{width: `${checklist?.oil ?? 0}%`}} className={styles.barGoldLight}></div></div>
+                      <div>유분 지수 <span>{displayData?.oil ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${displayData?.oil ?? 0}%`}} className={styles.barGoldLight}></div></div>
 
-                      <div>민감도 지수 <span>{checklist?.sensitivity ?? 0}%</span></div>
-                      <div className={styles.bar}><div style={{width: `${checklist?.sensitivity ?? 0}%`}} className={styles.barRed}></div></div>
+                      <div>민감도 지수 <span>{displayData?.sensitivity ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${displayData?.sensitivity ?? 0}%`}} className={styles.barRed}></div></div>
 
-                      <div>탄력 지수 <span>{checklist?.tension ?? 0}%</span></div>
-                      <div className={styles.bar}><div style={{width: `${checklist?.tension ?? 0}%`}} className={styles.barGray}></div></div>
+                      <div>탄력 지수 <span>{displayData?.tension ?? 0}%</span></div>
+                      <div className={styles.bar}><div style={{width: `${displayData?.tension ?? 0}%`}} className={styles.barGray}></div></div>
                     </div>
+                    {isGuest && (
+                      <div className={styles.guestNote}>
+                        * 게스트 모드에서는 기본적인 분석 결과만 제공됩니다. 더 자세한 분석을 원하시면 회원가입해주세요!
+                      </div>
+                    )}
                   </div>
 
                   <div className={styles.analysisBox}>
@@ -363,7 +433,13 @@ export default function Home() {
                             alt={p.name}
                             onError={async (e) => {
                               const target = e.target as HTMLImageElement;
-                              await fetchNaverData();
+                              if (!isGuest) {
+                                try {
+                                  await fetchNaverData();
+                                } catch (error) {
+                                  console.error('Error fetching Naver data on image error:', error);
+                                }
+                              }
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {

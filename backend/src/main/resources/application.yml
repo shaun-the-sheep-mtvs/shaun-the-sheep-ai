@@ -32,5 +32,6 @@ naver:
     secret: ${NAVER_API_SECRET}
 jwt:
   secret: ${JWT_SECRET:4a8NRS86guvb1rzq1vlFPXOR4Nx96iKv4lnBAzDx8xo=}
-  access-token-expiration: 36000000 # 10 hours (ms)
+  access-token-expiration: 36000000 # 10 hour (ms)
   refresh-token-expiration: 604800000 # 7 days (ms)
+  guest-token-expiration: 1800000  # 30 minutes (ms) 

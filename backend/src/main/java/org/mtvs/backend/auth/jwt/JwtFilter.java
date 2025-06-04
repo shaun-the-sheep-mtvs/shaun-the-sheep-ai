@@ -13,10 +13,12 @@ import org.mtvs.backend.user.repository.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @Component
 @Slf4j
@@ -41,24 +43,35 @@ public class JwtFilter extends OncePerRequestFilter {
 
             try {
                 if (jwtUtil.validateToken(token)) {
-                    String email = jwtUtil.getEmail(token);
-                    log.info("[JWT 필터] 토큰 검증 성공 : 이메일={}", email);
+                    // Check if it's a guest token
+                    if (jwtUtil.isGuestToken(token)) {
+                        // For guest tokens, create a simple authentication with guest role
+                        Authentication guestAuth = new UsernamePasswordAuthenticationToken(
+                            "guest", null, List.of(new SimpleGrantedAuthority("ROLE_GUEST"))
+                        );
+                        SecurityContextHolder.getContext().setAuthentication(guestAuth);
+                        log.info("[JWT 필터] 게스트 토큰 인증 완료");
+                    } else {
+                        // Regular user token handling
+                        String email = jwtUtil.getEmail(token);
+                        log.info("[JWT 필터] 토큰 검증 성공 : 이메일={}", email);
 
-                    User user = userRepository.findByEmail(email)
-                            .orElseThrow(() -> {
-                                log.warn("[JWT 필터] 사용자 이메일 DB 조회 실패 : {}", email);
-                                return new RuntimeException("유저 없음");
-                            });
+                        User user = userRepository.findByEmail(email)
+                                .orElseThrow(() -> {
+                                    log.warn("[JWT 필터] 사용자 이메일 DB 조회 실패 : {}", email);
+                                    return new RuntimeException("유저 없음");
+                                });
 
-                    CustomUserDetails userDetails = new CustomUserDetails(user);
+                        CustomUserDetails userDetails = new CustomUserDetails(user);
 
-                    Authentication authentication = new UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities()
-                    );
+                        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities()
+                        );
 
-                    SecurityContextHolder.getContext().setAuthentication(authentication);
-                    log.info("[JWT 필터] SecurityContext 인증 완료 : 사용자 ID={}, 이메일={}",
-                            user.getId(), user.getEmail());
+                        SecurityContextHolder.getContext().setAuthentication(authentication);
+                        log.info("[JWT 필터] SecurityContext 인증 완료 : 사용자 ID={}, 이메일={}",
+                                user.getId(), user.getEmail());
+                    }
                 } else {
                     log.warn("[JWT 필터] 토큰 유효성 검사 실패");
                 }
