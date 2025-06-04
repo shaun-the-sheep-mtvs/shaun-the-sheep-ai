@@ -10,21 +10,16 @@ pipeline {
     }
 
     stages {
-        stage('Build Docker Image') {
-            steps {
-                dir('frontend') {
-                    sh "docker build -t $IMAGE_NAME:latest ."
-                }
-            }
-        }
         stage('Stop Old Container') {
             steps {
                 sh "docker rm -f $CONTAINER_NAME || true"
             }
         }
-        stage('Remove Old Image') {
+        stage('Build Docker Image') {
             steps {
-                sh "docker rmi $IMAGE_NAME:latest || true"
+                dir('frontend') {
+                    sh "docker build -t $IMAGE_NAME:latest ."
+                }
             }
         }
         stage('Run New Container') {
