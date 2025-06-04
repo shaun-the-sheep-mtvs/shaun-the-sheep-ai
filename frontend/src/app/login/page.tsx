@@ -39,6 +39,9 @@ export default function Home() {
                   localStorage.setItem('accessToken', authResponse.accessToken);
                   localStorage.setItem('refreshToken', authResponse.refreshToken);
                   console.log('token:', authResponse.accessToken);
+                  // Clear guest data
+                  sessionStorage.removeItem('guestChecklistData');
+                  sessionStorage.removeItem('guestSignupData');
               } else {
                   console.log('token: null');
                   setError('토큰을 받지 못했습니다.');

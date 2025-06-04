@@ -22,6 +22,7 @@ import Link from "next/link"
 import Image from "next/image"
 import styles from "./page.module.css"
 import ImageSlider from '@/components/ImageSlider'
+import { useRouter } from 'next/navigation'
 
 interface GraphItem {
   name: string;
@@ -43,6 +44,7 @@ export default function Home() {
   const [skinType, setSkinType] = useState("복합성")
   const [scanLineTop, setScanLineTop] = useState(0)
   const heroTextContainerRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   const initialGraphItems: GraphItem[] = [
     { name: "수분 지수", value: 67, color: "#2ECC71", dotColor: "#2ECC71" },
@@ -199,6 +201,10 @@ export default function Home() {
       reverse: false,
     }
   ]
+
+  const handleCtaClick = () => {
+    router.push('/checklist');
+  };
 
   return (
     <div className={styles.landingPageWrapper}>
@@ -432,7 +438,7 @@ export default function Home() {
             <h2 className={styles.ctaTitle}>지금 바로 시작하세요!</h2>
             <p className={styles.ctaSubtitle}>3분만에 맞춤형 피부 솔루션을 받아보세요</p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <button className={styles.ctaButton}>
+              <button className={styles.ctaButton} onClick={handleCtaClick}>
                 무료로 체험해보기 <ChevronRight style={{width:'24px', height:'24px'}}/>
               </button>
             </motion.div>

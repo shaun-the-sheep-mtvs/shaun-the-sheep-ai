@@ -119,6 +119,12 @@ export default function Home() {
     // Check for guest data first
     const hasGuestData = checkGuestData();
     
+    // Redirect to /landing if neither guest data nor token exists
+    if (!hasGuestData && !token) {
+      router.replace('/landing');
+      return;
+    }
+    
     // If no guest data, fetch regular user data
     if (!hasGuestData && token) {
       fetch(apiConfig.endpoints.checklist.base, {
