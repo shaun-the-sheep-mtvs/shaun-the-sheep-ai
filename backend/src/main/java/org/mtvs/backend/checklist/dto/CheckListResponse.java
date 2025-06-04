@@ -1,4 +1,3 @@
-// src/main/java/org/mtvs/backend/checklist/dto/CheckListResponse.java
 package org.mtvs.backend.checklist.dto;
 
 import lombok.AllArgsConstructor;
@@ -20,4 +19,3 @@ public class CheckListResponse {
     private List<String> troubles;
     private LocalDateTime createdAt;
 }
-

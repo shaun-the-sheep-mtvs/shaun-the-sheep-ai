@@ -17,7 +17,9 @@
   background: linear-gradient(to bottom, var(--primary-color-bg), var(--white), var(--primary-color-bg)); /* 변경된 배경 */
   color: var(--text-dark);
   overflow-x: hidden; /* 가로 스크롤 방지 */
+
  /* 화면 전체 높이 */
+
 }
 
 .container {
@@ -44,6 +46,7 @@
   font-weight: bold;
   text-align: center;
   margin-bottom: 16px;
+
   color: var(--text-dark);
 }
 
@@ -52,6 +55,7 @@
   text-align: center;
   color: var(--text-light);
   margin-bottom: 32px;
+
   max-width: 600px;
   margin-left: auto;
   margin-right: auto;
@@ -150,6 +154,7 @@
   color: transparent;
 }
 
+
 /* Shaun 제목 스타일 */
 .logo1 {
     font-size: 1.75rem;
@@ -227,6 +232,7 @@
   flex-direction: column;
   justify-content: center;
   position: relative; 
+
 }
 
 .aiBadge {
@@ -251,10 +257,12 @@
 }
 
 .heroTitle {
+
   font-size: 36px;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 16px;
+
 }
 
 .heroSkinTypeInfo {
@@ -270,6 +278,7 @@
   color: var(--primary-color); /* 변경된 색상 (기존 D946EF 자줏빛) */
   font-weight: 600;
   margin-bottom: 6px;
+
 }
 
 .heroSkinTypeDynamic {
@@ -282,6 +291,7 @@
     color: #ffffff; /* 흰색 텍스트 */
     padding: 16px 32px;
     font-size: 18px;
+
     font-weight: bold;
     border-radius: 9999px;
     box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4); /* 주황색 그림자 */
@@ -319,6 +329,7 @@
   background-color: rgba(255, 255, 255, 0.6); 
   border-radius: 16px; 
   gap: 16px;
+
 }
 
 .heroImage {
@@ -405,6 +416,7 @@
 .skinConcernsSection {
   background-color: var(--white); /* 흰색 배경 */
   padding-top: 100px; /* Hero 섹션과의 간격을 줄임 */
+
 }
 
 .concernsGrid {
@@ -419,6 +431,7 @@
   background: linear-gradient(to bottom right, #F0F9FF, #E0F2FE); /* Light blue gradient for "건조함" */
   border-radius: 16px;
   padding: 20px;
+
   text-align: center;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
   border: 1px solid #B9E2F5;
@@ -447,6 +460,7 @@
 .concernIconContainer {
   width: 48px;
   height: 48px;
+
   border-radius: 50%;
   display: flex;
   align-items: center;

@@ -92,6 +92,19 @@
 
 /* 각 섹션별 특화 스타일 */
 
+/* 0. 검색 히어로 섹션 */
+.searchHeroSection {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border-radius: 20px;
+  margin: 1.5rem 0 2rem 0;  /* 상하 마진 축소 */
+  padding: 2rem 1.5rem;     /* 패딩 축소 */
+  border: 1px solid #e2e8f0;
+}
+
+.searchHeroSection .sectionMainTitle::after {
+  background: linear-gradient(90deg, var(--primary-mint) 0%, var(--primary-mint-light) 100%);
+}
+
 /* 1. 피부 분석 리포트 섹션 */
 .analysisReportSection {
   margin-bottom: 0 !important;
@@ -1719,11 +1732,11 @@ a.secondary {
   position: relative;
   letter-spacing: -0.01em;
   padding: 1.25rem 2.5rem;
-  font-size: 1.375rem;
+  font-size: 1.125rem; /* 1.375rem에서 1.125rem으로 축소 */
   width: fit-content;
   max-width: 400px;
   min-width: 280px;
-  margin: 3rem auto 4rem;
+  margin: 2rem auto 0; /* 3rem auto 4rem에서 2rem auto 0으로 변경 */
 }
 
 .goBtn:hover {

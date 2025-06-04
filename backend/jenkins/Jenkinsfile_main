@@ -10,6 +10,8 @@ pipeline {
         DB_PASSWORD = credentials('SUPABASE_PASSWORD')
         GEMINI_API_KEY = credentials('GEMINI_API_KEY')
         JWT_SECRET = credentials('JWT_SECRET_KEY')
+        NAVER_API_ID = credentials('NAVER_API_ID')
+        NAVER_API_SECRET = credentials('NAVER_API_SECRET')
     }
 
     tools {
@@ -51,6 +53,8 @@ pipeline {
                     -e DB_PASSWORD=$DB_PASSWORD \
                     -e GEMINI_API_KEY=$GEMINI_API_KEY \
                     -e JWT_SECRET=$JWT_SECRET \
+                    -e NAVER_API_ID=$NAVER_API_ID \
+                    -e NAVER_API_SECRET=$NAVER_API_SECRET \
                     -p $HOST_PORT:8080 \
                     $IMAGE_NAME:latest
                 """

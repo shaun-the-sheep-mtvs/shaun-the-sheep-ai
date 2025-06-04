@@ -29,25 +29,25 @@ public interface DeepRecommendRepository extends JpaRepository<DeepRecommend,Int
 """)
     List<RecommendResponseDTO> findLatestRecommendByUserId(@Param("userId") String userId);
 
-//    @Query("""
-//    SELECT new org.mtvs.backend.deeprecommend.dto.RecommendResponseDTO(
-//        d.action,
-//        d.kind,
-//        r.routineName,
-//        d.suggest_product,
-//        d.reason,
-//        d.routineGroupId
-//    )
-//    FROM DeepRecommend d
-//    LEFT JOIN RoutineChange r on d.existingProductId = r.routineChangeId
-//    WHERE r.routineGroupId = (
-//        SELECT MAX(rg.id)
-//        FROM RoutineGroup rg
-//        WHERE rg.userId = :userId
-//    )
-//    """)
-//    List<RecommendResponseDTO> findLatestRecommendByUserId(@Param("userId") Long userId);
 
+    @Query("""
+    SELECT new org.mtvs.backend.deeprecommend.dto.RecommendResponseDTO(
+           d.action,
+           d.kind,
+           r.name,
+           d.suggest_product,
+           d.reason,
+           d.routineGroupId
+       )
+       FROM DeepRecommend d
+       LEFT JOIN Routine r on d.existingProductId = r.id
+       WHERE d.routineGroupId IN (
+           SELECT rg.id
+           FROM RoutineGroup rg
+           WHERE rg.userId = :userId
+       )
+""")
+    List<RecommendResponseDTO> findAllRecommendByUserId(@Param("userId") String userId);
 
 
 }

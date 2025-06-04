@@ -31,10 +31,23 @@ public class DeepRecommendController {
         return recommendService.getRoutineChangeList(user.getUser().getId());
     }
 
+    @GetMapping("/all-routine-change")
+    public List<RoutineChangeDTO> getAllRoutineChangeList(@AuthenticationPrincipal CustomUserDetails user) {
+        return recommendService.getAllRoutineChangeList(user.getUser().getId());
+    }
+
     /* step2. 제품 변경 및 추가 추천 */
     @GetMapping("/product-recommend")
     public ResponseEntity<List<RecommendResponseDTO>> getRecommendResponseDTOList(@AuthenticationPrincipal CustomUserDetails user) {
         List<RecommendResponseDTO> list= recommendService.getRecommendResponseDTOList(user.getUser().getId());
         return ResponseEntity.ok(list);
     }
+
+    @GetMapping("/all-recommend")
+    public ResponseEntity<List<RecommendResponseDTO>> getAllRecommendResponseDTOList(@AuthenticationPrincipal CustomUserDetails user) {
+        List<RecommendResponseDTO> list= recommendService.getAllecommendResponseDTOList(user.getUser().getId());
+        return ResponseEntity.ok(list);
+    }
+
+
 }

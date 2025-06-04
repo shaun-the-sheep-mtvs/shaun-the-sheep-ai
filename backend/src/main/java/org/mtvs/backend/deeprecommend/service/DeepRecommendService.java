@@ -89,6 +89,7 @@ public class DeepRecommendService {
                             "- 적절하면 그대로 두고, 개선이 필요하면 해당 항목의 changeMethod 값만 3줄로 정리해서 최대 255자 이하로 내 피부 타입에 맞게 자세히 추천해서 수정해줘.\n" +
                             "- 반드시 다음 JSON 객체 내의 `루틴_검토` 키에 해당하는 JSON 배열 구조를 유지하되, **변경이 필요한 changeMethod 값만 수정**해서 출력하고, " +
                             "수정이 필요 없으면 기존 데이터랑 같이 '(현재 사용법 유지)'라고 붙여서 보여줘:\n\n" +
+
                             "2. 제품 추천\n" +
                             "- 기존에 사용 중인 제품 중 변경해서 쓰는게 더 좋은 제품이 있다면 추천해줘.\n" +
                             "- 이 경우, 'action'에 'REPLACE'를 입력해줘.\n" +
@@ -97,13 +98,14 @@ public class DeepRecommendService {
                             "- 추천한 제품은 추천한 이유를 성분 기반으로 내 피부 타입에 맞게 자세히 설명해줘.\n" +
                             "- 반드시 'action'이 'REPLACE'일 경우, 추천 제품으로 변경할 existingProductId를 꼭 넣어줘.\n" +
                             "- 'action'이 'ADD'일 경우, existingProductId를 넣지 말아줘.\n" +
+
                             "```json\n" +
                             "{\n" + // 전체 응답을 객체로 감싸도록 변경
                             "  \"루틴_검토\": [\n" + // 루틴 검토는 이 키 아래 배열로
                             "    {\n" +
                             "      \"routineChangeId\": 123, \n" + // AI가 기존 루틴의 ID를 알 수 있도록 포함
                             "      \"routineName\": \"세안\",\n" +
-                            "      \"routineKind\": \"[토너, 앰플, 크림, 로션, 세럼] 중\",\n" +
+                            "      \"routineKind\": \"[토너, 앰플, 크림, 로션, 세럼 ,팩 ,패드 ,스킨] 중\",\n" +
                             "      \"routineTime\": \"MORNING\",\n" +
                             "      \"routineOrders\": 1,\n" +
                             "      \"changeMethod\": \"수분크림을 바르기 전, 피부 타입에 맞는 앰플이나 세럼을 추가하여 보습력을 높임\"\n" +
@@ -468,9 +470,16 @@ public class DeepRecommendService {
     public List<RoutineChangeDTO> getRoutineChangeList(String userId) {
         return routineChangeRepository.findRoutinesByUserId(userId);
     }
+    public List<RoutineChangeDTO> getAllRoutineChangeList(String userId) {
+        return routineChangeRepository.findAllRoutinesByUserId(userId);
+    }
 
     /* step2. 제품 변경 및 추가 추천 */
     public List<RecommendResponseDTO> getRecommendResponseDTOList(String userId) {
         return deepRecommendRepository.findLatestRecommendByUserId(userId);
+    }
+
+    public List<RecommendResponseDTO> getAllecommendResponseDTOList(String userId) {
+        return deepRecommendRepository.findAllRecommendByUserId(userId);
     }
 }
