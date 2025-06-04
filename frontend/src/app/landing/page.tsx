@@ -21,6 +21,8 @@ import {
 import Link from "next/link"
 import Image from "next/image"
 import styles from "./page.module.css"
+import ImageSlider from '@/components/ImageSlider'
+import { useRouter } from 'next/navigation'
 
 interface GraphItem {
   name: string;
@@ -29,10 +31,20 @@ interface GraphItem {
   dotColor: string;
 }
 
+interface Checkpoint {
+  id: string
+  badge: string
+  title: string
+  description: string
+  images: string[]
+  reverse: boolean
+}
+
 export default function Home() {
   const [skinType, setSkinType] = useState("복합성")
   const [scanLineTop, setScanLineTop] = useState(0)
   const heroTextContainerRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   const initialGraphItems: GraphItem[] = [
     { name: "수분 지수", value: 67, color: "#2ECC71", dotColor: "#2ECC71" },
@@ -163,32 +175,36 @@ export default function Home() {
     },
   ]
 
-  const checkpoints = [
+  const checkpoints: Checkpoint[] = [
     {
       id: "01",
       badge: "체크 포인트",
       title: "떠먹여 주는 나의 피부 상태 확인",
       description: "클릭 한번으로 내 피부 알아보기",
-      imageUrl: "/images/checkpoint1.png",
+      images: ["/images/checklist1.png", "/images/checklist2.png"],
       reverse: false,
     },
     {
       id: "02",
       badge: "체크 포인트",
-      title: "좋다는 제품들이 너무 많아",
-      description: "그럴 땐 추천 받아서 필요한거만 알면 되지 !!",
-      imageUrl: "/images/checkpoint2.png",
+      title: "맞춤형 제품 추천",
+      description: "AI가 분석한 나의 피부 상태에 맞는 제품을 추천해드려요",
+      images: ["/images/checkpoint2.png"],
       reverse: true,
     },
     {
       id: "03",
       badge: "체크 포인트",
-      title: "내가 사용하고 있는 제품을 검사 받아보자 !",
-      description: null,
-      imageUrl: "/images/checkpoint3.png",
+      title: "제품 분석 리포트",
+      description: "현재 사용 중인 제품의 성분을 분석하고 피부에 맞는지 확인해보세요",
+      images: ["/images/checkpoint1.png", "/images/checkpoint3.png"],
       reverse: false,
-    },
+    }
   ]
+
+  const handleCtaClick = () => {
+    router.push('/checklist');
+  };
 
   return (
     <div className={styles.landingPageWrapper}>
@@ -197,7 +213,9 @@ export default function Home() {
         <div className={`${styles.container} ${styles.headerContainer}`}>
           <motion.div className={styles.logo} whileHover={{ scale: 1.05 }}>
           </motion.div>
+          <div className={styles.logoContainer}>
           <h1 className={styles.logo1}>Shaun</h1>
+        </div>
           <div className={styles.headerButtons}>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
               <Link href="/register" className={styles.signupButton}>회원가입</Link>
@@ -400,13 +418,7 @@ export default function Home() {
               </div>
               <div className={styles.checkpointCardAndImageContainer}>
                 <div className={styles.checkpointImageWrapper}>
-                  <Image 
-                    src={cp.imageUrl}
-                    alt={`${cp.title} 이미지`}
-                    width={400}
-                    height={300}
-                    className={styles.checkpointImage}
-                  />
+                  <ImageSlider images={cp.images} />
                 </div>
               </div>
             </motion.div>
@@ -426,7 +438,7 @@ export default function Home() {
             <h2 className={styles.ctaTitle}>지금 바로 시작하세요!</h2>
             <p className={styles.ctaSubtitle}>3분만에 맞춤형 피부 솔루션을 받아보세요</p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <button className={styles.ctaButton}>
+              <button className={styles.ctaButton} onClick={handleCtaClick}>
                 무료로 체험해보기 <ChevronRight style={{width:'24px', height:'24px'}}/>
               </button>
             </motion.div>
@@ -438,8 +450,6 @@ export default function Home() {
       <footer className={styles.footer}>
         <div className={`${styles.container} ${styles.footerContainer}`}>
           <div className={styles.footerLogoContainer}>
-            <Droplet className={styles.footerLogoIcon} />
-            <span className={styles.footerLogoText}>스킨AI</span>
           </div>
           <div className={styles.footerLinks}>
             <Link href="#" className={styles.footerLink}>서비스 소개</Link>
@@ -448,7 +458,7 @@ export default function Home() {
           </div>
         </div>
         <div className={`${styles.container} ${styles.footerCopyright}`}>
-          © {new Date().getFullYear()} 스킨AI. All rights reserved.
+          © {new Date().getFullYear()} Shaun. All rights reserved.
         </div>
       </footer>
     </div>
