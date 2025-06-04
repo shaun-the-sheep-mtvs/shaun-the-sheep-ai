@@ -35,8 +35,9 @@
     display: flex;
     align-items: center;
     position: absolute;
-    width: calc(100% - 3rem);
-    justify-content: center;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1;
     z-index: -1;
   }
 .sectionTitle {
@@ -173,51 +174,166 @@
   width: 100%;
 }
 
-/* Hero 섹션 내부의 container만 특별히 너비 확장 */
 .heroSection > .container {
-  max-width: none; /* 최대 너비 제한 제거 */
-  /* 기존 .container의 padding: 0 20px; 보다 넓은 패딩 적용 */
-  padding-left: 20px; /* 좌우 패딩 제거 */
-  padding-right: 20px; /* 좌우 패딩 제거 */
-  margin: 0 auto; /* 전체 너비 사용 시 중앙 정렬은 유지 */
+  max-width: none;
+  padding-left: 20px;
+  padding-right: 20px;
+  margin: 0 auto;
 }
 
 .heroContent {
-    max-width: 1000px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 20px 15px;
-    display: flex;
-    flex-direction: column;
-    background-color: rgba(255, 255, 255, 0.85);
-    backdrop-filter: blur(8px);
-    border-radius: 20px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--primary-color-light);
-    overflow: hidden;
-    min-width: 1000px;
+  max-width: 1000px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 15px;
+  display: flex;
+  flex-direction: column;
+  background-color: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  border: 1px solid var(--primary-color-light);
+  overflow: hidden;
 }
-  
-  /* 데스크탑 이상에서도 고정
-  @media (min-width: 768px) {
-    .heroContent {
-      flex-direction: row;
-      align-items: stretch;
-    }
-  } */
-  @media (min-width: 768px) {
-    .heroContent {
-      flex-direction: row;
-      align-items: stretch;
-    }
+
+@media (min-width: 768px) {
+  .heroContent {
+    flex-direction: row;
+    align-items: stretch;
+    min-width: 1000px;
   }
-/* 
- */
- 
+}
+
 @media (max-width: 1000px) {
-    .heroContent {
-      flex-wrap: wrap; /* ✅ 레이아웃 자동 줄바꿈 */
-    }
+  .heroContent {
+    flex-wrap: wrap;
+    min-width: auto;
+  }
+  
+  .heroTextContainer {
+    padding: 20px;
+  }
+  
+  .heroImageContainer {
+    padding: 20px;
+  }
+  
+  .heroTitle {
+    font-size: 28px;
+  }
+  
+  .heroSkinTypeQuestion {
+    font-size: 18px;
+  }
+  
+  .heroSkinTypeDynamic {
+    font-size: 14px;
+  }
+  
+  .heroCtaButton {
+    padding: 14px 28px;
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 768px) {
+  .heroSection {
+    padding-top: 80px;
+  }
+  
+  .heroContent {
+    padding: 15px;
+  }
+  
+  .heroTextContainer {
+    padding: 15px;
+  }
+  
+  .heroImageContainer {
+    padding: 15px;
+  }
+  
+  .heroTitle {
+    font-size: 24px;
+  }
+  
+  .heroSkinTypeInfo {
+    padding: 12px;
+  }
+  
+  .heroSkinTypeQuestion {
+    font-size: 16px;
+  }
+  
+  .heroSkinTypeDynamic {
+    font-size: 13px;
+  }
+  
+  .heroCtaButton {
+    width: 100%;
+    padding: 12px 24px;
+    font-size: 15px;
+  }
+  
+  .graphItem {
+    margin-bottom: 12px;
+  }
+  
+  .graphItemName {
+    font-size: 13px;
+  }
+  
+  .graphItemValue {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .heroSection {
+    padding-top: 60px;
+  }
+  
+  .heroContent {
+    padding: 10px;
+  }
+  
+  .heroTextContainer {
+    padding: 10px;
+  }
+  
+  .heroImageContainer {
+    padding: 10px;
+  }
+  
+  .heroTitle {
+    font-size: 20px;
+  }
+  
+  .heroSkinTypeInfo {
+    padding: 10px;
+  }
+  
+  .heroSkinTypeQuestion {
+    font-size: 15px;
+  }
+  
+  .heroSkinTypeDynamic {
+    font-size: 12px;
+  }
+  
+  .heroBenefitText {
+    font-size: 12px;
+  }
+  
+  .graphItemHeader {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .graphItemBarBackground {
+    height: 12px;
+  }
 }
 
 .heroTextContainer {
