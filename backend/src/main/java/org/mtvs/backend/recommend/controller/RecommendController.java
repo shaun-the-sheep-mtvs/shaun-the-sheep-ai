@@ -1,6 +1,3 @@
-
-// raw code from current dev branch
-
 package org.mtvs.backend.recommend.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;

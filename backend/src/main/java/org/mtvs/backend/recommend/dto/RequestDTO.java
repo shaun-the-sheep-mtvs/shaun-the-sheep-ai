@@ -14,16 +14,16 @@ public class RequestDTO {
 
     /* Gemini API 요청 구조입니다.
     * {
-  "contents": [
-    {
-      "parts": [
-        {
-          "text": "실제 프롬프트 텍스트"
-        }
-      ]
-    }
-  ]
-}
+        "contents": [
+          {
+            "parts": [
+              {
+                "text": "실제 프롬프트 텍스트"
+              }
+            ]
+          }
+        ]
+      }
     * */
 
 
