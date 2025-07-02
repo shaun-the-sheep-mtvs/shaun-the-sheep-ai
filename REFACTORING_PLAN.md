@@ -72,6 +72,19 @@ public class SkinMBTI {
     };
 }
 ```
+```
+// Helper method to calculate MBTI code from four values
+    private String calculateMbtiCode(Integer moisture, Integer oil, Integer sensitivity, Integer tension) {
+        String m = moisture != null && moisture >= 60 ? "M" : "D";
+        String o = oil != null && oil >= 60 ? "O" : "B";
+        String s = sensitivity != null && sensitivity >= 60 ? "S" : "I";
+        String t = tension != null && tension >= 60 ? "T" : "L";
+        return m + o + s + t;
+    }
+
+```
+
+
 
 ### 2. SkinConcern Entity (Master Data)
 ```java

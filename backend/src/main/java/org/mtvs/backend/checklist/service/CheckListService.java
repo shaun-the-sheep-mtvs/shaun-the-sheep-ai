@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.mtvs.backend.session.GuestData;
+import org.mtvs.backend.userskin.service.UserskinService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,26 +27,28 @@ public class CheckListService {
     private UserRepository userRepo;
     @Autowired
     private CheckListRepository checkListRepo;
+    @Autowired
+    private UserskinService userskinService;
 
-    // Static MBTI code to SkinType mapping
-    private static final Map<String, User.SkinType> MBTI_TO_SKIN_TYPE = Map.ofEntries(
-        Map.entry("DBIL", User.SkinType.건성),
-        Map.entry("DBIT", User.SkinType.건성),
-        Map.entry("DBSL", User.SkinType.건성),
-        Map.entry("DBST", User.SkinType.건성),
-        Map.entry("DOIL", User.SkinType.수분부족지성),
-        Map.entry("DOIT", User.SkinType.수분부족지성),
-        Map.entry("DOSL", User.SkinType.수분부족지성),
-        Map.entry("DOST", User.SkinType.수분부족지성),
-        Map.entry("MBIL", User.SkinType.복합성),
-        Map.entry("MBIT", User.SkinType.복합성),
-        Map.entry("MBSL", User.SkinType.민감성),
-        Map.entry("MBST", User.SkinType.민감성),
-        Map.entry("MOIL", User.SkinType.지성),
-        Map.entry("MOIT", User.SkinType.지성),
-        Map.entry("MOSL", User.SkinType.민감성),
-        Map.entry("MOST", User.SkinType.민감성)
-    );
+//    // Static MBTI code to SkinType mapping
+//    private static final Map<String, User.SkinType> MBTI_TO_SKIN_TYPE = Map.ofEntries(
+//        Map.entry("DBIL", User.SkinType.건성),
+//        Map.entry("DBIT", User.SkinType.건성),
+//        Map.entry("DBSL", User.SkinType.건성),
+//        Map.entry("DBST", User.SkinType.건성),
+//        Map.entry("DOIL", User.SkinType.수분부족지성),
+//        Map.entry("DOIT", User.SkinType.수분부족지성),
+//        Map.entry("DOSL", User.SkinType.수분부족지성),
+//        Map.entry("DOST", User.SkinType.수분부족지성),
+//        Map.entry("MBIL", User.SkinType.복합성),
+//        Map.entry("MBIT", User.SkinType.복합성),
+//        Map.entry("MBSL", User.SkinType.민감성),
+//        Map.entry("MBST", User.SkinType.민감성),
+//        Map.entry("MOIL", User.SkinType.지성),
+//        Map.entry("MOIT", User.SkinType.지성),
+//        Map.entry("MOSL", User.SkinType.민감성),
+//        Map.entry("MOST", User.SkinType.민감성)
+//    );
 
     @Transactional
     public CheckListResponse create(CheckListRequest req, String username) {
@@ -62,10 +65,8 @@ public class CheckListService {
 
         String mbtiCode = getSkinTypeByEmail(user.getEmail());
 
-        // 5) 유저 엔티티에 세팅 후 저장
-        user.setSkinType(MBTI_TO_SKIN_TYPE.get(mbtiCode));
-        user.setTroubles(req.getTroubles());
-        userRepo.save(user);
+        // 5) Userskin 엔티티에 스킨 정보 저장
+        userskinService.createOrUpdateUserskin(user, mbtiCode, req.getTroubles());
 
         return toDto(saved);
     }
@@ -143,18 +144,19 @@ public class CheckListService {
                 .findFirstByUser_IdOrderByCreatedAtDesc(user.getId())
                 .map(this::toDto);
 
-        // 체크리스트가 있든 없든, user.getTroubles() 로 덮어씌운 DTO 리턴
+        // Userskin에서 troubles 정보 가져오기
         return Optional.of(
                 maybeDto.orElseGet(CheckListResponse::new)  // 빈 DTO 또는 실제 DTO
         ).map(dto -> {
-            dto.setTroubles(user.getTroubles());       // ← User 엔티티의 troubles
+            userskinService.getActiveUserskinByUser(user)
+                .ifPresent(userskin -> dto.setTroubles(userskinService.getConcernLabels(userskin)));
             return dto;
         });
     }
 
-    // MBTI 코드로 한글 SkinType 반환
-    public String getSkinTypeForMbti(String mbtiCode) {
-        User.SkinType type = MBTI_TO_SKIN_TYPE.get(mbtiCode);
-        return type != null ? type.name() : "알 수 없음";
-    }
+//    // MBTI 코드로 한글 SkinType 반환
+//    public String getSkinTypeForMbti(String mbtiCode) {
+//        User.SkinType type = MBTI_TO_SKIN_TYPE.get(mbtiCode);
+//        return type != null ? type.name() : "알 수 없음";
+//    }
 }

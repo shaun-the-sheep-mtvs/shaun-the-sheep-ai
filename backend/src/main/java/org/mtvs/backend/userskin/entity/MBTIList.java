@@ -1,4 +1,4 @@
-package org.mtvs.backend.checklist.model;
+package org.mtvs.backend.userskin.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -15,7 +15,7 @@ import jakarta.persistence.Column;
 @Setter
 @NoArgsConstructor
 @Table(name = "skin_mbtis")
-public class SkinMBTI {
+public class MBTIList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -29,7 +29,7 @@ public class SkinMBTI {
     @Column(name = "description", nullable = false)
     private String description;
 
-    public SkinMBTI(String mbtiCode, String koreanName, String description) {
+    public MBTIList(String mbtiCode, String koreanName, String description) {
         this.mbtiCode = mbtiCode;
         this.koreanName = koreanName;
         this.description = description;

@@ -10,6 +10,11 @@ import org.mtvs.backend.profile.dto.UsernameDTO;
 import org.mtvs.backend.routine.repository.RoutineRepository;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
+import org.mtvs.backend.userskin.service.UserskinService;
+import org.mtvs.backend.userskin.entity.Userskin;
+
+import java.util.List;
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -22,11 +27,13 @@ public class ProfileService {
     private final UserRepository userRepository;
     private final RoutineRepository routineRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserskinService userskinService;
     @Autowired
-    public ProfileService(UserRepository userRepository, RoutineRepository routineRepository, PasswordEncoder passwordEncoder) {
+    public ProfileService(UserRepository userRepository, RoutineRepository routineRepository, PasswordEncoder passwordEncoder, UserskinService userskinService) {
         this.userRepository = userRepository;
         this.routineRepository = routineRepository;
         this.passwordEncoder = passwordEncoder;
+        this.userskinService = userskinService;
     }
 
     public ResponseProfileDTO getProfile(CustomUserDetails user) {
@@ -37,10 +44,17 @@ public class ProfileService {
             List<String> troubles;
             List<RoutinesDto> routines;
         * */
+        // Get troubles from Userskin entity
+        List<String> troubles = List.of(); // Default empty list
+        Optional<Userskin> userskinOpt = userskinService.getActiveUserskinByUser(user.getUser());
+        if (userskinOpt.isPresent()) {
+            troubles = userskinService.getConcernLabels(userskinOpt.get());
+        }
+        
         return new ResponseProfileDTO(
                 user.getEmail(),
                 user.getUsername(),
-                user.getUser().getTroubles(),
+                troubles,
                 routineRepository.findRoutinesByUserId(user.getUserId()),
                 user.getUser().getCreatedAt()
                 );

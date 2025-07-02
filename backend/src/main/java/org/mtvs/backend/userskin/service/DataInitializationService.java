@@ -1,9 +1,9 @@
-package org.mtvs.backend.checklist.service;
+package org.mtvs.backend.userskin.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mtvs.backend.checklist.model.SkinConcern;
-import org.mtvs.backend.checklist.model.SkinMBTI;
+import org.mtvs.backend.userskin.entity.ConcernList;
+import org.mtvs.backend.userskin.entity.MBTIList;
 import org.mtvs.backend.checklist.repository.SkinConcernRepository;
 import org.mtvs.backend.checklist.repository.SkinMBTIRepository;
 import org.springframework.boot.ApplicationArguments;
@@ -34,13 +34,13 @@ public class DataInitializationService implements ApplicationRunner {
         log.info("[데이터 초기화] SkinConcern 데이터 초기화 시작");
         
         int insertCount = 0;
-        for (String[] concernData : SkinConcern.CONCERN_DATA) {
+        for (String[] concernData : ConcernList.CONCERN_DATA) {
             String label = concernData[0];
             String description = concernData[1];
             
             // 이미 존재하는지 확인
             if (!skinConcernRepository.existsByLabel(label)) {
-                SkinConcern skinConcern = new SkinConcern(label, description);
+                ConcernList skinConcern = new ConcernList(label, description);
                 skinConcernRepository.save(skinConcern);
                 insertCount++;
                 log.debug("[데이터 초기화] SkinConcern 추가: {} - {}", label, description);
@@ -54,14 +54,14 @@ public class DataInitializationService implements ApplicationRunner {
         log.info("[데이터 초기화] SkinMBTI 데이터 초기화 시작");
         
         int insertCount = 0;
-        for (String[] mbtiData : SkinMBTI.MBTI_DATA) {
+        for (String[] mbtiData : MBTIList.MBTI_DATA) {
             String mbtiCode = mbtiData[0];
             String koreanName = mbtiData[1];
             String description = mbtiData[2];
             
             // 이미 존재하는지 확인
             if (!skinMBTIRepository.existsByMbtiCode(mbtiCode)) {
-                SkinMBTI skinMBTI = new SkinMBTI(mbtiCode, koreanName, description);
+                MBTIList skinMBTI = new MBTIList(mbtiCode, koreanName, description);
                 skinMBTIRepository.save(skinMBTI);
                 insertCount++;
                 log.debug("[데이터 초기화] SkinMBTI 추가: {} - {} - {}", mbtiCode, koreanName, description);

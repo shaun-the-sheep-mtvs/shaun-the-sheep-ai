@@ -1,4 +1,4 @@
-package org.mtvs.backend.checklist.model;
+package org.mtvs.backend.userskin.entity;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
@@ -15,7 +15,7 @@ import jakarta.persistence.Column;
 @Setter
 @NoArgsConstructor
 @Table(name = "skin_concerns")
-public class SkinConcern {
+public class ConcernList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -26,7 +26,7 @@ public class SkinConcern {
     @Column(name = "description", nullable = false)
     private String description;
 
-    public SkinConcern(String label, String description) {
+    public ConcernList(String label, String description) {
         this.label = label;
         this.description = description;
     }

@@ -16,6 +16,8 @@ import org.mtvs.backend.product.repository.ProductRepository;
 import org.mtvs.backend.product.repository.ProductUserLinkRepository;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
+import org.mtvs.backend.userskin.service.UserskinService;
+import org.mtvs.backend.userskin.entity.Userskin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -37,6 +39,7 @@ public class ProductService {
     private final ProductUserLinkService productUserLinkService;
     private final ApiSearchImage apiSearchImage;
     private final ObjectMapper objectMapper;
+    private final UserskinService userskinService;
 
     public List<ProductDTO> getProductsByFormulation(String userId, String formulation, int limit) {
         // userId 에 해당되는 Product 리스트 불러오기
@@ -55,8 +58,10 @@ public class ProductService {
 
 
     public ProductsWithUserInfoResponseDTO getBalancedRecommendations(String userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        Optional<Userskin> userskinOpt = userskinService.getActiveUserskinByUserId(userId);
+        if (userskinOpt.isEmpty()) {
+            throw new RuntimeException("User skin data not found for user: " + userId);
+        }
 
         List<ProductDTO> selectedProducts = new ArrayList<>();
 
@@ -65,8 +70,8 @@ public class ProductService {
         selectedProducts.addAll(getProductsByFormulation(userId, "serum", 3));
         selectedProducts.addAll(getProductsByFormulation(userId, "lotion", 3));
         selectedProducts.addAll(getProductsByFormulation(userId, "cream", 3));
-        System.out.println(ProductsWithUserInfoResponseDTO.create(user, selectedProducts));
-        return ProductsWithUserInfoResponseDTO.create(user, selectedProducts);
+        
+        return ProductsWithUserInfoResponseDTO.create(userskinOpt.get(), selectedProducts);
     }
 
     // 주어진 키워드(query)로 브랜드 및 제품 검색

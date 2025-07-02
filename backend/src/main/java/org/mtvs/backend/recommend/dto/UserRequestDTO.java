@@ -7,10 +7,10 @@ import java.util.List;
 
 public class UserRequestDTO {
     private String userId;
-    private User.SkinType skinType;
+    private String skinType;
     private List<String> troubles;
 
-    public UserRequestDTO(String userId, User.SkinType skinType, List<String> troubles) {
+    public UserRequestDTO(String userId, String skinType, List<String> troubles) {
         this.userId = userId;
         this.skinType = skinType;
         this.troubles = troubles;
@@ -26,11 +26,11 @@ public class UserRequestDTO {
         this.userId = userId;
     }
 
-    public User.SkinType getSkinType() {
+    public String getSkinType() {
         return skinType;
     }
 
-    public void setSkinType(User.SkinType skinType) {
+    public void setSkinType(String skinType) {
         this.skinType = skinType;
     }
 
