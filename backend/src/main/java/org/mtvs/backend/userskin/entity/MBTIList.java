@@ -1,14 +1,10 @@
 package org.mtvs.backend.userskin.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import jakarta.persistence.Column;
+import org.mtvs.backend.skintype.entity.SkinType;
 
 @Entity
 @Getter
@@ -23,34 +19,35 @@ public class MBTIList {
     @Column(name = "mbti_code", nullable = false, unique = true)
     private String mbtiCode;
     
-    @Column(name = "korean_name", nullable = false)
-    private String koreanName;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "skin_type_id", nullable = false)
+    private SkinType skinType;
     
     @Column(name = "description", nullable = false)
     private String description;
 
-    public MBTIList(String mbtiCode, String koreanName, String description) {
+    public MBTIList(String mbtiCode, SkinType skinType, String description) {
         this.mbtiCode = mbtiCode;
-        this.koreanName = koreanName;
+        this.skinType = skinType;
         this.description = description;
     }
 
-    public static final String[][] MBTI_DATA = {
-        {"DBIL", "건성", "건조하고 민감하지 않은 탄력 부족 피부"},
-        {"DBIT", "건성", "건조하고 민감하지 않은 탄력 있는 피부"},
-        {"DBSL", "건성", "건조하고 민감한 탄력 부족 피부"},
-        {"DBST", "건성", "건조하고 민감한 탄력 있는 피부"},
-        {"DOIL", "수분부족지성", "건조하고 유분이 많은 탄력 부족 피부"},
-        {"DOIT", "수분부족지성", "건조하고 유분이 많은 탄력 있는 피부"},
-        {"DOSL", "수분부족지성", "건조하고 유분이 많은 민감한 탄력 부족 피부"},
-        {"DOST", "수분부족지성", "건조하고 유분이 많은 민감한 탄력 있는 피부"},
-        {"MBIL", "복합성", "수분이 있고 민감하지 않은 탄력 부족 피부"},
-        {"MBIT", "복합성", "수분이 있고 민감하지 않은 탄력 있는 피부"},
-        {"MBSL", "민감성", "수분이 있고 민감한 탄력 부족 피부"},
-        {"MBST", "민감성", "수분이 있고 민감한 탄력 있는 피부"},
-        {"MOIL", "지성", "수분과 유분이 많은 탄력 부족 피부"},
-        {"MOIT", "지성", "수분과 유분이 많은 탄력 있는 피부"},
-        {"MOSL", "민감성", "수분과 유분이 많은 민감한 탄력 부족 피부"},
-        {"MOST", "민감성", "수분과 유분이 많은 민감한 탄력 있는 피부"}
+    public static final Object[][] MBTI_DATA = {
+        {"DBIL", (byte) 2, "건조하고 민감하지 않은 탄력 부족 피부"},      // 건성
+        {"DBIT", (byte) 2, "건조하고 민감하지 않은 탄력 있는 피부"},       // 건성
+        {"DBSL", (byte) 2, "건조하고 민감한 탄력 부족 피부"},           // 건성
+        {"DBST", (byte) 2, "건조하고 민감한 탄력 있는 피부"},            // 건성
+        {"DOIL", (byte) 5, "건조하고 유분이 많은 탄력 부족 피부"},        // 수분부족지성
+        {"DOIT", (byte) 5, "건조하고 유분이 많은 탄력 있는 피부"},         // 수분부족지성
+        {"DOSL", (byte) 5, "건조하고 유분이 많은 민감한 탄력 부족 피부"},    // 수분부족지성
+        {"DOST", (byte) 5, "건조하고 유분이 많은 민감한 탄력 있는 피부"},     // 수분부족지성
+        {"MBIL", (byte) 4, "수분이 있고 민감하지 않은 탄력 부족 피부"},     // 복합성
+        {"MBIT", (byte) 4, "수분이 있고 민감하지 않은 탄력 있는 피부"},      // 복합성
+        {"MBSL", (byte) 1, "수분이 있고 민감한 탄력 부족 피부"},          // 민감성
+        {"MBST", (byte) 1, "수분이 있고 민감한 탄력 있는 피부"},           // 민감성
+        {"MOIL", (byte) 3, "수분과 유분이 많은 탄력 부족 피부"},          // 지성
+        {"MOIT", (byte) 3, "수분과 유분이 많은 탄력 있는 피부"},           // 지성
+        {"MOSL", (byte) 1, "수분과 유분이 많은 민감한 탄력 부족 피부"},     // 민감성
+        {"MOST", (byte) 1, "수분과 유분이 많은 민감한 탄력 있는 피부"}      // 민감성
     };
 }

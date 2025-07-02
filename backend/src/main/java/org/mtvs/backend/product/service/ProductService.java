@@ -18,6 +18,7 @@ import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.userskin.service.UserskinService;
 import org.mtvs.backend.userskin.entity.Userskin;
+import org.mtvs.backend.skintype.service.SkinTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,6 +41,8 @@ public class ProductService {
     private final ApiSearchImage apiSearchImage;
     private final ObjectMapper objectMapper;
     private final UserskinService userskinService;
+    private final ConcernMappingService concernMappingService;
+    private final SkinTypeService skinTypeService;
 
     public List<ProductDTO> getProductsByFormulation(String userId, String formulation, int limit) {
         // userId 에 해당되는 Product 리스트 불러오기
@@ -121,6 +124,10 @@ public class ProductService {
 
 
     public void saveProducts(JsonNode productJson, String userId) {
+        // Extract user concerns from the AI response for mapping to products
+        List<String> userConcerns = extractConcernsFromResponse(productJson);
+        List<Byte> concernIds = concernMappingService.mapConcernsToIds(userConcerns);
+        
         JsonNode tonerArray = productJson.get("recommendations").get("toner");
         JsonNode serumArray = productJson.get("recommendations").get("serum");
         JsonNode lotionArray = productJson.get("recommendations").get("lotion");
@@ -129,7 +136,7 @@ public class ProductService {
         // 각 배열을 순회하면서 개별 제품 저장 (예외 발생해도 전체 트랜잭션은 계속)
         for (JsonNode product : tonerArray) {
             try {
-                saveProduct(product, userId, "toner");
+                saveProduct(product, userId, "toner", concernIds);
             } catch (Exception e) {
                 // 개별 제품 저장 실패해도 계속 진행
                 System.out.println("토너 제품 저장 실패: " + e.getMessage());
@@ -138,7 +145,7 @@ public class ProductService {
 
         for (JsonNode product : serumArray) {
             try {
-                saveProduct(product, userId, "serum");
+                saveProduct(product, userId, "serum", concernIds);
             } catch (Exception e) {
                 System.out.println("세럼 제품 저장 실패: " + e.getMessage());
             }
@@ -146,7 +153,7 @@ public class ProductService {
 
         for (JsonNode product : lotionArray) {
             try {
-                saveProduct(product, userId, "lotion");
+                saveProduct(product, userId, "lotion", concernIds);
             } catch (Exception e) {
                 System.out.println("로션 제품 저장 실패: " + e.getMessage());
             }
@@ -154,14 +161,14 @@ public class ProductService {
 
         for (JsonNode product : creamArray) {
             try {
-                saveProduct(product, userId, "cream");
+                saveProduct(product, userId, "cream", concernIds);
             } catch (Exception e) {
                 System.out.println("크림 제품 저장 실패: " + e.getMessage());
             }
         }
     }
 
-    public void saveProduct(JsonNode jsonNode, String userId, String formulation) {
+    public void saveProduct(JsonNode jsonNode, String userId, String formulation, List<Byte> concernIds) {
         // ObjectNode 로 캐스팅
         ObjectNode objectNode = (ObjectNode) jsonNode;
         ProductDTO dto = new ProductDTO();
@@ -171,9 +178,12 @@ public class ProductService {
             dto.setProductName(objectNode.get("제품명") != null ?
                     objectNode.get("제품명").asText() : null);
 
-            // 추천타입
-            dto.setRecommendedType(objectNode.get("추천타입") != null ?
-                    objectNode.get("추천타입").asText() : null);
+            // 추천타입 - Korean name to skin type ID conversion
+            String koreanSkinType = objectNode.get("추천타입") != null ?
+                    objectNode.get("추천타입").asText() : null;
+            Byte skinTypeId = koreanSkinType != null ? 
+                    skinTypeService.mapKoreanNameToId(koreanSkinType) : (byte) 6; // default
+            dto.setRecommendedType(skinTypeId);
 
             // 성분 (JSON 배열 → List<String>)
             JsonNode ingredientsNode = objectNode.get("성분");
@@ -188,8 +198,15 @@ public class ProductService {
             dto.setFormulation(formulation);
             dto.setImageUrl("");
 
-            // Product 엔티티로 변환 및 저장 (예외는 상위 메서드에서 처리)
+            // Product 엔티티로 변환
             Product product = dto.toEntity();
+            
+            // Set concern IDs if available
+            if (concernIds != null && !concernIds.isEmpty()) {
+                product.setConcerns(concernIds.toArray(new Byte[0]));
+            }
+            
+            // 저장 (예외는 상위 메서드에서 처리)
             productRepository.save(product);
 
             // 링크 테이블에 저장
@@ -229,5 +246,40 @@ public class ProductService {
             throw new RuntimeException(e);
         }
         return ResponseEntity.ok(200);
+    }
+    
+    /**
+     * Extract concerns from AI response JSON
+     * @param productJson AI response containing skin type and concerns
+     * @return List of concern strings (Korean)
+     */
+    private List<String> extractConcernsFromResponse(JsonNode productJson) {
+        List<String> concerns = new ArrayList<>();
+        
+        try {
+            JsonNode concernsNode = productJson.get("concerns");
+            if (concernsNode != null && concernsNode.isArray()) {
+                for (JsonNode concern : concernsNode) {
+                    String concernText = concern.asText();
+                    if (concernText != null && !concernText.trim().isEmpty()) {
+                        concerns.add(concernText.trim());
+                    }
+                }
+            }
+        } catch (Exception e) {
+            System.out.println("Failed to extract concerns from AI response: " + e.getMessage());
+        }
+        
+        return concerns;
+    }
+    
+    /**
+     * Backward compatibility method for saveProduct without concern IDs
+     * @param jsonNode Product JSON data
+     * @param userId User ID
+     * @param formulation Product formulation type
+     */
+    public void saveProduct(JsonNode jsonNode, String userId, String formulation) {
+        saveProduct(jsonNode, userId, formulation, new ArrayList<>());
     }
 }

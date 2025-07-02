@@ -24,7 +24,7 @@ public class UserInfoDTO {
         }
         
         String skinType = userskin.getSkinType() != null ? 
-            userskin.getSkinType().getKoreanName() : null;
+            userskin.getSkinType().getSkinType().getKoreanName() : null;
             
         List<String> concerns = userskin.getConcerns() != null ?
             userskin.getConcerns().stream()

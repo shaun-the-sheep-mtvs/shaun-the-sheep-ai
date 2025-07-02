@@ -40,9 +40,20 @@ export const apiConfig = {
     user: {
       skinData: `${API_BASE_URL}/api/user/skin-data`,
     },
+    skinType: {
+      base: `${API_BASE_URL}/api/skin-types`,
+      getAll: `${API_BASE_URL}/api/skin-types`,
+      getById: (id: number | string) => `${API_BASE_URL}/api/skin-types/${id}`,
+      getByEnglishName: (englishName: string) => `${API_BASE_URL}/api/skin-types/english/${englishName}`,
+    },
     profile: {
       base: `${API_BASE_URL}/api/profile`,
-    }
+    },
+    product: {
+      base: `${API_BASE_URL}/api/products`,
+      search: (mode: string, word: string) =>
+        `${API_BASE_URL}/api/products/search/products?mode=${encodeURIComponent(mode)}&word=${encodeURIComponent(word)}`,
+    },
   }
 };
 
