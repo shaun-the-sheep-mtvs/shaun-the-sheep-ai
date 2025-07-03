@@ -40,8 +40,9 @@ public class UserskinService {
             throw new RuntimeException("Invalid MBTI code: " + mbtiCode);
         }
         
-        // 관심사 정보 조회 - 영어 라벨과 한국어 설명 모두 지원
+        // 관심사 정보 조회 - 최대 3개까지만 처리
         List<ConcernList> concerns = concernLabels.stream()
+            .limit(3) // 최대 3개로 제한
             .map(labelOrDescription -> {
                 // 먼저 영어 라벨로 찾아보고, 없으면 한국어 설명으로 찾기
                 Optional<ConcernList> concern = skinConcernRepository.findByLabel(labelOrDescription);
@@ -94,7 +95,7 @@ public class UserskinService {
             return List.of();
         }
         return userskin.getConcerns().stream()
-            .map(ConcernList::getLabel)
+            .map(ConcernList::getDescription)
             .collect(Collectors.toList());
     }
     

@@ -212,6 +212,17 @@ public class ProductService {
             
             // 저장 (예외는 상위 메서드에서 처리)
             productRepository.save(product);
+            
+            // 이미지 URL 비동기로 가져오기 (레이트 리미팅 고려)
+            try {
+                String imageUrl = naverApiService.fetchImageUrlForProduct(objectNode.get("제품명").asText());
+                product.setImageUrl(imageUrl);
+                productRepository.save(product);
+                System.out.println("이미지 URL 저장 완료: " + objectNode.get("제품명").asText() + " -> " + imageUrl);
+            } catch (Exception e) {
+                System.err.println("이미지 URL 가져오기 실패: " + objectNode.get("제품명").asText() + ", 오류: " + e.getMessage());
+                // 이미지 가져오기 실패해도 제품 저장은 계속
+            }
 
             // 링크 테이블에 저장
             productUserLinkService.saveLinks(product, userId);

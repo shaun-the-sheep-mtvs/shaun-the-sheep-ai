@@ -29,13 +29,17 @@ public class Userskin extends BaseEntity {
     @JoinColumn(name = "mbti_id")
     private MBTIList skinType;
     
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-        name = "user_skin_concerns",
-        joinColumns = @JoinColumn(name = "user_skin_id"),
-        inverseJoinColumns = @JoinColumn(name = "concern_id")
-    )
-    private List<ConcernList> concerns = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "concern1_id")
+    private ConcernList concern1;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "concern2_id")
+    private ConcernList concern2;
+    
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "concern3_id")
+    private ConcernList concern3;
     
     @Column(name = "analysis_date")
     private java.time.LocalDateTime analysisDate;
@@ -51,7 +55,19 @@ public class Userskin extends BaseEntity {
     public Userskin(User user, MBTIList skinType, List<ConcernList> concerns) {
         this.user = user;
         this.skinType = skinType;
-        this.concerns = concerns != null ? concerns : new ArrayList<>();
+        if (concerns != null && !concerns.isEmpty()) {
+            this.concern1 = concerns.size() > 0 ? concerns.get(0) : null;
+            this.concern2 = concerns.size() > 1 ? concerns.get(1) : null;
+            this.concern3 = concerns.size() > 2 ? concerns.get(2) : null;
+        }
         this.analysisDate = java.time.LocalDateTime.now();
+    }
+    
+    public List<ConcernList> getConcerns() {
+        List<ConcernList> concerns = new ArrayList<>();
+        if (concern1 != null) concerns.add(concern1);
+        if (concern2 != null) concerns.add(concern2);
+        if (concern3 != null) concerns.add(concern3);
+        return concerns;
     }
 }
