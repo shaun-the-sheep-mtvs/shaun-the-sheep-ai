@@ -14,7 +14,7 @@ import org.mtvs.backend.skintype.entity.SkinType;
 public class MBTIList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Byte id;
 
     @Column(name = "mbti_code", nullable = false, unique = true)
     private String mbtiCode;

@@ -43,15 +43,16 @@ public class ProductService {
     private final UserskinService userskinService;
     private final ConcernMappingService concernMappingService;
     private final SkinTypeService skinTypeService;
+    private final FormulationService formulationService;
 
-    public List<ProductDTO> getProductsByFormulation(String userId, String formulation, int limit) {
+    public List<ProductDTO> getProductsByFormulation(String userId, Byte formulationId, int limit) {
         // userId 에 해당되는 Product 리스트 불러오기
         List<ProductDTO> productsByUserId = getProductsByUserId(userId);
         List<ProductDTO> productsByFormulation = new ArrayList<>();
 
         // productsByUserId 에서 특정 제형인 productDTO 생성
         for (ProductDTO product : productsByUserId) {
-            if (product.getFormulation().equals(formulation)) {
+            if (product.getFormulationId().equals(formulationId)) {
                 productsByFormulation.add(product);
             }
         }
@@ -68,11 +69,11 @@ public class ProductService {
 
         List<ProductDTO> selectedProducts = new ArrayList<>();
 
-        // 각 제형별로 3개씩 추가
-        selectedProducts.addAll(getProductsByFormulation(userId, "toner", 3));
-        selectedProducts.addAll(getProductsByFormulation(userId, "serum", 3));
-        selectedProducts.addAll(getProductsByFormulation(userId, "lotion", 3));
-        selectedProducts.addAll(getProductsByFormulation(userId, "cream", 3));
+        // 각 제형별로 3개씩 추가 (1=토너, 4=세럼, 5=로션, 3=크림)
+        selectedProducts.addAll(getProductsByFormulation(userId, (byte) 1, 3));
+        selectedProducts.addAll(getProductsByFormulation(userId, (byte) 4, 3));
+        selectedProducts.addAll(getProductsByFormulation(userId, (byte) 5, 3));
+        selectedProducts.addAll(getProductsByFormulation(userId, (byte) 3, 3));
         
         return ProductsWithUserInfoResponseDTO.create(userskinOpt.get(), selectedProducts);
     }
@@ -83,7 +84,7 @@ public class ProductService {
         List<ProductDTO> productDTOs = new ArrayList<>();
         for (Product product : products) {
             if (product.getProductName().toLowerCase().contains(query.toLowerCase())) {
-                productDTOs.add(fromEntity(product));
+                productDTOs.add(ProductDTO.fromEntity(product, formulationService));
             }
         }
         return productDTOs;
@@ -96,7 +97,7 @@ public class ProductService {
         for (Product product : products) {
             for (int i = 0; i < product.getIngredients().size(); i++) {
                 if (product.getIngredients().get(i).contains(query.toLowerCase())){
-                    productDTOs.add(fromEntity(product));
+                    productDTOs.add(ProductDTO.fromEntity(product, formulationService));
                 }
             }
         }
@@ -116,7 +117,7 @@ public class ProductService {
         // productIdList 에 해당되는 productId 에 연결된 product 객체를 반환해서
         // 이를 productDTO 리스트 객체로 반환
         for (ProductUserLink productUserLink : productIdList) {
-            productDTOs.add(fromEntity(productUserLink.getProduct()));
+            productDTOs.add(ProductDTO.fromEntity(productUserLink.getProduct(), formulationService));
         }
 
         return productDTOs;
@@ -195,7 +196,10 @@ public class ProductService {
             }
             dto.setIngredients(ingredients);
 
-            dto.setFormulation(formulation);
+            // Convert formulation string to ID
+            Byte formulationId = mapFormulationToId(formulation);
+            dto.setFormulationId(formulationId);
+            dto.setFormulation(formulation); // Set the string formulation for frontend compatibility
             dto.setImageUrl("");
 
             // Product 엔티티로 변환
@@ -281,5 +285,25 @@ public class ProductService {
      */
     public void saveProduct(JsonNode jsonNode, String userId, String formulation) {
         saveProduct(jsonNode, userId, formulation, new ArrayList<>());
+    }
+    
+    /**
+     * Map English formulation string to ID
+     * @param formulation English formulation string (toner, serum, lotion, cream, ampoule, mask, pad, skin)
+     * @return formulation ID (Byte)
+     */
+    private Byte mapFormulationToId(String formulation) {
+        switch (formulation.toLowerCase()) {
+            case "toner": return (byte) 1;
+            case "ampoule": 
+            case "ampule": return (byte) 2; // support both spellings
+            case "cream": return (byte) 3;
+            case "serum": return (byte) 4;
+            case "lotion": return (byte) 5;
+            case "mask": return (byte) 6;
+            case "pad": return (byte) 7;
+            case "skin": return (byte) 8;
+            default: return (byte) 1; // default to toner
+        }
     }
 }

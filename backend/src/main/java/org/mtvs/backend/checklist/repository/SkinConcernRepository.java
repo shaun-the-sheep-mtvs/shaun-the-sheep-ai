@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SkinConcernRepository extends JpaRepository<ConcernList, Long> {
+public interface SkinConcernRepository extends JpaRepository<ConcernList, Byte> {
     boolean existsByLabel(String label);
     Optional<ConcernList> findByLabel(String label);
     Optional<ConcernList> findByDescription(String description);

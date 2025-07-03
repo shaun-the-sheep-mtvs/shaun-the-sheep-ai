@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface SkinMBTIRepository extends JpaRepository<MBTIList, Long> {
+public interface SkinMBTIRepository extends JpaRepository<MBTIList, Byte> {
     boolean existsByMbtiCode(String mbtiCode);
     Optional<MBTIList> findByMbtiCode(String mbtiCode);
 } 

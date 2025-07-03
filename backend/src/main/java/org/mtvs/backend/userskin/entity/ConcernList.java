@@ -18,7 +18,7 @@ import jakarta.persistence.Column;
 public class ConcernList {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Byte id;
     
     @Column(name = "label", nullable = false)
     private String label;

@@ -23,8 +23,8 @@ public class Product extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    @Column(name = "formulation")
-    private String formulation;
+    @Column(name = "formulation_id")
+    private Byte formulationId;
 
     @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "ingredients", columnDefinition = "jsonb")
