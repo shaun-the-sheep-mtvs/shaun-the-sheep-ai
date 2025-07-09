@@ -53,6 +53,8 @@ export default function Home() {
   const [isGuest, setIsGuest] = useState(false);
   const [guestChecklist, setGuestChecklist] = useState<GuestChecklistData | null>(null);
 
+  
+
   const fetchNaverData = async () => {
     try {
       const token = localStorage.getItem('accessToken');
@@ -102,14 +104,27 @@ export default function Home() {
     return false;
   };
 
-  // Modify the initial useEffect to handle both guest and regular user data
+  // Guest and logged in user data
   useEffect(() => {
+    const APP_VERSION = '2024-06-05-b'; // Update this on each deploy
+
+    if (localStorage.getItem('app_version') !== APP_VERSION) {
+      localStorage.clear();
+      localStorage.setItem('app_version', APP_VERSION);
+      window.location.reload();
+    }
     const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
     
     // Check for guest data first
     const hasGuestData = checkGuestData();
-
+    
+    // Redirect to /landing if neither guest data nor token exists
+    if (!hasGuestData && !token) {
+      router.replace('/landing');
+      return;
+    }
+    
     // If no guest data, fetch regular user data
     if (!hasGuestData && token) {
       fetch(apiConfig.endpoints.checklist.base, {
@@ -219,12 +234,12 @@ export default function Home() {
       }
     }
   }, [isGuest]);
-
+  
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
     window.location.reload();
   }
-
+  
   // 한글 레이블 매핑
   const labels = {
     moisture:    '수분',
@@ -455,8 +470,11 @@ export default function Home() {
                         )}
                       </div>
                       <div className={styles.productName}>{p.name}</div>
-                      <div className={styles.productDesc}>{p.recommendedType}</div>
-                      <div className={styles.product}>{p.ingredients}</div>
+                      <div className={styles.productDesc}>{p.description}</div>
+                      <button className={styles.buyBtn}>
+                        <ShoppingBag className={styles.buttonIcon} />
+                        자세히 보기
+                      </button>
                     </div>
                   ))}
                 </div>

@@ -21,11 +21,39 @@ import {
 import Link from "next/link"
 import Image from "next/image"
 import styles from "./page.module.css"
+import ImageSlider from '@/components/ImageSlider'
+import { useRouter } from 'next/navigation'
+
+interface GraphItem {
+  name: string;
+  value: number;
+  color: string;
+  dotColor: string;
+}
+
+interface Checkpoint {
+  id: string
+  badge: string
+  title: string
+  description: string
+  images: string[]
+  reverse: boolean
+}
 
 export default function Home() {
   const [skinType, setSkinType] = useState("복합성")
   const [scanLineTop, setScanLineTop] = useState(0)
   const heroTextContainerRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
+
+  const initialGraphItems: GraphItem[] = [
+    { name: "수분 지수", value: 67, color: "#2ECC71", dotColor: "#2ECC71" },
+    { name: "유분 지수", value: 50, color: "#3498DB", dotColor: "#3498DB" },
+    { name: "민감도 지수", value: 33, color: "#E74C3C", dotColor: "#E74C3C" },
+    { name: "탄력 지수", value: 75, color: "#F39C12", dotColor: "#F39C12" },
+  ];
+
+  const [animatedGraphItems, setAnimatedGraphItems] = useState<GraphItem[]>(initialGraphItems);
 
   useEffect(() => {
     const types = ["건성", "지성", "복합성", "민감성", "중성"]
@@ -73,6 +101,19 @@ export default function Home() {
     return () => {
       cancelAnimationFrame(animationFrameId);
     }
+  }, []);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setAnimatedGraphItems(prevItems => 
+        prevItems.map(item => ({
+          ...item,
+          value: Math.floor(Math.random() * 81) + 20 // 20 ~ 100 사이의 랜덤 값
+        }))
+      );
+    }, 2500); // 2.5초마다 값 변경
+
+    return () => clearInterval(intervalId);
   }, []);
 
   const skinConcerns = [
@@ -134,53 +175,36 @@ export default function Home() {
     },
   ]
 
-  const checkpoints = [
+  const checkpoints: Checkpoint[] = [
     {
       id: "01",
       badge: "체크 포인트",
       title: "떠먹여 주는 나의 피부 상태 확인",
       description: "클릭 한번으로 내 피부 알아보기",
-      card: {
-        icon: <Brain className={styles.checkpointCardIcon} style={{color: 'var(--primary-color)'}}/>,
-        iconBg: `${styles.checkpointCardIconContainer} ${styles.checkpointCardIconContainerPink}`,
-        title: "피부 진단 결과",
-        innerBg: `${styles.checkpointCardInner} ${styles.checkpointCardInnerPink}`,
-        items: ["피부 타입 분석 완료", "문제점 파악", "맞춤 솔루션 제공"],
-      },
+      images: ["/images/checklist1.png", "/images/checklist2.png"],
       reverse: false,
     },
     {
       id: "02",
       badge: "체크 포인트",
-      title: "난 뭐가 뭔지 모르겠어",
-      description: "그럴 땐 AI 질문의 대답으로 알아가면 되지 !!",
-      card: {
-        icon: <Target className={styles.checkpointCardIcon} style={{color: 'var(--purple-accent)'}} />,
-        iconBg: `${styles.checkpointCardIconContainer} ${styles.checkpointCardIconContainerPurple}`,
-        title: "제품 추천",
-        innerBg: `${styles.checkpointCardInner} ${styles.checkpointCardInnerPurple}`,
-        products: [
-          { name: "추천 제품 1", score: 85 },
-          { name: "추천 제품 2", score: 70 },
-        ],
-      },
+      title: "맞춤형 제품 추천",
+      description: "AI가 분석한 나의 피부 상태에 맞는 제품을 추천해드려요",
+      images: ["/images/checkpoint2.png"],
       reverse: true,
     },
     {
       id: "03",
       badge: "체크 포인트",
-      title: "내가 사용하고 있는 제품을 검사 받아보자 !",
-      description: null,
-      card: {
-        icon: <Zap className={styles.checkpointCardIcon} style={{color: '#16A34A'}} />,
-        iconBg: `${styles.checkpointCardIconContainer} ${styles.checkpointCardIconContainerGreen}`,
-        title: "제품 분석",
-        innerBg: `${styles.checkpointCardInner} ${styles.checkpointCardInnerGreen}`,
-        analysis: true,
-      },
+      title: "제품 분석 리포트",
+      description: "현재 사용 중인 제품의 성분을 분석하고 피부에 맞는지 확인해보세요",
+      images: ["/images/checkpoint1.png", "/images/checkpoint3.png"],
       reverse: false,
-    },
+    }
   ]
+
+  const handleCtaClick = () => {
+    router.push('/checklist');
+  };
 
   return (
     <div className={styles.landingPageWrapper}>
@@ -188,12 +212,18 @@ export default function Home() {
       <header className={styles.header}>
         <div className={`${styles.container} ${styles.headerContainer}`}>
           <motion.div className={styles.logo} whileHover={{ scale: 1.05 }}>
-            <Droplet className={styles.logoIcon} />
-            <span className={styles.logoText}>스킨AI</span>
           </motion.div>
-          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-            <button className={styles.headerButton}>피부 진단하기</button>
-          </motion.div>
+          <div className={styles.logoContainer}>
+          <h1 className={styles.logo1}>Shaun</h1>
+        </div>
+          <div className={styles.headerButtons}>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link href="/register" className={styles.signupButton}>회원가입</Link>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+              <Link href="/login" className={styles.loginButton}>로그인</Link>
+            </motion.div>
+          </div>
         </div>
       </header>
 
@@ -239,49 +269,40 @@ export default function Home() {
                 </p>
               </motion.div>
             </div>
-            <div className={styles.heroImageContainer}>
-              <Image
-                src="data:image/svg+xml,%3Csvg width='600' height='600' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='600' height='600' fill='%23E6FAF5'/%3E%3C/svg%3E"
-                width={600}
-                height={600}
-                alt="피부 상담 이미지"
-                className={styles.heroImage}
-                priority
-              />
-              <div className={styles.heroImageOverlay}></div>
-              {[ { top: "30%", left: "30%" }, { top: "45%", left: "60%" }, { top: "65%", left: "40%" }].map((point, index) => (
-                <motion.div
-                  key={index}
-                  className="absolute w-6 h-6 rounded-full border-2 border-[#A0F0E0] flex items-center justify-center bg-white/50"
-                  style={{ top: point.top, left: point.left }}
-                  initial={{ scale: 0, opacity: 0 }}
-                  animate={{ scale: [0, 1.2, 1], opacity: [0, 1, 1] }}
-                  transition={{ duration: 1, delay: index * 0.5, repeat: Number.POSITIVE_INFINITY, repeatType: "mirror", repeatDelay: 3 }}
+            <div className={`${styles.heroImageContainer} ${styles.heroGraphContainer}`}> 
+              {animatedGraphItems.map((item, index) => (
+                <motion.div 
+                  key={item.name} 
+                  className={styles.graphItem}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
                 >
-                  <div className="w-2 h-2 bg-[#40DDBA] rounded-full"></div>
+                  <div className={styles.graphItemHeader}>
+                    <div style={{display: 'flex', alignItems: 'center'}}>
+                      <span 
+                        className={styles.graphItemDot} 
+                        style={{ backgroundColor: item.dotColor }}
+                      ></span>
+                      <span className={styles.graphItemName}>{item.name}</span>
+                    </div>
+                    <span 
+                      className={styles.graphItemValue}
+                      style={{ backgroundColor: item.color, color: 'white', padding: '4px 10px', borderRadius: '12px', fontSize: '13px', fontWeight: 'bold' }}
+                    >
+                      {item.value}%
+                    </span>
+                  </div>
+                  <div className={styles.graphItemBarBackground}>
+                    <motion.div 
+                      className={styles.graphItemBarForeground}
+                      style={{ backgroundColor: item.color }}
+                      animate={{ width: `${item.value}%` }}
+                      transition={{ duration: 0.8, ease: "easeInOut" }}
+                    />
+                  </div>
                 </motion.div>
               ))}
-               <motion.div
-                className="absolute bottom-8 right-8 bg-white/90 backdrop-blur-md rounded-xl p-3 shadow-lg border border-[#A0F0E0]"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.5 }}
-              >
-                <div className="flex items-center gap-2">
-                  <div className="w-8 h-8 bg-gradient-to-br from-[#40DDBA] to-[#2CAAA0] rounded-full flex items-center justify-center">
-                    <CheckCircle className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-xs font-medium text-gray-900">피부 분석 완료</p>
-                    <div className="flex items-center gap-0.5">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <Star key={star} className="h-2.5 w-2.5 text-yellow-400 fill-current" />
-                      ))}
-                      <span className="text-xs text-gray-500 ml-1">98% 정확도</span>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
             </div>
           </div>
         </div>
@@ -291,10 +312,10 @@ export default function Home() {
       <section className={`${styles.section} ${styles.skinConcernsSection}`}>
         <div className={styles.container}>
           <h2 className={styles.sectionTitle}>
-            <span className={styles.pinkGradientText}>어떤 피부에</span>해당 되시나요?
+            <span className={styles.pinkGradientText}>어떤 피부에</span> 해당되시나요?
           </h2>
           <p className={styles.sectionSubtitle}>
-            당신의 피부 타입과 고민에 맞는 솔루션을 제공해 드립니다
+            당신의 피부 타입과 고민에 맞는 솔루션을 제공해 드립니다.
           </p>
           <div className={styles.concernsGrid}>
             {skinConcerns.map((item, index) => (
@@ -395,85 +416,10 @@ export default function Home() {
                 <h3 className={styles.checkpointTitle} dangerouslySetInnerHTML={{ __html: cp.title.replace(/\n/g, "<br />") }}></h3>
                 {cp.description && <p className={styles.checkpointDescription} dangerouslySetInnerHTML={{ __html: cp.description.replace(/\n/g, "<br />") }}></p>}
               </div>
-              <div className={styles.checkpointCardContainer}>
-                <motion.div className={styles.checkpointCard} whileHover={{ scale: 1.02 }}>
-                  <div className={cp.card.innerBg}>
-                    <div className={styles.checkpointCardHeader}>
-                      <div className={cp.card.iconBg}>
-                        {cp.card.icon}
-                      </div>
-                      <span className={styles.checkpointCardTitle}>{cp.card.title}</span>
-                    </div>
-                    {cp.card.items && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        {cp.card.items.map((item, idx) => (
-                          <motion.div
-                            key={idx}
-                            className={styles.checkpointListItem}
-                            initial={{ opacity: 0, x: -20 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            transition={{ duration: 0.5, delay: idx * 0.1 }}
-                            viewport={{ once: true }}
-                          >
-                            <CheckCircle className={styles.checkpointListItemIcon} style={{width: '16px', height: '16px'}} />
-                            <span>{item}</span>
-                          </motion.div>
-                        ))}
-                      </div>
-                    )}
-                    {cp.card.products && (
-                       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        {cp.card.products.map((product, idx) => (
-                          <div key={idx} className={styles.productRecItem}>
-                            <div className={styles.productRecHeader}>
-                              <Star className={styles.productRecStarIcon} style={{width: '16px', height: '16px'}} />
-                              <span className={styles.productRecName}>{product.name}</span>
-                            </div>
-                            <div className={styles.productRecBarBg}>
-                              <motion.div
-                                className={styles.productRecBarFg}
-                                initial={{ width: 0 }}
-                                whileInView={{ width: `${product.score}%` }}
-                                transition={{ duration: 1, delay: idx * 0.2 }}
-                                viewport={{ once: true }}
-                              />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    {cp.card.analysis && (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                        <div className={styles.productAnalysisItem}>
-                          <div className={styles.productAnalysisHeader}>
-                            <span className={styles.productAnalysisTitle}>현재 사용 제품</span>
-                            <motion.span
-                              className={styles.productAnalysisStatus}
-                              animate={{ scale: [1, 1.05, 1] }}
-                              transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY }}
-                            >
-                              분석중
-                            </motion.span>
-                          </div>
-                          <div className={styles.productAnalysisPlaceholderGrid}>
-                            {[0, 1, 2].map((itemIdx) => (
-                              <motion.div
-                                key={itemIdx}
-                                className={styles.productAnalysisPlaceholderItem}
-                                animate={{ opacity: [0.6, 1, 0.6] }}
-                                transition={{ duration: 1.5, repeat: Number.POSITIVE_INFINITY, delay: itemIdx * 0.3 }}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                        <div className={styles.checkpointListItem} style={{ color: 'var(--primary-color)'}}>
-                          <CheckCircle style={{width: '16px', height: '16px'}} />
-                          <span>성분 분석 완료</span>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
+              <div className={styles.checkpointCardAndImageContainer}>
+                <div className={styles.checkpointImageWrapper}>
+                  <ImageSlider images={cp.images} />
+                </div>
               </div>
             </motion.div>
           ))}
@@ -492,7 +438,7 @@ export default function Home() {
             <h2 className={styles.ctaTitle}>지금 바로 시작하세요!</h2>
             <p className={styles.ctaSubtitle}>3분만에 맞춤형 피부 솔루션을 받아보세요</p>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <button className={styles.ctaButton}>
+              <button className={styles.ctaButton} onClick={handleCtaClick}>
                 무료로 체험해보기 <ChevronRight style={{width:'24px', height:'24px'}}/>
               </button>
             </motion.div>
@@ -504,8 +450,6 @@ export default function Home() {
       <footer className={styles.footer}>
         <div className={`${styles.container} ${styles.footerContainer}`}>
           <div className={styles.footerLogoContainer}>
-            <Droplet className={styles.footerLogoIcon} />
-            <span className={styles.footerLogoText}>스킨AI</span>
           </div>
           <div className={styles.footerLinks}>
             <Link href="#" className={styles.footerLink}>서비스 소개</Link>
@@ -514,7 +458,7 @@ export default function Home() {
           </div>
         </div>
         <div className={`${styles.container} ${styles.footerCopyright}`}>
-          © {new Date().getFullYear()} 스킨AI. All rights reserved.
+          © {new Date().getFullYear()} Shaun. All rights reserved.
         </div>
       </footer>
     </div>

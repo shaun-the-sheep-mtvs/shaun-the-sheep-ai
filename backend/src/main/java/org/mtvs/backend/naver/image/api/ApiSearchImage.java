@@ -30,8 +30,10 @@ public class ApiSearchImage {
     //쇼핑몰
     String apiURL = "https://openapi.naver.com/v1/search/shop.json" ;
 
-    public ApiSearchImage() {
+    //이미지검색 URL
+    String searchURL = "https://openapi.naver.com/v1/search/image";
 
+    public ApiSearchImage() {
     }
 
 
@@ -76,7 +78,7 @@ public class ApiSearchImage {
 
     public String reGet(String text) {
         System.out.println("GET SEND "+text);
-        String URL = this.apiURL+query+text+display+(displayLength+2)+"&sort=sim";
+        String URL = this.searchURL+query+text+display+(displayLength)+"&sort=sim";
         requestHeaders.put("X-Naver-Client-Id", clientId);
         requestHeaders.put("X-Naver-Client-Secret", clientSecret);
         HttpURLConnection con = connect(URL);
@@ -137,5 +139,5 @@ public class ApiSearchImage {
         return text;
     }
 
-
+    //
 }

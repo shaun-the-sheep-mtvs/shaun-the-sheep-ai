@@ -4,10 +4,21 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'         // npm install uuid
 import type { ChatMessageDTO } from '@/types/ChatMessageDTO'
-import { Send, User, Bot, X, PackageSearch, Droplet, AlertCircle, Smile } from 'lucide-react'
+import {
+  Send,
+  User,
+  Bot,
+  X,
+  PackageSearch,
+  Droplet,
+  AlertCircle,
+  Smile,
+} from 'lucide-react'
 import { usePathname } from 'next/navigation'
 import apiConfig from '@/config/api'
 import styles from './ChatWidget.module.css'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 export default function ChatWidget() {
   // ────────────────────────────────────────────────────────────────────────────
@@ -26,6 +37,11 @@ export default function ChatWidget() {
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
 
+  // ────────────────────────────────────────────────────────────────────────────
+  // 1-1) “클라이언트 마운트 여부” 플래그
+  // ────────────────────────────────────────────────────────────────────────────
+  const [mounted, setMounted] = useState(false)
+
   const inputRef = useRef<HTMLInputElement>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
 
@@ -35,20 +51,20 @@ export default function ChatWidget() {
   // ────────────────────────────────────────────────────────────────────────────
   // 2) “버블 클릭을 비활성화”할 조건 결정
   //    - 토큰이 없거나, 현재 경로가 /login 또는 /signup 일 때
+  //    - mounted 되기 전에는 항상 disabled
   // ────────────────────────────────────────────────────────────────────────────
-  // 로컬스토리지에서 토큰 직접 조회 (ChatWidget은 'use client'이므로 브라우저에서만 실행됨)
-  const token = typeof window !== 'undefined' ? localStorage.getItem('accessToken') : null
-
-  // 로그인 또는 회원가입 페이지 판단
+  let token: string | null = null
+  if (mounted) {
+    token = localStorage.getItem('accessToken')
+  }
   const isAuthPage = pathname === '/login' || pathname === '/signup'
-
-  // 토큰이 없거나 Auth 페이지이면 채팅버블 비활성
-  const isDisabled = !token || isAuthPage
+  const isDisabled = !mounted || !token || isAuthPage
 
   // ────────────────────────────────────────────────────────────────────────────
-  // 3) 마운트 시 한번만 sessionId 생성
+  // 3) 마운트 시 sessionId 생성 + mounted=true
   // ────────────────────────────────────────────────────────────────────────────
   useEffect(() => {
+    setMounted(true)              // ← 여기서 마운트 완료를 표시합니다.
     const newSession = uuidv4()
     setSessionId(newSession)
   }, [])
@@ -79,9 +95,7 @@ export default function ChatWidget() {
   }
 
   // ────────────────────────────────────────────────────────────────────────────
-  // 7) 퀵 액션 버튼 클릭: 
-  //    • sessionId 초기화(endpoint 호출) + 화면 메시지 리셋
-  //    • 비활성화 상태면 무시
+  // 7) 퀵 액션 버튼 클릭
   // ────────────────────────────────────────────────────────────────────────────
   const handleQuick = (key: string) => {
     if (isDisabled) return
@@ -107,6 +121,10 @@ export default function ChatWidget() {
     // 2) 화면 메시지 초기화 + 첫 안내 텍스트 세팅
     let promptText = ''
     switch (key) {
+      case 'TOTAL_REPORT':
+        promptText =
+          '추천 위클리 루틴을 작성해드리겠습니다.'
+        break
       case 'PRODUCT_INQUIRY':
         promptText =
           '제품 문의를 선택하셨습니다. 사용하시는 제품이 기억나지 않으시면, 외관·질감·향기 등을 설명해 주세요.'
@@ -135,7 +153,6 @@ export default function ChatWidget() {
       },
     ])
     setInput('')
-    // 화면이 다시 열릴 때 input에 포커스
     setTimeout(() => {
       inputRef.current?.focus()
     }, 0)
@@ -143,65 +160,62 @@ export default function ChatWidget() {
 
   // ────────────────────────────────────────────────────────────────────────────
   // 8) 질문 전송
-  //    • 비활성화 상태면 무시
-  //    • “userMessage”만 body로 보내기
   // ────────────────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
-    if (isDisabled) return
-    if (!input.trim() || loading) return
+  if (isDisabled) return;
+  if (!input.trim() || loading) return;
 
-    const userMsg: ChatMessageDTO = {
-      role: 'user',
-      content: input,
-      timestamp: new Date().toISOString(),
+  const userMsg: ChatMessageDTO = {
+    role: 'user',
+    content: input,
+    timestamp: new Date().toISOString(),
+  };
+
+  setMessages((prev) => [...prev, userMsg]);
+  setInput('');
+  setLoading(true);
+
+  try {
+    const url = new URL(apiConfig.endpoints.chat.base + '/ask');
+    url.searchParams.set('sessionId', sessionId);
+    if (templateKey) {
+      url.searchParams.set('templateKey', templateKey);
     }
 
-    // 1) 화면에 먼저 보여주기
-    setMessages(prev => [...prev, userMsg])
-    setInput('')
-    setLoading(true)
+    const token = localStorage.getItem('accessToken');
+    const res = await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ userMessage: userMsg.content }),
+    });
 
-    try {
-      // 2) /ask?sessionId=…&templateKey=…
-      const url = new URL(apiConfig.endpoints.chat.base + '/ask')
-      url.searchParams.set('sessionId', sessionId)
-      if (templateKey) {
-        url.searchParams.set('templateKey', templateKey)
-      }
-
-      const token = localStorage.getItem('accessToken')
-      const res = await fetch(url.toString(), {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ userMessage: userMsg.content }),
-      })
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status}`)
-      }
-      const aiDto = (await res.json()) as ChatMessageDTO
-      setMessages(prev => [...prev, aiDto])
-    } catch (err) {
-      console.error(err)
-      setMessages(prev => [
-        ...prev,
-        {
-          role: 'ai',
-          content: '서버가 이상이 생겼습니다. 잠시 후 다시 시도해주세요.',
-          timestamp: new Date().toISOString(),
-        },
-      ])
-    } finally {
-      setLoading(false)
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
     }
+
+    // 항상 AI가 반환하는 ChatMessageDTO를 받아서 화면에 추가
+    const aiDto = (await res.json()) as ChatMessageDTO;
+    setMessages((prev) => [...prev, aiDto]);
+  } catch (err) {
+    console.error(err);
+    setMessages((prev) => [
+      ...prev,
+      {
+        role: 'ai',
+        content: '서버가 이상이 생겼습니다. 잠시 후 다시 시도해주세요.',
+        timestamp: new Date().toISOString(),
+      },
+    ]);
+  } finally {
+    setLoading(false);
   }
+};
 
   // ────────────────────────────────────────────────────────────────────────────
   // 9) JSX 반환
-  //    • isDisabled 상태일 때 채팅창(window)는 렌더링하지 않습니다.
-  //    • 버블 <button>은 disabled 시 “cursor: not-allowed; opacity:0.5” 적용
   // ────────────────────────────────────────────────────────────────────────────
   return (
     <div className={styles.wrapper}>
@@ -237,6 +251,9 @@ export default function ChatWidget() {
               <Smile size={20} className={styles.headerIcon} />
               피부 타입
             </button>
+            <button onClick={() => handleQuick('TOTAL_REPORT')}>
+              위클리 루틴 추천
+            </button>
           </div>
 
           {/* 대화 내역 */}
@@ -250,7 +267,9 @@ export default function ChatWidget() {
                   {m.role === 'user' ? <User /> : <Bot />}
                 </div>
                 <div className={styles.messageBubble} style={{ whiteSpace: 'pre-line' }}>
-                  {m.content}
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                    {m.content}
+                  </ReactMarkdown>
                   <span className={styles.time}>
                     {new Date(m.timestamp).toLocaleTimeString([], {
                       hour: '2-digit',
@@ -260,6 +279,21 @@ export default function ChatWidget() {
                 </div>
               </div>
             ))}
+
+            {/* 로딩 버블 */}
+            {loading && (
+              <div className={styles.aiMsg}>
+                <div className={styles.avatar}>
+                  <Bot />
+                </div>
+                <div className={styles.loadingBubble}>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                  <span className={styles.dot}></span>
+                </div>
+              </div>
+            )}
+
             <div ref={messagesEndRef} />
           </div>
 
@@ -276,13 +310,17 @@ export default function ChatWidget() {
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
-              disabled={loading}
-              placeholder="질문을 입력하세요..."
+              disabled={loading || !templateKey}
+              placeholder={
+                templateKey
+                  ? '질문을 입력하세요...'
+                  : '먼저 질문하고 싶은 영역 선택해주세요'
+              }
               className={styles.input}
             />
             <button
               type="submit"
-              disabled={!input.trim() || loading}
+              disabled={!input.trim() || loading || !templateKey}
               className={styles.sendBtn}
             >
               <Send />
@@ -308,5 +346,3 @@ export default function ChatWidget() {
     </div>
   )
 }
-
-

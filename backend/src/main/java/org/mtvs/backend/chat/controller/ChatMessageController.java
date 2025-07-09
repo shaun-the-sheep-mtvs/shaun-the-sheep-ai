@@ -1,10 +1,10 @@
 package org.mtvs.backend.chat.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.chat.dto.ChatMessageDTO;
 import org.mtvs.backend.chat.entity.ChatMessage;
+import org.mtvs.backend.chat.entity.Prompt_Type;
 import org.mtvs.backend.chat.service.ChatMessageService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -30,6 +30,10 @@ public class ChatMessageController {
         entity.setUserId(dto.getUserId());
         entity.setId(dto.getId());
         entity.setRole(dto.getRole());
+        if (dto.getPromptType() != null) {
+            // null 체크 후 enum 변환
+            entity.setPromptType(Prompt_Type.valueOf(dto.getPromptType()));
+        }
         entity.setContent(dto.getContent());
         entity.setTimestamp(dto.getTimestamp());
         return entity;
@@ -51,13 +55,16 @@ public class ChatMessageController {
     }
 
     @PostMapping
-    public ChatMessageDTO createMessage(
+    public ResponseEntity<ChatMessageDTO> createMessage(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestBody ChatMessageDTO dto
     ) {
-        dto.setUserId(userDetails.getUserId());        // ← 여기서 덮어쓰기
+        // userId 덮어쓰기
+        dto.setUserId(userDetails.getUserId());
+
+        // 예: 프론트가 보낸 promptType 문자열이 "PRODUCT"라면 Prompt_Type.PRODUCT가 저장됨
         ChatMessage saved = chatMessageService.save(toEntity(dto));
-        return toDTO(saved);
+        return ResponseEntity.ok(saved.toDTO());
     }
 
 //    @PostMapping("/bulk")
@@ -104,7 +111,7 @@ public class ChatMessageController {
     }
 
     @PostMapping("/ask")
-    public ResponseEntity<ChatMessageDTO> askAI(
+    public ResponseEntity<?> askAI(
             @AuthenticationPrincipal CustomUserDetails userDetails,
             @RequestParam("sessionId") String sessionId,
             @RequestParam(value = "templateKey", required = false) String templateKey,
@@ -113,32 +120,50 @@ public class ChatMessageController {
         String userId = userDetails.getUserId();
         String userQuestion = body.get("userMessage");
 
-        // 1) sessionId가 누락되었거나 빈 문자열이라면, Bad Request로 리턴
+        // 1) sessionId 검증
         if (sessionId == null || sessionId.isBlank()) {
-            ChatMessageDTO errorDto = new ChatMessageDTO();
-                     errorDto.setRole("ai");
-                     errorDto.setContent("세션이 유효하지 않습니다. 다시 시도해주세요.");
-                     errorDto.setTimestamp(LocalDateTime.now());
-            return ResponseEntity.badRequest().body(errorDto);
+            return ResponseEntity
+                    .badRequest()
+                    .body(Map.of("error", "세션이 유효하지 않습니다. 다시 시도해주세요."));
         }
-
-        // 2) AI 호출 (서비스 레이어에서 sessionId를 이용해 캐싱된 히스토리＋프롬프트를 결합)
+        if ("TOTAL_REPORT".equals(templateKey)) {
+            ChatMessage userMsgEntity = new ChatMessage();
+            userMsgEntity.setUserId(userId);
+            userMsgEntity.setRole("user");
+            userMsgEntity.setContent(userQuestion);
+            userMsgEntity.setTimestamp(LocalDateTime.now());
+            // promptType은 TOTAL_REPORT이므로 Prompt_Type.TOTAL로 설정
+            userMsgEntity.setPromptType(Prompt_Type.TOTAL);
+            chatMessageService.save(userMsgEntity);
+        }
+        // 2) AI 호출 (서비스 레이어)
         ChatMessage aiMsg = chatMessageService.askAI_Single(sessionId, userId, userQuestion);
 
-        // 3) AI 텍스트가 5줄 요약 형식이라면 DB에 저장
-        String text = aiMsg.getContent();
-        long lines = text.lines().count();
-        boolean isSummary = lines == 5 && text.startsWith("1) 피부 타입:");
-        if (isSummary) {
-            aiMsg = chatMessageService.save(aiMsg);
+        Prompt_Type pt = Prompt_Type.TOTAL;
+        if (templateKey != null) {
+            switch (templateKey) {
+                case "PRODUCT_INQUIRY":     pt = Prompt_Type.PRODUCT;    break;
+                case "INGREDIENT_INQUIRY":  pt = Prompt_Type.INGREDIENT; break;
+                case "SKIN_TYPE":           pt = Prompt_Type.SKIN_TYPE;  break;
+                case "TOTAL_REPORT":        pt = Prompt_Type.TOTAL;      break;
+            }
         }
+        aiMsg.setPromptType(pt);
+        chatMessageService.handleAiResponseAndMaybeSaveMd(sessionId, aiMsg, templateKey);
 
-        // 4) DTO로 변환 후 반환
+        // 5) 그 외 템플릿인 경우 → ChatMessageDTO 반환
         ChatMessageDTO responseDto = new ChatMessageDTO();
         responseDto.setId(aiMsg.getId());
         responseDto.setUserId(aiMsg.getUserId());
         responseDto.setRole(aiMsg.getRole());
         responseDto.setContent(aiMsg.getContent());
+        responseDto.setTimestamp(aiMsg.getTimestamp());
+
+        if ("TOTAL_REPORT".equals(templateKey)) {
+            aiMsg.getContent();
+        } else {
+            responseDto.setContent(aiMsg.getContent());
+        }
         responseDto.setTimestamp(aiMsg.getTimestamp());
 
         return ResponseEntity.ok(responseDto);

@@ -1,7 +1,6 @@
 package org.mtvs.backend.chat.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -14,6 +13,7 @@ public class ChatMessageDTO {
     private String userId;
     private Long id;
     private String role;
+    private String promptType;
     private String content;
     private LocalDateTime timestamp;
 }
