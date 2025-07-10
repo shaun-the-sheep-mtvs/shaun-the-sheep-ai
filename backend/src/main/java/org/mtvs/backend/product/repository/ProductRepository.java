@@ -11,8 +11,11 @@ import java.util.List;
 
 public interface ProductRepository extends JpaRepository<Product, String> {
 
-    @Query("SELECT EXISTS (SELECT 1 FROM Product p WHERE p.productName = :productName AND p.imageUrl IS NOT NULL)")
+    @Query("SELECT EXISTS (SELECT 1 FROM Product p WHERE p.productName = :productName AND p.imageUrl IS NOT NULL AND p.imageUrl != 'x' AND p.imageUrl != '')")
     boolean existsImageUrlByProductName(@Param("productName") String productName);
+    
+    @Query("SELECT p FROM Product p WHERE (p.imageUrl IS NULL OR p.imageUrl = 'x' OR p.imageUrl = '')")
+    List<Product> findProductsWithoutValidImageUrl();
 
     Product findByProductName(String productName);
 

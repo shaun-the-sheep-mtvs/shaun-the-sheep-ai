@@ -9,10 +9,10 @@ import java.util.List;
 @Getter
 @Setter
 public class ProblemDto {
-    private User.SkinType skinType;
+    private String skinType;
     private List<String> troubles;
 
-    public ProblemDto(User.SkinType skinType, List<String> troubles) {
+    public ProblemDto(String skinType, List<String> troubles) {
         this.skinType = skinType;
         this.troubles = troubles;
     }

@@ -33,6 +33,8 @@ public class CheckListController {
             @RequestBody CheckListRequest req,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        log.info("Received checklist request - troubles: {}", req.getTroubles());
+        
         //체크리스트 저장 (DB에 저장)
         CheckListResponse result = service.create(req, userDetails.getUsername());
         //recommend 컨트롤러에 전달 하여 추천 알고리즘 실행

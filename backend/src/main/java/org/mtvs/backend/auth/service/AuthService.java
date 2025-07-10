@@ -86,16 +86,16 @@ public class AuthService {
      * 로그인 - 액세스 토큰과 리프레시 토큰 모두 반환
      */
     public AuthResponse login(LoginRequest dto) {
-        log.info("[로그인] 서비스 호출 : 이메일={}", dto.getEmail());
+        log.info("[로그인] 서비스 호출 : 사용자명={}", dto.getUsername());
 
-        User user = userRepository.findByEmail(dto.getEmail())
+        User user = userRepository.findByUsername(dto.getUsername())
                 .orElseThrow(() -> {
-                    log.warn("[로그인] 실패 - 존재하지 않는 사용자 : 이메일={}", dto.getEmail());
+                    log.warn("[로그인] 실패 - 존재하지 않는 사용자 : 사용자명={}", dto.getUsername());
                     return new RuntimeException("존재하지 않는 사용자입니다.");
                 });
 
         if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
-            log.warn("[로그인] 실패 - 비밀번호 불일치 : 이메일={}", dto.getEmail());
+            log.warn("[로그인] 실패 - 비밀번호 불일치 : 사용자명={}", dto.getUsername());
             throw new RuntimeException("비밀번호가 일치하지 않습니다.");
         }
 
@@ -103,7 +103,7 @@ public class AuthService {
         String accessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getUsername(), user.getId());
         String refreshToken = jwtUtil.generateRefreshToken(user.getEmail());
 
-        log.info("[로그인] 완료 : 이메일={}", dto.getEmail());
+        log.info("[로그인] 완료 : 사용자명={}", dto.getUsername());
         return new AuthResponse(accessToken, refreshToken);
     }
 
@@ -121,17 +121,17 @@ public class AuthService {
             }
 
             // 리프레시 토큰에서 사용자 정보 추출
-            String email = jwtUtil.getSubjectFromToken(refreshToken);
+            String username = jwtUtil.getSubjectFromToken(refreshToken);
 
             // 사용자 존재 확인
-            User user = userRepository.findByEmail(email)
+            User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
             // 새로운 토큰 생성
             String newAccessToken = jwtUtil.generateAccessToken(user.getEmail(), user.getUsername(), user.getId());
-            String newRefreshToken = jwtUtil.generateRefreshToken(user.getEmail());
+            String newRefreshToken = jwtUtil.generateRefreshToken(user.getUsername());
 
-            log.info("[토큰 갱신] 완료 : 이메일={}", email);
+            log.info("[토큰 갱신] 완료 : 사용자명={}", username);
             return new AuthResponse(newAccessToken, newRefreshToken);
 
         } catch (Exception e) {

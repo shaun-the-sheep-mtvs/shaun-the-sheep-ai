@@ -14,12 +14,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
   flyway:
+    enabled: false
     baseline-on-migrate: true
     baseline-version: 1
 chat:

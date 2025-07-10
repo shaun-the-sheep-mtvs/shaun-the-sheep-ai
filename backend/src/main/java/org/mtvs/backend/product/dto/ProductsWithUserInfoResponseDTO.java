@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.mtvs.backend.product.entity.Product;
 import org.mtvs.backend.user.entity.User;
+import org.mtvs.backend.userskin.entity.Userskin;
 
 import java.util.List;
 
@@ -18,8 +19,8 @@ public class ProductsWithUserInfoResponseDTO {
     private UserInfoDTO userInfo;
     private List<ProductDTO> products;
 
-    public static ProductsWithUserInfoResponseDTO create(User user, List<ProductDTO> products) {
-        UserInfoDTO userInfo = UserInfoDTO.fromUser(user);
+    public static ProductsWithUserInfoResponseDTO create(Userskin userskin, List<ProductDTO> products) {
+        UserInfoDTO userInfo = UserInfoDTO.fromUserskin(userskin);
         return new ProductsWithUserInfoResponseDTO(userInfo, products);
     }
 }
