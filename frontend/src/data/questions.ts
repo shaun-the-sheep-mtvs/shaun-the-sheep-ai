@@ -353,7 +353,7 @@ export const QUESTIONS: Question[] = [
       { label: "약간 그렇다", score: 1 },
       { label: "보통이다",   score:  2 },
       { label: "자주 그렇다", score: 3 },
-      { label: "항상 그렇다", score: 4 }
+    { label: "항상 그렇다", score: 4 }
     ],
   },
   {

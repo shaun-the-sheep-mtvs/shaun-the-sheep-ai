@@ -44,6 +44,13 @@ interface GuestChecklistData {
   tension: number;
   troubles: string[];
   timestamp: number;
+  mbtiCode?: string;
+  mbtiId?: number;
+  mbtiDescription?: string;
+  skinTypeId?: number;
+  skinTypeName?: string;
+  skinTypeDescription?: string;
+  concerns?: Array<{id: number, label: string, description: string}>;
 }
 
 export default function ChecklistPage() {
@@ -169,11 +176,45 @@ const percent = (cat: Category) => {
       };
 
       if (isGuest) {
-        // For guests, store in session storage
+        // For guests, submit to backend and store enhanced data in session storage
+        const token = localStorage.getItem('accessToken');
+        if (!token) {
+          console.error('No guest token available');
+          return false;
+        }
+
+        // Submit to backend guest endpoint
+        const res = await fetch(apiConfig.endpoints.checklist.guest, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(checklistData),
+        });
+
+        if (!res.ok) {
+          console.error('게스트 체크리스트 제출 실패:', await res.text());
+          return false;
+        }
+
+        // Get backend analysis result
+        const analysisResult = await res.json();
+        
+        // Create enhanced guest data with backend results
         const guestData: GuestChecklistData = {
           ...checklistData,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          mbtiCode: analysisResult.mbtiCode,
+          mbtiId: analysisResult.mbtiId,
+          mbtiDescription: analysisResult.mbtiDescription,
+          skinTypeId: analysisResult.skinTypeId,
+          skinTypeName: analysisResult.skinTypeName,
+          skinTypeDescription: analysisResult.skinTypeDescription,
+          concerns: analysisResult.concerns
         };
+
+        // Store in session storage
         sessionStorage.setItem('guestChecklistData', JSON.stringify(guestData));
         return true;
       } else {

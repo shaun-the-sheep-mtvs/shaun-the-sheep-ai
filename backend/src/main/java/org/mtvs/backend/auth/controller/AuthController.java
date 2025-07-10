@@ -7,19 +7,21 @@ import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.service.AuthService;
 import org.mtvs.backend.auth.util.JwtUtil;
-import org.mtvs.backend.session.GuestData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import jakarta.servlet.http.HttpSession;
 
-@Slf4j
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthController.class);
+    
     private final AuthService authService;
     private final JwtUtil jwtUtil;
 
@@ -30,7 +32,7 @@ public class AuthController {
     public ResponseEntity<?> signup(@RequestBody SignupRequest dto) {
         log.info("[회원가입] 요청 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
         try {
-            authService.signup(dto, null);
+            authService.signup(dto);
             log.info("[회원가입] 성공 : 이메일={}", dto.getEmail());
             return ResponseEntity.ok("회원가입 성공");
         } catch (RuntimeException e) {

@@ -13,6 +13,8 @@ import java.util.List;
 import org.mtvs.backend.session.GuestData;
 import java.util.Map;
 import jakarta.servlet.http.HttpSession;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Slf4j
 @RestController
@@ -21,6 +23,8 @@ public class CheckListController {
 
     private final CheckListService service;
     private final RecommendController recommendController;
+    
+    // private static final Logger log = LoggerFactory.getLogger(CheckListController.class);
 
     public CheckListController(CheckListService service, RecommendController recommendController) {
         this.service = service;
@@ -69,29 +73,26 @@ public class CheckListController {
                 .orElseGet(() -> ResponseEntity.ok(new CheckListResponse()));  // 빈 DTO( troubles = null or empty )
     }
 
-    // /** 게스트 체크리스트 제출 */
-    // @PostMapping("/guest")
-    // public ResponseEntity<?> guestChecklist(@RequestBody GuestData guestData, HttpSession session) {
-    //     // 1. MBTI 코드 계산
-    //     String mbtiCode = service.calculateMbtiForGuest(guestData);
-    //     // 2. SkinType 조회 (한글명 반환)
-    //     String skinType = service.getSkinTypeForMbti(mbtiCode);
+    /** 게스트 체크리스트 제출 */
+    @PostMapping("/guest")
+    public ResponseEntity<?> guestChecklist(@RequestBody GuestData guestData, HttpSession session) {
+        // 1. MBTI 분석 및 피부타입 조회
+        Map<String, Object> result = service.analyzeGuestSkin(guestData);
+        
+        // 2. 세션에 게스트 데이터 저장
+        session.setAttribute("guestChecklist", guestData);
+        session.setAttribute("guestAnalysis", result);
 
-    //     // 3. (Optional) Save guest checklist to session
-    //     session.setAttribute("guestChecklist", guestData);
+        // 3. 추천 진단 로직 호출
+        recommendController.diagnoseGuest(guestData, result, session);
 
-    //     // 4. Call recommendation/diagnosis logic for guest
-    //     recommendController.diagnoseGuest(guestData, mbtiCode, skinType, session);
+        // 4. 로그 출력
+        log.info("Guest checklist submitted: mbti={}, skinType={}", 
+            result.get("mbtiCode"), result.get("skinTypeName"));
 
-    //     // 5. Log the result
-    //     log.info("Guest checklist submitted: mbti={}, skinType={}", mbtiCode, skinType);
-
-    //     // 6. Return result
-    //     return ResponseEntity.ok(Map.of(
-    //         "mbti", mbtiCode,
-    //         "skinType", skinType
-    //     ));
-    // }
+        // 5. 결과 반환
+        return ResponseEntity.ok(result);
+    }
 }
 
 

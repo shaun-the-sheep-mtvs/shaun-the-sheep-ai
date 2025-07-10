@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -143,6 +144,22 @@ public class RecommendController {
         // 토큰에 있는 유저 Id 사용
         String userId = customUserDetail.getUser().getId();
         return productService.getBalancedRecommendations(userId);
+    }
+
+    /**
+     * 게스트 추천 진단 처리
+     */
+    public void diagnoseGuest(org.mtvs.backend.session.GuestData guestData, 
+                            Map<String, Object> analysisResult, 
+                            jakarta.servlet.http.HttpSession session) {
+        // 게스트 분석 결과를 세션에 저장
+        session.setAttribute("guestAnalysisResult", analysisResult);
+        session.setAttribute("guestMbtiCode", analysisResult.get("mbtiCode"));
+        session.setAttribute("guestSkinType", analysisResult.get("skinTypeName"));
+        
+        // 로그 출력
+        System.out.println("Guest diagnosis completed - MBTI: " + analysisResult.get("mbtiCode") + 
+                          ", SkinType: " + analysisResult.get("skinTypeName"));
     }
 }
 

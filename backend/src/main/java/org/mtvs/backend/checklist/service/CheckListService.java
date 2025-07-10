@@ -12,12 +12,17 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.mtvs.backend.session.GuestData;
 import org.mtvs.backend.userskin.service.UserskinService;
+import org.mtvs.backend.userskin.entity.MBTIList;
+import org.mtvs.backend.userskin.entity.ConcernList;
+import org.mtvs.backend.userskin.repository.SkinMBTIRepository;
+import org.mtvs.backend.userskin.repository.SkinConcernRepository;
+import org.mtvs.backend.skintype.entity.SkinType;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
+import java.util.ArrayList;
 
 
 @Service
@@ -29,26 +34,10 @@ public class CheckListService {
     private CheckListRepository checkListRepo;
     @Autowired
     private UserskinService userskinService;
-
-//    // Static MBTI code to SkinType mapping
-//    private static final Map<String, User.SkinType> MBTI_TO_SKIN_TYPE = Map.ofEntries(
-//        Map.entry("DBIL", User.SkinType.건성),
-//        Map.entry("DBIT", User.SkinType.건성),
-//        Map.entry("DBSL", User.SkinType.건성),
-//        Map.entry("DBST", User.SkinType.건성),
-//        Map.entry("DOIL", User.SkinType.수분부족지성),
-//        Map.entry("DOIT", User.SkinType.수분부족지성),
-//        Map.entry("DOSL", User.SkinType.수분부족지성),
-//        Map.entry("DOST", User.SkinType.수분부족지성),
-//        Map.entry("MBIL", User.SkinType.복합성),
-//        Map.entry("MBIT", User.SkinType.복합성),
-//        Map.entry("MBSL", User.SkinType.민감성),
-//        Map.entry("MBST", User.SkinType.민감성),
-//        Map.entry("MOIL", User.SkinType.지성),
-//        Map.entry("MOIT", User.SkinType.지성),
-//        Map.entry("MOSL", User.SkinType.민감성),
-//        Map.entry("MOST", User.SkinType.민감성)
-//    );
+    @Autowired
+    private SkinMBTIRepository skinMBTIRepository;
+    @Autowired
+    private SkinConcernRepository skinConcernRepository;
 
     @Transactional
     public CheckListResponse create(CheckListRequest req, String username) {
@@ -154,9 +143,61 @@ public class CheckListService {
         });
     }
 
-//    // MBTI 코드로 한글 SkinType 반환
-//    public String getSkinTypeForMbti(String mbtiCode) {
-//        User.SkinType type = MBTI_TO_SKIN_TYPE.get(mbtiCode);
-//        return type != null ? type.name() : "알 수 없음";
-//    }
+    /**
+     * 게스트 피부 분석 - MBTI 계산 및 관심사 처리
+     */
+    public Map<String, Object> analyzeGuestSkin(GuestData guestData) {
+        // 1. MBTI 코드 계산
+        String mbtiCode = calculateMbtiCode(
+            guestData.getMoisture(),
+            guestData.getOil(),
+            guestData.getSensitivity(),
+            guestData.getTension()
+        );
+        
+        // 2. MBTI 엔티티 조회
+        Optional<MBTIList> mbtiEntity = skinMBTIRepository.findByMbtiCode(mbtiCode);
+        if (mbtiEntity.isEmpty()) {
+            throw new RuntimeException("MBTI 코드를 찾을 수 없습니다: " + mbtiCode);
+        }
+        
+        MBTIList mbti = mbtiEntity.get();
+        SkinType skinType = mbti.getSkinType();
+        
+        // 3. 관심사 처리 (최대 3개)
+        List<Map<String, Object>> concernsData = new ArrayList<>();
+        if (guestData.getTroubles() != null && !guestData.getTroubles().isEmpty()) {
+            List<String> troubleList = guestData.getTroubles().size() > 3 ? 
+                guestData.getTroubles().subList(0, 3) : guestData.getTroubles();
+            
+            for (String troubleLabel : troubleList) {
+                Optional<ConcernList> concernOpt = skinConcernRepository.findByLabel(troubleLabel);
+                if (concernOpt.isEmpty()) {
+                    concernOpt = skinConcernRepository.findByDescription(troubleLabel);
+                }
+                
+                if (concernOpt.isPresent()) {
+                    ConcernList concern = concernOpt.get();
+                    Map<String, Object> concernData = new HashMap<>();
+                    concernData.put("id", concern.getId());
+                    concernData.put("label", concern.getLabel());
+                    concernData.put("description", concern.getDescription());
+                    concernsData.add(concernData);
+                }
+            }
+        }
+        
+        // 4. 결과 구성
+        Map<String, Object> result = new HashMap<>();
+        result.put("mbtiCode", mbtiCode);
+        result.put("mbtiId", mbti.getId());
+        result.put("mbtiDescription", mbti.getDescription());
+        result.put("skinTypeId", skinType.getId());
+        result.put("skinTypeName", skinType.getKoreanName());
+        result.put("skinTypeDescription", skinType.getDescription());
+        result.put("concerns", concernsData);
+        
+        return result;
+    }
+
 }

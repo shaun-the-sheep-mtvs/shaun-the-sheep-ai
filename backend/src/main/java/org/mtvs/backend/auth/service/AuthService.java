@@ -1,7 +1,6 @@
 package org.mtvs.backend.auth.service;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.mtvs.backend.auth.dto.AuthResponse;
 import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
@@ -11,30 +10,42 @@ import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.checklist.model.CheckList;
 import org.mtvs.backend.checklist.repository.CheckListRepository;
-import org.mtvs.backend.session.GuestData;
+import org.mtvs.backend.userskin.entity.Userskin;
+import org.mtvs.backend.userskin.entity.MBTIList;
+import org.mtvs.backend.userskin.entity.ConcernList;
+import org.mtvs.backend.userskin.repository.UserskinRepository;
+import org.mtvs.backend.userskin.repository.SkinMBTIRepository;
+import org.mtvs.backend.userskin.repository.SkinConcernRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.ArrayList;
 
 @Service
-@Slf4j
 @RequiredArgsConstructor
 public class AuthService {
 
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+    
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
     private final CheckListRepository checkListRepository;
+    private final UserskinRepository userskinRepository;
+    private final SkinMBTIRepository skinMBTIRepository;
+    private final SkinConcernRepository skinConcernRepository;
 
     /**
      * 회원가입
      *
      * @return
      */
-    public User signup(SignupRequest dto, GuestData guestData) {
+    public User signup(SignupRequest dto) {
         log.info("[회원 가입] 서비스 호출 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
 
         // 이메일 존재 여부 확인
@@ -53,27 +64,67 @@ public class AuthService {
         // Handle guest data from request if present
         if (dto.getGuestData() != null) {
             try {
+                Map<String, Object> guestDataMap = dto.getGuestData();
+                
+                // Create CheckList for raw data (backwards compatibility)
                 CheckList checkList = new CheckList();
                 checkList.setUser(user);
-                
-                // Extract data from guestData map
-                Map<String, Object> guestDataMap = dto.getGuestData();
                 checkList.setMoisture(((Number) guestDataMap.get("moisture")).intValue());
                 checkList.setOil(((Number) guestDataMap.get("oil")).intValue());
                 checkList.setSensitivity(((Number) guestDataMap.get("sensitivity")).intValue());
                 checkList.setTension(((Number) guestDataMap.get("tension")).intValue());
                 
-                // Handle troubles list
                 @SuppressWarnings("unchecked")
                 List<String> troubles = (List<String>) guestDataMap.get("troubles");
                 if (troubles != null) {
                     checkList.setTroubles(troubles);
                 }
-                
                 checkListRepository.save(checkList);
+                
+                // Create Userskin entity with proper relationships if enhanced data is available
+                if (guestDataMap.get("mbtiId") != null && guestDataMap.get("concerns") != null) {
+                    // Deactivate any existing active userskin
+                    Optional<Userskin> existingUserskin = userskinRepository.findByUserAndIsActiveTrue(user);
+                    existingUserskin.ifPresent(userskin -> {
+                        userskin.setIsActive(false);
+                        userskinRepository.save(userskin);
+                    });
+                    
+                    // Get MBTI entity by ID
+                    Byte mbtiId = ((Number) guestDataMap.get("mbtiId")).byteValue();
+                    Optional<MBTIList> mbtiEntity = skinMBTIRepository.findById(mbtiId);
+                    
+                    if (mbtiEntity.isPresent()) {
+                        Userskin userskin = new Userskin(user);
+                        userskin.setSkinType(mbtiEntity.get());
+                        
+                        // Set concerns from guest data
+                        @SuppressWarnings("unchecked")
+                        List<Map<String, Object>> concernsData = (List<Map<String, Object>>) guestDataMap.get("concerns");
+                        if (concernsData != null && !concernsData.isEmpty()) {
+                            List<ConcernList> concerns = new ArrayList<>();
+                            for (Map<String, Object> concernData : concernsData) {
+                                Byte concernId = ((Number) concernData.get("id")).byteValue();
+                                Optional<ConcernList> concernEntity = skinConcernRepository.findById(concernId);
+                                concernEntity.ifPresent(concerns::add);
+                            }
+                            
+                            // Set up to 3 concerns
+                            if (concerns.size() > 0) userskin.setConcern1(concerns.get(0));
+                            if (concerns.size() > 1) userskin.setConcern2(concerns.get(1));
+                            if (concerns.size() > 2) userskin.setConcern3(concerns.get(2));
+                        }
+                        
+                        userskinRepository.save(userskin);
+                        log.info("[회원 가입] 게스트 Userskin 데이터 마이그레이션 완료 : 이메일={}, MBTI ID={}", 
+                            dto.getEmail(), mbtiId);
+                    }
+                }
+                
                 log.info("[회원 가입] 게스트 데이터 마이그레이션 완료 : 이메일={}", dto.getEmail());
             } catch (Exception e) {
                 log.error("[회원 가입] 게스트 데이터 마이그레이션 실패 : 이메일={}, error={}", dto.getEmail(), e.getMessage());
+                e.printStackTrace();
                 // Don't throw exception - allow signup to complete even if guest data migration fails
             }
         }
