@@ -6,6 +6,7 @@ import org.mtvs.backend.checklist.dto.CheckListRequest;
 import org.mtvs.backend.checklist.dto.CheckListResponse;
 import org.mtvs.backend.checklist.service.CheckListService;
 import org.mtvs.backend.recommend.controller.RecommendController;
+import org.mtvs.backend.guestrecommend.service.GuestRecommendService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -23,26 +24,29 @@ public class CheckListController {
 
     private final CheckListService service;
     private final RecommendController recommendController;
+    private final GuestRecommendService guestRecommendService;
     
     // private static final Logger log = LoggerFactory.getLogger(CheckListController.class);
 
-    public CheckListController(CheckListService service, RecommendController recommendController) {
+    public CheckListController(CheckListService service, RecommendController recommendController, GuestRecommendService guestRecommendService) {
         this.service = service;
         this.recommendController = recommendController;
+        this.guestRecommendService = guestRecommendService;
     }
 
     /** 체크리스트 저장 */
     @PostMapping
     public CheckListResponse create(
             @RequestBody CheckListRequest req,
-            @AuthenticationPrincipal CustomUserDetails userDetails
+            @AuthenticationPrincipal CustomUserDetails userDetails,
+            HttpSession session
     ) {
         log.info("Received checklist request - troubles: {}", req.getTroubles());
         
         //체크리스트 저장 (DB에 저장)
         CheckListResponse result = service.create(req, userDetails.getUsername());
         //recommend 컨트롤러에 전달 하여 추천 알고리즘 실행
-        recommendController.diagnose(userDetails);
+        recommendController.diagnose(userDetails, session);
 
         return result;
     }
@@ -83,14 +87,27 @@ public class CheckListController {
         session.setAttribute("guestChecklist", guestData);
         session.setAttribute("guestAnalysis", result);
 
-        // 3. 추천 진단 로직 호출
+        // 3. 추천 진단 로직 호출 (기존 방식과 새로운 방식 모두 사용)
         recommendController.diagnoseGuest(guestData, result, session);
+        
+        // 4. 새로운 게스트 추천 서비스 호출
+        try {
+            @SuppressWarnings("unchecked")
+            List<String> concernDescriptions = (List<String>) result.get("concernDescriptions");
+            guestRecommendService.generateRecommendationsFromAnalysis(
+                (String) result.get("skinTypeName"), 
+                concernDescriptions != null ? concernDescriptions : List.of(), 
+                session
+            );
+        } catch (Exception e) {
+            log.warn("Failed to generate guest recommendations via new service: {}", e.getMessage());
+        }
 
-        // 4. 로그 출력
+        // 5. 로그 출력
         log.info("Guest checklist submitted: mbti={}, skinType={}", 
             result.get("mbtiCode"), result.get("skinTypeName"));
 
-        // 5. 결과 반환
+        // 6. 결과 반환
         return ResponseEntity.ok(result);
     }
 }

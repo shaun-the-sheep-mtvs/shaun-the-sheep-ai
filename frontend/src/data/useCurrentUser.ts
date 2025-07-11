@@ -15,8 +15,12 @@ export function useCurrentUser() {
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
-    console.log('token:', token);
+    
+    console.log('useCurrentUser token:', token);
+    
+    // If no access token, user is guest
     if (!token) {
+      setUser(null);
       setLoading(false);
       return;
     }

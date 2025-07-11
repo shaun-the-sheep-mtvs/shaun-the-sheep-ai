@@ -40,6 +40,99 @@ interface BackendResponse {
   products: Product[];
 }
 
+// 세션 응답을 프론트엔드 형식으로 변환하는 함수
+function parseSessionResponse(data: any): RecommendData {
+  if (!data || !data.products) {
+    return {
+      skinType: '알 수 없음',
+      concerns: ['정보 없음'],
+      recommendations: {
+        토너: [],
+        세럼: [],
+        로션: [],
+        크림: []
+      }
+    };
+  }
+  
+  const products = data.products;
+  
+  // 데이터 구조 확인: products가 balanced 형태인지 확인
+  let toners = [];
+  let serums = [];
+  let lotions = [];
+  let creams = [];
+  
+  if (products.balanced) {
+    // 백엔드에서 balanced 형태로 온 경우
+    toners = products.balanced.toner || [];
+    serums = products.balanced.serum || [];
+    lotions = products.balanced.lotion || [];
+    creams = products.balanced.cream || [];
+  } else {
+    // 직접 카테고리별로 온 경우
+    toners = products.toner || [];
+    serums = products.serum || [];
+    lotions = products.lotion || [];
+    creams = products.cream || [];
+  }
+  
+  return {
+    skinType: data.skinType || '알 수 없음',
+    concerns: Array.isArray(data.concerns) ? data.concerns : [],
+    recommendations: {
+      토너: toners,
+      세럼: serums,
+      로션: lotions,
+      크림: creams
+    }
+  };
+}
+
+// 게스트 응답을 프론트엔드 형식으로 변환하는 함수
+function parseGuestResponse(data: any): RecommendData {
+  if (!data || !data.recommendations) {
+    return {
+      skinType: '알 수 없음',
+      concerns: ['정보 없음'],
+      recommendations: {
+        토너: [],
+        세럼: [],
+        로션: [],
+        크림: []
+      }
+    };
+  }
+  
+  const recommendations = data.recommendations;
+  
+  // Gemini API 응답 구조에 맞춰 데이터 파싱
+  const parseProducts = (products: any[]): Product[] => {
+    if (!Array.isArray(products)) return [];
+    
+    return products.map((product: any, index: number) => ({
+      id: `guest-${index}`,
+      formulation: '', // 게스트 모드에서는 빈 값
+      ingredients: Array.isArray(product.성분) ? product.성분 : [],
+      recommendedType: product.추천타입 || '정보 없음',
+      productName: product.제품명 || '제품명 없음',
+      userId: 'guest',
+      imageUrl: ''
+    }));
+  };
+  
+  return {
+    skinType: data.skinType || '알 수 없음',
+    concerns: Array.isArray(data.concerns) ? data.concerns : [],
+    recommendations: {
+      토너: parseProducts(recommendations.toner || []),
+      세럼: parseProducts(recommendations.serum || []),
+      로션: parseProducts(recommendations.lotion || []),
+      크림: parseProducts(recommendations.cream || [])
+    }
+  };
+}
+
 // 백엔드 응답을 프론트엔드 형식으로 변환하는 함수
 function parseBackendResponse(data: BackendResponse): RecommendData {
   // 응답 데이터 안전성 검사
@@ -109,13 +202,17 @@ export default function RecommendPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isGuest, setIsGuest] = useState(false);
   const { user, loading: userLoading } = useCurrentUser();
 
   // 로그인 상태 확인
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     setIsLoggedIn(!!token);
-    fetchNaverData();
+    setIsGuest(!token); // Everyone without user token is guest
+    if (token) {
+      fetchNaverData();
+    }
   }, []);
 
   // 네이버 데이터 가져오기
@@ -131,43 +228,48 @@ export default function RecommendPage() {
 
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
+    
     const fetchData = async () => {
       try {
-        const response = await axios.get(apiConfig.endpoints.recommend.user, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        console.log('Recommend page fetchData:', { isGuest, isLoggedIn, token: !!token });
         
-        // 백엔드 응답 로깅
-        console.log('백엔드 응답(원본):', response.data);
+        // Use unified session-based API for both users and guests
+        const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
         
-        // 응답 데이터 검증 및 처리
-        if (!response.data) {
-          setError('저장된 추천 데이터가 없습니다. 체크리스트를 먼저 작성해주세요.');
-          return;
+        const response = await axios.get(apiConfig.endpoints.recommend.sessionBalanced, { headers });
+        
+        console.log('Session API response:', response.data);
+        
+        // Handle successful response
+        if (response.data && response.data.products) {
+          const sessionData = {
+            skinType: response.data.skinType || '알 수 없음',
+            concerns: response.data.concerns || [],
+            products: response.data.products
+          };
+          
+          console.log('Parsed session data:', sessionData);
+          
+          // Convert session data to display format
+          const parsedData = parseSessionResponse(sessionData);
+          console.log('Final parsed data:', parsedData);
+          setRecommendData(parsedData);
+        } else {
+          setError('추천 데이터가 없습니다. 체크리스트를 먼저 작성해주세요.');
         }
-
-        // 백엔드에서 일관된 JSON 객체로 응답한다고 가정
-        const parsedData = parseBackendResponse(response.data);
         
-        // 추천 데이터가 비어있는지 확인
-        const hasRecommendations = Object.values(parsedData.recommendations).some(
-          category => category.length > 0
-        );
-        
-        if (!hasRecommendations) {
-          setError('저장된 추천 데이터가 없습니다. 체크리스트를 먼저 작성해주세요.');
-          return;
-        }
-        
-        setRecommendData(parsedData);
       } catch (err) {
         console.error('Error fetching data:', err);
         
-        // 에러 타입에 따른 구체적인 메시지 설정
+        // Handle specific error cases
         if (axios.isAxiosError(err)) {
           const status = err.response?.status;
-          if (status === 404) {
-            setError('저장된 추천 데이터가 없습니다. 체크리스트를 먼저 작성해주세요.');
+          if (status === 204) {
+            setError('추천 데이터가 없습니다. 체크리스트를 먼저 작성해주세요.');
+            // Optionally redirect to checklist after a delay
+            setTimeout(() => {
+              window.location.href = '/checklist';
+            }, 3000);
           } else if (status === 401) {
             setError('로그인이 필요합니다. 다시 로그인해주세요.');
           } else if (status && status >= 500) {
@@ -184,7 +286,7 @@ export default function RecommendPage() {
     };
 
     fetchData();
-  }, []);
+  }, [isGuest, isLoggedIn]);
 
   // UI 표시용 헬퍼 함수들
   const getProductName = (product: Product) => product.productName || '제품명 없음';
@@ -341,15 +443,17 @@ export default function RecommendPage() {
             <div className={styles["greeting-background"]}></div>
             <div className={styles["greeting-content"]}>
               <div className={styles["user-avatar"]}>
-                <span className={styles["avatar-text"]}>{user?.username.charAt(0)}</span>
+                <span className={styles["avatar-text"]}>
+                  {user?.username?.charAt(0) || 'G'}
+                </span>
               </div>
               <div className={styles["greeting-text-container"]}>
                 <div className={styles["greeting-text-wrapper"]}>
                   <p className={styles["greeting-label"]}>반갑습니다</p>
                   <p className={styles["greeting-text"]}>
                     <span className={styles["user-name"]}>
-                    {userLoading ? 'Loading...' : user ? user.username : 'Guest'}
-                      </span> 님!
+                      {userLoading ? 'Loading...' : user ? user.username : 'Guest'}
+                    </span> 님!
                   </p>
                 </div>
               </div>

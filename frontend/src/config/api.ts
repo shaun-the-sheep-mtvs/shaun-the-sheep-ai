@@ -26,7 +26,11 @@ export const apiConfig = {
     recommend: {
       diagnoses: `${API_BASE_URL}/api/recommend/diagnoses`,
       random: `${API_BASE_URL}/api/recommend/random-recommendations`,
-      user: `${API_BASE_URL}/api/recommend/user-recommendations`
+      user: `${API_BASE_URL}/api/recommend/user-recommendations`,
+      guest: `${API_BASE_URL}/api/recommend/guest`,
+      sessionRandom: `${API_BASE_URL}/api/recommend/session-random`,
+      sessionBalanced: `${API_BASE_URL}/api/recommend/session-balanced`,
+      sessionClear: `${API_BASE_URL}/api/recommend/session-clear`
     },
     chat: {
       base: `${API_BASE_URL}/api/chat-messages`,

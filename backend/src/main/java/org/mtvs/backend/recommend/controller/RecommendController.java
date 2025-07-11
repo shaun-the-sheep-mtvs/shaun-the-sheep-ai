@@ -14,6 +14,7 @@ import org.mtvs.backend.recommend.dto.ResponseDTO;
 import org.mtvs.backend.user.repository.UserRepository;
 import org.mtvs.backend.userskin.service.UserskinService;
 import org.mtvs.backend.userskin.entity.Userskin;
+import org.mtvs.backend.session.service.SessionRecoveryService;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -44,8 +45,9 @@ public class RecommendController {
     private final UserRepository userRepository;
     private final NaverApiService naverApiService;
     private final UserskinService userskinService;
+    private final SessionRecoveryService sessionRecoveryService;
 
-    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService, ProductUserLinkService productUserLinkService, UserskinService userskinService) {
+    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService, ProductUserLinkService productUserLinkService, UserskinService userskinService, SessionRecoveryService sessionRecoveryService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.productService = productService;
@@ -54,11 +56,13 @@ public class RecommendController {
         this.naverApiService = naverApiService;
         this.productUserLinkService = productUserLinkService;
         this.userskinService = userskinService;
+        this.sessionRecoveryService = sessionRecoveryService;
     }
 
     @PostMapping("/api/recommend/diagnoses")
     public ResponseEntity<?> diagnose(
-        @AuthenticationPrincipal CustomUserDetails customUserDetail) {
+        @AuthenticationPrincipal CustomUserDetails customUserDetail, 
+        jakarta.servlet.http.HttpSession session) {
 
         // 사용자의 피부 타입과 고민 목록을 Userskin에서 가져옴
         Optional<Userskin> userskinOpt = userskinService.getActiveUserskinByUser(customUserDetail.getUser());
@@ -111,6 +115,14 @@ public class RecommendController {
             JsonNode jsonNode = objectMapper.readTree(cleanedJson);
             System.out.println(jsonNode);
             productService.saveProducts(jsonNode,customUserDetail.getUser().getId());
+
+            // 사용자 제품을 세션에도 저장
+            try {
+                sessionRecoveryService.loadUserProductsToSession(customUserDetail.getUser().getId(), session);
+                System.out.println("User products saved to session successfully");
+            } catch (Exception e) {
+                System.err.println("Error saving user products to session: " + e.getMessage());
+            }
 
             // 파싱된 JSON을 반환
             return ResponseEntity.ok("ok");

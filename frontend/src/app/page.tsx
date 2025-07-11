@@ -199,41 +199,45 @@ export default function Home() {
     fetchInitialNaverData();
   }, [isGuest]); // Only re-run if guest status changes
 
-  // Modify the products useEffect to handle image errors
+  // Unified products fetching from session
   useEffect(() => {
-    if (isGuest) {
-      // For guests, use the default products defined at the top
-      setProducts(products);
-    } else {
-      const token = localStorage.getItem('accessToken');
-      if (token) {
-        fetch(apiConfig.endpoints.recommend.random, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-          .then(res => {
-            if (!res.ok) throw new Error(`status ${res.status}`);
-            return res.json() as Promise<any[]>;
-          })
-          .then(data => {
-            const transformedProducts = data.map(product => ({
-              name: product.productName,
-              description: `${product.recommendedType} - ${product.ingredients.join(', ')}`,
-              imageUrl: product.imageUrl
-            }));
-            setProducts(transformedProducts);
-          })
-          .catch(async (error) => {
-            console.error('Error fetching products:', error);
-            // If product fetch fails, try to get Naver data
-            try {
-              await fetchNaverData();
-            } catch (naverError) {
-              console.error('Error fetching Naver data:', naverError);
-            }
-          });
-      }
-    }
-  }, [isGuest]);
+    const token = localStorage.getItem('accessToken');
+    
+    // Use unified session-based API for both users and guests
+    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
+    
+    fetch(apiConfig.endpoints.recommend.sessionRandom, { headers })
+      .then(res => {
+        if (res.status === 204) {
+          // No data - user/guest needs to complete checklist
+          setProducts(products); // Use static fallback
+          return null;
+        }
+        if (!res.ok) throw new Error(`status ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        if (data && data.products) {
+          const transformedProducts = data.products.map(product => ({
+            name: product.productName || product.제품명 || '추천 제품',
+            description: `${product.recommendedType || product.추천타입 || '피부 케어'} - ${(product.ingredients || product.성분 || []).join(', ')}`,
+            imageUrl: product.imageUrl || ''
+          }));
+          setProducts(transformedProducts);
+        } else if (data === null) {
+          // Already handled 204 case above
+          return;
+        } else {
+          // Fall back to static products
+          setProducts(products);
+        }
+      })
+      .catch(error => {
+        console.error('Error fetching session products:', error);
+        // Fall back to static products
+        setProducts(products);
+      });
+  }, [isGuest, isLoggedIn]);
   
   const handleLogout = () => {
     localStorage.removeItem('accessToken');
