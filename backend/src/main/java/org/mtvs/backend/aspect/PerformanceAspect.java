@@ -7,6 +7,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.mtvs.backend.aspect.metrics.UserMetricsRecoder;
+import org.mtvs.backend.aspect.metrics.model.MetricNames;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -22,7 +23,9 @@ public class PerformanceAspect{
     }
 
 
-    @Around("execution(* org.mtvs.backend.product.*(..))")
+
+    //DEEPROUTINE CONTROLLER
+    @Around("execution(* org.mtvs.backend.deeprecommend.controller.*(..))")
     public Object measurePerformance(ProceedingJoinPoint joinPoint) throws Throwable {
         String methodName = joinPoint.getSignature().getName();
 
@@ -36,9 +39,8 @@ public class PerformanceAspect{
             e.printStackTrace();
             return null;
         } finally {
-            userMetricsRecoder.stopUserCreationTimer(sample,"method", methodName,"status", "success");
+            userMetricsRecoder.stopUserCreationTimer(sample, MetricNames.USER_CREATE_TIMER,methodName ,"status", "success");
         }
     }
-// final LogRepository
 
 }
