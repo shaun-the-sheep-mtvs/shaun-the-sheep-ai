@@ -73,7 +73,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/health").permitAll()
-                        
+                        .requestMatchers("/actuator/prometheus").permitAll()
+
                         // Guest endpoints (accessible with guest token)
                         .requestMatchers("/api/guest/**").hasAnyRole("GUEST", "USER")
                         .requestMatchers("/api/checklist/guest").hasAnyRole("GUEST", "USER")

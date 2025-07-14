@@ -39,3 +39,18 @@ jwt:
   refresh-token-expiration: 604800000 # 7 days (ms)
   guest-token-expiration: 1800000  # 30 minutes (ms)
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+scrape_configs:
+  - job_name: 'spring-boot-app'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['host.docker.internal:8080']  # 도커 안에서 접근할 경우
