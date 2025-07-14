@@ -44,11 +44,11 @@ public class AuthController {
      * */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest dto) {
-        log.info("[로그인] 요청 수신: 이메일={}", dto.getEmail());
+        log.info("[로그인] 요청 수신: 사용자명={}", dto.getUsername());
 
         try {
             AuthResponse authResponse = authService.login(dto);
-            log.info("[로그인] 성공 : 이메일={}", dto.getEmail());
+            log.info("[로그인] 성공 : 사용자명={}", dto.getUsername());
             return ResponseEntity.ok(authResponse);
         } catch (RuntimeException e) {
             log.warn("[로그인] 실패 : {}", e.getMessage());

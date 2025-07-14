@@ -1,8 +1,6 @@
 package org.mtvs.backend.user.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.mtvs.backend.global.entity.BaseEntity;
 
 import java.util.ArrayList;
@@ -36,18 +34,6 @@ public class User extends BaseEntity {
 
     @Column(nullable = false)
     private String roles;
-
-    public enum SkinType {
-        건성, 지성, 복합성, 민감성, 수분부족지성
-    }
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
-    private SkinType skinType;
-
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(columnDefinition = "jsonb")
-    private List<String> troubles = new ArrayList<>();
 
     // yunzi
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

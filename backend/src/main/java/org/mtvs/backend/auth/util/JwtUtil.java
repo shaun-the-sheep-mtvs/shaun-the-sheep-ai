@@ -32,7 +32,7 @@ public class JwtUtil {
         Date expiration = new Date(now.getTime() + accessTokenExpiration);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(username)  // Changed to use username as subject
                 .claim("email", email)
                 .claim("username", username)
                 .claim("id", id)
@@ -42,12 +42,12 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateRefreshToken(String email) {
+    public String generateRefreshToken(String username) {
         Date now = new Date();
         Date expiration = new Date(now.getTime() + refreshTokenExpiration);
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(username)  // Changed to use username as subject
                 .setIssuedAt(now)
                 .setExpiration(expiration)
                 .signWith(getSigningKey())

@@ -50,7 +50,7 @@ export default function RegisterPage() {
       const loginRes = await fetch(apiConfig.endpoints.auth.login, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
         credentials: 'include',
       });
 

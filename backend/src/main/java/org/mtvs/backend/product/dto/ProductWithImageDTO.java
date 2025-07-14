@@ -15,7 +15,7 @@ import java.util.List;
 @Setter
 public class ProductWithImageDTO {
     private String id;
-    private String formulation;
+    private Byte formulationId;
     private List<String> ingredients;
     private String recommendedType;
     private String productName;

@@ -53,12 +53,12 @@ public class JwtFilter extends OncePerRequestFilter {
                         log.info("[JWT 필터] 게스트 토큰 인증 완료");
                     } else {
                         // Regular user token handling
-                        String email = jwtUtil.getEmail(token);
-                        log.info("[JWT 필터] 토큰 검증 성공 : 이메일={}", email);
+                        String username = jwtUtil.getUsername(token);
+                        log.info("[JWT 필터] 토큰 검증 성공 : 사용자명={}", username);
 
-                        User user = userRepository.findByEmail(email)
+                        User user = userRepository.findByUsername(username)
                                 .orElseThrow(() -> {
-                                    log.warn("[JWT 필터] 사용자 이메일 DB 조회 실패 : {}", email);
+                                    log.warn("[JWT 필터] 사용자명 DB 조회 실패 : {}", username);
                                     return new RuntimeException("유저 없음");
                                 });
 
@@ -69,8 +69,8 @@ public class JwtFilter extends OncePerRequestFilter {
                         );
 
                         SecurityContextHolder.getContext().setAuthentication(authentication);
-                        log.info("[JWT 필터] SecurityContext 인증 완료 : 사용자 ID={}, 이메일={}",
-                                user.getId(), user.getEmail());
+                        log.info("[JWT 필터] SecurityContext 인증 완료 : 사용자 ID={}, 사용자명={}",
+                                user.getId(), user.getUsername());
                     }
                 } else {
                     log.warn("[JWT 필터] 토큰 유효성 검사 실패");

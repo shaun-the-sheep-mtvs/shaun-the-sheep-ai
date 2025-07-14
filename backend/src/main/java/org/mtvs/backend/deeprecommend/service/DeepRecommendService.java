@@ -22,6 +22,8 @@ import org.mtvs.backend.routine.repository.RoutineRepository;
 import org.mtvs.backend.user.dto.ProblemDto;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
+import org.mtvs.backend.userskin.service.UserskinService;
+import org.mtvs.backend.userskin.entity.Userskin;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -29,6 +31,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -42,20 +45,32 @@ public class DeepRecommendService {
     private final DeepRecommendRepository deepRecommendRepository;
     private final RoutineChangeRepository routineChangeRepository;
     private final RoutineGroupRepository routineGroupRepository;
+    private final UserskinService userskinService;
 
     @Autowired
-    public DeepRecommendService(RoutineRepository routineRepository, UserRepository userRepository, OpenConfig openConfig, DeepRecommendRepository deepRecommendRepository, RoutineChangeRepository routineChangeRepository, RoutineGroupRepository routineGroupRepository) {
+    public DeepRecommendService(RoutineRepository routineRepository, UserRepository userRepository, OpenConfig openConfig, DeepRecommendRepository deepRecommendRepository, RoutineChangeRepository routineChangeRepository, RoutineGroupRepository routineGroupRepository, UserskinService userskinService) {
         this.routineRepository = routineRepository;
         this.userRepository = userRepository;
         this.openConfig = openConfig;
         this.deepRecommendRepository = deepRecommendRepository;
         this.routineChangeRepository = routineChangeRepository;
         this.routineGroupRepository = routineGroupRepository;
+        this.userskinService = userskinService;
     }
 
     public String askOpenAI(String userId) {
 
-        ProblemDto getProblemByUsername = userRepository.findUserSkinDataByUserId(userId);
+        // Get user skin data from Userskin entity
+        Optional<Userskin> userskinOpt = userskinService.getActiveUserskinByUserId(userId);
+        if (userskinOpt.isEmpty()) {
+            throw new RuntimeException("User skin data not found for user: " + userId);
+        }
+        
+        Userskin userskin = userskinOpt.get();
+        ProblemDto getProblemByUsername = new ProblemDto(
+            userskinService.getSkinTypeString(userskin),
+            userskinService.getConcernLabels(userskin)
+        );
         List<RoutinesDto> recommend = routineRepository.findRoutinesByUserId(userId);
 
         // Kinds Enum의 모든 값을 문자열로 나열

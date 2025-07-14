@@ -6,7 +6,7 @@ import { apiConfig } from '@/config/api';
 import styles from "./page.module.css";
 
 export default function Home() {
-  const [email,    setEmail]    = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error,    setError]    = useState<string | null>(null);
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function Home() {
               const res = await fetch(apiConfig.endpoints.auth.login, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ email, password }),
+                  body: JSON.stringify({ username, password }),
               });
 
              console.log('status:', res.status);
@@ -62,14 +62,14 @@ export default function Home() {
           <h1>Shaun</h1>
           <form className={styles.loginForm} onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
-              <label htmlFor="email">이메일</label>
+              <label htmlFor="username">사용자명</label>
               <input
-                type="email"
-                id="email"
-                name="email"
-                placeholder="이메일을 입력해주세요"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
+                type="text"
+                id="username"
+                name="username"
+                placeholder="사용자명을 입력해주세요"
+                value={username}
+                onChange={e => setUsername(e.target.value)}
                 required
               />
             </div>

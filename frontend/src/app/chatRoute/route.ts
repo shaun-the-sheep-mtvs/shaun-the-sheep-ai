@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import type { ChatMessageDTO } from '../../../types/ChatMessageDTO'
+import type { ChatMessageDTO } from '../../types/ChatMessageDTO'
 
 export async function POST(request: NextRequest) {
   console.log('[API /api/chat] GOT HIT')
