@@ -27,7 +27,9 @@ Thumbs.db
 
 # Environment files
 .env.local
-localResources
+localResources/
+CLAUDE.md
+REFACTORING_PLAN.md
 
 # Logs
 logs/
