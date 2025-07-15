@@ -9,7 +9,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/data/useCurrentUser';
 import { mbtiList } from '@/data/mbtiList';
 import { apiConfig } from '@/config/api';
-import jwtDecode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 // 서버가 내려주는 타입 (영문 키)
 interface CheckListResponse {
@@ -37,6 +37,16 @@ const products = [
   { name: "보습 크림", description: "저자극 수분 크림 민감 피부용", category: "보습" },
 ];
 
+//  authenticated fetch
+function authFetch(url: string, token: string, options: RequestInit = {}) {
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+}
 
 export default function Home() {
   const pathname = usePathname();
@@ -57,12 +67,11 @@ export default function Home() {
   // Fetch Naver data
   const fetchNaverData = async (token: string) => {
     try {
-      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+      const response = await authFetch(`${apiConfig.baseURL}/api/naver`, token, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        } as Record<string, string>
+        }
       });
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -109,17 +118,19 @@ export default function Home() {
     }
   }, [token, tokenLoaded]);
 
-  // Redirect if no token, fetch checklist and MBTI if token exists
+  // Centralized redirect effect
   useEffect(() => {
     if (!tokenLoaded) return;
     if (!token) {
       router.replace('/landing');
-      return;
     }
+  }, [token, tokenLoaded, router]);
+
+  // Fetch checklist and MBTI if token exists
+  useEffect(() => {
+    if (!tokenLoaded || !token) return;
     // Fetch checklist
-    fetch(apiConfig.endpoints.checklist.base, {
-      headers: { 'Authorization': `Bearer ${token}` } as Record<string, string>
-    })
+    authFetch(apiConfig.endpoints.checklist.base, token)
       .then(res => {
         if (!res.ok) throw new Error(`status ${res.status}`);
         return res.json() as Promise<CheckListResponse[]>;
@@ -133,9 +144,7 @@ export default function Home() {
       })
       .catch(() => setError('체크리스트를 불러오는 데 실패했습니다.'));
     // Fetch MBTI
-    fetch(apiConfig.endpoints.checklist.mbti, {
-      headers: { 'Authorization': `Bearer ${token}` } as Record<string, string>
-    })
+    authFetch(apiConfig.endpoints.checklist.mbti, token)
       .then(res => {
         if (!res.ok) throw new Error(`status ${res.status}`);
         return res.text();
@@ -151,23 +160,18 @@ export default function Home() {
         console.error('MBTI fetch error:', error);
         setMbtiError('MBTI 불러오는 데 실패했습니다.');
       });
-  }, [token, tokenLoaded, router]);
+  }, [token, tokenLoaded]);
 
   // Fetch Naver data on mount
   useEffect(() => {
-    if (!tokenLoaded) return;
-    if (token) {
-      fetchNaverData(token);
-    }
+    if (!tokenLoaded || !token) return;
+    fetchNaverData(token);
   }, [token, tokenLoaded]);
 
   // Fetch products using session
   useEffect(() => {
-    if (!tokenLoaded) return;
-    if (!token) return;
-    fetch(apiConfig.endpoints.recommend.sessionRandom, {
-      headers: { 'Authorization': `Bearer ${token}` } as Record<string, string>
-    })
+    if (!tokenLoaded || !token) return;
+    authFetch(apiConfig.endpoints.recommend.sessionRandom, token)
       .then(res => {
         if (res.status === 204) {
           setProducts(products); // Use static fallback
