@@ -9,6 +9,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useCurrentUser } from '@/data/useCurrentUser';
 import { mbtiList } from '@/data/mbtiList';
 import { apiConfig } from '@/config/api';
+import jwtDecode from 'jwt-decode';
 
 // 서버가 내려주는 타입 (영문 키)
 interface CheckListResponse {
@@ -44,172 +45,131 @@ export default function Home() {
 
   const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [mbti, setMbti] = useState<string>("default");
   const [mbtiError, setMbtiError] = useState<string | null>(null);
   const [products, setProducts] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchType, setSearchType] = useState<'all' | 'brand' | 'productName' | 'ingredient'>('all');
+  const [token, setToken] = useState<string | null>(null);
+  const [tokenLoaded, setTokenLoaded] = useState(false);
   const [isGuest, setIsGuest] = useState(false);
-  const [guestChecklist, setGuestChecklist] = useState<GuestChecklistData | null>(null);
 
-  
-
-  const fetchNaverData = async () => {
+  // Fetch Naver data
+  const fetchNaverData = async (token: string) => {
     try {
-      const token = localStorage.getItem('accessToken');
-      if (!token) {
-        console.log('No token found');
-        return;
-      }
-
       const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
-        }
+        } as Record<string, string>
       });
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const data = await response.json();
-      console.log('Naver API response:', data);
       return data;
     } catch (error) {
       console.error('Error fetching Naver data:', error);
     }
   };
 
-  // Add function to check guest data
-  const checkGuestData = () => {
-    const savedData = sessionStorage.getItem('guestChecklistData');
-    if (savedData) {
-      const data: GuestChecklistData = JSON.parse(savedData);
-      // Check if data is less than 30 minutes old
-      if (Date.now() - data.timestamp < 30 * 60 * 1000) {
-        setGuestChecklist(data);
-        setIsGuest(true);
-        return true;
-      } else {
-        // Clear expired data
-        sessionStorage.removeItem('guestChecklistData');
-        sessionStorage.removeItem('guestSignupData');
-        setGuestChecklist(null);
-        setIsGuest(false);
-      }
-    }
-    return false;
-  };
-
-  // Guest and logged in user data
+  // On mount: get token from localStorage
   useEffect(() => {
-    const APP_VERSION = '2024-06-05-b'; // Update this on each deploy
-
-    if (localStorage.getItem('app_version') !== APP_VERSION) {
-      localStorage.clear();
-      localStorage.setItem('app_version', APP_VERSION);
-      window.location.reload();
-    }
-    const token = localStorage.getItem('accessToken');
-    setIsLoggedIn(!!token);
-    
-    // Check for guest data first
-    const hasGuestData = checkGuestData();
-    
-    // Redirect to /landing if neither guest data nor token exists
-    if (!hasGuestData && !token) {
-      router.replace('/landing');
-      return;
-    }
-    
-    // If no guest data, fetch regular user data
-    if (!hasGuestData && token) {
-      fetch(apiConfig.endpoints.checklist.base, {
-        headers: { 'Authorization': `Bearer ${token}` }
-      })
-        .then(res => {
-          if (!res.ok) throw new Error(`status ${res.status}`);
-          return res.json() as Promise<CheckListResponse[]>;
-        })
-        .then(data => {
-          if (data.length === 0) {
-            setError('저장된 체크리스트가 없습니다.');
-          } else {
-            setChecklist(data[0]);  // 최신 결과
-          }
-        })
-        .catch(() => setError('체크리스트를 불러오는 데 실패했습니다.'));
+    const APP_VERSION = '2024-06-05-b';
+    if (typeof window !== 'undefined') {
+      if (localStorage.getItem('app_version') !== APP_VERSION) {
+        localStorage.clear();
+        localStorage.setItem('app_version', APP_VERSION);
+        window.location.reload();
+      }
+      const t = localStorage.getItem('accessToken');
+      setToken(t);
+      setTokenLoaded(true);
     }
   }, []);
 
-  // Modify the MBTI useEffect to handle guest data
+  // After token is loaded, determine if guest or user
   useEffect(() => {
-    if (isGuest && guestChecklist) {
-      // For guests, calculate MBTI based on guest data using the same algorithm as backend
-      const calculateGuestMBTI = () => {
-        const { moisture, oil, sensitivity, tension } = guestChecklist;
-        const m = moisture >= 60 ? "M" : "D";
-        const o = oil >= 60 ? "O" : "B";
-        const s = sensitivity >= 60 ? "S" : "I";
-        const t = tension >= 60 ? "T" : "L";
-        return m + o + s + t;
-      };
-      setMbti(calculateGuestMBTI());
-    } else if (!isGuest) {
-      const token = localStorage.getItem('accessToken');
-      if (token) {
-        fetch(apiConfig.endpoints.checklist.mbti, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        })
-          .then(res => {
-            if (!res.ok) throw new Error(`status ${res.status}`);
-            return res.text();
-          })
-          .then(data => {
-            if (!data || data.trim() === '' || data === 'null') {
-              setMbtiError('MBTI 결과가 없습니다.');
-            } else {
-              setMbti(data.trim());
-            }
-          })
-          .catch(error => {
-            console.error('MBTI fetch error:', error);
-            setMbtiError('MBTI 불러오는 데 실패했습니다.');
-          });
-      }
+    if (!tokenLoaded) return;
+    if (!token) {
+      router.replace('/landing');
+      return;
     }
-  }, [isGuest, guestChecklist]);
-
-  // Add useEffect for initial Naver data fetch
-  useEffect(() => {
-    const fetchInitialNaverData = async () => {
-      const token = localStorage.getItem('accessToken');
-      if (token && !isGuest) {
-        try {
-          await fetchNaverData();
-        } catch (error) {
-          console.error('Error fetching initial Naver data:', error);
-        }
+    try {
+      const decoded: any = jwtDecode(token);
+      if (decoded && (decoded.role === 'GUEST' || decoded.isGuest || decoded.guest)) {
+        setIsGuest(true);
+      } else {
+        setIsGuest(false);
       }
-    };
+    } catch (e) {
+      // If decoding fails, treat as guest for safety
+      setIsGuest(true);
+    }
+  }, [token, tokenLoaded]);
 
-    fetchInitialNaverData();
-  }, [isGuest]); // Only re-run if guest status changes
-
-  // Unified products fetching from session
+  // Redirect if no token, fetch checklist and MBTI if token exists
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    
-    // Use unified session-based API for both users and guests
-    const headers = token ? { 'Authorization': `Bearer ${token}` } : {};
-    
-    fetch(apiConfig.endpoints.recommend.sessionRandom, { headers })
+    if (!tokenLoaded) return;
+    if (!token) {
+      router.replace('/landing');
+      return;
+    }
+    // Fetch checklist
+    fetch(apiConfig.endpoints.checklist.base, {
+      headers: { 'Authorization': `Bearer ${token}` } as Record<string, string>
+    })
+      .then(res => {
+        if (!res.ok) throw new Error(`status ${res.status}`);
+        return res.json() as Promise<CheckListResponse[]>;
+      })
+      .then(data => {
+        if (data.length === 0) {
+          setError('저장된 체크리스트가 없습니다.');
+        } else {
+          setChecklist(data[0]);
+        }
+      })
+      .catch(() => setError('체크리스트를 불러오는 데 실패했습니다.'));
+    // Fetch MBTI
+    fetch(apiConfig.endpoints.checklist.mbti, {
+      headers: { 'Authorization': `Bearer ${token}` } as Record<string, string>
+    })
+      .then(res => {
+        if (!res.ok) throw new Error(`status ${res.status}`);
+        return res.text();
+      })
+      .then(data => {
+        if (!data || data.trim() === '' || data === 'null') {
+          setMbtiError('MBTI 결과가 없습니다.');
+        } else {
+          setMbti(data.trim());
+        }
+      })
+      .catch(error => {
+        console.error('MBTI fetch error:', error);
+        setMbtiError('MBTI 불러오는 데 실패했습니다.');
+      });
+  }, [token, tokenLoaded, router]);
+
+  // Fetch Naver data on mount
+  useEffect(() => {
+    if (!tokenLoaded) return;
+    if (token) {
+      fetchNaverData(token);
+    }
+  }, [token, tokenLoaded]);
+
+  // Fetch products using session
+  useEffect(() => {
+    if (!tokenLoaded) return;
+    if (!token) return;
+    fetch(apiConfig.endpoints.recommend.sessionRandom, {
+      headers: { 'Authorization': `Bearer ${token}` } as Record<string, string>
+    })
       .then(res => {
         if (res.status === 204) {
-          // No data - user/guest needs to complete checklist
           setProducts(products); // Use static fallback
           return null;
         }
@@ -218,32 +178,31 @@ export default function Home() {
       })
       .then(data => {
         if (data && data.products) {
-          const transformedProducts = data.products.map(product => ({
+          const transformedProducts = (data.products as any[]).map((product: any) => ({
             name: product.productName || product.제품명 || '추천 제품',
             description: `${product.recommendedType || product.추천타입 || '피부 케어'} - ${(product.ingredients || product.성분 || []).join(', ')}`,
             imageUrl: product.imageUrl || ''
           }));
           setProducts(transformedProducts);
         } else if (data === null) {
-          // Already handled 204 case above
           return;
         } else {
-          // Fall back to static products
           setProducts(products);
         }
       })
       .catch(error => {
         console.error('Error fetching session products:', error);
-        // Fall back to static products
         setProducts(products);
       });
-  }, [isGuest, isLoggedIn]);
-  
+  }, [token, tokenLoaded]);
+
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    window.location.reload();
-  }
-  
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken');
+      window.location.reload();
+    }
+  };
+
   // 한글 레이블 매핑
   const labels = {
     moisture:    '수분',
@@ -264,8 +223,6 @@ export default function Home() {
     if (!query.trim()) {
       return;
     }
-    
-    // 검색 페이지로 이동
     const searchParams = new URLSearchParams({
       q: query,
       type: searchType
@@ -279,7 +236,6 @@ export default function Home() {
   };
 
   const handlePopularTagClick = (tag: string) => {
-    // 인기 검색어 클릭 시 검색 페이지로 이동
     const searchParams = new URLSearchParams({
       q: tag,
       type: 'ingredient'
@@ -287,15 +243,18 @@ export default function Home() {
     router.push(`/search?${searchParams.toString()}`);
   };
 
-  // Modify the result section to use either guest or regular user data
-  const displayData = isGuest ? guestChecklist : checklist;
+  // Use checklist as displayData
+  const displayData = checklist;
+
+  if (!tokenLoaded) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className={styles.wrapper}>
       <Navbar
-        isLoggedIn={isLoggedIn}
         isGuest={isGuest}
-        onLogout={handleLogout}
+        onLogout={!isGuest ? handleLogout : undefined}
       />
 
       {/* 메인 */}
@@ -384,11 +343,6 @@ export default function Home() {
                       <div>탄력 지수 <span>{displayData?.tension ?? 0}%</span></div>
                       <div className={styles.bar}><div style={{width: `${displayData?.tension ?? 0}%`}} className={styles.barGray}></div></div>
                     </div>
-                    {isGuest && (
-                      <div className={styles.guestNote}>
-                        * 게스트 모드에서는 기본적인 분석 결과만 제공됩니다. 더 자세한 분석을 원하시면 회원가입해주세요!
-                      </div>
-                    )}
                   </div>
 
                   <div className={styles.analysisBox}>
@@ -452,13 +406,6 @@ export default function Home() {
                             alt={p.name}
                             onError={async (e) => {
                               const target = e.target as HTMLImageElement;
-                              if (!isGuest) {
-                                try {
-                                  await fetchNaverData();
-                                } catch (error) {
-                                  console.error('Error fetching Naver data on image error:', error);
-                                }
-                              }
                               target.style.display = 'none';
                               const parent = target.parentElement;
                               if (parent) {
