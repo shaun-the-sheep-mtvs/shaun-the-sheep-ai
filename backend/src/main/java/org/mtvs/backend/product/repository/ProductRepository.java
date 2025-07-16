@@ -28,4 +28,25 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
 
     List<Product> findAllByImageUrl(String imageUrl);
+    
+    // Ingredient search methods
+    @Query("""
+        SELECT p FROM Product p 
+        WHERE p.ingredientId1 = :ingredientId 
+           OR p.ingredientId2 = :ingredientId 
+           OR p.ingredientId3 = :ingredientId 
+           OR p.ingredientId4 = :ingredientId 
+           OR p.ingredientId5 = :ingredientId
+        """)
+    List<Product> findByIngredientId(@Param("ingredientId") Integer ingredientId);
+    
+    @Query("""
+        SELECT DISTINCT p FROM Product p 
+        WHERE p.ingredientId1 IN :ingredientIds 
+           OR p.ingredientId2 IN :ingredientIds 
+           OR p.ingredientId3 IN :ingredientIds 
+           OR p.ingredientId4 IN :ingredientIds 
+           OR p.ingredientId5 IN :ingredientIds
+        """)
+    List<Product> findByAnyIngredientIds(@Param("ingredientIds") List<Integer> ingredientIds);
 }

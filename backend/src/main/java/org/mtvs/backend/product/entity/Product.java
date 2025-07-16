@@ -26,9 +26,20 @@ public class Product extends BaseEntity{
     @Column(name = "formulation_id")
     private Byte formulationId;
 
-    @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "ingredients", columnDefinition = "jsonb")
-    private List<String> ingredients;
+    @Column(name = "ingredient_id_1")
+    private Integer ingredientId1;
+
+    @Column(name = "ingredient_id_2")
+    private Integer ingredientId2;
+
+    @Column(name = "ingredient_id_3")
+    private Integer ingredientId3;
+
+    @Column(name = "ingredient_id_4")
+    private Integer ingredientId4;
+
+    @Column(name = "ingredient_id_5")
+    private Integer ingredientId5;
 
     @Column(name = "recommended_type")
     private Byte recommendedType;
@@ -92,5 +103,50 @@ public class Product extends BaseEntity{
         List<Byte> current = getConcernIds();
         current.remove(concernId);
         setConcerns(current.toArray(new Byte[0]));
+    }
+
+    // Ingredient helper methods
+    public void setIngredientIds(Integer... ingredientIds) {
+        // Clear all first
+        this.ingredientId1 = null;
+        this.ingredientId2 = null;
+        this.ingredientId3 = null;
+        this.ingredientId4 = null;
+        this.ingredientId5 = null;
+        
+        // Assign in order (max 5)
+        for (int i = 0; i < Math.min(ingredientIds.length, 5); i++) {
+            switch(i) {
+                case 0: this.ingredientId1 = ingredientIds[i]; break;
+                case 1: this.ingredientId2 = ingredientIds[i]; break;
+                case 2: this.ingredientId3 = ingredientIds[i]; break;
+                case 3: this.ingredientId4 = ingredientIds[i]; break;
+                case 4: this.ingredientId5 = ingredientIds[i]; break;
+            }
+        }
+    }
+    
+    public List<Integer> getIngredientIds() {
+        List<Integer> ids = new ArrayList<>();
+        if (ingredientId1 != null) ids.add(ingredientId1);
+        if (ingredientId2 != null) ids.add(ingredientId2);
+        if (ingredientId3 != null) ids.add(ingredientId3);
+        if (ingredientId4 != null) ids.add(ingredientId4);
+        if (ingredientId5 != null) ids.add(ingredientId5);
+        return ids;
+    }
+    
+    public void addIngredientId(Integer ingredientId) {
+        List<Integer> current = getIngredientIds();
+        if (!current.contains(ingredientId) && current.size() < 5) {
+            current.add(ingredientId);
+            setIngredientIds(current.toArray(new Integer[0]));
+        }
+    }
+    
+    public void removeIngredientId(Integer ingredientId) {
+        List<Integer> current = getIngredientIds();
+        current.remove(ingredientId);
+        setIngredientIds(current.toArray(new Integer[0]));
     }
 }
