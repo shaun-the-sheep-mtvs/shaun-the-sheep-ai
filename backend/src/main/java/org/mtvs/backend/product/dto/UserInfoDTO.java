@@ -28,7 +28,7 @@ public class UserInfoDTO {
             
         List<String> concerns = userskin.getConcerns() != null ?
             userskin.getConcerns().stream()
-                .map(concern -> concern.getLabel())
+                .map(concern -> concern.getDescription())
                 .toList() : List.of();
                 
         return new UserInfoDTO(skinType, concerns);
