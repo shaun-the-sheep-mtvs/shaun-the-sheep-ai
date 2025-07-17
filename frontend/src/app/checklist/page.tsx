@@ -8,6 +8,7 @@ import { ArrowLeft, RotateCcw } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import { apiConfig } from '../../config/api';
+import { useAuth } from '../../contexts/AuthContext';
 
 // Fisher–Yates 셔플 함수 추가
 function shuffle<T>(arr: T[]): T[] {
@@ -17,11 +18,6 @@ function shuffle<T>(arr: T[]): T[] {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-}
-
-// Helper to get access token from localStorage
-function getAccessToken() {
-  return localStorage.getItem('accessToken');
 }
 
 // Authenticated fetch helper
@@ -35,83 +31,8 @@ function authFetch(url: string, token: string, options: RequestInit = {}) {
   });
 }
 
-// Add guest token generation function
-const getGuestToken = async () => {
-  try {
-    const response = await fetch(`${apiConfig.endpoints.auth.guestToken}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' }
-    });
-    if (!response.ok) throw new Error('Failed to get guest token');
-    const { accessToken } = await response.json();
-    localStorage.setItem('accessToken', accessToken);
-    return accessToken;
-  } catch (error) {
-    console.error('Error getting guest token:', error);
-    return null;
-  }
-};
-
-// Add interface for guest session data
-interface GuestChecklistData {
-  moisture: number;
-  oil: number;
-  sensitivity: number;
-  tension: number;
-  troubles: string[];
-  timestamp: number;
-  mbtiCode?: string;
-  mbtiId?: number;
-  mbtiDescription?: string;
-  skinTypeId?: number;
-  skinTypeName?: string;
-  skinTypeDescription?: string;
-  concerns?: Array<{id: number, label: string, description: string}>;
-}
-
-// Custom hook for auth role and token
-function useAuthRole() {
-  const [role, setRole] = useState<'guest' | 'user'>('guest');
-  const [tokenChecked, setTokenChecked] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
-
-  useEffect(() => {
-    const initializeToken = async () => {
-      if (tokenChecked) return;
-      
-      const existingToken = getAccessToken();
-      
-      // If there's an existing token, validate it first
-      if (existingToken) {
-        try {
-          const userResponse = await authFetch(`${apiConfig.endpoints.auth.me}`, existingToken);
-          if (userResponse.ok) {
-            // Valid user token
-            setRole('user');
-            setToken(existingToken);
-            setTokenChecked(true);
-            return;
-          }
-        } catch (error) {
-          console.error('Token validation failed:', error);
-        }
-      }
-      
-      // If no token or token is invalid, get guest token
-      const guestToken = await getGuestToken();
-      setRole('guest');
-      setToken(guestToken);
-      setTokenChecked(true);
-    };
-    
-    initializeToken();
-  }, [tokenChecked]);
-  
-  return { role, tokenChecked, token };
-}
-
 export default function ChecklistPage() {
-  const { role, tokenChecked, token } = useAuthRole();
+  const { user, isLoggedIn, loading, logout } = useAuth();
   const [stage, setStage] = useState<'quiz' | 'concerns'>('quiz');
   const [qs, setQs] = useState<Question[]>([]);
   const [idx, setIdx] = useState(0);
@@ -122,6 +43,16 @@ export default function ChecklistPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const router = useRouter();
+
+  // Redirect logic - only authenticated users allowed
+  useEffect(() => {
+    if (loading) return;
+    
+    if (!isLoggedIn) {
+      router.replace('/login');
+      return;
+    }
+  }, [loading, isLoggedIn, router]);
 
   // 진행도 계산
   useEffect(() => {
@@ -174,25 +105,17 @@ const checklistData = {
 };
 
 const submitAll = async (concernIds: string[]): Promise<boolean> => {
-  if (role === 'user') {
-    const res = await authFetch(apiConfig.endpoints.checklist.base, token!, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(checklistData),
-    });
-    return res.ok;
-  } else if (role === 'guest') {
-    const res = await authFetch(apiConfig.endpoints.checklist.guest, token!, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(checklistData),
-    });
-    return res.ok;
-  }
-  return false;
+  const token = localStorage.getItem('accessToken');
+  if (!token) return false;
+  
+  const res = await authFetch(apiConfig.endpoints.checklist.base, token, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(checklistData),
+  });
+  return res.ok;
 }
 
-  // Modify handleSubmit to handle both guest and regular user flows
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
@@ -201,18 +124,13 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
         alert('제출에 실패했습니다. 다시 시도해주세요.');
         return;
       }
-      if (role === 'guest') {
-        // For guests, store the data and show appropriate message
-        alert('피부진단과 제품 추천이 성공적으로 진행 되었습니다. 더 많은 기능을 사용하려면 회원가입해주세요!');
-        // Store guest data in session for potential signup later
-        
-        // Redirect to home
-        router.push('/');
-      } else {
-        // For regular users, proceed with normal flow
-        await fetchNaverData(token!);
-        router.push('/');
+      
+      // Proceed with normal flow for authenticated users
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        await fetchNaverData(token);
       }
+      router.push('/');
     } catch (error) {
       console.error('처리 중 오류 발생:', error);
       alert('처리 중 오류가 발생했습니다. 다시 시도해주세요.');
@@ -222,9 +140,7 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    router.push('/login');
+    logout();
   };
 
   const restartTest = () => {
@@ -247,33 +163,7 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
     setQs(shuffle(picked));
   };
 
-  // Add function to check for existing guest data
-  useEffect(() => {
-    const checkGuestData = () => {
-      if (role === 'guest') {
-        const savedData = sessionStorage.getItem('guestChecklistData');
-        if (savedData) {
-          const data: GuestChecklistData = JSON.parse(savedData);
-          // Check if data is less than 30 minutes old (guest token expiration)
-          if (Date.now() - data.timestamp < 30 * 60 * 1000) {
-            // Restore saved data
-            setSelectedConcerns(
-              data.troubles
-                .map(label => CONCERNS.find(c => c.label === label)?.id)
-                .filter((id): id is string => !!id)
-            );
-          } else {
-            // Clear expired data
-            sessionStorage.removeItem('guestChecklistData');
-          }
-        }
-      }
-    };
-
-    checkGuestData();
-  }, [role]);
-
-  if (!tokenChecked) {
+  if (loading) {
     return <div>Loading...</div>;
   }
 
@@ -282,8 +172,8 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
     if (!qs.length) return (
       <div className={styles.wrapper}>
         <Navbar
-          isLoggedIn={role === 'user'}
-          isGuest={role === 'guest'}
+          isLoggedIn={isLoggedIn}
+          isGuest={false}
           onLogout={handleLogout}
         />
         <div className={styles.page}>로딩 중…</div>
@@ -339,8 +229,8 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
     return (
       <div className={styles.wrapper}>
         <Navbar
-          isLoggedIn={role === 'user'}
-          isGuest={role === 'guest'}
+          isLoggedIn={isLoggedIn}
+          isGuest={false}
           onLogout={handleLogout}
         />
         <div className={styles.page}>
@@ -403,8 +293,8 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
   return (
     <div className={styles.wrapper}>
       <Navbar
-        isLoggedIn={role === 'user'}
-        isGuest={role === 'guest'}
+        isLoggedIn={isLoggedIn}
+        isGuest={false}
         onLogout={handleLogout}
       />
       {submitting && (

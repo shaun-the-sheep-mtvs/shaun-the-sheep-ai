@@ -205,7 +205,7 @@ export default function Home() {
 
 
   const handleCtaClick = async () => {
-    router.replace('/checklist');
+    router.replace('/login?from=landing');
   };
 
   return (
@@ -223,7 +223,7 @@ export default function Home() {
               <Link href="/register" className={styles.signupButton}>회원가입</Link>
             </motion.div>
             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-              <Link href="/login" className={styles.loginButton}>로그인</Link>
+              <Link href="/login?from=landing" className={styles.loginButton}>로그인</Link>
             </motion.div>
           </div>
         </div>

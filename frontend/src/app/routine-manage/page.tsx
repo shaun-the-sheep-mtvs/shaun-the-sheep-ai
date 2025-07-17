@@ -52,6 +52,8 @@ export default function RoutineManagePage() {
   const pathname = usePathname();
   const router = useRouter();
 
+  // Component state management
+
   const handleAddToPreview = () => {
     if (!selectedTime) {
       alert('시간을 선택해주세요.');
