@@ -24,6 +24,7 @@ import styles from "./page.module.css"
 import ImageSlider from '@/components/ImageSlider'
 import { useRouter } from 'next/navigation'
 
+
 interface GraphItem {
   name: string;
   value: number;
@@ -202,8 +203,9 @@ export default function Home() {
     }
   ]
 
-  const handleCtaClick = () => {
-    router.push('/checklist');
+
+  const handleCtaClick = async () => {
+    router.replace('/checklist');
   };
 
   return (
@@ -261,7 +263,7 @@ export default function Home() {
                 </div>
 
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
-                  <button className={styles.heroCtaButton}>체험해보기</button>
+                  <button className={styles.heroCtaButton} onClick={handleCtaClick}>체험해보기</button>
                 </motion.div>
                 <p className={styles.heroBenefitText}>
                   <CheckCircle className={styles.heroBenefitIcon} />

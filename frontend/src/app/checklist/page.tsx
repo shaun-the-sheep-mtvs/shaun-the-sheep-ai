@@ -19,6 +19,22 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+// Helper to get access token from localStorage
+function getAccessToken() {
+  return localStorage.getItem('accessToken');
+}
+
+// Authenticated fetch helper
+function authFetch(url: string, token: string, options: RequestInit = {}) {
+  return fetch(url, {
+    ...options,
+    headers: {
+      ...(options.headers || {}),
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+}
+
 // Add guest token generation function
 const getGuestToken = async () => {
   try {
@@ -44,9 +60,58 @@ interface GuestChecklistData {
   tension: number;
   troubles: string[];
   timestamp: number;
+  mbtiCode?: string;
+  mbtiId?: number;
+  mbtiDescription?: string;
+  skinTypeId?: number;
+  skinTypeName?: string;
+  skinTypeDescription?: string;
+  concerns?: Array<{id: number, label: string, description: string}>;
+}
+
+// Custom hook for auth role and token
+function useAuthRole() {
+  const [role, setRole] = useState<'guest' | 'user'>('guest');
+  const [tokenChecked, setTokenChecked] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const initializeToken = async () => {
+      if (tokenChecked) return;
+      
+      const existingToken = getAccessToken();
+      
+      // If there's an existing token, validate it first
+      if (existingToken) {
+        try {
+          const userResponse = await authFetch(`${apiConfig.endpoints.auth.me}`, existingToken);
+          if (userResponse.ok) {
+            // Valid user token
+            setRole('user');
+            setToken(existingToken);
+            setTokenChecked(true);
+            return;
+          }
+        } catch (error) {
+          console.error('Token validation failed:', error);
+        }
+      }
+      
+      // If no token or token is invalid, get guest token
+      const guestToken = await getGuestToken();
+      setRole('guest');
+      setToken(guestToken);
+      setTokenChecked(true);
+    };
+    
+    initializeToken();
+  }, [tokenChecked]);
+  
+  return { role, tokenChecked, token };
 }
 
 export default function ChecklistPage() {
+  const { role, tokenChecked, token } = useAuthRole();
   const [stage, setStage] = useState<'quiz' | 'concerns'>('quiz');
   const [qs, setQs] = useState<Question[]>([]);
   const [idx, setIdx] = useState(0);
@@ -55,67 +120,8 @@ export default function ChecklistPage() {
   const [selectedConcerns, setSelectedConcerns] = useState<string[]>([]);
   const [progress, setProgress] = useState(0);
   const [submitting, setSubmitting] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isGuest, setIsGuest] = useState(false);
+
   const router = useRouter();
-
-  // Modify the initial token check useEffect
-  useEffect(() => {
-    const initializeToken = async () => {
-      let token = localStorage.getItem('accessToken');
-      
-      // If no token exists, try to get a guest token
-      if (!token) {
-        token = await getGuestToken();
-        if (token) {
-          setIsGuest(true);
-          setIsLoggedIn(true); // Set logged in state for UI purposes
-        }
-      }
-
-      if (!token) return;
-
-      // Check if it's a guest token by making a request to /api/auth/me
-      try {
-        const userResponse = await fetch(`${apiConfig.endpoints.auth.me}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        // If the request fails with 401, it's likely a guest token
-        if (!userResponse.ok) {
-          setIsGuest(true);
-        }
-      } catch (error) {
-        console.warn('Error checking token type:', error);
-      }
-
-      // Fetch latest checklist if token exists
-      if (token) {
-        fetch(`${apiConfig.endpoints.checklist.latest}`, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        .then(res => res.json())
-        .then((data: { troubles?: string[] }) => {
-          if (Array.isArray(data.troubles) && data.troubles.length > 0) {
-            const ids = data.troubles
-              .map(label => CONCERNS.find(c => c.label === label)?.id)
-              .filter((id): id is string => !!id);
-            setSelectedConcerns(ids);
-          }
-        })
-        .catch(err => {
-          console.warn('최신 체크리스트 조회 실패, quiz부터 시작', err);
-        });
-      }
-    };
-
-    initializeToken();
-  }, []);
 
   // 진행도 계산
   useEffect(() => {
@@ -153,59 +159,38 @@ const percent = (cat: Category) => {
   return Math.min(raw, 100);
 };
 
-  // Modify submitAll function to handle both guest and regular user submissions
-  const submitAll = async (concernIds: string[]): Promise<boolean> => {
-    try {
-      const labels = concernIds
-        .map(id => CONCERNS.find(c => c.id === id)?.label)
-        .filter((l): l is string => !!l);
+const labels = (concernIds: string[]) => {
+  return concernIds
+    .map(id => CONCERNS.find(c => c.id === id)?.label)
+    .filter((l): l is string => !!l);
+}
 
-      const checklistData = {
-        moisture: percent('moisture'),
-        oil: percent('oil'),
-        sensitivity: percent('sensitivity'),
-        tension: percent('tension'),
-        troubles: labels,
-      };
+const checklistData = {
+  moisture: percent('moisture'),
+  oil: percent('oil'),
+  sensitivity: percent('sensitivity'),
+  tension: percent('tension'),
+  troubles: labels(selectedConcerns),
+};
 
-      if (isGuest) {
-        // For guests, store in session storage
-        const guestData: GuestChecklistData = {
-          ...checklistData,
-          timestamp: Date.now()
-        };
-        sessionStorage.setItem('guestChecklistData', JSON.stringify(guestData));
-        return true;
-      } else {
-        // For regular users, submit to server
-        const token = localStorage.getItem('accessToken');
-        if (!token) {
-          console.error('No token available');
-          return false;
-        }
-
-        const res = await fetch(apiConfig.endpoints.checklist.base, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          },
-          body: JSON.stringify(checklistData),
-        });
-
-        if (!res.ok) {
-          console.error('체크리스트 제출 실패:', await res.text());
-          return false;
-        }
-
-        await res.json();
-        return true;
-      }
-    } catch (err) {
-      console.error('제출 중 오류:', err);
-      return false;
-    }
-  };
+const submitAll = async (concernIds: string[]): Promise<boolean> => {
+  if (role === 'user') {
+    const res = await authFetch(apiConfig.endpoints.checklist.base, token!, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(checklistData),
+    });
+    return res.ok;
+  } else if (role === 'guest') {
+    const res = await authFetch(apiConfig.endpoints.checklist.guest, token!, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(checklistData),
+    });
+    return res.ok;
+  }
+  return false;
+}
 
   // Modify handleSubmit to handle both guest and regular user flows
   const handleSubmit = async () => {
@@ -216,29 +201,16 @@ const percent = (cat: Category) => {
         alert('제출에 실패했습니다. 다시 시도해주세요.');
         return;
       }
-
-      if (isGuest) {
+      if (role === 'guest') {
         // For guests, store the data and show appropriate message
         alert('피부진단과 제품 추천이 성공적으로 진행 되었습니다. 더 많은 기능을 사용하려면 회원가입해주세요!');
-        
         // Store guest data in session for potential signup later
-        const guestData = {
-          checklist: {
-            moisture: percent('moisture'),
-            oil: percent('oil'),
-            sensitivity: percent('sensitivity'),
-            tension: percent('tension'),
-            troubles: selectedConcerns.map(id => CONCERNS.find(c => c.id === id)?.label).filter((l): l is string => !!l),
-          },
-          timestamp: Date.now()
-        };
-        sessionStorage.setItem('guestSignupData', JSON.stringify(guestData));
         
         // Redirect to home
         router.push('/');
       } else {
         // For regular users, proceed with normal flow
-        await fetchNaverData();
+        await fetchNaverData(token!);
         router.push('/');
       }
     } catch (error) {
@@ -278,7 +250,7 @@ const percent = (cat: Category) => {
   // Add function to check for existing guest data
   useEffect(() => {
     const checkGuestData = () => {
-      if (isGuest) {
+      if (role === 'guest') {
         const savedData = sessionStorage.getItem('guestChecklistData');
         if (savedData) {
           const data: GuestChecklistData = JSON.parse(savedData);
@@ -299,15 +271,19 @@ const percent = (cat: Category) => {
     };
 
     checkGuestData();
-  }, [isGuest]);
+  }, [role]);
+
+  if (!tokenChecked) {
+    return <div>Loading...</div>;
+  }
 
   // 1단계: 퀴즈
   if (stage === 'quiz') {
     if (!qs.length) return (
       <div className={styles.wrapper}>
         <Navbar
-          isLoggedIn={isLoggedIn}
-          isGuest={isGuest}
+          isLoggedIn={role === 'user'}
+          isGuest={role === 'guest'}
           onLogout={handleLogout}
         />
         <div className={styles.page}>로딩 중…</div>
@@ -363,8 +339,8 @@ const percent = (cat: Category) => {
     return (
       <div className={styles.wrapper}>
         <Navbar
-          isLoggedIn={isLoggedIn}
-          isGuest={isGuest}
+          isLoggedIn={role === 'user'}
+          isGuest={role === 'guest'}
           onLogout={handleLogout}
         />
         <div className={styles.page}>
@@ -427,8 +403,8 @@ const percent = (cat: Category) => {
   return (
     <div className={styles.wrapper}>
       <Navbar
-        isLoggedIn={isLoggedIn}
-        isGuest={isGuest}
+        isLoggedIn={role === 'user'}
+        isGuest={role === 'guest'}
         onLogout={handleLogout}
       />
       {submitting && (
@@ -544,28 +520,20 @@ const percent = (cat: Category) => {
 }
 
   // 네이버 연동
-  const fetchNaverData = async () => {
+  const fetchNaverData = async (token: string) => {
     try {
-      const token = localStorage.getItem('accessToken');
       if (!token) {
         console.log('No token found');
         return;
       }
-
-      const response = await fetch(`${apiConfig.baseURL}/api/naver`, {
+      const response = await authFetch(`${apiConfig.baseURL}/api/naver`, token, {
         method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Content-Type': 'application/json' }
       });
-
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
-
       const data = await response.json();
-      console.log('Naver API response:', data);
       return data;
     } catch (error) {
       console.error('Error fetching Naver data:', error);
