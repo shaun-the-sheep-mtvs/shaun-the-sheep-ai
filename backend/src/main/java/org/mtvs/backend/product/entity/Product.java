@@ -4,8 +4,6 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
 import org.mtvs.backend.global.entity.BaseEntity;
 
 import java.util.ArrayList;
@@ -21,8 +19,8 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class Product extends BaseEntity{
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private Integer id;
+
     @Column(name = "formulation_id")
     private Byte formulationId;
 
@@ -46,6 +44,26 @@ public class Product extends BaseEntity{
 
     @Column(name = "product_name")
     private String productName;
+    
+    public void setProductName(String productName) {
+        this.productName = productName;
+        if (productName != null) {
+            this.id = productName.hashCode();
+        }
+    }
+
+    // Custom constructor to ensure id is always set from productName
+    public Product(String productName) {
+        this.productName = productName;
+        if (productName != null) {
+            this.id = productName.hashCode();
+        }
+    }
+
+    // Make setId private to prevent accidental manual setting
+    private void setId(Integer id) {
+        this.id = id;
+    }
 
     @Column(name = "image_url")
     private String imageUrl;

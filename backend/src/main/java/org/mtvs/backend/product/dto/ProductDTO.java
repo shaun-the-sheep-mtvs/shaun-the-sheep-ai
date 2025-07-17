@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 public class ProductDTO {
-    private String id;
+    private Integer id;
     private Byte formulationId;
     private String formulation; // Add string formulation field for frontend compatibility
     private Byte recommendedType;
@@ -26,7 +26,7 @@ public class ProductDTO {
     private String productName;
     private String imageUrl;
 
-    public ProductDTO(String id, Byte formulationId, String formulation, Byte recommendedType, List<String> ingredients, String productName, String imageUrl) {
+    public ProductDTO(Integer id, Byte formulationId, String formulation, Byte recommendedType, List<String> ingredients, String productName, String imageUrl) {
         this.id = id;
         this.formulationId = formulationId;
         this.formulation = formulation;
@@ -89,11 +89,9 @@ public class ProductDTO {
     // DTO 에서 엔티티로 변환 (ingredient names는 별도 처리 필요)
     public Product toEntity() {
         Product product = new Product();
-        product.setId(this.id);
         product.setFormulationId(this.formulationId);
         product.setRecommendedType(this.recommendedType);
-        // Note: ingredients are handled separately through IngredientService
-        product.setProductName(this.productName);
+        product.setProductName(this.productName); // sets id via setter
         product.setImageUrl(this.imageUrl);
         return product;
     }
