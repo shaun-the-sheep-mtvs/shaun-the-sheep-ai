@@ -3,7 +3,6 @@ package org.mtvs.backend.checklist.model;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.mtvs.backend.user.entity.User;
-import org.mtvs.backend.session.GuestData;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -53,15 +52,6 @@ public class CheckList {
 
     public CheckList() { }
 
-    public CheckList createCheckListFromGuestData(GuestData guestData, User user) {
-        CheckList checkList = new CheckList();
-        checkList.setUser(user);
-        checkList.setMoisture(guestData.getMoisture());
-        checkList.setOil(guestData.getOil());
-        checkList.setSensitivity(guestData.getSensitivity());
-        checkList.setTension(guestData.getTension());
-        checkList.setTroubles(guestData.getTroubles());
-        return checkList;
-    }
+
 }
 

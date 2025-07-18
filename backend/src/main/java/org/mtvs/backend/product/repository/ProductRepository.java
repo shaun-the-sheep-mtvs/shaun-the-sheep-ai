@@ -9,7 +9,7 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
-public interface ProductRepository extends JpaRepository<Product, String> {
+public interface ProductRepository extends JpaRepository<Product, Integer> {
 
     @Query("SELECT EXISTS (SELECT 1 FROM Product p WHERE p.productName = :productName AND p.imageUrl IS NOT NULL AND p.imageUrl != 'x' AND p.imageUrl != '')")
     boolean existsImageUrlByProductName(@Param("productName") String productName);
@@ -21,11 +21,32 @@ public interface ProductRepository extends JpaRepository<Product, String> {
 
 //    @Query("SELECT p FROM Product p WHERE p.productName LIKE %:query%")
 //    List<Product> findProductsByProductNameContaining(String query);
-    List<Product> findProductsById(String userId);
+    List<Product> findProductsById(Integer productId);
 //    List<Product> findByUserIdAndFormulationType(String userId, String formulationType);
 
     boolean existsProductByProductName(String productName);
 
 
     List<Product> findAllByImageUrl(String imageUrl);
+    
+    // Ingredient search methods
+    @Query("""
+        SELECT p FROM Product p 
+        WHERE p.ingredientId1 = :ingredientId 
+           OR p.ingredientId2 = :ingredientId 
+           OR p.ingredientId3 = :ingredientId 
+           OR p.ingredientId4 = :ingredientId 
+           OR p.ingredientId5 = :ingredientId
+        """)
+    List<Product> findByIngredientId(@Param("ingredientId") Integer ingredientId);
+    
+    @Query("""
+        SELECT DISTINCT p FROM Product p 
+        WHERE p.ingredientId1 IN :ingredientIds 
+           OR p.ingredientId2 IN :ingredientIds 
+           OR p.ingredientId3 IN :ingredientIds 
+           OR p.ingredientId4 IN :ingredientIds 
+           OR p.ingredientId5 IN :ingredientIds
+        """)
+    List<Product> findByAnyIngredientIds(@Param("ingredientIds") List<Integer> ingredientIds);
 }

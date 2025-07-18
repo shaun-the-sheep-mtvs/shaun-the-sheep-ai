@@ -74,12 +74,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/public/**").permitAll()
                         .requestMatchers("/health").permitAll()
                         
-                        // Guest endpoints (accessible with guest token)
-                        .requestMatchers("/api/guest/**").hasAnyRole("GUEST", "USER")
-                        .requestMatchers("/api/checklist/guest").hasAnyRole("GUEST", "USER")
-                        .requestMatchers("/api/recommend/guest").hasAnyRole("GUEST", "USER")
-                        .requestMatchers("/api/recommend/diagnoses").hasAnyRole("GUEST", "USER")
-
                         // Protected endpoints (requires full user authentication)
                         .requestMatchers("/api/profile").hasRole("USER")
                         .requestMatchers("/api/naver").hasRole("USER")

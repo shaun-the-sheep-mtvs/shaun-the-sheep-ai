@@ -43,35 +43,25 @@ public class JwtFilter extends OncePerRequestFilter {
 
             try {
                 if (jwtUtil.validateToken(token)) {
-                    // Check if it's a guest token
-                    if (jwtUtil.isGuestToken(token)) {
-                        // For guest tokens, create a simple authentication with guest role
-                        Authentication guestAuth = new UsernamePasswordAuthenticationToken(
-                            "guest", null, List.of(new SimpleGrantedAuthority("ROLE_GUEST"))
-                        );
-                        SecurityContextHolder.getContext().setAuthentication(guestAuth);
-                        log.info("[JWT 필터] 게스트 토큰 인증 완료");
-                    } else {
-                        // Regular user token handling
-                        String username = jwtUtil.getUsername(token);
-                        log.info("[JWT 필터] 토큰 검증 성공 : 사용자명={}", username);
+                    // Regular user token handling
+                    String username = jwtUtil.getUsername(token);
+                    log.info("[JWT 필터] 토큰 검증 성공 : 사용자명={}", username);
 
-                        User user = userRepository.findByUsername(username)
-                                .orElseThrow(() -> {
-                                    log.warn("[JWT 필터] 사용자명 DB 조회 실패 : {}", username);
-                                    return new RuntimeException("유저 없음");
-                                });
+                    User user = userRepository.findByUsername(username)
+                            .orElseThrow(() -> {
+                                log.warn("[JWT 필터] 사용자명 DB 조회 실패 : {}", username);
+                                return new RuntimeException("유저 없음");
+                            });
 
-                        CustomUserDetails userDetails = new CustomUserDetails(user);
+                    CustomUserDetails userDetails = new CustomUserDetails(user);
 
-                        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                                userDetails, null, userDetails.getAuthorities()
-                        );
+                    Authentication authentication = new UsernamePasswordAuthenticationToken(
+                            userDetails, null, userDetails.getAuthorities()
+                    );
 
-                        SecurityContextHolder.getContext().setAuthentication(authentication);
-                        log.info("[JWT 필터] SecurityContext 인증 완료 : 사용자 ID={}, 사용자명={}",
-                                user.getId(), user.getUsername());
-                    }
+                    SecurityContextHolder.getContext().setAuthentication(authentication);
+                    log.info("[JWT 필터] SecurityContext 인증 완료 : 사용자 ID={}, 사용자명={}",
+                            user.getId(), user.getUsername());
                 } else {
                     log.warn("[JWT 필터] 토큰 유효성 검사 실패");
                 }
