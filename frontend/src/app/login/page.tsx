@@ -29,10 +29,6 @@ export default function Home() {
       // Use AuthContext login method with correct interface
       await login({ username, password });
       
-      // Clear guest data
-      sessionStorage.removeItem('guestChecklistData');
-      sessionStorage.removeItem('guestSignupData');
-      
       // Check if user came from landing page
       const fromLanding = searchParams.get('from') === 'landing';
       

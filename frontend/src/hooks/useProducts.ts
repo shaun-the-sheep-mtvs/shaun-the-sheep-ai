@@ -1,11 +1,9 @@
 'use client';
 
 import { useUserData } from '@/contexts/UserDataContext';
-import { useAuth } from '@/contexts/AuthContext';
 
 export const useProducts = () => {
   const { products, refreshProducts, loading, error } = useUserData();
-  const { isGuest } = useAuth();
 
   // Filter products by category
   const getProductsByCategory = (category: string) => {
@@ -45,7 +43,6 @@ export const useProducts = () => {
     refreshProducts,
     
     // Status
-    isGuest,
     hasProducts: products.length > 0,
   };
 };

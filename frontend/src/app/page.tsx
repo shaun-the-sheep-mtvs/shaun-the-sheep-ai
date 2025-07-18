@@ -18,8 +18,8 @@ import { apiConfig } from '@/config/api';
 export default function Home() {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, isLoggedIn, isGuest, loading, logout } = useAuth();
-  const { skinData, mbti, percentages, isGuest: isSkinDataGuest } = useSkinAnalysis();
+  const { user, isLoggedIn, loading, logout } = useAuth();
+  const { skinData, mbti, percentages } = useSkinAnalysis();
   const { products } = useProducts();
 
   const [searchQuery, setSearchQuery] = useState<string>("");
@@ -78,7 +78,6 @@ export default function Home() {
     <div className={styles.wrapper}>
       <Navbar
         isLoggedIn={isLoggedIn}
-        isGuest={isGuest}
         onLogout={handleLogout}
       />
 

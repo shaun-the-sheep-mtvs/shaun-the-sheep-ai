@@ -131,9 +131,6 @@ class ApiService {
     return this.get(apiConfig.endpoints.auth.me);
   }
 
-  async getGuestToken() {
-    return this.post(apiConfig.endpoints.auth.guestToken);
-  }
 
   // Checklist methods
   async getChecklist() {
@@ -144,9 +141,6 @@ class ApiService {
     return this.post(apiConfig.endpoints.checklist.base, data);
   }
 
-  async submitGuestChecklist(data: any) {
-    return this.post(apiConfig.endpoints.checklist.guest, data);
-  }
 
   async getMBTI() {
     return this.get(apiConfig.endpoints.checklist.mbti);

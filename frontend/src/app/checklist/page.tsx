@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '../../components/Navbar';
 import { apiConfig } from '../../config/api';
 import { useAuth } from '../../contexts/AuthContext';
+import { useUserData } from '../../contexts/UserDataContext';
 
 // Fisher–Yates 셔플 함수 추가
 function shuffle<T>(arr: T[]): T[] {
@@ -33,6 +34,7 @@ function authFetch(url: string, token: string, options: RequestInit = {}) {
 
 export default function ChecklistPage() {
   const { user, isLoggedIn, loading, logout } = useAuth();
+  const { refreshAllData } = useUserData();
   const [stage, setStage] = useState<'quiz' | 'concerns'>('quiz');
   const [qs, setQs] = useState<Question[]>([]);
   const [idx, setIdx] = useState(0);
@@ -130,6 +132,10 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
       if (token) {
         await fetchNaverData(token);
       }
+      
+      // Refresh user data to load new checklist and products
+      await refreshAllData();
+      
       router.push('/');
     } catch (error) {
       console.error('처리 중 오류 발생:', error);

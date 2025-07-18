@@ -14,21 +14,6 @@ export interface CheckListResponse {
   createdAt: string;
 }
 
-export interface GuestChecklistData {
-  moisture: number;
-  oil: number;
-  sensitivity: number;
-  tension: number;
-  troubles: string[];
-  timestamp: number;
-  mbtiCode?: string;
-  mbtiId?: number;
-  mbtiDescription?: string;
-  skinTypeId?: number;
-  skinTypeName?: string;
-  skinTypeDescription?: string;
-  concerns?: Array<{id: number, label: string, description: string}>;
-}
 
 export interface Product {
   name: string;
@@ -40,7 +25,6 @@ export interface Product {
 export interface UserDataContextType {
   // State
   checklist: CheckListResponse | null;
-  guestChecklist: GuestChecklistData | null;
   mbti: string;
   products: Product[];
   loading: boolean;
@@ -48,9 +32,8 @@ export interface UserDataContextType {
   
   // Actions
   updateChecklist: (data: Partial<CheckListResponse>) => void;
-  updateGuestChecklist: (data: GuestChecklistData) => void;
   refreshProducts: () => Promise<void>;
-  clearGuestData: () => void;
+  refreshAllData: () => Promise<void>;
   setMbti: (mbti: string) => void;
   clearError: () => void;
 }
@@ -65,53 +48,23 @@ export const useUserData = () => {
   return context;
 };
 
-// Default products for guests
-const defaultProducts: Product[] = [
-  { name: "수분 에센스", description: "진정효과 수분공급 민감피부용 에센스", category: "수분" },
-  { name: "진정 세럼", description: "피부 진정케어 세럼 민감 피부용", category: "진정" },
-  { name: "보습 크림", description: "저자극 수분 크림 민감 피부용", category: "보습" },
-];
 
 interface UserDataProviderProps {
   children: ReactNode;
 }
 
 export const UserDataProvider: React.FC<UserDataProviderProps> = ({ children }) => {
-  const { user, isLoggedIn, isGuest, loading: authLoading } = useAuth();
+  const { user, isLoggedIn, loading: authLoading } = useAuth();
   
   const [checklist, setChecklist] = useState<CheckListResponse | null>(null);
-  const [guestChecklist, setGuestChecklist] = useState<GuestChecklistData | null>(null);
   const [mbti, setMbtiState] = useState<string>("default");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper function to check and load guest data
-  const checkGuestData = (): boolean => {
-    const savedData = sessionStorage.getItem('guestChecklistData');
-    if (savedData) {
-      try {
-        const data: GuestChecklistData = JSON.parse(savedData);
-        // Check if data is less than 30 minutes old
-        if (Date.now() - data.timestamp < 30 * 60 * 1000) {
-          setGuestChecklist(data);
-          return true;
-        } else {
-          // Clear expired data
-          sessionStorage.removeItem('guestChecklistData');
-          sessionStorage.removeItem('guestSignupData');
-          setGuestChecklist(null);
-        }
-      } catch (err) {
-        console.error('Error parsing guest data:', err);
-        sessionStorage.removeItem('guestChecklistData');
-      }
-    }
-    return false;
-  };
 
   // Calculate MBTI from checklist data
-  const calculateMBTI = (data: CheckListResponse | GuestChecklistData): string => {
+  const calculateMBTI = (data: CheckListResponse): string => {
     const { moisture, oil, sensitivity, tension } = data;
     const m = moisture >= 60 ? "M" : "D";
     const o = oil >= 60 ? "O" : "B";
@@ -188,11 +141,6 @@ export const UserDataProvider: React.FC<UserDataProviderProps> = ({ children }) 
 
   // Fetch products
   const fetchProducts = async () => {
-    if (isGuest) {
-      setProducts(defaultProducts);
-      return;
-    }
-
     if (!isLoggedIn) return;
 
     try {
@@ -226,48 +174,34 @@ export const UserDataProvider: React.FC<UserDataProviderProps> = ({ children }) 
   useEffect(() => {
     if (authLoading) return;
 
-    if (isGuest) {
-      const hasGuestData = checkGuestData();
-      if (hasGuestData && guestChecklist) {
-        setMbtiState(calculateMBTI(guestChecklist));
-        setProducts(defaultProducts); // Only show products if guest has skin data
-      } else {
-        setProducts([]); // No products for guests without skin data
-      }
-    } else if (isLoggedIn) {
+    if (isLoggedIn) {
       fetchUserChecklist();
       fetchMBTI();
       fetchProducts();
     }
-  }, [isLoggedIn, isGuest, authLoading]);
+  }, [isLoggedIn, authLoading]);
 
-  // Update MBTI when guest checklist changes
-  useEffect(() => {
-    if (isGuest && guestChecklist) {
-      setMbtiState(calculateMBTI(guestChecklist));
-    }
-  }, [isGuest, guestChecklist]);
 
   // Actions
   const updateChecklist = (data: Partial<CheckListResponse>) => {
     setChecklist(prev => prev ? { ...prev, ...data } : null);
   };
 
-  const updateGuestChecklist = (data: GuestChecklistData) => {
-    setGuestChecklist(data);
-    sessionStorage.setItem('guestChecklistData', JSON.stringify(data));
-    setMbtiState(calculateMBTI(data));
-  };
 
   const refreshProducts = async () => {
     await fetchProducts();
   };
 
-  const clearGuestData = () => {
-    setGuestChecklist(null);
-    sessionStorage.removeItem('guestChecklistData');
-    sessionStorage.removeItem('guestSignupData');
+  const refreshAllData = async () => {
+    if (isLoggedIn) {
+      await Promise.all([
+        fetchUserChecklist(),
+        fetchMBTI(),
+        fetchProducts()
+      ]);
+    }
   };
+
 
   const setMbti = (newMbti: string) => {
     setMbtiState(newMbti);
@@ -279,15 +213,13 @@ export const UserDataProvider: React.FC<UserDataProviderProps> = ({ children }) 
 
   const value: UserDataContextType = {
     checklist,
-    guestChecklist,
     mbti,
     products,
     loading,
     error,
     updateChecklist,
-    updateGuestChecklist,
     refreshProducts,
-    clearGuestData,
+    refreshAllData,
     setMbti,
     clearError,
   };

@@ -1,14 +1,12 @@
 'use client';
 
 import { useUserData } from '@/contexts/UserDataContext';
-import { useAuth } from '@/contexts/AuthContext';
 
 export const useSkinAnalysis = () => {
-  const { checklist, guestChecklist, mbti, updateChecklist, updateGuestChecklist, setMbti } = useUserData();
-  const { isGuest } = useAuth();
+  const { checklist, mbti, updateChecklist, setMbti } = useUserData();
 
-  // Get the relevant data based on user type
-  const skinData = isGuest ? guestChecklist : checklist;
+  // Get the relevant data for authenticated users only
+  const skinData = checklist;
 
   // Helper function to get percentages
   const getPercentages = () => {
@@ -40,11 +38,10 @@ export const useSkinAnalysis = () => {
     mbtiBreakdown: getMBTIBreakdown(),
     
     // Actions
-    updateSkinData: isGuest ? updateGuestChecklist : updateChecklist,
+    updateSkinData: updateChecklist,
     updateMBTI: setMbti,
     
     // Utilities
-    isGuest,
     hasData: !!skinData,
   };
 };

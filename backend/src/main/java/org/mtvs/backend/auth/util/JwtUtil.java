@@ -20,8 +20,6 @@ public class JwtUtil {
     @Value("${jwt.refresh-token-expiration}")
     private long refreshTokenExpiration;
 
-    @Value("${jwt.guest-token-expiration}")
-    private long guestTokenExpiration;
 
     private Key getSigningKey() {
         return Keys.hmacShaKeyFor(secret.getBytes());
@@ -54,19 +52,6 @@ public class JwtUtil {
                 .compact();
     }
 
-    public String generateGuestToken() {
-        Date now = new Date();
-        Date expiration = new Date(now.getTime() + guestTokenExpiration);
-
-        return Jwts.builder()
-                .setSubject("guest")
-                .claim("role", "ROLE_GUEST")
-                .claim("isGuest", true)
-                .setIssuedAt(now)
-                .setExpiration(expiration)
-                .signWith(getSigningKey())
-                .compact();
-    }
 
     public String getSubjectFromToken(String token) {
         return Jwts.parserBuilder()
@@ -113,14 +98,6 @@ public class JwtUtil {
         return parseClaims(token).get("email", String.class);
     }
 
-    public boolean isGuestToken(String token) {
-        try {
-            Claims claims = parseClaims(token);
-            return Boolean.TRUE.equals(claims.get("isGuest", Boolean.class));
-        } catch (Exception e) {
-            return false;
-        }
-    }
 
 }
 

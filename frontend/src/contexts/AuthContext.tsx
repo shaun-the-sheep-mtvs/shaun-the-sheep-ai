@@ -18,7 +18,6 @@ export interface AuthContextType {
   // State
   user: CurrentUser | null;
   isLoggedIn: boolean;
-  isGuest: boolean;
   loading: boolean;
   error: string | null;
   
@@ -26,7 +25,6 @@ export interface AuthContextType {
   login: (credentials: LoginCredentials) => Promise<void>;
   logout: () => void;
   refreshToken: () => Promise<void>;
-  switchToGuest: () => Promise<void>;
   clearError: () => void;
 }
 
@@ -47,15 +45,9 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<CurrentUser | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isGuest, setIsGuest] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Guest token functionality disabled
-  const getGuestToken = async (): Promise<string | null> => {
-    // Guest access is disabled
-    return null;
-  };
 
   // Helper function to validate user token
   const validateUserToken = async (token: string): Promise<CurrentUser | null> => {
@@ -98,20 +90,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             // Valid user token
             setUser(userData);
             setIsLoggedIn(true);
-            setIsGuest(false);
           } else {
             // Invalid user token, clear and require login
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             setUser(null);
             setIsLoggedIn(false);
-            setIsGuest(false);
           }
         } else {
           // No token, user must login
           setUser(null);
           setIsLoggedIn(false);
-          setIsGuest(false);
         }
       } catch (err) {
         console.error('Auth initialization error:', err);
@@ -154,7 +143,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       if (userData) {
         setUser(userData);
         setIsLoggedIn(true);
-        setIsGuest(false);
       } else {
         throw new Error('Failed to get user data after login');
       }
@@ -173,9 +161,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     localStorage.removeItem('refreshToken');
     setUser(null);
     setIsLoggedIn(false);
-    setIsGuest(false);
     setError(null);
-    // No guest mode - user must login again
   };
 
   // Refresh token function
@@ -214,13 +200,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  // Switch to guest mode - disabled
-  const switchToGuest = async (): Promise<void> => {
-    // Guest mode is disabled
-    setUser(null);
-    setIsLoggedIn(false);
-    setIsGuest(false);
-  };
 
   // Clear error
   const clearError = (): void => {
@@ -230,13 +209,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const value: AuthContextType = {
     user,
     isLoggedIn,
-    isGuest,
     loading,
     error,
     login,
     logout,
     refreshToken,
-    switchToGuest,
     clearError,
   };
 
