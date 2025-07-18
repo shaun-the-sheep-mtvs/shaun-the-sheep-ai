@@ -179,7 +179,6 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
       <div className={styles.wrapper}>
         <Navbar
           isLoggedIn={isLoggedIn}
-          isGuest={false}
           onLogout={handleLogout}
         />
         <div className={styles.page}>로딩 중…</div>
@@ -236,7 +235,6 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
       <div className={styles.wrapper}>
         <Navbar
           isLoggedIn={isLoggedIn}
-          isGuest={false}
           onLogout={handleLogout}
         />
         <div className={styles.page}>
@@ -300,7 +298,6 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
     <div className={styles.wrapper}>
       <Navbar
         isLoggedIn={isLoggedIn}
-        isGuest={false}
         onLogout={handleLogout}
       />
       {submitting && (
