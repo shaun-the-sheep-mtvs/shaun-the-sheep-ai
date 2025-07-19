@@ -1,6 +1,3 @@
-
-// raw code from current dev branch
-
 package org.mtvs.backend.recommend.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -8,17 +5,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.naver.image.api.NaverApiService;
 import org.mtvs.backend.product.dto.ProductDTO;
-import org.mtvs.backend.product.dto.ProductWithImageDTO;
 import org.mtvs.backend.product.dto.ProductsWithUserInfoResponseDTO;
-import org.mtvs.backend.product.entity.Product;
 import org.mtvs.backend.product.repository.ProductRepository;
 import org.mtvs.backend.product.service.ProductUserLinkService;
 import org.mtvs.backend.recommend.dto.RequestDTO;
 import org.mtvs.backend.product.service.ProductService;
-import org.mtvs.backend.user.entity.User;
-import org.mtvs.backend.user.entity.User.SkinType;
 import org.mtvs.backend.recommend.dto.ResponseDTO;
 import org.mtvs.backend.user.repository.UserRepository;
+import org.mtvs.backend.userskin.service.UserskinService;
+import org.mtvs.backend.userskin.entity.Userskin;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.ResponseEntity;
@@ -47,8 +42,9 @@ public class RecommendController {
     private final ProductService productService;
     private final UserRepository userRepository;
     private final NaverApiService naverApiService;
+    private final UserskinService userskinService;
 
-    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService, ProductUserLinkService productUserLinkService) {
+    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService, ProductUserLinkService productUserLinkService, UserskinService userskinService) {
         this.restTemplate = restTemplate;
         this.objectMapper = objectMapper;
         this.productService = productService;
@@ -56,15 +52,22 @@ public class RecommendController {
         this.productRepository = productRepository;
         this.naverApiService = naverApiService;
         this.productUserLinkService = productUserLinkService;
+        this.userskinService = userskinService;
     }
 
     @PostMapping("/api/recommend/diagnoses")
     public ResponseEntity<?> diagnose(
         @AuthenticationPrincipal CustomUserDetails customUserDetail) {
 
-        // 사용자의 피부 타입과 고민 목록을 가져옴
-        SkinType skinType = customUserDetail.getUser().getSkinType();
-        List<String> concerns = customUserDetail.getUser().getTroubles();
+        // 사용자의 피부 타입과 고민 목록을 Userskin에서 가져옴
+        Optional<Userskin> userskinOpt = userskinService.getActiveUserskinByUser(customUserDetail.getUser());
+        if (userskinOpt.isEmpty()) {
+            return ResponseEntity.badRequest().body("피부 분석 데이터가 없습니다. 체크리스트를 먼저 완료해 주세요.");
+        }
+        
+        Userskin userskin = userskinOpt.get();
+        String skinType = userskinService.getSkinTypeString(userskin);
+        List<String> concerns = userskinService.getConcernLabels(userskin);
 
         String geminiURL = geminiApiUrl;
 

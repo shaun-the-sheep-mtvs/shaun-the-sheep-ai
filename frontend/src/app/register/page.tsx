@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiConfig } from '@/config/api';
+import { useAuth } from '@/contexts/AuthContext';
 import styles from './page.module.css';
 
 export default function RegisterPage() {
@@ -11,15 +12,13 @@ export default function RegisterPage() {
   const [password, setPassword] = useState('');
   const [error,    setError]    = useState<string | null>(null);
   const router = useRouter();
+  const { login } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
-      // Check for guest data in session storage
-      const guestData = sessionStorage.getItem('guestChecklistData');
-      const guestSignupData = sessionStorage.getItem('guestSignupData');
       
       // 1) 회원가입
       const signupRes = await fetch(apiConfig.endpoints.auth.signup, {
@@ -28,10 +27,7 @@ export default function RegisterPage() {
         body: JSON.stringify({ 
           username, 
           email, 
-          password,
-          // Include guest data if it exists
-          guestData: guestData ? JSON.parse(guestData) : null,
-          guestSignupData: guestSignupData ? JSON.parse(guestSignupData) : null
+          password
         }),
         credentials: 'include',
       });
@@ -42,31 +38,11 @@ export default function RegisterPage() {
         return;
       }
 
-      // Clear guest data from session storage after successful signup
-      sessionStorage.removeItem('guestChecklistData');
-      sessionStorage.removeItem('guestSignupData');
 
-      // 2) 바로 로그인
-      const loginRes = await fetch(apiConfig.endpoints.auth.login, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
-        credentials: 'include',
-      });
+      // 2) 바로 로그인 using AuthContext
+      await login({ username, password });
 
-      if (!loginRes.ok) {
-        const text = await loginRes.text();
-        setError(text || '자동 로그인에 실패했습니다.');
-        return;
-      }
-
-      const { accessToken, refreshToken } = await loginRes.json();
-
-      // 3) 토큰 저장
-      localStorage.setItem('accessToken', accessToken);
-      localStorage.setItem('refreshToken', refreshToken);
-
-      // 4) 체크리스트 페이지로 이동
+      // 3) 체크리스트 페이지로 이동
       router.push('/checklist');
 
     } catch (err) {

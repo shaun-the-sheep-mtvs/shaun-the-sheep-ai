@@ -24,23 +24,8 @@ public interface UserRepository extends JpaRepository<User, String> {
     @Query("SELECT u FROM User u  WHERE u.username = :loginId")
     Optional<User> findByLoginId(@Param("loginId") String loginId);
 
-    @Query("""
-    SELECT u.skinType as skinType, u.troubles as troubles
-    FROM User u
-    WHERE u.id = :userId
-""")
-    ProblemDto getProblemByUserId();
-
-    @Query("SELECT new org.mtvs.backend.user.dto.ProblemDto(u.skinType, u.troubles) " +
-            "FROM User u WHERE u.id = :userId")
-    ProblemDto findAllRoutineByUserId(@Param("userId") String userId);
-
     @Query("SELECT u.id FROM User u WHERE u.email = :email")
     Optional<String> findUserIdByEmail(@Param("email") String email);
-
-    @Query("SELECT new org.mtvs.backend.user.dto.ProblemDto(u.skinType, u.troubles) " +
-           "FROM User u WHERE u.id = :userId")
-    ProblemDto findUserSkinDataByUserId(@Param("userId") String userId);
 }
 
 

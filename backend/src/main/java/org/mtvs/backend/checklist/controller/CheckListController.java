@@ -10,9 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import org.mtvs.backend.session.GuestData;
-import java.util.Map;
-import jakarta.servlet.http.HttpSession;
 
 @Slf4j
 @RestController
@@ -33,6 +30,8 @@ public class CheckListController {
             @RequestBody CheckListRequest req,
             @AuthenticationPrincipal CustomUserDetails userDetails
     ) {
+        log.info("Received checklist request - troubles: {}", req.getTroubles());
+        
         //체크리스트 저장 (DB에 저장)
         CheckListResponse result = service.create(req, userDetails.getUsername());
         //recommend 컨트롤러에 전달 하여 추천 알고리즘 실행

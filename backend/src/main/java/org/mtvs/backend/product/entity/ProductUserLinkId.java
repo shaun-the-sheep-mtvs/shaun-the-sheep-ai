@@ -7,12 +7,12 @@ import java.io.Serializable;
 import java.util.Objects;
 
 public class ProductUserLinkId implements Serializable {
-    private String productId;
+    private Integer productId;
     private String userId;
 
     public ProductUserLinkId() {}
 
-    public ProductUserLinkId(String productId, String userId) {
+    public ProductUserLinkId(Integer productId, String userId) {
         this.productId = productId;
         this.userId = userId;
     }

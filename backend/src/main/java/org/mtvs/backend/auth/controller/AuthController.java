@@ -7,7 +7,6 @@ import org.mtvs.backend.auth.dto.LoginRequest;
 import org.mtvs.backend.auth.dto.SignupRequest;
 import org.mtvs.backend.auth.service.AuthService;
 import org.mtvs.backend.auth.util.JwtUtil;
-import org.mtvs.backend.session.GuestData;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,7 @@ public class AuthController {
     public ResponseEntity<?> signup(@RequestBody SignupRequest dto) {
         log.info("[회원가입] 요청 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
         try {
-            authService.signup(dto, null);
+            authService.signup(dto);
             log.info("[회원가입] 성공 : 이메일={}", dto.getEmail());
             return ResponseEntity.ok("회원가입 성공");
         } catch (RuntimeException e) {
@@ -44,11 +43,11 @@ public class AuthController {
      * */
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest dto) {
-        log.info("[로그인] 요청 수신: 이메일={}", dto.getEmail());
+        log.info("[로그인] 요청 수신: 사용자명={}", dto.getUsername());
 
         try {
             AuthResponse authResponse = authService.login(dto);
-            log.info("[로그인] 성공 : 이메일={}", dto.getEmail());
+            log.info("[로그인] 성공 : 사용자명={}", dto.getUsername());
             return ResponseEntity.ok(authResponse);
         } catch (RuntimeException e) {
             log.warn("[로그인] 실패 : {}", e.getMessage());
@@ -103,20 +102,4 @@ public class AuthController {
         }
     }
 
-    /*
-     * 게스트 토큰 발급
-     * */
-    @PostMapping("/guest-token")
-    public ResponseEntity<?> generateGuestToken() {
-        log.info("[게스트 토큰] 발급 요청");
-        try {
-            String guestToken = jwtUtil.generateGuestToken();
-            AuthResponse response = new AuthResponse(guestToken, null); // Guest doesn't need refresh token
-            log.info("[게스트 토큰] 발급 성공");
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            log.warn("[게스트 토큰] 발급 실패 : {}", e.getMessage());
-            return ResponseEntity.status(500).body("게스트 토큰 발급 실패: " + e.getMessage());
-        }
-    }
 }

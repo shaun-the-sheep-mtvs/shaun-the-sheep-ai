@@ -8,13 +8,11 @@ export const apiConfig = {
       signup: `${API_BASE_URL}/api/auth/signup`,
       refresh: `${API_BASE_URL}/api/auth/refresh`,
       me: `${API_BASE_URL}/api/auth/me`,
-      guestToken: `${API_BASE_URL}/api/auth/guest-token`,
     },
     checklist: {
       base: `${API_BASE_URL}/api/checklist`,
       latest: `${API_BASE_URL}/api/checklist/latest`,
       mbti: `${API_BASE_URL}/api/checklist/mbti`,
-      guest: `${API_BASE_URL}/api/checklist/guest`,
     },
     routine: {
       base: `${API_BASE_URL}/api/routine`,
@@ -40,9 +38,20 @@ export const apiConfig = {
     user: {
       skinData: `${API_BASE_URL}/api/user/skin-data`,
     },
+    skinType: {
+      base: `${API_BASE_URL}/api/skin-types`,
+      getAll: `${API_BASE_URL}/api/skin-types`,
+      getById: (id: number | string) => `${API_BASE_URL}/api/skin-types/${id}`,
+      getByEnglishName: (englishName: string) => `${API_BASE_URL}/api/skin-types/english/${englishName}`,
+    },
     profile: {
       base: `${API_BASE_URL}/api/profile`,
-    }
+    },
+    product: {
+      base: `${API_BASE_URL}/api/products`,
+      search: (mode: string, word: string) =>
+        `${API_BASE_URL}/api/products/search/products?mode=${encodeURIComponent(mode)}&word=${encodeURIComponent(word)}`,
+    },
   }
 };
 
