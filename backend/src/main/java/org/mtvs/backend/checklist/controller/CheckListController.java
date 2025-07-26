@@ -10,9 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-import org.mtvs.backend.session.GuestData;
-import java.util.Map;
-import jakarta.servlet.http.HttpSession;
 
 @Slf4j
 @RestController

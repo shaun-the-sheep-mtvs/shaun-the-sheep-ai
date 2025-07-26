@@ -1162,7 +1162,7 @@ export default function ReportPage() {
           </button>
           <h1>
             <span className={styles.userName}>
-              {userName || 'Guest'}
+              {userName || '사용자'}
             </span>
             님의 상세 리포트
           </h1>

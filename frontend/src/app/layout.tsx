@@ -6,6 +6,8 @@ import ChatWidget from '@/components/ChatWidget'
 import AuthGuard from '@/components/AuthGuard';
 import Nav from '@/components/Nav';
 import Script from 'next/script';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { UserDataProvider } from '@/contexts/UserDataContext';
 
 const geistSans = GeistSans;
 const geistMono = GeistMono;
@@ -29,8 +31,12 @@ export default function RootLayout({
             <link rel="icon" href="/favicon.ico" />
         </head>
         <body>
-            {children}
-            <ChatWidget />
+            <AuthProvider>
+                <UserDataProvider>
+                    {children}
+                    <ChatWidget />
+                </UserDataProvider>
+            </AuthProvider>
         </body>
         </html>
     );

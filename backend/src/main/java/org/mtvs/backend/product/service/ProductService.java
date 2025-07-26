@@ -44,6 +44,7 @@ public class ProductService {
     private final ConcernMappingService concernMappingService;
     private final SkinTypeService skinTypeService;
     private final FormulationService formulationService;
+    private final IngredientService ingredientService;
 
     public List<ProductDTO> getProductsByFormulation(String userId, Byte formulationId, int limit) {
         // userId 에 해당되는 Product 리스트 불러오기
@@ -84,7 +85,7 @@ public class ProductService {
         List<ProductDTO> productDTOs = new ArrayList<>();
         for (Product product : products) {
             if (product.getProductName().toLowerCase().contains(query.toLowerCase())) {
-                productDTOs.add(ProductDTO.fromEntity(product, formulationService));
+                productDTOs.add(ProductDTO.fromEntity(product, formulationService, ingredientService));
             }
         }
         return productDTOs;
@@ -92,14 +93,11 @@ public class ProductService {
 
     // 주어진 키워드(query)로 성분 검색
     public List<ProductDTO> searchAllByIngredient(String query) {
-        List<Product> products = productRepository.findAll();
+        Integer ingredientId = ingredientService.hashIngredient(query);
+        List<Product> products = productRepository.findByIngredientId(ingredientId);
         List<ProductDTO> productDTOs = new ArrayList<>();
         for (Product product : products) {
-            for (int i = 0; i < product.getIngredients().size(); i++) {
-                if (product.getIngredients().get(i).contains(query.toLowerCase())){
-                    productDTOs.add(ProductDTO.fromEntity(product, formulationService));
-                }
-            }
+            productDTOs.add(ProductDTO.fromEntity(product, formulationService, ingredientService));
         }
         return productDTOs;
     }
@@ -117,7 +115,7 @@ public class ProductService {
         // productIdList 에 해당되는 productId 에 연결된 product 객체를 반환해서
         // 이를 productDTO 리스트 객체로 반환
         for (ProductUserLink productUserLink : productIdList) {
-            productDTOs.add(ProductDTO.fromEntity(productUserLink.getProduct(), formulationService));
+            productDTOs.add(ProductDTO.fromEntity(productUserLink.getProduct(), formulationService, ingredientService));
         }
 
         return productDTOs;
@@ -186,7 +184,7 @@ public class ProductService {
                     skinTypeService.mapKoreanNameToId(koreanSkinType) : (byte) 6; // default
             dto.setRecommendedType(skinTypeId);
 
-            // 성분 (JSON 배열 → List<String>)
+            // 성분 (JSON 배열 → List<String> → ingredient IDs)
             JsonNode ingredientsNode = objectNode.get("성분");
             List<String> ingredients = new ArrayList<>();
             if (ingredientsNode != null && ingredientsNode.isArray()) {
@@ -208,6 +206,12 @@ public class ProductService {
             // Set concern IDs if available
             if (concernIds != null && !concernIds.isEmpty()) {
                 product.setConcerns(concernIds.toArray(new Byte[0]));
+            }
+            
+            // Convert ingredient names to IDs and set them
+            if (!ingredients.isEmpty()) {
+                Set<Integer> ingredientIds = ingredientService.resolveIngredientIds(ingredients);
+                product.setIngredientIds(ingredientIds.toArray(new Integer[0]));
             }
             
             // 저장 (예외는 상위 메서드에서 처리)

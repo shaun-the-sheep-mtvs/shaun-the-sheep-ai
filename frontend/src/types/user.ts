@@ -17,6 +17,4 @@ export interface SignupRequest {
   username: string;
   email: string;
   password: string;
-  guestData?: any;
-  guestSignupData?: any;
 } 

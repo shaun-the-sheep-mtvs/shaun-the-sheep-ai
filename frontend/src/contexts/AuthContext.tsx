@@ -1,0 +1,225 @@
+'use client';
+
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { apiConfig } from '@/config/api';
+
+export interface CurrentUser {
+  id: string;
+  username: string;
+  email: string;
+}
+
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface AuthContextType {
+  // State
+  user: CurrentUser | null;
+  isLoggedIn: boolean;
+  loading: boolean;
+  error: string | null;
+  
+  // Actions
+  login: (credentials: LoginCredentials) => Promise<void>;
+  logout: () => void;
+  refreshToken: () => Promise<void>;
+  clearError: () => void;
+}
+
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
+interface AuthProviderProps {
+  children: ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
+  const [user, setUser] = useState<CurrentUser | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+
+  // Helper function to validate user token
+  const validateUserToken = async (token: string): Promise<CurrentUser | null> => {
+    try {
+      const response = await fetch(apiConfig.endpoints.auth.me, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Invalid token');
+      }
+
+      return await response.json();
+    } catch (err) {
+      console.error('Token validation failed:', err);
+      return null;
+    }
+  };
+
+  // Initialize authentication state
+  useEffect(() => {
+    const initializeAuth = async () => {
+      try {
+        // Check for app version and clear storage if needed
+        const APP_VERSION = '2024-06-05-b';
+        if (localStorage.getItem('app_version') !== APP_VERSION) {
+          localStorage.clear();
+          localStorage.setItem('app_version', APP_VERSION);
+        }
+
+        const existingToken = localStorage.getItem('accessToken');
+        
+        if (existingToken) {
+          // Try to validate existing token
+          const userData = await validateUserToken(existingToken);
+          
+          if (userData) {
+            // Valid user token
+            setUser(userData);
+            setIsLoggedIn(true);
+          } else {
+            // Invalid user token, clear and require login
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            setUser(null);
+            setIsLoggedIn(false);
+          }
+        } else {
+          // No token, user must login
+          setUser(null);
+          setIsLoggedIn(false);
+        }
+      } catch (err) {
+        console.error('Auth initialization error:', err);
+        setError('Failed to initialize authentication');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    initializeAuth();
+  }, []);
+
+  // Login function
+  const login = async (credentials: LoginCredentials): Promise<void> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const response = await fetch(apiConfig.endpoints.auth.login, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || 'Login failed');
+      }
+
+      const { accessToken, refreshToken } = await response.json();
+      
+      // Store tokens
+      localStorage.setItem('accessToken', accessToken);
+      localStorage.setItem('refreshToken', refreshToken);
+
+      // Validate and set user
+      const userData = await validateUserToken(accessToken);
+      if (userData) {
+        setUser(userData);
+        setIsLoggedIn(true);
+      } else {
+        throw new Error('Failed to get user data after login');
+      }
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Login failed';
+      setError(errorMessage);
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Logout function
+  const logout = (): void => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    setUser(null);
+    setIsLoggedIn(false);
+    setError(null);
+  };
+
+  // Refresh token function
+  const refreshToken = async (): Promise<void> => {
+    const refreshTokenValue = localStorage.getItem('refreshToken');
+    
+    if (!refreshTokenValue) {
+      logout();
+      return;
+    }
+
+    try {
+      const response = await fetch(apiConfig.endpoints.auth.refresh, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken: refreshTokenValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Token refresh failed');
+      }
+
+      const { accessToken } = await response.json();
+      localStorage.setItem('accessToken', accessToken);
+      
+      // Validate new token
+      const userData = await validateUserToken(accessToken);
+      if (userData) {
+        setUser(userData);
+      }
+    } catch (err) {
+      console.error('Token refresh error:', err);
+      logout();
+    }
+  };
+
+
+  // Clear error
+  const clearError = (): void => {
+    setError(null);
+  };
+
+  const value: AuthContextType = {
+    user,
+    isLoggedIn,
+    loading,
+    error,
+    login,
+    logout,
+    refreshToken,
+    clearError,
+  };
+
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
+};

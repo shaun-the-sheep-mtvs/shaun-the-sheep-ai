@@ -348,7 +348,7 @@ export default function RecommendPage() {
                   <p className={styles["greeting-label"]}>반갑습니다</p>
                   <p className={styles["greeting-text"]}>
                     <span className={styles["user-name"]}>
-                    {userLoading ? 'Loading...' : user ? user.username : 'Guest'}
+                    {userLoading ? 'Loading...' : user ? user.username : '사용자'}
                       </span> 님!
                   </p>
                 </div>

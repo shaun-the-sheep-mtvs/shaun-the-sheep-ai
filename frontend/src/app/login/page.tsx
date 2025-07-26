@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { apiConfig } from '@/config/api';
+import { useAuth } from '@/contexts/AuthContext';
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -10,51 +11,39 @@ export default function Home() {
   const [password, setPassword] = useState('');
   const [error,    setError]    = useState<string | null>(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const { login, isLoggedIn, loading } = useAuth();
+
+  // Redirect to main page if already logged in
+  useEffect(() => {
+    if (!loading && isLoggedIn) {
+      router.replace('/');
+    }
+  }, [loading, isLoggedIn, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
-          try {
-              const res = await fetch(apiConfig.endpoints.auth.login, {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({ username, password }),
-              });
-
-             console.log('status:', res.status);
-
-              if (!res.ok) {
-                  const errorText = await res.text();
-                  setError(errorText || '로그인에 실패했습니다.');
-                  return;
-              }
-
-              // JSON 응답에서 토큰 추출
-              const authResponse = await res.json();
-              console.log('authResponse:', authResponse);
-              
-              if (authResponse.accessToken) {
-                  // localStorage에 토큰 저장
-                  localStorage.setItem('accessToken', authResponse.accessToken);
-                  localStorage.setItem('refreshToken', authResponse.refreshToken);
-                  console.log('token:', authResponse.accessToken);
-                  // Clear guest data
-                  sessionStorage.removeItem('guestChecklistData');
-                  sessionStorage.removeItem('guestSignupData');
-              } else {
-                  console.log('token: null');
-                  setError('토큰을 받지 못했습니다.');
-                  return;
-              }
-
-              // 로그인 성공 후 홈페이지로 이동
-              router.push('/');
-          } catch (error) {
-              console.error('Login error:', error);
-              setError('네트워크 오류가 발생했습니다.');
-          }
-      };
+    try {
+      // Use AuthContext login method with correct interface
+      await login({ username, password });
+      
+      // Check if user came from landing page
+      const fromLanding = searchParams.get('from') === 'landing';
+      
+      if (fromLanding) {
+        // New user from landing page should go to checklist
+        router.push('/checklist');
+      } else {
+        // Existing user should go to main page
+        router.push('/');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      setError(error instanceof Error ? error.message : '로그인에 실패했습니다.');
+    }
+  };
   return (
     <div className={styles.page}>
       <main className={styles.main}>
