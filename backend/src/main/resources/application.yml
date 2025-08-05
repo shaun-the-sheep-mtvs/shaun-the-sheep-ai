@@ -38,4 +38,9 @@ jwt:
   secret: ${JWT_SECRET:4a8NRS86guvb1rzq1vlFPXOR4Nx96iKv4lnBAzDx8xo=}
   access-token-expiration: 36000000 # 10 hour (ms)
   refresh-token-expiration: 604800000 # 7 days (ms)
+kakao:
+  client_id: ${REST_API_KEY}
+  redirect_url: http://localhost:8080/api/auth/login/kakao
+  client_secret: ${CLIENT_SECRET}
+
 

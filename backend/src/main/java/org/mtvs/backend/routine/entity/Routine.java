@@ -1,12 +1,13 @@
 package org.mtvs.backend.routine.entity;
 
-
 import com.fasterxml.jackson.annotation.JsonFormat;
+
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.routine.entity.enums.Kinds;
 import org.mtvs.backend.routine.entity.enums.Time;
@@ -24,48 +25,49 @@ import java.time.LocalDateTime;
 @Setter
 @EntityListeners(AuditingEntityListener.class)
 public class Routine {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
 
-    private String name;
+	private String name;
 
-    @Enumerated(EnumType.STRING)
-    private Kinds kind;
+	@Enumerated(EnumType.STRING)
+	private Kinds kind;
 
-    @Enumerated(EnumType.STRING)
-    private Time time;
+	@Enumerated(EnumType.STRING)
+	private Time time;
 
-    private int orders;
+	private int orders;
 
-    private String method;
+	private String method;
 
-    private Long routineGroupId;
+	private Long routineGroupId;
 
-    public Routine(String name, Time time, Kinds kind, String method) {
-        this.method = method;
-        this.time = time;
-        this.kind = kind;
-        this.name = name;
-    }
-    public Routine(String name, Time time, Kinds kind, String method,int orders,User user, Long routineGroupId) {
-        this.method = method;
-        this.time = time;
-        this.kind = kind;
-        this.name = name;
-        this.orders = orders;
-        this.user = user;
-        this.routineGroupId = routineGroupId;
-    }
+	public Routine(String name, Time time, Kinds kind, String method) {
+		this.method = method;
+		this.time = time;
+		this.kind = kind;
+		this.name = name;
+	}
 
-    //    유저 외래키
-    @ManyToOne
-    private User user;
+	public Routine(String name, Time time, Kinds kind, String method, int orders, User user, Long routineGroupId) {
+		this.method = method;
+		this.time = time;
+		this.kind = kind;
+		this.name = name;
+		this.orders = orders;
+		this.user = user;
+		this.routineGroupId = routineGroupId;
+	}
 
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm")
-    @CreatedDate
-    private LocalDateTime createdAt;
+	//    유저 외래키
+	@ManyToOne
+	private User user;
+
+	@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm")
+	@JsonFormat(pattern = "yyyy-MM-dd HH:mm")
+	@CreatedDate
+	private LocalDateTime createdAt;
 }
 
 /*
