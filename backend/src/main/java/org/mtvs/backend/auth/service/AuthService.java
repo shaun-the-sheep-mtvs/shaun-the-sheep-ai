@@ -5,7 +5,6 @@ import java.util.Optional;
 import org.mtvs.backend.auth.jwt.JwtUtil;
 import org.mtvs.backend.auth.jwt.dto.AuthResponse;
 import org.mtvs.backend.auth.jwt.dto.LoginRequest;
-import org.mtvs.backend.auth.jwt.dto.SignUpRequestDto;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
@@ -24,31 +23,6 @@ public class AuthService {
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
 	private final JwtUtil jwtUtil;
-
-	/**
-	 * 회원가입
-	 *
-	 * @return
-	 */
-	public User signup(SignUpRequestDto dto) {
-		log.info("[회원 가입] 서비스 호출 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
-
-		// 이메일 존재 여부 확인
-		if (userRepository.findByEmail(dto.getEmail()).isPresent()) {
-			log.warn("[회원가입] 이미 존재하는 이메일 요청 : 이메일={}", dto.getEmail());
-			throw new RuntimeException("이미 존재하는 이메일입니다.");
-		}
-
-		User user = new User(
-			dto.getEmail(),
-			passwordEncoder.encode(dto.getPassword()),
-			dto.getUsername()
-		);
-		userRepository.save(user);
-
-		log.info("[회원 가입] 완료 : 이메일={}, 닉네임={}", dto.getEmail(), dto.getUsername());
-		return user;
-	}
 
 	/**
 	 * 로그인 - 액세스 토큰과 리프레시 토큰 모두 반환

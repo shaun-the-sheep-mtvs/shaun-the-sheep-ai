@@ -1,7 +1,5 @@
 package org.mtvs.backend.user.controller;
 
-import lombok.RequiredArgsConstructor;
-
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.user.dto.ProblemDto;
 import org.mtvs.backend.user.service.UserService;
@@ -12,12 +10,33 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 @RestController
+@Slf4j
 @RequestMapping("/api/user")
 @RequiredArgsConstructor
 public class UserController {
 
 	private final UserService userService;
+
+	// /**
+	//  * 📍사용자 회원가입 (일반)
+	//  * @param signUpRequestDto 일반 회원
+	//  * */
+	// @PostMapping("/signup")
+	// public ResponseEntity<?> signup(@RequestBody SignUpRequestDto signUpRequestDto) {
+	// 	log.info("[회원가입] 요청 : 이메일={}, 닉네임={}", signUpRequestDto.getEmail(), signUpRequestDto.getUsername());
+	// 	try {
+	// 		userService.signUp(signUpRequestDto);
+	// 		log.info("[회원가입] 성공 : 이메일={}", signUpRequestDto.getEmail());
+	// 		return ResponseEntity.ok("회원가입 성공");
+	// 	} catch (RuntimeException e) {
+	// 		log.warn("[회원가입] 실패 : {}", e.getMessage());
+	// 		return ResponseEntity.badRequest().body("회원가입 실패: " + e.getMessage());
+	// 	}
+	// }
 
 	/* step2. 피부 정보 조회 */
 	@GetMapping("/skin-data")

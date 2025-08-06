@@ -4,9 +4,9 @@ import java.util.HashMap;
 
 import org.mtvs.backend.auth.jwt.dto.AuthResponse;
 import org.mtvs.backend.auth.jwt.dto.LoginRequest;
-import org.mtvs.backend.auth.jwt.dto.SignUpRequestDto;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.service.AuthService;
+import org.mtvs.backend.auth.social.service.KakaoLoginService;
 import org.mtvs.backend.user.entity.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -29,6 +29,7 @@ import lombok.extern.slf4j.Slf4j;
 public class AuthController {
 
 	private final AuthService authService;
+	private final KakaoLoginService kakaoLoginService;
 
 	/**
 	 * 📍 사용자 회원가입 (카카오톡)
@@ -36,25 +37,8 @@ public class AuthController {
 	@GetMapping("/login/kakao")
 	public ResponseEntity<?> kakaoLogin(@RequestParam("code") String accessCode,
 		HttpServletResponse httpServletResponse) {
-		User user = authService.kakaoLogin(accessCode, httpServletResponse);
+		User user = kakaoLoginService.kakaoLogin(accessCode, httpServletResponse);
 		return ResponseEntity.ok(user);
-	}
-
-	/**
-	 * 📍사용자 회원가입 (일반)
-	 * @param signUpRequestDto 일반 회원
-	 * */
-	@PostMapping("/signup")
-	public ResponseEntity<?> signup(@RequestBody SignUpRequestDto signUpRequestDto) {
-		log.info("[회원가입] 요청 : 이메일={}, 닉네임={}", signUpRequestDto.getEmail(), signUpRequestDto.getUsername());
-		try {
-			authService.signup(signUpRequestDto);
-			log.info("[회원가입] 성공 : 이메일={}", signUpRequestDto.getEmail());
-			return ResponseEntity.ok("회원가입 성공");
-		} catch (RuntimeException e) {
-			log.warn("[회원가입] 실패 : {}", e.getMessage());
-			return ResponseEntity.badRequest().body("회원가입 실패: " + e.getMessage());
-		}
 	}
 
 	/*

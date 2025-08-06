@@ -1,7 +1,5 @@
 package org.mtvs.backend.auth.social.dto.Kakao;
 
-import org.springframework.context.annotation.Profile;
-
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import lombok.Getter;

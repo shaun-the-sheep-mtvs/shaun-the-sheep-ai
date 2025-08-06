@@ -1,28 +1,36 @@
 package org.mtvs.backend.auth.social.service;
 
+import java.util.Optional;
+
+import org.mtvs.backend.auth.jwt.JwtProvider;
 import org.mtvs.backend.auth.social.dto.Kakao.KakaoTokenResponse;
 import org.mtvs.backend.auth.social.dto.Kakao.KakaoUserInfo;
 import org.mtvs.backend.auth.social.entity.SocialAccount;
+import org.mtvs.backend.auth.social.entity.enums.Providers;
 import org.mtvs.backend.auth.social.repository.SocialAccountRepository;
 import org.mtvs.backend.user.entity.User;
 import org.mtvs.backend.user.repository.UserRepository;
-import org.mtvs.backend.user.service.UserService;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.Value;
+import lombok.extern.slf4j.Slf4j;
 
-public class KakaoAuthService {
+@Slf4j
+@Service
+public class KakaoLoginService {
 	private final RestTemplate restTemplate;
 	private final SocialAccountRepository socialAccountRepository;
-	private final UserService userService;
+	private final UserRepository userRepository;
+	private final JwtProvider jwtProvider;
 
 	@Value("${kakao.client_id}")
 	private String kakaoClientId;
@@ -33,10 +41,12 @@ public class KakaoAuthService {
 	@Value("${kakao.client_secret}")
 	private String kakaoClientSecret;
 
-	public KakaoAuthService(RestTemplate restTemplate, SocialAccountRepository socialAccountRepository,
-		UserRepository userRepository) {
+	public KakaoLoginService(RestTemplate restTemplate, SocialAccountRepository socialAccountRepository,
+		UserRepository userRepository, JwtProvider jwtProvider) {
 		this.restTemplate = restTemplate;
 		this.socialAccountRepository = socialAccountRepository;
+		this.userRepository = userRepository;
+		this.jwtProvider = jwtProvider;
 	}
 
 	/**
@@ -47,6 +57,10 @@ public class KakaoAuthService {
 	 */
 
 	public User kakaoLogin(String code, HttpServletResponse httpServletResponse) {
+		log.info("kakao.clientId: {}", kakaoClientId);
+		log.info("kakao.redirectUri: {}", kakaoRedirectUri);
+		log.info("kakao.clientSecret: {}", kakaoClientSecret != null ? "설정됨" : "null");
+
 		// 1. 받은 'code' 를 이용해 카카오 토큰 발급 API에 POST 요청
 		String tokenApiUrl = "https://kauth.kakao.com/oauth/token";
 
@@ -79,21 +93,11 @@ public class KakaoAuthService {
 		User user = findOrCreateUser(userInfo);
 
 		// 5. JWT 생성 및 쿠키에 저장 (httpServletRespose 사용)
-		String jwtToken = generateJwt(user);
+		String jwtToken = jwtProvider.createAccessToken(user);
 		Cookie cookie = new Cookie("kakao_jwt", jwtToken);
 		httpServletResponse.addCookie(cookie);
 
 		return user;
-	}
-
-	public User findOrCreateUser(KakaoUserInfo userInfo) {
-		// 1. userInfo에서 사용자의 카카오 고유 ID를 가지고 social_accounts에서 회원 찾기
-		SocialAccount socialAccount = socialAccountRepository.findSocialAccountByProviderUserId(userInfo.getId());
-		if (socialAccount == null) {
-			// 고유 ID가 없을 경우, 회원가입 진행
-			User user = userService.
-		}
-
 	}
 
 	/**
@@ -129,6 +133,42 @@ public class KakaoAuthService {
 		} catch (Exception e) {
 			// 요청 자체가 실패했을 경우 (네트워크 오류) 예외 처리
 			throw new RuntimeException("카카오 API 통신 중 오류 발생", e);
+		}
+	}
+
+	public User findOrCreateUser(KakaoUserInfo userInfo) {
+		// 1. 카카오 고유 ID로 social_accounts에서 회원 유무 확인
+		SocialAccount socialAccount = socialAccountRepository.findSocialAccountByProviderUserId(userInfo.getId());
+		if (socialAccount == null) {
+			try {
+				// 1-1. 가입되지 않은 회원일 경우 회원가입 진행
+				User user = User.builder()
+					.username(userInfo.getKakaoAccount().getProfile().getNickname())
+					.build();
+				User savedUser = userRepository.save(user);
+				log.info("생성된 사용자의 닉네임: {}", user.getUsername());
+
+				// 1-2. social_accounts 테이블에 행 저장
+				SocialAccount savedKakaoAccount = SocialAccount.builder()
+					.userId(user.getId())
+					.provider(Providers.KAKAO)
+					.providerUserId(userInfo.getId())
+					.build();
+				socialAccountRepository.save(savedKakaoAccount);
+				log.info(": {}", user.getUsername());
+
+				return savedUser;
+			} catch (Exception e) {
+				throw new RuntimeException("회원 생성 실패: " + e.getMessage());
+			}
+		} else {
+			String userId = socialAccountRepository.findSocialAccountByProviderUserId(userInfo.getId()).getUserId();
+			Optional<User> findUser = userRepository.findById(userId);
+			if (findUser.isPresent()) {
+				return findUser.get();
+			} else {
+				throw new RuntimeException("user not found");
+			}
 		}
 	}
 }
