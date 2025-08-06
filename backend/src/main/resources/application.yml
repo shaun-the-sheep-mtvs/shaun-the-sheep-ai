@@ -40,7 +40,7 @@ jwt:
   refresh-token-expiration: 604800000 # 7 days (ms)
 kakao:
   client_id: ${REST_API_KEY}
-  redirect_url: http://localhost:8080/api/auth/login/kakao
+  redirect_url: http://localhost:3000/auth/kakao/callback
   client_secret: ${CLIENT_SECRET}
 
 

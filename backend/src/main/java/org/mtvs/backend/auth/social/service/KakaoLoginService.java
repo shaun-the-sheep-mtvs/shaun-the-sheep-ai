@@ -22,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -56,6 +57,7 @@ public class KakaoLoginService {
 	 * @return
 	 */
 
+	@Transactional
 	public User kakaoLogin(String code, HttpServletResponse httpServletResponse) {
 		log.info("kakao.clientId: {}", kakaoClientId);
 		log.info("kakao.redirectUri: {}", kakaoRedirectUri);
@@ -78,7 +80,7 @@ public class KakaoLoginService {
 
 		// HTTP 요청 엔티티 생성
 		HttpEntity<MultiValueMap<String, String>> requestEntity = new HttpEntity<>(body, headers);
-
+		
 		// 실제 POST 요청 실행 및 응답 받기
 		ResponseEntity<KakaoTokenResponse> responseEntity = restTemplate.postForEntity(tokenApiUrl, requestEntity,
 			KakaoTokenResponse.class);

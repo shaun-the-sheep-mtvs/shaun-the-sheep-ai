@@ -8,6 +8,7 @@ export const apiConfig = {
       signup: `${API_BASE_URL}/api/auth/signup`,
       refresh: `${API_BASE_URL}/api/auth/refresh`,
       me: `${API_BASE_URL}/api/auth/me`,
+      kakaoLogin: `${API_BASE_URL}/api/auth/login/kakao`, // 카카오 로그인 엔드포인트 추가
     },
     checklist: {
       base: `${API_BASE_URL}/api/checklist`,
