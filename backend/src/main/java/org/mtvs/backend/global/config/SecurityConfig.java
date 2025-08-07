@@ -1,6 +1,7 @@
 package org.mtvs.backend.global.config;
 
-import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.mtvs.backend.auth.jwt.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,87 +13,93 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.util.List;
+import lombok.RequiredArgsConstructor;
 
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
+	private final JwtFilter jwtFilter;
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        
-        // Support multiple environments with environment-specific configurations
-        List<String> allowedOrigins = List.of(
-                // Development environments
-                "http://localhost:*",
-                "http://127.0.0.1:*",
-                
-                // Production domains
-                "https://*.shaunthesheep.store",
-                "https://shaunthesheep.store",
-                "https://api.shaunthesheep.store",
-                "https://dev.shaunthesheep.store",
-                "https://dev-api.shaunthesheep.store",
-                "http://localhost:3000",
-                "http://localhost:8080",
+	@Bean
+	public CorsConfigurationSource corsConfigurationSource() {
+		CorsConfiguration config = new CorsConfiguration();
 
-                // Vercel deployment domains
-                "https://*.vercel.app",
-                "https://shaun-the-sheep-ai.vercel.app",
-                "https://shaun-the-sheep-ai-*.vercel.app"
-        );
-        
-        config.setAllowedOriginPatterns(allowedOrigins);
-        config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        config.setAllowedHeaders(List.of("*"));
-        config.setExposedHeaders(List.of("Authorization", "Content-Type", "Accept"));
-        config.setAllowCredentials(true);
-        config.setMaxAge(3600L); // 1 hour preflight cache
-        
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-        return source;
-    }
+		// Support multiple environments with environment-specific configurations
+		List<String> allowedOrigins = List.of(
+			// Development environments
+			"http://localhost:*",
+			"http://127.0.0.1:*",
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth
-                        // Public endpoints
-                        .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/api/public/**").permitAll()
-                        .requestMatchers("/health").permitAll()
-                        
-                        // Protected endpoints (requires full user authentication)
-                        .requestMatchers("/api/profile").hasRole("USER")
-                        .requestMatchers("/api/naver").hasRole("USER")
-                        .requestMatchers("/api/recommend/**").hasRole("USER")
-                        .requestMatchers("/api/deep/**").hasRole("USER")
-                        .requestMatchers("/api/routine/**").hasRole("USER")
-                        .requestMatchers("/api/user/**").hasRole("USER")
-                        .requestMatchers("/api/chat-messages/ask").hasRole("USER")
-                        .requestMatchers("/api/checklist/**").hasRole("USER")
-                        
-                        // All other requests require authentication
-                        .anyRequest().authenticated()
-                )
-                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
-    }
+			// Production domains
+			"https://*.shaunthesheep.store",
+			"https://shaunthesheep.store",
+			"https://api.shaunthesheep.store",
+			"https://dev.shaunthesheep.store",
+			"https://dev-api.shaunthesheep.store",
+			"http://localhost:3000",
+			"http://localhost:8080",
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+			// Vercel deployment domains
+			"https://*.vercel.app",
+			"https://shaun-the-sheep-ai.vercel.app",
+			"https://shaun-the-sheep-ai-*.vercel.app"
+		);
+
+		config.setAllowedOriginPatterns(allowedOrigins);
+		config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+		config.setAllowedHeaders(List.of("*"));
+		config.setExposedHeaders(List.of("Authorization", "Content-Type", "Accept"));
+		config.setAllowCredentials(true);
+		config.setMaxAge(3600L); // 1 hour preflight cache
+
+		UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+		source.registerCorsConfiguration("/**", config);
+		return source;
+	}
+
+	@Bean
+	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+		return http
+			.csrf(AbstractHttpConfigurer::disable)
+			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
+			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+			.authorizeHttpRequests(auth -> auth
+				// Public endpoints
+				.requestMatchers("/api/auth/**").permitAll()
+				.requestMatchers("/api/public/**").permitAll()
+				.requestMatchers("/health").permitAll()
+
+				// Protected endpoints (requires full user authentication)
+				.requestMatchers("/api/profile").hasRole("USER")
+				.requestMatchers("/api/naver").hasRole("USER")
+				.requestMatchers("/api/recommend/**").hasRole("USER")
+				.requestMatchers("/api/deep/**").hasRole("USER")
+				.requestMatchers("/api/routine/**").hasRole("USER")
+				.requestMatchers("/api/user/**").hasRole("USER")
+				.requestMatchers("/api/chat-messages/ask").hasRole("USER")
+				.requestMatchers("/api/checklist/**").hasRole("USER")
+
+				// All other requests require authentication
+				.anyRequest().authenticated()
+			)
+			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+			.build();
+	}
+
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		return new BCryptPasswordEncoder();
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
 }

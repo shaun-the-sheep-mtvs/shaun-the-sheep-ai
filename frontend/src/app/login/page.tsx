@@ -44,6 +44,19 @@ export default function Home() {
       setError(error instanceof Error ? error.message : '로그인에 실패했습니다.');
     }
   };
+
+  // 카카오 로그인 핸들러
+  const handleKakaoLogin = () => {
+    // 카카오 OAuth URL 생성
+    const KAKAO_CLIENT_ID = process.env.NEXT_PUBLIC_KAKAO_CLIENT_ID || 'your_kakao_client_id';
+    const KAKAO_REDIRECT_URI = process.env.NEXT_PUBLIC_KAKAO_REDIRECT_URI || 'http://localhost:3000/auth/kakao/callback';
+    
+    const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_CLIENT_ID}&redirect_uri=${encodeURIComponent(KAKAO_REDIRECT_URI)}&response_type=code`;
+    
+    // 카카오 로그인 페이지로 리다이렉트
+    window.location.href = kakaoAuthUrl;
+  };
+
   return (
     <div className={styles.page}>
       <main className={styles.main}>
@@ -78,6 +91,20 @@ export default function Home() {
             <button type="submit" className={styles.loginButton}>
               로그인
             </button>
+            
+            {/* 카카오 로그인 버튼 */}
+            <button 
+              type="button" 
+              className={styles.kakaoLoginButton}
+              onClick={handleKakaoLogin}
+            >
+              <img 
+                src="/images/kakao_login_medium_wide.png" 
+                alt="카카오로 로그인" 
+                className={styles.kakaoButtonImage}
+              />
+            </button>
+            
             <div className={styles.registerLink} onClick={() => router.push('/register')}>
               회원가입
             </div>
