@@ -3,17 +3,12 @@ package org.mtvs.backend.auth.controller;
 import java.util.HashMap;
 
 import org.mtvs.backend.auth.jwt.dto.AuthResponse;
-import org.mtvs.backend.auth.jwt.dto.LoginRequest;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.service.AuthService;
 import org.mtvs.backend.auth.social.service.KakaoLoginService;
-import org.mtvs.backend.user.entity.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,48 +32,56 @@ public class AuthController {
 	@GetMapping("/login/kakao")
 	public ResponseEntity<?> kakaoLogin(@RequestParam("code") String accessCode,
 		HttpServletResponse httpServletResponse) {
-		User user = kakaoLoginService.kakaoLogin(accessCode, httpServletResponse);
-		return ResponseEntity.ok(user);
+		try {
+			AuthResponse authResponse = kakaoLoginService.kakaoLogin(accessCode, httpServletResponse);
+
+			log.info("카카오 로그인 성공: 사용자 ID = {}", authResponse.getUser().getId());
+			return ResponseEntity.ok(authResponse);
+
+		} catch (Exception e) {
+			log.error("카카오 로그인 실패: {}", e.getMessage());
+			return ResponseEntity.status(400).body("카카오 로그인 실패: " + e.getMessage());
+		}
 	}
 
 	/*
 	 * 로그인 - 액세스 토큰과 리프레시 토큰 반환
 	 * */
-	@PostMapping("/login")
-	public ResponseEntity<?> login(@RequestBody LoginRequest dto) {
-		log.info("[로그인] 요청 수신: 사용자명={}", dto.getUsername());
-
-		try {
-			AuthResponse authResponse = authService.login(dto);
-			log.info("[로그인] 성공 : 사용자명={}", dto.getUsername());
-			return ResponseEntity.ok(authResponse);
-		} catch (RuntimeException e) {
-			log.warn("[로그인] 실패 : {}", e.getMessage());
-			return ResponseEntity.status(401).body("로그인 실패: " + e.getMessage());
-		}
-	}
+	// @PostMapping("/login")
+	// public ResponseEntity<?> login(@RequestBody LoginRequest dto) {
+	// 	log.info("[로그인] 요청 수신: 사용자명={}", dto.getUsername());
+	//
+	// 	try {
+	// 		AuthResponse authResponse = authService.login(dto);
+	// 		log.info("[로그인] 성공 : 사용자명={}", dto.getUsername());
+	// 		return ResponseEntity.ok(authResponse);
+	// 	} catch (RuntimeException e) {
+	// 		log.warn("[로그인] 실패 : {}", e.getMessage());
+	// 		return ResponseEntity.status(401).body("로그인 실패: " + e.getMessage());
+	// 	}
+	// }
 
 	/*
 	 * 토큰 갱신 - 리프레시 토큰으로 새로운 액세스 토큰 발급
 	 * */
-	@PostMapping("/refresh")
-	public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String refreshToken) {
-		log.info("[토큰 갱신] 요청 수신");
-
-		try {
-			// Bearer 토큰에서 실제 토큰 추출
-			String token = refreshToken.startsWith("Bearer ")
-				? refreshToken.substring(7)
-				: refreshToken;
-
-			AuthResponse authResponse = authService.refreshToken(token);
-			log.info("[토큰 갱신] 성공");
-			return ResponseEntity.ok(authResponse);
-		} catch (RuntimeException e) {
-			log.warn("[토큰 갱신] 실패 : {}", e.getMessage());
-			return ResponseEntity.status(401).body("토큰 갱신 실패: " + e.getMessage());
-		}
-	}
+	// @PostMapping("/refresh")
+	// public ResponseEntity<?> refreshToken(@RequestHeader("Authorization") String refreshToken) {
+	// 	log.info("[토큰 갱신] 요청 수신");
+	//
+	// 	try {
+	// 		// Bearer 토큰에서 실제 토큰 추출
+	// 		String token = refreshToken.startsWith("Bearer ")
+	// 			? refreshToken.substring(7)
+	// 			: refreshToken;
+	//
+	// 		AuthResponse authResponse = authService.refreshToken(token);
+	// 		log.info("[토큰 갱신] 성공");
+	// 		return ResponseEntity.ok(authResponse);
+	// 	} catch (RuntimeException e) {
+	// 		log.warn("[토큰 갱신] 실패 : {}", e.getMessage());
+	// 		return ResponseEntity.status(401).body("토큰 갱신 실패: " + e.getMessage());
+	// 	}
+	// }
 
 	/*
 	 * 현재 사용자 정보 조회

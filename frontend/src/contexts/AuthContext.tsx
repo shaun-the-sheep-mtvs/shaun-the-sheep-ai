@@ -26,6 +26,8 @@ export interface AuthContextType {
   logout: () => void;
   refreshToken: () => Promise<void>;
   clearError: () => void;
+  setUser: (user: CurrentUser | null) => void; // 추가
+  setIsLoggedIn: (status: boolean) => void; // 추가
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -215,6 +217,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     logout,
     refreshToken,
     clearError,
+    setUser, // 추가
+    setIsLoggedIn, // 추가
   };
 
   return (
