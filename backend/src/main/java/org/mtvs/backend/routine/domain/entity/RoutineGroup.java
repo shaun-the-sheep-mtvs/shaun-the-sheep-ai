@@ -1,4 +1,4 @@
-package org.mtvs.backend.routine.entity;
+package org.mtvs.backend.routine.domain.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

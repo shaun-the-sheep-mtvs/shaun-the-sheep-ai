@@ -16,9 +16,9 @@ import org.mtvs.backend.deeprecommend.entity.RoutineChange;
 import org.mtvs.backend.deeprecommend.entity.enums.Action;
 import org.mtvs.backend.deeprecommend.repository.DeepRecommendRepository;
 import org.mtvs.backend.deeprecommend.repository.RoutineChangeRepository;
-import org.mtvs.backend.routine.dto.RoutineGroupDTO;
-import org.mtvs.backend.routine.dto.RoutinesDto;
-import org.mtvs.backend.routine.entity.enums.Kinds;
+import org.mtvs.backend.routine.domain.dto.RoutineGroupDto;
+import org.mtvs.backend.routine.domain.dto.RoutinesDto;
+import org.mtvs.backend.routine.domain.entity.enums.Kinds;
 import org.mtvs.backend.routine.repository.RoutineGroupRepository;
 import org.mtvs.backend.routine.repository.RoutineRepository;
 import org.mtvs.backend.user.dto.ProblemDto;
@@ -340,7 +340,7 @@ public class DeepRecommendService {
 
 						User user = userRepository.findById(userId)
 							.orElseThrow(() -> new RuntimeException("ID: " + userId + "인 사용자를 찾을 수 없습니다."));
-						RoutineGroupDTO routineGroupDTO = routineGroupRepository.findLatestRoutineGroup(user.getId());
+						RoutineGroupDto routineGroupDTO = routineGroupRepository.findLatestRoutineGroup(user.getId());
 						// routineGroupDTO가 null일 경우에 대한 방어 코드 추가 권장
 						if (routineGroupDTO == null) {
 							log.error("사용자 ID {}에 대한 최신 루틴 그룹을 찾을 수 없습니다.", userId);
@@ -384,7 +384,7 @@ public class DeepRecommendService {
 
 						User user = userRepository.findById(userId)
 							.orElseThrow(() -> new RuntimeException("ID: " + userId + "인 사용자를 찾을 수 없습니다."));
-						RoutineGroupDTO routineGroupDTO = routineGroupRepository.findLatestRoutineGroup(user.getId());
+						RoutineGroupDto routineGroupDTO = routineGroupRepository.findLatestRoutineGroup(user.getId());
 						if (routineGroupDTO == null) {
 							log.error("사용자 ID {}에 대한 최신 루틴 그룹을 찾을 수 없습니다. (제품 추천 저장 불가)", userId);
 							throw new IllegalStateException("최신 루틴 그룹 정보를 가져올 수 없어 제품 추천을 저장할 수 없습니다.");

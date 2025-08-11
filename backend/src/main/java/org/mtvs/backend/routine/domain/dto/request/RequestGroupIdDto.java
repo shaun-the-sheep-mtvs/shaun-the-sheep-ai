@@ -1,10 +1,10 @@
-package org.mtvs.backend.routine.dto;
+package org.mtvs.backend.routine.domain.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class GroupIdDTO {
+public class RequestGroupIdDto {
     private long groupId;
 }

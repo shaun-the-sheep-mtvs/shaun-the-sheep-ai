@@ -3,7 +3,7 @@ package org.mtvs.backend.profile.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
-import org.mtvs.backend.routine.dto.RoutinesDto;
+import org.mtvs.backend.routine.domain.dto.RoutinesDto;
 
 import java.time.LocalDateTime;
 import java.util.List;

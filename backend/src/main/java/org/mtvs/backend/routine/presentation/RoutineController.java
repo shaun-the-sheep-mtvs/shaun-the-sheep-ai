@@ -1,8 +1,10 @@
-package org.mtvs.backend.routine.controller;
+package org.mtvs.backend.routine.presentation;
 
 import org.mtvs.backend.auth.model.CustomUserDetails;
-import org.mtvs.backend.routine.dto.*;
-import org.mtvs.backend.routine.service.RoutineManageService;
+import org.mtvs.backend.routine.domain.dto.request.RequestGroupIdDto;
+import org.mtvs.backend.routine.domain.dto.request.RequestRoutinesListDto;
+import org.mtvs.backend.routine.domain.dto.RoutinesDto;
+import org.mtvs.backend.routine.application.RoutineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,21 +15,23 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/routine")
-public class RoutineManageController {
+public class RoutineController {
 
-    private final RoutineManageService routineManageService;
+    private final RoutineService routineService;
 
     @Autowired
-    public RoutineManageController(RoutineManageService routineManageService) {
-        this.routineManageService = routineManageService;
+    public RoutineController(RoutineService routineService) {
+        this.routineService = routineService;
     }
+
+
 
     @PostMapping("/create")
     public ResponseEntity<String> createRoutine(
-            @RequestBody RequestJsonArrayRoutineDTO routinesDTO,
+            @RequestBody RequestRoutinesListDto routinesDTO,
             @AuthenticationPrincipal CustomUserDetails user) {
 
-        routineManageService.createRoutine(routinesDTO, user.getUser().getUsername());
+        routineService.createRoutine(routinesDTO, user.getUser().getUsername());
         return ResponseEntity.ok("Routine created successfully");
     }
 
@@ -37,7 +41,7 @@ public class RoutineManageController {
         if (user == null) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
-        List<RoutinesDto> routinesDto = routineManageService.getRoutineList(user.getUser().getId());
+        List<RoutinesDto> routinesDto = routineService.getRoutineList(user.getUser().getId());
         return ResponseEntity.ok(routinesDto);
     }
 
@@ -46,13 +50,13 @@ public class RoutineManageController {
         if (user == null) {
             ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("로그인이 필요합니다.");
         }
-        List<RoutinesDto> routinesDto = routineManageService.getAllRoutineList(user.getUser().getId());
+        List<RoutinesDto> routinesDto = routineService.getAllRoutineList(user.getUser().getId());
         return ResponseEntity.ok(routinesDto);
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<String> deleteRoutine(@RequestBody GroupIdDTO id, @AuthenticationPrincipal CustomUserDetails user) {
-        routineManageService.deleteRoutine(id.getGroupId(),user);
+    public ResponseEntity<String> deleteRoutine(@RequestBody RequestGroupIdDto id, @AuthenticationPrincipal CustomUserDetails user) {
+        routineService.deleteRoutine(id.getGroupId(),user);
         return ResponseEntity.ok("Routine deleted successfully");
     }
 }

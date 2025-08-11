@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.mtvs.backend.routine.entity.enums.Kinds;
-import org.mtvs.backend.routine.entity.enums.Time;
+import org.mtvs.backend.routine.domain.entity.enums.Kinds;
+import org.mtvs.backend.routine.domain.entity.enums.Time;
 
 @Getter
 @Setter

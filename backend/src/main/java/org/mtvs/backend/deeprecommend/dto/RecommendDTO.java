@@ -1,7 +1,7 @@
 package org.mtvs.backend.deeprecommend.dto;
 
 import org.mtvs.backend.deeprecommend.entity.enums.Action;
-import org.mtvs.backend.routine.entity.enums.Kinds;
+import org.mtvs.backend.routine.domain.entity.enums.Kinds;
 
 public class RecommendDTO {
 

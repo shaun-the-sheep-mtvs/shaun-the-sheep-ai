@@ -1,4 +1,4 @@
-package org.mtvs.backend.routine.entity;
+package org.mtvs.backend.routine.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import org.mtvs.backend.user.entity.User;
-import org.mtvs.backend.routine.entity.enums.Kinds;
-import org.mtvs.backend.routine.entity.enums.Time;
+import org.mtvs.backend.routine.domain.entity.enums.Kinds;
+import org.mtvs.backend.routine.domain.entity.enums.Time;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.format.annotation.DateTimeFormat;

@@ -1,4 +1,4 @@
-package org.mtvs.backend.routine.dto;
+package org.mtvs.backend.routine.domain.dto;
 
 
 /*
@@ -26,14 +26,14 @@ package org.mtvs.backend.routine.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.mtvs.backend.routine.entity.enums.Kinds;
-import org.mtvs.backend.routine.entity.enums.Time;
+import org.mtvs.backend.routine.domain.entity.enums.Kinds;
+import org.mtvs.backend.routine.domain.entity.enums.Time;
 
 ///
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoutineDTO {
+public class RoutineDto {
     private String name;
     private Kinds kind;
     private Time time;

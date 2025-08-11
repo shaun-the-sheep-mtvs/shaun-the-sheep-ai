@@ -2,7 +2,6 @@ package org.mtvs.backend.deeprecommend.repository;
 
 import org.mtvs.backend.deeprecommend.dto.RoutineChangeDTO;
 import org.mtvs.backend.deeprecommend.entity.RoutineChange;
-import org.mtvs.backend.routine.dto.RoutinesDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

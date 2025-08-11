@@ -6,8 +6,8 @@ import org.mtvs.backend.profile.dto.PasswordDTO;
 import org.mtvs.backend.profile.dto.ResponseProfileDTO;
 import org.mtvs.backend.profile.dto.UsernameDTO;
 import org.mtvs.backend.profile.service.ProfileService;
-import org.mtvs.backend.routine.dto.RoutinesDto;
-import org.mtvs.backend.routine.service.RoutineManageService;
+import org.mtvs.backend.routine.domain.dto.RoutinesDto;
+import org.mtvs.backend.routine.application.RoutineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,14 +18,14 @@ import org.springframework.web.bind.annotation.*;
 public class ProfileController {
 	ProfileService profileService;
 	AuthService authService;
-	RoutineManageService routineManageService;
+	RoutineService routineService;
 
 	@Autowired
 	public ProfileController(ProfileService profileService, AuthService authService,
-		RoutineManageService routineManageService) {
+		RoutineService routineService) {
 		this.authService = authService;
 		this.profileService = profileService;
-		this.routineManageService = routineManageService;
+		this.routineService = routineService;
 	}
 
 	/*
@@ -61,7 +61,7 @@ public class ProfileController {
 	@PutMapping("/routines/delete")
 	public ResponseEntity<?> deleteRoutines(@RequestBody RoutinesDto routinesDTO,
 		@AuthenticationPrincipal CustomUserDetails user) {
-		routineManageService.deleteRoutine(routinesDTO.getRoutineGroupId(), user);
+		routineService.deleteRoutine(routinesDTO.getRoutineGroupId(), user);
 		return ResponseEntity.ok("success");
 	}
 

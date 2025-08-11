@@ -1,4 +1,4 @@
-package org.mtvs.backend.routine.dto;
+package org.mtvs.backend.routine.domain.dto;
 
 import lombok.*;
 
@@ -6,7 +6,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RoutineGroupDTO {
+public class RoutineGroupDto {
 
     private Long id;
     private String userId;

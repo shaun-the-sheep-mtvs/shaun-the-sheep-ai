@@ -1,4 +1,4 @@
-package org.mtvs.backend.routine.entity.enums;
+package org.mtvs.backend.routine.domain.entity.enums;
 
 import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.RequiredArgsConstructor;
