@@ -2822,3 +2822,25 @@ a.secondary {
 }
 
 /* ===== 검색 스타일 끝 ===== */
+
+.kakaoLoginButton {
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 10px 0;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.kakaoButtonImage {
+  width: 100%;
+  max-width: 300px;
+  height: auto;
+}
+
+.kakaoLoginButton:hover {
+  opacity: 0.8;
+}

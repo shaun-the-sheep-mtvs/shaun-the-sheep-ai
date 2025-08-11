@@ -11,13 +11,13 @@ import java.util.Optional;
 
 @Repository
 public interface UserskinRepository extends JpaRepository<Userskin, Long> {
-    
-    Optional<Userskin> findByUserAndIsActiveTrue(User user);
-    
-    Optional<Userskin> findByUserIdAndIsActiveTrue(String userId);
-    
-    @Query("SELECT u FROM Userskin u WHERE u.user.id = :userId AND u.isActive = true ORDER BY u.analysisDate DESC")
-    Optional<Userskin> findLatestActiveByUserId(@Param("userId") String userId);
-    
-    boolean existsByUserAndIsActiveTrue(User user);
+
+	Optional<Userskin> findByUserAndIsActiveTrue(User user);
+
+	Optional<Userskin> findByUserIdAndIsActiveTrue(String userId);
+
+	@Query("SELECT u FROM Userskin u WHERE u.user.id = :userId AND u.isActive = true ORDER BY u.analysisDate DESC")
+	Optional<Userskin> findLatestActiveByUserId(@Param("userId") String userId);
+
+	boolean existsByUserAndIsActiveTrue(User user);
 }

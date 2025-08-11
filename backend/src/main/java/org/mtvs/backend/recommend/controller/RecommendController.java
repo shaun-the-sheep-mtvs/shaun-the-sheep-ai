@@ -2,6 +2,7 @@ package org.mtvs.backend.recommend.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.naver.image.api.NaverApiService;
 import org.mtvs.backend.product.dto.ProductDTO;
@@ -29,125 +30,128 @@ import java.util.stream.Collectors;
 @RequestMapping
 public class RecommendController {
 
-    private final ProductRepository productRepository;
-    private final ProductUserLinkService productUserLinkService;
-    @Value("${gemini.api.key}")
-    private String geminiApiKey;
+	private final ProductRepository productRepository;
+	private final ProductUserLinkService productUserLinkService;
+	@Value("${gemini.api.key}")
+	private String geminiApiKey;
 
-    @Value("${gemini.api.url}")
-    private String geminiApiUrl;
+	@Value("${gemini.api.url}")
+	private String geminiApiUrl;
 
-    private final RestTemplate restTemplate;
-    private final ObjectMapper objectMapper;
-    private final ProductService productService;
-    private final UserRepository userRepository;
-    private final NaverApiService naverApiService;
-    private final UserskinService userskinService;
+	private final RestTemplate restTemplate;
+	private final ObjectMapper objectMapper;
+	private final ProductService productService;
+	private final UserRepository userRepository;
+	private final NaverApiService naverApiService;
+	private final UserskinService userskinService;
 
-    public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService, UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService, ProductUserLinkService productUserLinkService, UserskinService userskinService) {
-        this.restTemplate = restTemplate;
-        this.objectMapper = objectMapper;
-        this.productService = productService;
-        this.userRepository = userRepository;
-        this.productRepository = productRepository;
-        this.naverApiService = naverApiService;
-        this.productUserLinkService = productUserLinkService;
-        this.userskinService = userskinService;
-    }
+	public RecommendController(RestTemplate restTemplate, ObjectMapper objectMapper, ProductService productService,
+		UserRepository userRepository, ProductRepository productRepository, NaverApiService naverApiService,
+		ProductUserLinkService productUserLinkService, UserskinService userskinService) {
+		this.restTemplate = restTemplate;
+		this.objectMapper = objectMapper;
+		this.productService = productService;
+		this.userRepository = userRepository;
+		this.productRepository = productRepository;
+		this.naverApiService = naverApiService;
+		this.productUserLinkService = productUserLinkService;
+		this.userskinService = userskinService;
+	}
 
-    @PostMapping("/api/recommend/diagnoses")
-    public ResponseEntity<?> diagnose(
-        @AuthenticationPrincipal CustomUserDetails customUserDetail) {
+	@PostMapping("/api/recommend/diagnoses")
+	public ResponseEntity<?> diagnose(
+		@AuthenticationPrincipal CustomUserDetails customUserDetail) {
 
-        // 사용자의 피부 타입과 고민 목록을 Userskin에서 가져옴
-        Optional<Userskin> userskinOpt = userskinService.getActiveUserskinByUser(customUserDetail.getUser());
-        if (userskinOpt.isEmpty()) {
-            return ResponseEntity.badRequest().body("피부 분석 데이터가 없습니다. 체크리스트를 먼저 완료해 주세요.");
-        }
-        
-        Userskin userskin = userskinOpt.get();
-        String skinType = userskinService.getSkinTypeString(userskin);
-        List<String> concerns = userskinService.getConcernLabels(userskin);
+		// 사용자의 피부 타입과 고민 목록을 Userskin에서 가져옴
+		Optional<Userskin> userskinOpt = userskinService.getActiveUserskinByUser(customUserDetail.getUser());
+		if (userskinOpt.isEmpty()) {
+			return ResponseEntity.badRequest().body("피부 분석 데이터가 없습니다. 체크리스트를 먼저 완료해 주세요.");
+		}
 
-        String geminiURL = geminiApiUrl;
+		Userskin userskin = userskinOpt.get();
+		String skinType = userskinService.getSkinTypeString(userskin);
+		List<String> concerns = userskinService.getConcernLabels(userskin);
 
-        // Gemini API에 전달할 프롬프트 생성 - 간결하게 변경
-        String prompt = String.format(
-                "피부 타입: %s\n고민: %s\n\n" +
-                        "다음 조건에 맞는 스킨케어 제품을 JSON 형식으로 추천해 주세요:\n" +
-                        "- 각 제형(토너, 세럼, 로션, 크림)별로 3개의 제품을 추천합니다.\n" +
-                        "- 각 제품에 대해 '제품명', '추천타입', '성분'을 한국어로 포함합니다.\n" +
-                        "- '추천타입'은 '건성', '지성', '복합성', '민감성', '수분부족지성' 중 반드시 하나만 골라서 적어줘.\n" +
-                        "- JSON의 키 중 skinType, concerns, recommendations는 반드시 영어로 작성되어야 합니다.\n" +
-                        "- JSON의 키 중 '제품명', '추천타입', '성분'은 반드시 한국어로 작성되어야 합니다.\n" +
-                        "- JSON의 키 중 'toner', 'serum', 'lotion', 'cream' 은 반드시 영어로 작성되어야 합니다.\n" +
-                        "- 제품명, 추천타입, 성분명은 모두 한국어로 작성해 주세요.\n" +
-                        "- '고민'은 문자열 배열(string[])이어야 합니다.\n" +
-                        "- '성분'도 문자열 배열(string[])이어야 합니다.\n" +
-                        "- '추천타입'은 제품의 특징을 설명하는 문자열입니다.\n" +
-                        "- 실제 존재하는 한국 화장품 브랜드의 제품명을 사용해 주세요.\n" +
-                        "응답은 JSON 코드 블록 없이 순수한 JSON 형식으로 제공해 주세요.",
-                skinType, String.join(", ", concerns)
-        );
+		String geminiURL = geminiApiUrl;
 
-        // Gemini에 전달하는 DTO 생성 후 prompt 담아서 전달
-        RequestDTO request = new RequestDTO();
-        request.createGeminiReqDto(prompt);
-        String rawResponse = "";
+		// Gemini API에 전달할 프롬프트 생성 - 간결하게 변경
+		String prompt = String.format(
+			"피부 타입: %s\n고민: %s\n\n" +
+				"다음 조건에 맞는 스킨케어 제품을 JSON 형식으로 추천해 주세요:\n" +
+				"- 각 제형(토너, 세럼, 로션, 크림)별로 3개의 제품을 추천합니다.\n" +
+				"- 각 제품에 대해 '제품명', '추천타입', '성분'을 한국어로 포함합니다.\n" +
+				"- '추천타입'은 '건성', '지성', '복합성', '민감성', '수분부족지성' 중 반드시 하나만 골라서 적어줘.\n" +
+				"- JSON의 키 중 skinType, concerns, recommendations는 반드시 영어로 작성되어야 합니다.\n" +
+				"- JSON의 키 중 '제품명', '추천타입', '성분'은 반드시 한국어로 작성되어야 합니다.\n" +
+				"- JSON의 키 중 'toner', 'serum', 'lotion', 'cream' 은 반드시 영어로 작성되어야 합니다.\n" +
+				"- 제품명, 추천타입, 성분명은 모두 한국어로 작성해 주세요.\n" +
+				"- '고민'은 문자열 배열(string[])이어야 합니다.\n" +
+				"- '성분'도 문자열 배열(string[])이어야 합니다.\n" +
+				"- '추천타입'은 제품의 특징을 설명하는 문자열입니다.\n" +
+				"- 실제 존재하는 한국 화장품 브랜드의 제품명을 사용해 주세요.\n" +
+				"응답은 JSON 코드 블록 없이 순수한 JSON 형식으로 제공해 주세요.",
+			skinType, String.join(", ", concerns)
+		);
 
-        System.out.println("Gemini API에 요청을 보냅니다: " + prompt);
+		// Gemini에 전달하는 DTO 생성 후 prompt 담아서 전달
+		RequestDTO request = new RequestDTO();
+		request.createGeminiReqDto(prompt);
+		String rawResponse = "";
 
-        try {
-            // Gemini API 호출
-            ResponseDTO response = restTemplate.postForObject(geminiURL, request, ResponseDTO.class);
-            rawResponse = response.getCandidates().get(0).getContent().getParts().get(0).getText();
-            System.out.println(rawResponse);
+		System.out.println("Gemini API에 요청을 보냅니다: " + prompt);
 
-            // 마크다운 코드 블록 제거 (```json과 ```)
-            String cleanedJson = rawResponse.replaceAll("(?s)```json\\s*|```\\s*", "");
-            System.out.println("정제된 JSON: " + cleanedJson);
+		try {
+			// Gemini API 호출
+			ResponseDTO response = restTemplate.postForObject(geminiURL, request, ResponseDTO.class);
+			rawResponse = response.getCandidates().get(0).getContent().getParts().get(0).getText();
+			System.out.println(rawResponse);
 
-            JsonNode jsonNode = objectMapper.readTree(cleanedJson);
-            System.out.println(jsonNode);
-            productService.saveProducts(jsonNode,customUserDetail.getUser().getId());
+			// 마크다운 코드 블록 제거 (```json과 ```)
+			String cleanedJson = rawResponse.replaceAll("(?s)```json\\s*|```\\s*", "");
+			System.out.println("정제된 JSON: " + cleanedJson);
 
-            // 파싱된 JSON을 반환
-            return ResponseEntity.ok("ok");
+			JsonNode jsonNode = objectMapper.readTree(cleanedJson);
+			System.out.println(jsonNode);
+			productService.saveProducts(jsonNode, customUserDetail.getUser().getId());
 
-        } catch (Exception e) {
-            System.err.println("오류 발생: " + e.getMessage());
-            System.err.println("원본 응답: " + rawResponse);
+			// 파싱된 JSON을 반환
+			return ResponseEntity.ok("ok");
 
-            // 오류 시 원본 문자열 반환 (프론트엔드에서 처리)
-            return ResponseEntity.ok(rawResponse);
-        }
-    }
+		} catch (Exception e) {
+			System.err.println("오류 발생: " + e.getMessage());
+			System.err.println("원본 응답: " + rawResponse);
 
-    @GetMapping("api/recommend/random-recommendations")
-    public List<ProductDTO> ThreeProducts(@AuthenticationPrincipal CustomUserDetails customUserDetail){
-        // 토큰에 있는 아이디를 불러옴
-        String Id = customUserDetail.getUser().getId();
-        // 아이디에 해당된 제품 리스트를 섞기
+			// 오류 시 원본 문자열 반환 (프론트엔드에서 처리)
+			return ResponseEntity.ok(rawResponse);
+		}
+	}
 
-        List<ProductDTO> products = productService.getProductsByUserId(Id);
-        Collections.shuffle(products);
+	@GetMapping("api/recommend/random-recommendations")
+	public List<ProductDTO> ThreeProducts(@AuthenticationPrincipal CustomUserDetails customUserDetail) {
+		// 토큰에 있는 아이디를 불러옴
+		String Id = customUserDetail.getUser().getId();
+		// 아이디에 해당된 제품 리스트를 섞기
 
-        // 3개 반환
-        return products.stream()
-                .limit(3)
-                .collect(Collectors.toList());
-    }
+		List<ProductDTO> products = productService.getProductsByUserId(Id);
+		Collections.shuffle(products);
 
-    @GetMapping("api/recommend/user-recommendations")
-    public ProductsWithUserInfoResponseDTO UserRecommendation(@AuthenticationPrincipal CustomUserDetails customUserDetail){
-        // 토큰에 있는 유저 Id 사용
-        String userId = customUserDetail.getUser().getId();
-        return productService.getBalancedRecommendations(userId);
-    }
+		// 3개 반환
+		return products.stream()
+			.limit(3)
+			.collect(Collectors.toList());
+	}
+
+	@GetMapping("api/recommend/user-recommendations")
+	public ProductsWithUserInfoResponseDTO UserRecommendation(
+		@AuthenticationPrincipal CustomUserDetails customUserDetail) {
+		// 토큰에 있는 유저 Id 사용
+		String userId = customUserDetail.getUser().getId();
+		return productService.getBalancedRecommendations(userId);
+	}
 }
 
 // JSON으로 파싱
-            // Gemini 응답값이 JSON 처럼 보이는 String 값이라 직렬화를 하기 위해 ObectMapper 사용
+// Gemini 응답값이 JSON 처럼 보이는 String 값이라 직렬화를 하기 위해 ObectMapper 사용
 //            public JsonNode readTree(String content) throws JsonProcessingException, JsonMappingException {
 //                this._assertNotNull("content", content);
 //
