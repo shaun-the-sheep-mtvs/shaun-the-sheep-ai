@@ -64,34 +64,35 @@ public class SecurityConfig {
 		return source;
 	}
 
-	@Bean
-	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-		return http
-			.csrf(AbstractHttpConfigurer::disable)
-			.cors(cors -> cors.configurationSource(corsConfigurationSource()))
-			.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-			.authorizeHttpRequests(auth -> auth
-				// Public endpoints
-				.requestMatchers("/api/auth/**").permitAll()
-				.requestMatchers("/api/public/**").permitAll()
-				.requestMatchers("/health").permitAll()
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authorizeHttpRequests(auth -> auth
+                        // Public endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/public/**").permitAll()
+                        .requestMatchers("/health").permitAll()
+                        .requestMatchers("/actuator/prometheus").permitAll()
 
-				// Protected endpoints (requires full user authentication)
-				.requestMatchers("/api/profile").hasRole("USER")
-				.requestMatchers("/api/naver").hasRole("USER")
-				.requestMatchers("/api/recommend/**").hasRole("USER")
-				.requestMatchers("/api/deep/**").hasRole("USER")
-				.requestMatchers("/api/routine/**").hasRole("USER")
-				.requestMatchers("/api/user/**").hasRole("USER")
-				.requestMatchers("/api/chat-messages/ask").hasRole("USER")
-				.requestMatchers("/api/checklist/**").hasRole("USER")
-
-				// All other requests require authentication
-				.anyRequest().authenticated()
-			)
-			.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-			.build();
-	}
+                        // Protected endpoints (requires full user authentication)
+                        .requestMatchers("/api/profile").hasRole("USER")
+                        .requestMatchers("/api/naver").hasRole("USER")
+                        .requestMatchers("/api/recommend/**").hasRole("USER")
+                        .requestMatchers("/api/deep/**").hasRole("USER")
+                        .requestMatchers("/api/routine/**").hasRole("USER")
+                        .requestMatchers("/api/user/**").hasRole("USER")
+                        .requestMatchers("/api/chat-messages/ask").hasRole("USER")
+                        .requestMatchers("/api/checklist/**").hasRole("USER")
+                        
+                        // All other requests require authentication
+                        .anyRequest().authenticated()
+                )
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+                .build();
+    }
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
