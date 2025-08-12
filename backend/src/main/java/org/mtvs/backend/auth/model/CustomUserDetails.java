@@ -21,7 +21,7 @@ public class CustomUserDetails implements UserDetails {
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		// Parse roles from user.getRoles() - e.g., "ROLE_USER,ROLE_ADMIN"
 		return user.getRoles() != null && !user.getRoles().toString().isEmpty()
-			? List.of(new SimpleGrantedAuthority(user.getRoles().toString()))
+			? List.of(new SimpleGrantedAuthority("ROLE_" + user.getRoles().name()))
 			: List.of(new SimpleGrantedAuthority("ROLE_USER"));
 	}
 

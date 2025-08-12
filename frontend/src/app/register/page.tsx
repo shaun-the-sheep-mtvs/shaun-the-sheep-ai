@@ -38,9 +38,8 @@ export default function RegisterPage() {
         return;
       }
 
-
-      // 2) 바로 로그인 using AuthContext
-      await login({ username, password });
+      // 2) 바로 로그인 using AuthContext (백엔드 기준으로 email 사용)
+      await login({ email, password });
 
       // 3) 체크리스트 페이지로 이동
       router.push('/checklist');

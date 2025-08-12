@@ -3,12 +3,15 @@ package org.mtvs.backend.auth.controller;
 import java.util.HashMap;
 
 import org.mtvs.backend.auth.jwt.dto.AuthResponse;
+import org.mtvs.backend.auth.jwt.dto.LoginRequestDto;
 import org.mtvs.backend.auth.model.CustomUserDetails;
 import org.mtvs.backend.auth.service.AuthService;
 import org.mtvs.backend.auth.social.service.KakaoLoginService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,19 +50,19 @@ public class AuthController {
 	/*
 	 * 로그인 - 액세스 토큰과 리프레시 토큰 반환
 	 * */
-	// @PostMapping("/login")
-	// public ResponseEntity<?> login(@RequestBody LoginRequest dto) {
-	// 	log.info("[로그인] 요청 수신: 사용자명={}", dto.getUsername());
-	//
-	// 	try {
-	// 		AuthResponse authResponse = authService.login(dto);
-	// 		log.info("[로그인] 성공 : 사용자명={}", dto.getUsername());
-	// 		return ResponseEntity.ok(authResponse);
-	// 	} catch (RuntimeException e) {
-	// 		log.warn("[로그인] 실패 : {}", e.getMessage());
-	// 		return ResponseEntity.status(401).body("로그인 실패: " + e.getMessage());
-	// 	}
-	// }
+	@PostMapping("/login")
+	public ResponseEntity<?> login(@RequestBody LoginRequestDto loginRequestDto) {
+		try {
+			AuthResponse authResponse = authService.login(loginRequestDto);
+
+			log.info("일반 로그인 성공: 사용자 ID: {}", authResponse.getUser().getId());
+			return ResponseEntity.ok(authResponse);
+
+		} catch (Exception e) {
+			log.error("일반 로그인 실패: {}", e.getMessage());
+			return ResponseEntity.status(400).body("일반 로그인 실패: " + e.getMessage());
+		}
+	}
 
 	/*
 	 * 토큰 갱신 - 리프레시 토큰으로 새로운 액세스 토큰 발급

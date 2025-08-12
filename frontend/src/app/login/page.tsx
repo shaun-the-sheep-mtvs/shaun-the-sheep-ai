@@ -7,7 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import styles from "./page.module.css";
 
 export default function Home() {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState(''); // username 대신 email
   const [password, setPassword] = useState('');
   const [error,    setError]    = useState<string | null>(null);
   const router = useRouter();
@@ -26,8 +26,8 @@ export default function Home() {
     setError(null);
 
     try {
-      // Use AuthContext login method with correct interface
-      await login({ username, password });
+      // Use AuthContext login method with correct interface (email 사용)
+      await login({ email, password });
       
       // Check if user came from landing page
       const fromLanding = searchParams.get('from') === 'landing';
@@ -64,14 +64,13 @@ export default function Home() {
           <h1>Shaun</h1>
           <form className={styles.loginForm} onSubmit={handleSubmit}>
             <div className={styles.formGroup}>
-              <label htmlFor="username">사용자명</label>
+              <label htmlFor="email">이메일</label> {/* username 대신 email */}
               <input
-                type="text"
-                id="username"
-                name="username"
-                placeholder="사용자명을 입력해주세요"
-                value={username}
-                onChange={e => setUsername(e.target.value)}
+                type="email" 
+                id="email"
+                name="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
                 required
               />
             </div>

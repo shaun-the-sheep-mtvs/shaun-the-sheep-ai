@@ -73,6 +73,7 @@ public class SecurityConfig {
 			.authorizeHttpRequests(auth -> auth
 				// Public endpoints
 				.requestMatchers("/api/auth/**").permitAll()
+				.requestMatchers("/api/user/register").permitAll()
 				.requestMatchers("/api/public/**").permitAll()
 				.requestMatchers("/health").permitAll()
 

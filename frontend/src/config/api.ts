@@ -5,10 +5,10 @@ export const apiConfig = {
   endpoints: {
     auth: {
       login: `${API_BASE_URL}/api/auth/login`,
-      signup: `${API_BASE_URL}/api/auth/signup`,
+      signup: `${API_BASE_URL}/api/user/register`, // 백엔드 기준으로 수정
       refresh: `${API_BASE_URL}/api/auth/refresh`,
       me: `${API_BASE_URL}/api/auth/me`,
-      kakaoLogin: `${API_BASE_URL}/api/auth/login/kakao`, // 카카오 로그인 엔드포인트 추가
+      kakaoLogin: `${API_BASE_URL}/api/auth/login/kakao`,
     },
     checklist: {
       base: `${API_BASE_URL}/api/checklist`,

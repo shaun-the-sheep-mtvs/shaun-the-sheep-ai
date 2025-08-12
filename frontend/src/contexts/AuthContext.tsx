@@ -10,7 +10,7 @@ export interface CurrentUser {
 }
 
 export interface LoginCredentials {
-  username: string;
+  email: string; // username 대신 email 사용 (백엔드 기준)
   password: string;
 }
 

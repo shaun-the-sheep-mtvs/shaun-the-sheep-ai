@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { apiConfig } from '@/config/api';
 import styles from './page.module.css';
-import { Home, User, Mail, AlertCircle, ChevronRight, Loader } from 'lucide-react';
+import { Home, User, Mail, AlertCircle, ChevronRight, Loader, Edit } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import axios from 'axios';
 import step2Styles from '../step2/page.module.css';
@@ -64,7 +64,15 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState<ResponseProfileDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [showPwEdit, setShowPwEdit] = useState(false);
+  const [showUsernameEdit, setShowUsernameEdit] = useState(false);
+  const [showPasswordEdit, setShowPasswordEdit] = useState(false);
   const [pwForm, setPwForm] = useState({ current: '', new: '', confirm: '' });
+  const [usernameForm, setUsernameForm] = useState({ username: '' });
+  const [passwordForm, setPasswordForm] = useState({ 
+    current: '', 
+    new: '', 
+    confirm: '' 
+  });
   const [tab, setTab] = useState<'info' | 'history'>('info');
   const [history, setHistory] = useState<any[]>([]);
   const [loadingHistory, setLoadingHistory] = useState(false);
@@ -170,10 +178,52 @@ const ProfilePage = () => {
   const morningRoutines = profile?.routines?.filter(r => (r.type || r.time) === 'MORNING') || [];
   const nightRoutines = profile?.routines?.filter(r => (r.type || r.time) === 'NIGHT') || [];
 
+  // 닉네임 변경 핸들러
+  const handleUsernameChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const token = localStorage.getItem('accessToken');
+    if (!token) return;
+
+    try {
+      const res = await fetch(`${apiConfig.baseURL}/api/profile/username`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username: usernameForm.username })
+      });
+      
+      if (!res.ok) throw new Error('닉네임 변경 실패');
+      
+      alert('닉네임이 성공적으로 변경되었습니다.');
+      setShowUsernameEdit(false);
+      setUsernameForm({ username: '' });
+      
+      // 프로필 정보 새로고침
+      const profileRes = await fetch(`${apiConfig.baseURL}/api/profile`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (profileRes.ok) {
+        const newProfile = await profileRes.json();
+        setProfile(newProfile);
+      }
+    } catch (err) {
+      alert('닉네임 변경에 실패했습니다.');
+    }
+  };
+
+  // 비밀번호 변경 핸들러
   const handlePasswordChange = async (e: React.FormEvent) => {
     e.preventDefault();
     const token = localStorage.getItem('accessToken');
     if (!token) return;
+
+    if (passwordForm.new !== passwordForm.confirm) {
+      alert('새 비밀번호가 일치하지 않습니다.');
+      return;
+    }
+
     try {
       const res = await fetch(`${apiConfig.baseURL}/api/profile/password`, {
         method: 'PUT',
@@ -181,18 +231,18 @@ const ProfilePage = () => {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
-        credentials: 'include',
         body: JSON.stringify({
-          currentPassword: pwForm.current,
-          newPassword: pwForm.new,
-          confirmPassword: pwForm.confirm
+          currentPassword: passwordForm.current,
+          newPassword: passwordForm.new,
+          confirmPassword: passwordForm.confirm
         })
       });
+      
       if (!res.ok) throw new Error('비밀번호 변경 실패');
-      // 성공 시 처리 (예: 알림, 폼 닫기 등)
+      
       alert('비밀번호가 성공적으로 변경되었습니다.');
-      setShowPwEdit(false);
-      setPwForm({ current: '', new: '', confirm: '' });
+      setShowPasswordEdit(false);
+      setPasswordForm({ current: '', new: '', confirm: '' });
     } catch (err) {
       alert('비밀번호 변경에 실패했습니다.');
     }
@@ -254,6 +304,7 @@ const ProfilePage = () => {
       }, {})
     : {};
 
+
   return (
     <>
       <Navbar user={profile && {
@@ -306,16 +357,33 @@ const ProfilePage = () => {
           {tab === 'info' ? (
             <div className={styles.profileContent}>
               <div className={styles.profileSection}>
+                {/* 닉네임 항목 */}
                 <div className={styles.profileItem}>
                   <div className={styles.profileIcon}>
                     <User size={24} />
                   </div>
                   <div className={styles.profileInfo}>
-                    <h3>이름</h3>
+                    <h3>닉네임</h3>
                     <p>{profile?.username || '로딩 중...'}</p>
                   </div>
+                  <button
+                    onClick={() => setShowUsernameEdit(true)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#6ee7b7',
+                      color: '#222',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    수정
+                  </button>
                 </div>
 
+                {/* 이메일 항목 (수정 불가) */}
                 <div className={styles.profileItem}>
                   <div className={styles.profileIcon}>
                     <Mail size={24} />
@@ -393,15 +461,32 @@ const ProfilePage = () => {
                   </div>
                 </div>
 
-                <div className={styles.profileItem} style={{ cursor: 'pointer' }} onClick={handlePwClick}>
+                {/* 비밀번호 항목 - 수정 버튼 추가 */}
+                <div className={styles.profileItem}>
                   <div className={styles.profileIcon}>
                     <User size={24} />
                   </div>
-                  <div className={styles.profileInfo} style={{ display: 'flex', alignItems: 'center', width: '100%' }}>
-                    <h3 style={{ marginRight: '1.5rem' }}>비밀번호</h3>
-                    <span style={{ flex: 1, color: '#888', fontSize: '1.1rem', letterSpacing: '0.2em' }}>*********</span>
-                    <ChevronRight size={24} color="#aaa" />
+                  <div className={styles.profileInfo}>
+                    <h3>비밀번호</h3>
+                    <span style={{ color: '#888', fontSize: '1.1rem', letterSpacing: '0.2em' }}>
+                      *********
+                    </span>
                   </div>
+                  <button
+                    onClick={() => setShowPasswordEdit(true)}
+                    style={{
+                      padding: '0.5rem 1rem',
+                      backgroundColor: '#6ee7b7',
+                      color: '#222',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      fontSize: '0.9rem'
+                    }}
+                  >
+                    수정
+                  </button>
                 </div>
               </div>
             </div>
@@ -697,44 +782,217 @@ const ProfilePage = () => {
           )}
         </div>
 
-        {/* 비밀번호 변경 폼 (오른쪽에 띄움) */}
-        {showPwEdit && (
-          <div className={styles.pwEditPanel}>
-            <h3>비밀번호 변경</h3>
-            <form className={styles.pwEditForm} onSubmit={handlePasswordChange}>
-              <label>
-                기존 비밀번호
-                <input
-                  type="password"
-                  value={pwForm.current}
-                  onChange={e => setPwForm(f => ({ ...f, current: e.target.value }))}
-                />
-              </label>
-              <label>
-                신규 비밀번호
-                <input
-                  type="password"
-                  value={pwForm.new}
-                  onChange={e => setPwForm(f => ({ ...f, new: e.target.value }))}
-                />
-              </label>
-              <label>
-                비밀번호 재확인
-                <input
-                  type="password"
-                  value={pwForm.confirm}
-                  onChange={e => setPwForm(f => ({ ...f, confirm: e.target.value }))}
-                />
-              </label>
-              <button type="submit" className={styles.pwEditSubmitBtn}>
-                변경
-              </button>
-            </form>
+        {/* 닉네임 수정 모달 */}
+        {showUsernameEdit && (
+          <div style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 3000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem'
+          }}
+            onClick={() => setShowUsernameEdit(false)}
+          >
+            <div
+              style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '2rem',
+                width: '100%',
+                maxWidth: '400px',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <h2 style={{ marginBottom: '1.5rem', fontSize: '1.3rem', fontWeight: 600 }}>
+                닉네임 변경
+              </h2>
+              
+              <form onSubmit={handleUsernameChange}>
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    새 닉네임
+                  </label>
+                  <input
+                    type="text"
+                    value={usernameForm.username}
+                    onChange={e => setUsernameForm({ username: e.target.value })}
+                    placeholder={profile?.username || '새 닉네임을 입력하세요'}
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '6px',
+                      fontSize: '1rem'
+                    }}
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowUsernameEdit(false)}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '6px',
+                      background: 'white',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      backgroundColor: '#6ee7b7',
+                      color: '#222',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    변경
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* 비밀번호 수정 모달 */}
+        {showPasswordEdit && (
+          <div style={{
+            position: 'fixed',
+            top: 0, left: 0, right: 0, bottom: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 3000,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '2rem'
+          }}
+            onClick={() => setShowPasswordEdit(false)}
+          >
+            <div
+              style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '2rem',
+                width: '100%',
+                maxWidth: '400px',
+                boxShadow: '0 10px 25px rgba(0,0,0,0.2)'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <h2 style={{ marginBottom: '1.5rem', fontSize: '1.3rem', fontWeight: 600 }}>
+                비밀번호 변경
+              </h2>
+              
+              <form onSubmit={handlePasswordChange}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    현재 비밀번호
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordForm.current}
+                    onChange={e => setPasswordForm(f => ({ ...f, current: e.target.value }))}
+                    placeholder="현재 비밀번호를 입력하세요"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '6px',
+                      fontSize: '1rem'
+                    }}
+                    required
+                  />
+                </div>
+
+                <div style={{ marginBottom: '1rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    새 비밀번호
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordForm.new}
+                    onChange={e => setPasswordForm(f => ({ ...f, new: e.target.value }))}
+                    placeholder="새 비밀번호를 입력하세요"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '6px',
+                      fontSize: '1rem'
+                    }}
+                    required
+                  />
+                </div>
+
+                <div style={{ marginBottom: '1.5rem' }}>
+                  <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: 600 }}>
+                    새 비밀번호 확인
+                  </label>
+                  <input
+                    type="password"
+                    value={passwordForm.confirm}
+                    onChange={e => setPasswordForm(f => ({ ...f, confirm: e.target.value }))}
+                    placeholder="새 비밀번호를 다시 입력하세요"
+                    style={{
+                      width: '100%',
+                      padding: '0.75rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '6px',
+                      fontSize: '1rem'
+                    }}
+                    required
+                  />
+                </div>
+
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordEdit(false)}
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      border: '1px solid #ddd',
+                      borderRadius: '6px',
+                      background: 'white',
+                      cursor: 'pointer'
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    type="submit"
+                    style={{
+                      padding: '0.75rem 1.5rem',
+                      backgroundColor: '#6ee7b7',
+                      color: '#222',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontWeight: 600,
+                      cursor: 'pointer'
+                    }}
+                  >
+                    변경
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
       </div>
     </>
   );
 }
+
 export default ProfilePage;
 
