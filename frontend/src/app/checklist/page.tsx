@@ -126,7 +126,6 @@ const submitAll = async (concernIds: string[]): Promise<boolean> => {
         alert('제출에 실패했습니다. 다시 시도해주세요.');
         return;
       }
-      
       // Proceed with normal flow for authenticated users
       const token = localStorage.getItem('accessToken');
       if (token) {
